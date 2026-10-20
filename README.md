@@ -179,6 +179,10 @@ cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo test --workspace --locked
 ```
 
+Development and test builds optimise `sha2` for repeated executable identity
+checks. Hashing complete native companions, including their debug symbols, must
+fit the gateway deadlines on CPUs without SHA instructions.
+
 The retained parser reference covers all 76 grammar rules in 101 cases.
 Rust tests compare complete parse trees, token identities/text/channels and
 Unicode scalar/byte positions, reject malformed input after recovery, check
@@ -205,8 +209,8 @@ recovery and bounded command execution. These fixtures and checks establish
 their recorded cases; the consumer's live bridge and complete package acceptance
 remain separate work.
 
-The GitHub workflow runs on manual dispatch. It checks Rust on Linux and Windows
-and checks parser regeneration separately on Linux.
+The GitHub workflow runs on manual dispatch. It runs Rust checks and parser
+regeneration in separate jobs on `ubuntu-latest`.
 
 ## Regenerate the parser
 

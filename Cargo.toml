@@ -51,5 +51,10 @@ eal-coordination = { path = "crates/eal-coordination" }
 [workspace.lints.rust]
 unsafe_code = "forbid"
 
+# Fresh runtime checks hash complete native companions, including debug symbols.
+# Test builds inherit this override and keep the existing gateway deadlines.
+[profile.dev.package.sha2]
+opt-level = 3
+
 [patch.crates-io]
 rmcp = { path = "vendor/rmcp" }
