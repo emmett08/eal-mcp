@@ -1,0 +1,4 @@
+language "EAL/3"/* inline */
+environment e {
+ require true/* end */
+}

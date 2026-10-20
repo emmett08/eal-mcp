@@ -1,0 +1,50 @@
+language "EAL/3"
+
+environment lab {
+  require "site" == "bench"
+}
+
+tool runner {
+  version "1"
+}
+
+evidence observation {
+  tool runner
+  kind test
+  environment lab
+  max_age 60
+  input {"suite": "smoke", "args": [1, true, null]}
+  require "passed" == true
+}
+
+assumption stable {
+  statement "The measured configuration persists."
+  environment lab
+  validate observation
+  valid_until "2027-01-01T00:00:00Z"
+}
+
+reasoning measured {
+  method "structured/1"
+  rationale "The bounded test result supports the stated test claim."
+}
+
+claim working {
+  statement "The smoke test passes."
+  environment lab
+}
+
+argument first = [evidence observation, assumptions stable] via measured => working
+claim critique {
+  statement "The bounded counterclaim."
+  environment lab
+}
+objection claim_attack = [evidence observation, premises critique] -x> claim working
+objection rule_attack = [premises critique] -x> reasoning measured
+objection premise_attack = [evidence observation] -x> assumption stable
+objection route_attack = [evidence observation] -x> argument first
+objection defence = [evidence observation] -x> objection claim_attack
+strict first reviewed "review/strict"
+rank stable 2 reviewed "review/rank"
+contrary working to critique reviewed "review/contrary"
+prefer working over critique reviewed "review/prefer"

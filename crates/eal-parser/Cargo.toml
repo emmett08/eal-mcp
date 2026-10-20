@@ -1,0 +1,18 @@
+[package]
+name = "eal-parser"
+description = "Strict generated recognition and owned syntax for EAL/3"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+antlr4rust.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints.rust]
+unsafe_code = "deny"

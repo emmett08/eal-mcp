@@ -1,0 +1,814 @@
+[
+  {
+    "name": "empty",
+    "path": "sources/empty.eal",
+    "description": "Smallest recognised EAL/3 document",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "baseline",
+    "path": "sources/baseline.eal",
+    "description": "Existing source regression with evidence, assumptions, tools, JSON and argument flow",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "earl/tests/test_language.py:BASE"
+  },
+  {
+    "name": "api-load-test",
+    "path": "sources/api-load-test.eal",
+    "description": "Maintained synthetic API load-test source",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "earl/examples/api-load-test/source.eal"
+  },
+  {
+    "name": "typed-proposition",
+    "path": "sources/typed-proposition.eal",
+    "description": "Every proposition field and explicit evidence binding",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "earl/tests/test_typed_propositions.py:SOURCE"
+  },
+  {
+    "name": "recursive-pattern",
+    "path": "sources/recursive-pattern.eal",
+    "description": "Typed list pattern, decreasing recursion, head and tail",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "earl/tests/test_scoped_composition.py:BASE+RECURSIVE"
+  },
+  {
+    "name": "pattern-else",
+    "path": "sources/pattern-else.eal",
+    "description": "Pattern guard with explicit else branch",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "compact-pattern",
+    "path": "sources/compact-pattern.eal",
+    "description": "Compact pattern with conjunctive list binding",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "earl/tests/test_scoped_composition.py:test_list_support_is_conjunctive_and_preserves_order_and_identity"
+  },
+  {
+    "name": "module-argument-block",
+    "path": "sources/module-argument-block.eal",
+    "description": "Nested declarations, qualified names and forward local references",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "earl/tests/test_scoped_composition.py:test_modules_and_argument_blocks_bind_forward_local_references"
+  },
+  {
+    "name": "nested-pattern",
+    "path": "sources/nested-pattern.eal",
+    "description": "Closed nested patterns and every parameterKind grammar alternative",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "context-defaults",
+    "path": "sources/context-defaults.eal",
+    "description": "Every contextAttribute alternative and JSON scalar forms; numeric validity belongs to semantic checking",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "scope-transfer",
+    "path": "sources/scope-transfer.eal",
+    "description": "Transfer field, backing references and assumption valid_from",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Derived from earl/tests/test_scope_transfer_language.py:source"
+  },
+  {
+    "name": "objections-directives",
+    "path": "sources/objections-directives.eal",
+    "description": "Every target kind and argumentation directive",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "expressions",
+    "path": "sources/expressions.eal",
+    "description": "All expression precedence rules, operators, zero/multi-argument calls and structured literals",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "contextual-identifiers",
+    "path": "sources/contextual-identifiers.eal",
+    "description": "Every contextual keyword accepted as an identifier",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "unicode",
+    "path": "sources/unicode.eal",
+    "description": "Non-BMP strings/comments and JSON escapes exercise scalar offsets",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "no-final-newline",
+    "path": "sources/no-final-newline.eal",
+    "description": "EOF acts as final line end",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "crlf",
+    "path": "sources/crlf.eal",
+    "description": "Windows newlines preserve token positions",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "bare-cr",
+    "path": "sources/bare-cr.eal",
+    "description": "Bare carriage return is NL; ANTLR line accounting follows the pinned runtime",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "block-comment-no-newline",
+    "path": "sources/block-comment-no-newline.eal",
+    "description": "Hidden comments remain in the token stream",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "empty-reference-list",
+    "path": "sources/empty-reference-list.eal",
+    "description": "Empty pattern list argument is distinct from missing argument",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "import",
+    "path": "sources/import.eal",
+    "description": "Import is recognised without filesystem effects; source lowering uses a trusted in-memory resolver",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar",
+    "imports": {
+      "import-library.eal": "sources/import-library.eal"
+    },
+    "origin": "main.eal"
+  },
+  {
+    "name": "lexer-error",
+    "path": "sources/lexer-error.eal",
+    "description": "Unknown token must fail recognition even if lexer recovery leaves a valid parse tree",
+    "expect_recognised": false,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "trailing-token",
+    "path": "sources/trailing-token.eal",
+    "description": "Trailing identifier after a complete program",
+    "expect_recognised": false,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "missing-brace",
+    "path": "sources/missing-brace.eal",
+    "description": "Parser recovery must not turn an incomplete declaration into an accepted tree",
+    "expect_recognised": false,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "single-equals",
+    "path": "sources/single-equals.eal",
+    "description": "Assignment operator in predicate",
+    "expect_recognised": false,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "missing-line-end",
+    "path": "sources/missing-line-end.eal",
+    "description": "Required line ending after language declaration",
+    "expect_recognised": false,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "invalid-string-escape",
+    "path": "sources/invalid-string-escape.eal",
+    "description": "Invalid JSON string escape reports lexer error",
+    "expect_recognised": false,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "unterminated-string",
+    "path": "sources/unterminated-string.eal",
+    "description": "Unclosed string cannot be recovered into acceptance",
+    "expect_recognised": false,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "duplicate-field",
+    "path": "sources/duplicate-field.eal",
+    "description": "Grammar recognises duplicate fields; structural lowering rejects them",
+    "expect_recognised": true,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "duplicate-json-key",
+    "path": "sources/duplicate-json-key.eal",
+    "description": "Grammar recognises duplicate JSON keys; structural lowering rejects them",
+    "expect_recognised": true,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "escaped-duplicate-json-key",
+    "path": "sources/escaped-duplicate-json-key.eal",
+    "description": "Decoded JSON keys determine duplicate identity",
+    "expect_recognised": true,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "duplicate-context-default",
+    "path": "sources/duplicate-context-default.eal",
+    "description": "Duplicate context fields fail structural lowering",
+    "expect_recognised": true,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "duplicate-support-group",
+    "path": "sources/duplicate-support-group.eal",
+    "description": "Duplicate support groups fail structural lowering",
+    "expect_recognised": true,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "missing-required-field",
+    "path": "sources/missing-required-field.eal",
+    "description": "Grammar permits empty field sets; required fields are enforced by lowering",
+    "expect_recognised": true,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "unpaired-surrogate",
+    "path": "sources/unpaired-surrogate.eal",
+    "description": "Grammar recognises JSON surrogate escape; lowering rejects unpaired surrogate",
+    "expect_recognised": true,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "import-without-resolver",
+    "path": "sources/import-without-resolver.eal",
+    "description": "Syntax recognition alone performs no import resolution",
+    "expect_recognised": true,
+    "expect_lowered": false,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "unknown-reference",
+    "path": "sources/unknown-reference.eal",
+    "description": "Unknown reference is recognised/lowered and later reported by semantic validation",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "unsupported-language",
+    "path": "sources/unsupported-language.eal",
+    "description": "Language version check belongs to semantic validation in the Python source",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "negative-age",
+    "path": "sources/negative-age.eal",
+    "description": "Negative age is recognised/lowered and later rejected by semantic validation",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Rust port adversarial/composition fixture derived from the pinned grammar"
+  },
+  {
+    "name": "empty--crlf",
+    "path": "sources/empty--crlf.eal",
+    "description": "crlf variant of empty",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture empty preserving recognised structure"
+  },
+  {
+    "name": "empty--cr",
+    "path": "sources/empty--cr.eal",
+    "description": "cr variant of empty",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture empty preserving recognised structure"
+  },
+  {
+    "name": "empty--prefix-comment",
+    "path": "sources/empty--prefix-comment.eal",
+    "description": "prefix-comment variant of empty",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture empty preserving recognised structure"
+  },
+  {
+    "name": "empty--prefix-block",
+    "path": "sources/empty--prefix-block.eal",
+    "description": "prefix-block variant of empty",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture empty preserving recognised structure"
+  },
+  {
+    "name": "empty--trailing-comment",
+    "path": "sources/empty--trailing-comment.eal",
+    "description": "trailing-comment variant of empty",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture empty preserving recognised structure"
+  },
+  {
+    "name": "empty--blank-lines",
+    "path": "sources/empty--blank-lines.eal",
+    "description": "blank-lines variant of empty",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture empty preserving recognised structure"
+  },
+  {
+    "name": "empty--tabs",
+    "path": "sources/empty--tabs.eal",
+    "description": "tabs variant of empty",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture empty preserving recognised structure"
+  },
+  {
+    "name": "empty--inline-comment",
+    "path": "sources/empty--inline-comment.eal",
+    "description": "inline-comment variant of empty",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture empty preserving recognised structure"
+  },
+  {
+    "name": "baseline--prefix-comment",
+    "path": "sources/baseline--prefix-comment.eal",
+    "description": "prefix-comment variant of baseline",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture baseline preserving recognised structure"
+  },
+  {
+    "name": "baseline--prefix-block",
+    "path": "sources/baseline--prefix-block.eal",
+    "description": "prefix-block variant of baseline",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture baseline preserving recognised structure"
+  },
+  {
+    "name": "baseline--trailing-comment",
+    "path": "sources/baseline--trailing-comment.eal",
+    "description": "trailing-comment variant of baseline",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture baseline preserving recognised structure"
+  },
+  {
+    "name": "baseline--blank-lines",
+    "path": "sources/baseline--blank-lines.eal",
+    "description": "blank-lines variant of baseline",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture baseline preserving recognised structure"
+  },
+  {
+    "name": "baseline--tabs",
+    "path": "sources/baseline--tabs.eal",
+    "description": "tabs variant of baseline",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture baseline preserving recognised structure"
+  },
+  {
+    "name": "baseline--inline-comment",
+    "path": "sources/baseline--inline-comment.eal",
+    "description": "inline-comment variant of baseline",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture baseline preserving recognised structure"
+  },
+  {
+    "name": "recursive-pattern--crlf",
+    "path": "sources/recursive-pattern--crlf.eal",
+    "description": "crlf variant of recursive-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture recursive-pattern preserving recognised structure"
+  },
+  {
+    "name": "recursive-pattern--cr",
+    "path": "sources/recursive-pattern--cr.eal",
+    "description": "cr variant of recursive-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture recursive-pattern preserving recognised structure"
+  },
+  {
+    "name": "recursive-pattern--prefix-comment",
+    "path": "sources/recursive-pattern--prefix-comment.eal",
+    "description": "prefix-comment variant of recursive-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture recursive-pattern preserving recognised structure"
+  },
+  {
+    "name": "recursive-pattern--prefix-block",
+    "path": "sources/recursive-pattern--prefix-block.eal",
+    "description": "prefix-block variant of recursive-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture recursive-pattern preserving recognised structure"
+  },
+  {
+    "name": "recursive-pattern--trailing-comment",
+    "path": "sources/recursive-pattern--trailing-comment.eal",
+    "description": "trailing-comment variant of recursive-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture recursive-pattern preserving recognised structure"
+  },
+  {
+    "name": "recursive-pattern--blank-lines",
+    "path": "sources/recursive-pattern--blank-lines.eal",
+    "description": "blank-lines variant of recursive-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture recursive-pattern preserving recognised structure"
+  },
+  {
+    "name": "recursive-pattern--tabs",
+    "path": "sources/recursive-pattern--tabs.eal",
+    "description": "tabs variant of recursive-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture recursive-pattern preserving recognised structure"
+  },
+  {
+    "name": "recursive-pattern--inline-comment",
+    "path": "sources/recursive-pattern--inline-comment.eal",
+    "description": "inline-comment variant of recursive-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture recursive-pattern preserving recognised structure"
+  },
+  {
+    "name": "typed-proposition--crlf",
+    "path": "sources/typed-proposition--crlf.eal",
+    "description": "crlf variant of typed-proposition",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture typed-proposition preserving recognised structure"
+  },
+  {
+    "name": "typed-proposition--cr",
+    "path": "sources/typed-proposition--cr.eal",
+    "description": "cr variant of typed-proposition",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture typed-proposition preserving recognised structure"
+  },
+  {
+    "name": "typed-proposition--prefix-comment",
+    "path": "sources/typed-proposition--prefix-comment.eal",
+    "description": "prefix-comment variant of typed-proposition",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture typed-proposition preserving recognised structure"
+  },
+  {
+    "name": "typed-proposition--prefix-block",
+    "path": "sources/typed-proposition--prefix-block.eal",
+    "description": "prefix-block variant of typed-proposition",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture typed-proposition preserving recognised structure"
+  },
+  {
+    "name": "typed-proposition--trailing-comment",
+    "path": "sources/typed-proposition--trailing-comment.eal",
+    "description": "trailing-comment variant of typed-proposition",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture typed-proposition preserving recognised structure"
+  },
+  {
+    "name": "typed-proposition--blank-lines",
+    "path": "sources/typed-proposition--blank-lines.eal",
+    "description": "blank-lines variant of typed-proposition",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture typed-proposition preserving recognised structure"
+  },
+  {
+    "name": "typed-proposition--tabs",
+    "path": "sources/typed-proposition--tabs.eal",
+    "description": "tabs variant of typed-proposition",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture typed-proposition preserving recognised structure"
+  },
+  {
+    "name": "typed-proposition--inline-comment",
+    "path": "sources/typed-proposition--inline-comment.eal",
+    "description": "inline-comment variant of typed-proposition",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture typed-proposition preserving recognised structure"
+  },
+  {
+    "name": "compact-pattern--crlf",
+    "path": "sources/compact-pattern--crlf.eal",
+    "description": "crlf variant of compact-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture compact-pattern preserving recognised structure"
+  },
+  {
+    "name": "compact-pattern--cr",
+    "path": "sources/compact-pattern--cr.eal",
+    "description": "cr variant of compact-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture compact-pattern preserving recognised structure"
+  },
+  {
+    "name": "compact-pattern--prefix-comment",
+    "path": "sources/compact-pattern--prefix-comment.eal",
+    "description": "prefix-comment variant of compact-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture compact-pattern preserving recognised structure"
+  },
+  {
+    "name": "compact-pattern--prefix-block",
+    "path": "sources/compact-pattern--prefix-block.eal",
+    "description": "prefix-block variant of compact-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture compact-pattern preserving recognised structure"
+  },
+  {
+    "name": "compact-pattern--trailing-comment",
+    "path": "sources/compact-pattern--trailing-comment.eal",
+    "description": "trailing-comment variant of compact-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture compact-pattern preserving recognised structure"
+  },
+  {
+    "name": "compact-pattern--blank-lines",
+    "path": "sources/compact-pattern--blank-lines.eal",
+    "description": "blank-lines variant of compact-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture compact-pattern preserving recognised structure"
+  },
+  {
+    "name": "compact-pattern--tabs",
+    "path": "sources/compact-pattern--tabs.eal",
+    "description": "tabs variant of compact-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture compact-pattern preserving recognised structure"
+  },
+  {
+    "name": "compact-pattern--inline-comment",
+    "path": "sources/compact-pattern--inline-comment.eal",
+    "description": "inline-comment variant of compact-pattern",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture compact-pattern preserving recognised structure"
+  },
+  {
+    "name": "module-argument-block--crlf",
+    "path": "sources/module-argument-block--crlf.eal",
+    "description": "crlf variant of module-argument-block",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture module-argument-block preserving recognised structure"
+  },
+  {
+    "name": "module-argument-block--cr",
+    "path": "sources/module-argument-block--cr.eal",
+    "description": "cr variant of module-argument-block",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture module-argument-block preserving recognised structure"
+  },
+  {
+    "name": "module-argument-block--prefix-comment",
+    "path": "sources/module-argument-block--prefix-comment.eal",
+    "description": "prefix-comment variant of module-argument-block",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture module-argument-block preserving recognised structure"
+  },
+  {
+    "name": "module-argument-block--prefix-block",
+    "path": "sources/module-argument-block--prefix-block.eal",
+    "description": "prefix-block variant of module-argument-block",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture module-argument-block preserving recognised structure"
+  },
+  {
+    "name": "module-argument-block--trailing-comment",
+    "path": "sources/module-argument-block--trailing-comment.eal",
+    "description": "trailing-comment variant of module-argument-block",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture module-argument-block preserving recognised structure"
+  },
+  {
+    "name": "module-argument-block--blank-lines",
+    "path": "sources/module-argument-block--blank-lines.eal",
+    "description": "blank-lines variant of module-argument-block",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture module-argument-block preserving recognised structure"
+  },
+  {
+    "name": "module-argument-block--tabs",
+    "path": "sources/module-argument-block--tabs.eal",
+    "description": "tabs variant of module-argument-block",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture module-argument-block preserving recognised structure"
+  },
+  {
+    "name": "module-argument-block--inline-comment",
+    "path": "sources/module-argument-block--inline-comment.eal",
+    "description": "inline-comment variant of module-argument-block",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture module-argument-block preserving recognised structure"
+  },
+  {
+    "name": "expressions--crlf",
+    "path": "sources/expressions--crlf.eal",
+    "description": "crlf variant of expressions",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture expressions preserving recognised structure"
+  },
+  {
+    "name": "expressions--cr",
+    "path": "sources/expressions--cr.eal",
+    "description": "cr variant of expressions",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture expressions preserving recognised structure"
+  },
+  {
+    "name": "expressions--prefix-comment",
+    "path": "sources/expressions--prefix-comment.eal",
+    "description": "prefix-comment variant of expressions",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture expressions preserving recognised structure"
+  },
+  {
+    "name": "expressions--prefix-block",
+    "path": "sources/expressions--prefix-block.eal",
+    "description": "prefix-block variant of expressions",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture expressions preserving recognised structure"
+  },
+  {
+    "name": "expressions--trailing-comment",
+    "path": "sources/expressions--trailing-comment.eal",
+    "description": "trailing-comment variant of expressions",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture expressions preserving recognised structure"
+  },
+  {
+    "name": "expressions--blank-lines",
+    "path": "sources/expressions--blank-lines.eal",
+    "description": "blank-lines variant of expressions",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture expressions preserving recognised structure"
+  },
+  {
+    "name": "expressions--tabs",
+    "path": "sources/expressions--tabs.eal",
+    "description": "tabs variant of expressions",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture expressions preserving recognised structure"
+  },
+  {
+    "name": "expressions--inline-comment",
+    "path": "sources/expressions--inline-comment.eal",
+    "description": "inline-comment variant of expressions",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture expressions preserving recognised structure"
+  },
+  {
+    "name": "contextual-identifiers--crlf",
+    "path": "sources/contextual-identifiers--crlf.eal",
+    "description": "crlf variant of contextual-identifiers",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture contextual-identifiers preserving recognised structure"
+  },
+  {
+    "name": "contextual-identifiers--cr",
+    "path": "sources/contextual-identifiers--cr.eal",
+    "description": "cr variant of contextual-identifiers",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture contextual-identifiers preserving recognised structure"
+  },
+  {
+    "name": "contextual-identifiers--prefix-comment",
+    "path": "sources/contextual-identifiers--prefix-comment.eal",
+    "description": "prefix-comment variant of contextual-identifiers",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture contextual-identifiers preserving recognised structure"
+  },
+  {
+    "name": "contextual-identifiers--prefix-block",
+    "path": "sources/contextual-identifiers--prefix-block.eal",
+    "description": "prefix-block variant of contextual-identifiers",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture contextual-identifiers preserving recognised structure"
+  },
+  {
+    "name": "contextual-identifiers--trailing-comment",
+    "path": "sources/contextual-identifiers--trailing-comment.eal",
+    "description": "trailing-comment variant of contextual-identifiers",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture contextual-identifiers preserving recognised structure"
+  },
+  {
+    "name": "contextual-identifiers--blank-lines",
+    "path": "sources/contextual-identifiers--blank-lines.eal",
+    "description": "blank-lines variant of contextual-identifiers",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture contextual-identifiers preserving recognised structure"
+  },
+  {
+    "name": "contextual-identifiers--tabs",
+    "path": "sources/contextual-identifiers--tabs.eal",
+    "description": "tabs variant of contextual-identifiers",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture contextual-identifiers preserving recognised structure"
+  },
+  {
+    "name": "contextual-identifiers--inline-comment",
+    "path": "sources/contextual-identifiers--inline-comment.eal",
+    "description": "inline-comment variant of contextual-identifiers",
+    "expect_recognised": true,
+    "expect_lowered": true,
+    "provenance": "Mutation of fixture contextual-identifiers preserving recognised structure"
+  }
+]

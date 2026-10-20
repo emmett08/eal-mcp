@@ -1,0 +1,4 @@
+language "EAL/3"
+environment lab {
+ require true
+}
