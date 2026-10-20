@@ -11,8 +11,9 @@ method execution are implemented. The application stage adds the production
 `eal`, `eal-mcp` and `eal-host` entry points, catalogue revisions, registered
 assessment, packet/context projections and discovery. Durable coordination adds
 `eal-coordinate`, role-scoped MCP gateways, native mailbox serving and the nom
-codec. The visualiser bridge and final combined acceptance remain
-the next stage.
+codec. The native visualiser adapter adds a bounded theory-to-view executable.
+Its companion consumer integration retains the existing graph contract and
+adds actual browser acceptance through the native process.
 
 ## Scope and component boundaries
 
@@ -26,11 +27,11 @@ their corresponding implementation is ported.
 | --- | --- | --- |
 | `eal-parser` | Generated recognisers and syntax diagnostics | Implemented |
 | `eal-core` | Owned syntax, composition, validation, expressions, methods, authored assessment, planning and formatting | Implemented |
-| `eal-aspic` | Finite ASPIC construction, preferences, defeat, extensions, compilation and checked view export | Implemented and differentially checked; live visualiser bridge pending |
+| `eal-aspic` | Finite ASPIC construction, preferences, defeat, extensions, compilation and checked view export | Implemented and differentially checked; native visualiser adapter in `eal-cli` |
 | `eal-runtime` | Collection, immutable records, reuse, catalogue, registered assessment, packets, context, method execution and supervision | Implemented within the documented POSIX runtime profile |
 | `eal-mcp` | Exclusive operator/registered catalogues, authentication, transports and text host | Implemented with the official SDK and a documented local codec patch |
 | `eal-coordination` | Durable task coordination, delivery and effect identities, codec and worker adapters | Implemented within the trusted single-host profile |
-| `eal-cli` | Production and development command-line interfaces | `eal`, `eal-syntax`, `eal-core` and `eal-runtime` implemented; text host is in `eal-mcp` |
+| `eal-cli` | Production and development command-line interfaces | `eal`, `eal-syntax`, `eal-core`, `eal-runtime` and `eal-aspic-solve` implemented; text host is in `eal-mcp` |
 
 The inventory retains the pinned source paths, hashes and planned component
 boundaries. Its `implemented_native` labels identify the implemented and tested
@@ -277,13 +278,30 @@ with null unassessed fields. These are deterministic software checks, not model
 or provider trials. Installed smoke coverage now includes `eal`, `eal-mcp`,
 `eal-host` and `eal-coordinate` with their native companions.
 
-## Remaining implementation sequence
+## Native visualiser and installed acceptance
 
-1. **Verify visualisation and packaging.** Connect the native solver to the
-   visualiser's live bridge and exercise complete browser consumption alongside
-   the retained schema and graph checks. Complete final combined acceptance with
-   the installed native commands and visualiser, while retaining process-death,
-   transport and reuse regressions.
+The [native visualiser guide](native-visualiser.md) specifies the installed
+`eal-aspic-solve` process protocol and reproducible cross-repository checks.
+The adapter accepts exactly one theory object, preserves typed incomplete
+results, recomputes the export and bounds complete output before writing it.
+It creates no store or collector. Explicit operator limits select the finite
+profile; the HTTP process owner retains deadlines and cancellation.
+
+The retained application and coordination smoke tools exercise installed native
+commands with child `PATH` empty. They cover catalogue/assessment/reuse,
+packet/context projections, SDK stdio and authenticated HTTP, both mailbox
+transports, exact first responses and unknown-effect recovery. The visualiser
+checks file imports separately from actual browser-to-HTTP-to-Rust solving.
+The following section identifies the companion change required to use that
+native bridge.
+
+The final native workspace check passed 386 tests, formatting and all-target
+Clippy with warnings denied. Fresh static-consumer checks accepted 148 native
+exports and rejected seven forged graphs. Installed application checks passed
+nine groups; coordination passed four complete JSON/Lab runs plus lost-receipt
+recovery. The consumer passed type checking, 81 unit tests, its production build,
+12 static browser tests and five actual native browser tests. Browser acceptance
+used Node 24.19.0, Playwright 1.58.2 and Chromium 143.0.7499.0 on Linux.
 
 The selected ANTLR generator is pinned with its runtime and recognisers are
 checked in. A normal build uses those Rust sources. Java is needed only for
@@ -298,12 +316,15 @@ Its `schema/aspic-view.schema.json` matches the producer's
 `docs/aspic-view.schema.json` byte for byte. Static JSON imports can retain this
 contract through the checked Rust exporter.
 
-The live editor's `server/solver-plugin.ts` currently spawns Python to run
-`server/solve.py`, which imports the EAL solver. A separate visualiser PR must
-select a native Rust executable that accepts the current theory request and
-emits checked view JSON. File import compatibility and live solving require
-separate end-to-end checks. This port changes neither source repository nor
-visualiser.
+At that pinned consumer revision, `server/solver-plugin.ts` spawns Python to run
+`server/solve.py`. The
+[companion consumer PR](https://github.com/emmett08/aspic_visualisation/pull/6)
+selects an absolute
+`ASPIC_SOLVER_EXECUTABLE` path, starts the native adapter with a closed environment,
+and validates the returned graph before HTTP success. It retains the same
+`aspic-view/3` schema and browser graph checks. That change is reviewed in the
+visualiser repository; this producer PR leaves the original `earl` reference
+unchanged.
 
 ## Completion criteria
 
@@ -311,11 +332,12 @@ Parser tests establish recognition and the tested lexical representation.
 The authored semantic core adds differential assessments, independent Dung
 checks, numerical and identity fixtures, dependency planning and semantic
 formatter checks. The finite ASPIC stage adds complete extension-family checks,
-snapshot comparisons and recomputed graph exports. Complete port acceptance
-also requires visualiser validation and final combined release acceptance.
-Python-free installed smoke checks already cover the four production entry
-points and their companions.
+snapshot comparisons and recomputed graph exports. Installed smoke checks cover
+the four application entry points, native visualiser adapter and companions.
+The companion visualiser's static and live browser suites check consumption of
+the unchanged graph contract.
 Application tests retain real stdio/HTTP round trips, process ownership and
 deadline tests, observation reuse, packet/context/catalogue checks and durable
-coordination recovery. Pending
-components remain explicit until their own checks exercise them.
+coordination recovery. These checks establish the exercised native profile.
+The Windows private-store refusal, trusted local process boundary, finite solver
+limits and documented source/native differences remain part of that profile.

@@ -1,13 +1,15 @@
 # Production applications and registered sources
 
 The native application layer provides `eal`, `eal-mcp` and `eal-host`. All use
-the same reasoning contracts and configured runtime. Coordination, including
-`eal-coordinate`, remains the next stage. The source reference remains
+the same reasoning contracts and configured runtime. The
+[coordination layer](coordination.md) adds `eal-coordinate`, and the
+[visualiser adapter](native-visualiser.md) provides the explicit theory-to-view
+process. The source reference remains
 `earl@e2d6f346`; the source repository and grammar are unchanged.
 
 ## Installation
 
-Build all binaries for development, or install all three packages into the same
+Build all binaries for development, or install all four packages into the same
 prefix:
 
 ```sh
@@ -16,11 +18,13 @@ cargo build --release --workspace --locked
 cargo install --path crates/eal-runtime --locked
 cargo install --path crates/eal-cli --locked
 cargo install --path crates/eal-mcp --locked
+cargo install --path crates/eal-coordination --locked
 ```
 
 The runtime package installs `eal-command-supervisor` and `eal-method-worker`;
-the CLI package installs `eal` and the development drivers; the MCP package
-installs `eal-mcp` and `eal-host`. Runtime commands resolve their companion
+the CLI package installs `eal`, `eal-aspic-solve` and the development drivers.
+The MCP package installs `eal-mcp` and `eal-host`; coordination installs
+`eal-coordinate`, `eal-mas-server` and `mas-protocol-codec`. Runtime commands resolve their companion
 executables beside themselves. The CLI also accepts operator-owned
 `--supervisor` and `--method-worker` paths. `eal-host` launches the installed
 sibling `eal-mcp` by default. No normal operation invokes Python or Java.
