@@ -152,9 +152,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "eal-aspic"
+version = "0.1.0"
+dependencies = [
+ "eal-core",
+ "indexmap",
+ "num-bigint",
+ "num-traits",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "eal-cli"
 version = "0.1.0"
 dependencies = [
+ "eal-aspic",
  "eal-core",
  "eal-parser",
  "serde",

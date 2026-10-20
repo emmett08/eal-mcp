@@ -73,7 +73,7 @@
       "rust_components": [
         "eal-aspic"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/aspic_compiler.py",
@@ -84,7 +84,7 @@
         "eal-aspic",
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/aspic_export.py",
@@ -94,7 +94,7 @@
       "rust_components": [
         "eal-aspic"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/builtin_methods.py",

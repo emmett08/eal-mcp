@@ -1,0 +1,759 @@
+{
+  "identifier": "argumentation/aspic/2",
+  "evidence_kind": "aspic_theory",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "theory": {
+        "type": "object",
+        "properties": {
+          "premises": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "atom": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "axiom"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "atom",
+                    "kind"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "atom": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "ordinary"
+                      ]
+                    },
+                    "rank": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000
+                    }
+                  },
+                  "required": [
+                    "atom",
+                    "kind",
+                    "rank"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "minItems": 1
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "strict"
+                      ]
+                    },
+                    "antecedents": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 65
+                      },
+                      "minItems": 1
+                    },
+                    "consequent": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "kind",
+                    "antecedents",
+                    "consequent"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "defeasible"
+                      ]
+                    },
+                    "antecedents": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 65
+                      },
+                      "minItems": 1
+                    },
+                    "consequent": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "rank": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "kind",
+                    "antecedents",
+                    "consequent",
+                    "name",
+                    "rank"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "contraries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "attacker": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                },
+                "target": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                }
+              },
+              "required": [
+                "attacker",
+                "target"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "goal": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "semantics": {
+                "type": "string",
+                "enum": [
+                  "grounded",
+                  "preferred",
+                  "stable"
+                ]
+              },
+              "query_mode": {
+                "type": "string",
+                "enum": [
+                  "credulous",
+                  "sceptical"
+                ]
+              },
+              "preference": {
+                "type": "string",
+                "enum": [
+                  "minimum_rank",
+                  "last_link_rank",
+                  "last_link_partial"
+                ]
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "priorities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "premise",
+                    "rule"
+                  ]
+                },
+                "higher": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                },
+                "lower": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                }
+              },
+              "required": [
+                "kind",
+                "higher",
+                "lower"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "premises",
+          "rules",
+          "contraries",
+          "goal"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "theory"
+    ],
+    "additionalProperties": false
+  },
+  "query_schema": {
+    "type": "object",
+    "properties": {
+      "theory": {
+        "type": "object",
+        "properties": {
+          "premises": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "atom": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "axiom"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "atom",
+                    "kind"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "atom": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "ordinary"
+                      ]
+                    },
+                    "rank": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000
+                    }
+                  },
+                  "required": [
+                    "atom",
+                    "kind",
+                    "rank"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "minItems": 1
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "strict"
+                      ]
+                    },
+                    "antecedents": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 65
+                      },
+                      "minItems": 1
+                    },
+                    "consequent": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "kind",
+                    "antecedents",
+                    "consequent"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "defeasible"
+                      ]
+                    },
+                    "antecedents": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 65
+                      },
+                      "minItems": 1
+                    },
+                    "consequent": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "rank": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1000
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "kind",
+                    "antecedents",
+                    "consequent",
+                    "name",
+                    "rank"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "contraries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "attacker": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                },
+                "target": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                }
+              },
+              "required": [
+                "attacker",
+                "target"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "goal": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "semantics": {
+                "type": "string",
+                "enum": [
+                  "grounded",
+                  "preferred",
+                  "stable"
+                ]
+              },
+              "query_mode": {
+                "type": "string",
+                "enum": [
+                  "credulous",
+                  "sceptical"
+                ]
+              },
+              "preference": {
+                "type": "string",
+                "enum": [
+                  "minimum_rank",
+                  "last_link_rank",
+                  "last_link_partial"
+                ]
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "priorities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "premise",
+                    "rule"
+                  ]
+                },
+                "higher": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                },
+                "lower": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                }
+              },
+              "required": [
+                "kind",
+                "higher",
+                "lower"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "premises",
+          "rules",
+          "contraries",
+          "goal"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "theory"
+    ],
+    "additionalProperties": false
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "semantics": {
+        "type": "string",
+        "enum": [
+          "grounded",
+          "preferred",
+          "stable"
+        ]
+      },
+      "query_mode": {
+        "type": "string",
+        "enum": [
+          "credulous",
+          "sceptical"
+        ]
+      },
+      "preference": {
+        "type": "string",
+        "enum": [
+          "minimum_rank",
+          "last_link_rank",
+          "last_link_partial"
+        ]
+      },
+      "query_status": {
+        "type": "string",
+        "enum": [
+          "accepted",
+          "rejected",
+          "undecided",
+          "unconstructed",
+          "no_extension"
+        ]
+      },
+      "query_accepted": {
+        "type": "boolean"
+      },
+      "query_rejected": {
+        "type": "boolean"
+      },
+      "extensions": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65
+          }
+        }
+      },
+      "grounded_accepted": {
+        "type": "boolean"
+      },
+      "grounded_rejected": {
+        "type": "boolean"
+      },
+      "grounded_status": {
+        "type": "string",
+        "enum": [
+          "accepted",
+          "rejected",
+          "undecided",
+          "unconstructed"
+        ]
+      },
+      "argument_count": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "defeat_count": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "theory_sha256": {
+        "type": "string",
+        "minLength": 64,
+        "maxLength": 64
+      },
+      "arguments": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 65
+            },
+            "conclusion": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 65
+            },
+            "top": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 65
+            },
+            "subarguments": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 65
+              }
+            },
+            "direct_subarguments": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 65
+              }
+            },
+            "strength": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1001
+            },
+            "label": {
+              "type": "string",
+              "enum": [
+                "in",
+                "out",
+                "undecided"
+              ]
+            },
+            "rule_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 65
+            },
+            "rule_name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 65
+            },
+            "rank": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000
+            }
+          },
+          "required": [
+            "id",
+            "conclusion",
+            "top",
+            "subarguments",
+            "direct_subarguments",
+            "strength",
+            "label"
+          ],
+          "additionalProperties": false
+        },
+        "minItems": 1
+      },
+      "defeats": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "attacker": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 65
+            },
+            "target": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 65
+            },
+            "subargument": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 65
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "undermine",
+                "rebut",
+                "undercut"
+              ]
+            }
+          },
+          "required": [
+            "attacker",
+            "target",
+            "subargument",
+            "kind"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "semantics",
+      "query_mode",
+      "preference",
+      "query_status",
+      "query_accepted",
+      "query_rejected",
+      "extensions",
+      "grounded_accepted",
+      "grounded_rejected",
+      "grounded_status",
+      "argument_count",
+      "defeat_count",
+      "theory_sha256",
+      "arguments",
+      "defeats"
+    ],
+    "additionalProperties": false
+  },
+  "outputs": {
+    "grounded_accepted": "boolean",
+    "grounded_rejected": "boolean",
+    "query_accepted": "boolean",
+    "query_rejected": "boolean"
+  },
+  "quantities": [
+    "proposition"
+  ],
+  "exact_unit": true,
+  "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+  "limits": {
+    "timeout_seconds": 5.0,
+    "max_input_bytes": 262144,
+    "max_output_bytes": 1048576,
+    "max_memory_bytes": 268435456,
+    "startup_timeout_seconds": 5.0
+  },
+  "reference_implementation_version": "eal-aspic-finite-5",
+  "reference_execution": "bounded_process"
+}

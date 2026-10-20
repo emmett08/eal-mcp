@@ -6,9 +6,35 @@ use std::sync::OnceLock;
 
 use super::schema::validate_schema;
 
-/// Trusted native callbacks return only their declared output object.
-/// Process supervision for independently installed methods belongs to the runtime.
-pub type MethodImplementation = fn(&Value) -> Result<Value, String>;
+/// Failure of a pure native computation; exhaustion is distinct from a negative result.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum MethodError {
+    Invalid(String),
+    Incomplete(String),
+}
+
+impl std::fmt::Display for MethodError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Invalid(message) | Self::Incomplete(message) => formatter.write_str(message),
+        }
+    }
+}
+impl std::error::Error for MethodError {}
+impl From<String> for MethodError {
+    fn from(message: String) -> Self {
+        Self::Invalid(message)
+    }
+}
+impl From<&str> for MethodError {
+    fn from(message: &str) -> Self {
+        Self::Invalid(message.to_owned())
+    }
+}
+
+/// Trusted callbacks receive captured host budgets and return declared output objects.
+/// Callbacks report exhaustion explicitly. Process supervision belongs to the runtime.
+pub type MethodImplementation = fn(&Value, &crate::ExecutionLimits) -> Result<Value, MethodError>;
 
 /// A host declaration binding a native callback to its retained build artefact.
 /// The core checks identity shape; verifying loaded artefacts belongs to the host.

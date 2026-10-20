@@ -1,6 +1,6 @@
 [package]
 name = "eal-cli"
-description = "Development commands for the EAL/3 Rust language front end"
+description = "Development commands for EAL/3 authored and finite formal reasoning"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -18,6 +18,7 @@ path = "src/core_main.rs"
 [dependencies]
 eal-parser.workspace = true
 eal-core.workspace = true
+eal-aspic.workspace = true
 serde_json.workspace = true
 serde.workspace = true
 toml.workspace = true

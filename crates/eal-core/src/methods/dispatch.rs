@@ -173,12 +173,21 @@ fn assess(
             compute_builtin(mode, payload)?
         }
     } else if let Some(callback) = contract.implementation {
-        let details = callback(payload)?;
-        let mut output = result(
-            true,
-            &format!("Computed registered method {}", contract.identifier),
-            details,
-        );
+        let mut output = match callback(payload, limits) {
+            Ok(details) => result(
+                true,
+                &format!("Computed registered method {}", contract.identifier),
+                details,
+            ),
+            Err(super::MethodError::Invalid(error)) => result(
+                false,
+                &format!("Method execution failed: {error}"),
+                json!({}),
+            ),
+            Err(super::MethodError::Incomplete(error)) => {
+                json!({"status":"incomplete","reasons":[format!("Method execution incomplete: {error}")],"details":{}})
+            }
+        };
         output["method_contract"] = contract.describe();
         output
     } else {

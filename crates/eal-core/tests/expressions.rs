@@ -175,6 +175,7 @@ fn conversion_and_formatting_hard_bounds_survive_unlimited_host_depths() {
                 value = Value::Array(vec![value]);
             }
             assert!(expressions::try_json_to_literal(&value, &limits).is_err());
+            assert!(expressions::diagnostic_repr(&value, &limits).is_err());
             let mut object = serde_json::Map::new();
             object.insert("kind".into(), Value::String("literal".into()));
             object.insert("value".into(), value);
@@ -202,6 +203,37 @@ fn conversion_and_formatting_hard_bounds_survive_unlimited_host_depths() {
             );
             std::mem::forget(schema);
             assert!(expressions::numbers::parse_decimal("1.0e-2147483648").is_err());
+        })
+        .unwrap()
+        .join()
+        .unwrap();
+}
+
+#[test]
+fn checked_diagnostic_representation_preserves_python_quoting_and_limits() {
+    let limits = ExecutionLimits::default();
+    assert_eq!(
+        expressions::diagnostic_repr(&json!([true, null, "🫨", "\u{200b}", "can't"]), &limits)
+            .unwrap(),
+        "[True, None, '🫨', '\\u200b', \"can't\"]"
+    );
+    let tiny = ExecutionLimits {
+        record_bytes: 4,
+        ..limits
+    };
+    assert!(expressions::diagnostic_repr(&json!("long"), &tiny).is_err());
+    std::thread::Builder::new()
+        .stack_size(2 * 1024 * 1024)
+        .spawn(|| {
+            let limits = ExecutionLimits {
+                json_depth: usize::MAX,
+                ..ExecutionLimits::default()
+            };
+            let mut value = Value::Null;
+            for _ in 0..128 {
+                value = Value::Array(vec![value]);
+            }
+            assert!(expressions::diagnostic_repr(&value, &limits).is_ok());
         })
         .unwrap()
         .join()

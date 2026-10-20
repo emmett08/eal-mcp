@@ -96,6 +96,9 @@ fn check(
         return Ok(());
     }
     let kind = spec["type"].as_str().unwrap_or("");
+    if kind == "number" && is_integer(item) && !item.as_f64().is_some_and(f64::is_finite) {
+        return Err("int too large to convert to float".into());
+    }
     let matches = match kind {
         "object" => item.is_object(),
         "array" => item.is_array(),
@@ -111,7 +114,7 @@ fn check(
         errors.push(format!("{path}: expected {kind}"));
         return Ok(());
     }
-    if item.is_number() && !item.as_f64().is_some_and(f64::is_finite) {
+    if item.is_number() && !is_integer(item) && !item.as_f64().is_some_and(f64::is_finite) {
         errors.push(format!("{path}: numbers must be finite"));
         return Ok(());
     }
@@ -334,7 +337,7 @@ fn check_finite(value: &Value, depth: usize) -> Result<(), String> {
     }
     match value {
         Value::Number(_) => {
-            if !value.as_f64().is_some_and(f64::is_finite) {
+            if !is_integer(value) && !value.as_f64().is_some_and(f64::is_finite) {
                 return Err("Schema entries require finite numbers".into());
             }
         }
