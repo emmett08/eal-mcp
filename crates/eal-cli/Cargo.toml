@@ -11,10 +11,16 @@ repository.workspace = true
 name = "eal-syntax"
 path = "src/main.rs"
 
+[[bin]]
+name = "eal-core"
+path = "src/core_main.rs"
+
 [dependencies]
 eal-parser.workspace = true
 eal-core.workspace = true
 serde_json.workspace = true
+serde.workspace = true
+toml.workspace = true
 
 [dev-dependencies]
 sha2.workspace = true

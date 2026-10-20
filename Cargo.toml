@@ -12,8 +12,17 @@ repository = "https://github.com/emmett08/eal-mcp"
 [workspace.dependencies]
 antlr4rust = "=0.6.0"
 serde = { version = "=1.0.228", features = ["derive"] }
-serde_json = { version = "=1.0.145", features = ["arbitrary_precision"] }
+serde_json = { version = "=1.0.145", features = ["arbitrary_precision", "preserve_order", "raw_value"] }
 sha2 = "=0.10.9"
+num-bigint = { version = "=0.4.6", features = ["serde"] }
+num-rational = { version = "=0.4.2", features = ["serde"] }
+num-traits = "=0.2.19"
+num-integer = "=0.1.46"
+chrono = { version = "=0.4.42", default-features = false, features = ["std", "serde"] }
+ryu = "=1.0.23"
+indexmap = { version = "=2.12.0", features = ["serde"] }
+unicode-general-category = "=0.6.0"
+toml = "=0.9.8"
 eal-parser = { path = "crates/eal-parser" }
 eal-core = { path = "crates/eal-core" }
 

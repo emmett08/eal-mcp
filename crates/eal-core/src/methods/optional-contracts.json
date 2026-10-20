@@ -1,0 +1,692 @@
+{
+  "engineering/api-load-criteria/1": {
+    "identifier": "engineering/api-load-criteria/1",
+    "evidence_kind": "api_report",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "request_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "p95_ms": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1e+100
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "error_rate_percent": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "report_valid": {
+          "type": "boolean"
+        },
+        "identity_matches": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "complete_records": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "consistent_records": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "age_seconds": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1e+100
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "failed_requests": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        }
+      },
+      "required": [
+        "request_count",
+        "p95_ms",
+        "error_rate_percent"
+      ],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "sample_size_met": {
+          "type": "boolean"
+        },
+        "latency_met": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "error_limit_met": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "passes": {
+          "type": "boolean"
+        },
+        "fails": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "sample_size_met",
+        "latency_met",
+        "error_limit_met",
+        "passes",
+        "fails"
+      ],
+      "additionalProperties": false
+    },
+    "outputs": {
+      "sample_size_met": "boolean",
+      "passes": "boolean",
+      "fails": "boolean"
+    },
+    "quantities": [],
+    "exact_unit": false,
+    "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+    "limits": {
+      "timeout_seconds": 1.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "eal-api-load-criteria-1",
+    "reference_execution": "bounded_process"
+  },
+  "engineering/reachability/1": {
+    "identifier": "engineering/reachability/1",
+    "evidence_kind": "finite_graph",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "node_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 7
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "maxItems": 64
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 7
+        },
+        "forbidden": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 7
+          },
+          "minItems": 1,
+          "maxItems": 8
+        },
+        "horizon": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8
+        }
+      },
+      "required": [
+        "node_count",
+        "edges",
+        "start",
+        "forbidden",
+        "horizon"
+      ],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 7
+        },
+        "forbidden": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 7
+          },
+          "minItems": 1,
+          "maxItems": 8
+        },
+        "horizon": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8
+        }
+      },
+      "required": [
+        "start",
+        "forbidden",
+        "horizon"
+      ],
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "reachable": {
+          "type": "boolean"
+        },
+        "shortest_length": {
+          "type": "integer",
+          "minimum": -1,
+          "maximum": 8
+        },
+        "counterexample": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 7
+          },
+          "maxItems": 9
+        },
+        "visited": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        }
+      },
+      "required": [
+        "reachable",
+        "shortest_length",
+        "counterexample",
+        "visited"
+      ],
+      "additionalProperties": false
+    },
+    "outputs": {
+      "reachable": "boolean",
+      "shortest_length": "dimensionless",
+      "visited": "dimensionless"
+    },
+    "quantities": [
+      "proposition"
+    ],
+    "exact_unit": true,
+    "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+    "limits": {
+      "timeout_seconds": 2.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "finite-graph-bfs-1",
+    "reference_execution": "bounded_process"
+  },
+  "engineering/rms/1": {
+    "identifier": "engineering/rms/1",
+    "evidence_kind": "measurement_series",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "samples": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "minItems": 1,
+          "maxItems": 10000
+        }
+      },
+      "required": [
+        "origin",
+        "samples"
+      ],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        }
+      },
+      "required": [
+        "origin"
+      ],
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "rms": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2e+100
+        },
+        "sample_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        }
+      },
+      "required": [
+        "rms",
+        "sample_size"
+      ],
+      "additionalProperties": false
+    },
+    "outputs": {
+      "rms": "basis",
+      "sample_size": "dimensionless"
+    },
+    "quantities": [
+      "pressure",
+      "time",
+      "length",
+      "mass",
+      "temperature_difference",
+      "velocity",
+      "volumetric_flow",
+      "dimensionless",
+      "probability"
+    ],
+    "exact_unit": true,
+    "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+    "limits": {
+      "timeout_seconds": 1.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "eal-rms-1",
+    "reference_execution": "bounded_process"
+  },
+  "engineering/sampled-negative/1": {
+    "identifier": "engineering/sampled-negative/1",
+    "evidence_kind": "sampled_negative_trace",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "counterexample",
+            "non_detection"
+          ]
+        },
+        "start": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "end": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "max_gap": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1e+100
+        },
+        "property": {
+          "type": "object",
+          "properties": {
+            "operator": {
+              "type": "string",
+              "enum": [
+                "lt",
+                "le"
+              ]
+            },
+            "value": {
+              "type": "number",
+              "minimum": -1e+100,
+              "maximum": 1e+100
+            }
+          },
+          "required": [
+            "operator",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "semantics": {
+          "type": "string",
+          "enum": [
+            "sampled"
+          ]
+        },
+        "detector_contract": {
+          "type": "object",
+          "properties": {
+            "maximum_detection_limit": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1e+100
+            },
+            "minimum_sensitivity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "maximum_detection_limit",
+            "minimum_sensitivity"
+          ],
+          "additionalProperties": false
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "time": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              },
+              "value": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              }
+            },
+            "required": [
+              "time",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 10000
+        },
+        "calibration": {
+          "type": "object",
+          "properties": {
+            "detection_limit": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1e+100
+            },
+            "sensitivity_lower_bound": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "detection_limit",
+            "sensitivity_lower_bound"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "mode",
+        "start",
+        "end",
+        "max_gap",
+        "property",
+        "semantics",
+        "detector_contract",
+        "events"
+      ],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "counterexample",
+            "non_detection"
+          ]
+        },
+        "start": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "end": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "max_gap": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1e+100
+        },
+        "property": {
+          "type": "object",
+          "properties": {
+            "operator": {
+              "type": "string",
+              "enum": [
+                "lt",
+                "le"
+              ]
+            },
+            "value": {
+              "type": "number",
+              "minimum": -1e+100,
+              "maximum": 1e+100
+            }
+          },
+          "required": [
+            "operator",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "semantics": {
+          "type": "string",
+          "enum": [
+            "sampled"
+          ]
+        },
+        "detector_contract": {
+          "type": "object",
+          "properties": {
+            "maximum_detection_limit": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1e+100
+            },
+            "minimum_sensitivity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "maximum_detection_limit",
+            "minimum_sensitivity"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "mode",
+        "start",
+        "end",
+        "max_gap",
+        "property",
+        "semantics",
+        "detector_contract"
+      ],
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "finding": {
+          "type": "boolean"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "counterexample",
+            "non_detection"
+          ]
+        },
+        "sample_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "violation_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "coverage": {
+          "type": "boolean"
+        },
+        "largest_gap": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2e+100
+        },
+        "detector_contract_met": {
+          "type": "boolean"
+        },
+        "continuous_truth_established": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "finding",
+        "mode",
+        "sample_size",
+        "violation_count",
+        "coverage",
+        "largest_gap",
+        "detector_contract_met",
+        "continuous_truth_established"
+      ],
+      "additionalProperties": false
+    },
+    "outputs": {
+      "finding": "boolean"
+    },
+    "quantities": [
+      "pressure",
+      "time",
+      "length",
+      "mass",
+      "temperature_difference",
+      "velocity",
+      "volumetric_flow",
+      "dimensionless",
+      "probability"
+    ],
+    "exact_unit": true,
+    "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+    "limits": {
+      "timeout_seconds": 1.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "eal-sampled-negative-1",
+    "reference_execution": "bounded_process"
+  }
+}
