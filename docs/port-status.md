@@ -4,8 +4,9 @@ The development reference is
 [`earl@e2d6f346a37f92483b9f9a13923b98feb053447b`](https://github.com/emmett08/earl/tree/e2d6f346a37f92483b9f9a13923b98feb053447b),
 package `3.2.4`, language `EAL/3`. The source repository remains unchanged.
 The first PR established the workspace, frozen contracts and syntax front end.
-The current PR adds the authored semantic core and development CLI. Production
-services and entry points remain pending; this is not a complete port.
+The authored semantic core and development CLI are implemented. The current
+stage adds finite ASPIC reasoning, checked source compilation and graph export.
+Production services and entry points remain pending.
 
 ## Scope and component boundaries
 
@@ -19,7 +20,7 @@ their corresponding implementation is ported.
 | --- | --- | --- |
 | `eal-parser` | Generated recognisers and syntax diagnostics | Implemented |
 | `eal-core` | Owned syntax, composition, validation, expressions, methods, authored assessment, planning and formatting | Authored semantic core implemented; public adapters remain pending |
-| `eal-aspic` | Finite ASPIC construction, preferences, defeat, extensions, compilation and checked view export | Pending |
+| `eal-aspic` | Finite ASPIC construction, preferences, defeat, extensions, compilation and checked view export | Implemented and differentially checked; live visualiser bridge pending |
 | `eal-runtime` | Collection, immutable records, reuse, catalogue, method execution and supervision | Pending |
 | `eal-mcp` | Exclusive operator/registered catalogues, authentication and transports | Pending |
 | `eal-coordination` | Durable task coordination, delivery and effect identities, codec and worker adapters | Pending |
@@ -35,7 +36,7 @@ Pure assessment uses typed values, supplied observations, explicit context and
 an explicit timezone-aware instant. Source composition accepts a host-supplied
 resolver; the CLI restricts files and trusted imports to its selected workspace.
 Storage, acquisition, process execution and transports remain outside the core.
-The authored EAL evaluator and pending opt-in ASPIC compiler retain separate
+The authored EAL evaluator and opt-in ASPIC compiler retain separate
 semantics.
 
 ## Implemented authored semantic core
@@ -98,21 +99,38 @@ acceptance. Differential development uses CPython 3.12.14 with Unicode 15.
 Expression `sum` retains that reference's 64-bit C-long specialisation profile
 across Rust targets, including those whose native C `long` has a different size.
 
+## Implemented finite formal reasoning
+
+The [finite ASPIC module](aspic.md) implements ordinary/axiom premises,
+strict/defeasible rules, all three defeat kinds, minimum-rank and numerical or
+partial last-link preferences, grounded/preferred/stable extensions and
+credulous/sceptical conclusion queries. Cyclic construction admits finite
+premise-founded derivations without repeated branch conclusions.
+
+Observation-bound EAL compilation retains source mappings, reviewed policies,
+unusable-record identities and independent authored results in private checked
+snapshots. Graph export recomputes all formal fields under captured limits and
+checks the retained `aspic-view/3` contract. Native callbacks now receive limits
+explicitly and propagate typed incomplete results; construction and search
+exhaustion provide no partial acceptance result. Process supervision remains
+outside this pure module.
+
+Normal tests compare exact pinned Python solver results, source compilation,
+typed-method assessment and view exports. Independent subset definitions check
+all directed graphs through three nodes, including self-attacks. These checks
+support this finite profile rather than unrestricted ASPIC+ semantics or the
+external validity of authored strict rules. Explicit inputs additionally enforce
+native JSON traversal budgets before the source validator's fixed schema pass.
+
 ## Remaining implementation sequence
 
-1. **Port finite ASPIC.** Preserve premise kinds, rule kinds, all three defeat
-   kinds and preference policies, grounded/preferred/stable semantics,
-   credulous/sceptical queries and finite premise-founded cyclic construction.
-   Distinguish unconstructed, undecided, no-extension and resource-incomplete
-   outcomes. Check small theories independently before introducing indexed or
-   bitset optimisations. Include the optional ASPIC method and checked exports.
-2. **Port runtime and extensions.** Preserve original observation times, exact
+1. **Port runtime and extensions.** Preserve original observation times, exact
    acquisition correspondence, canonical identities, SQLite records and private
    store ownership. Implement a supervisor process that owns collector cleanup
    and inherited acquisition leases. Replace Python import-based method loading
    with a typed Rust registry and schema-checked subprocess extension protocol.
    Rust reports its own implementation identities.
-3. **Port MCP, host, catalogue and coordination.** Use the official `rmcp` SDK
+2. **Port MCP, host, catalogue and coordination.** Use the official `rmcp` SDK
    for stdio and stateless Streamable HTTP. Preserve the eleven-tool operator
    catalogue and separate three-tool registered-source catalogue. Port all four
    entry points and the production coordination modules, including replacement
@@ -122,10 +140,10 @@ across Rust targets, including those whose native C `long` has a different size.
    observation-correspondence and age adapters; `EAL/model-context/2`
    requirement-state projection; language/reference discovery; operation
    admission metadata and dispatch; and the knowledge catalogue/prompt façade.
-4. **Verify visualisation and packaging.** Implement checked `aspic-view/3`
-   exports. Validate against both the retained schema and the visualiser's
-   additional graph checks. Exercise real MCP sessions, cancellation, abrupt
-   process death, observation reuse and an installed package with Python absent.
+3. **Verify visualisation and packaging.** Connect the native solver to the
+   visualiser's live bridge and exercise complete browser consumption alongside
+   the retained schema and graph checks. Exercise real MCP sessions, cancellation,
+   abrupt process death, observation reuse and an installed package with Python absent.
 
 The selected ANTLR generator is pinned with its runtime and recognisers are
 checked in. A normal build uses those Rust sources. Java is needed only for
@@ -138,7 +156,7 @@ The consumer is pinned to
 [`aspic_visualisation@a38bff4a193634556ef81e64f9b7823a1b1de6ec`](https://github.com/emmett08/aspic_visualisation/tree/a38bff4a193634556ef81e64f9b7823a1b1de6ec).
 Its `schema/aspic-view.schema.json` matches the producer's
 `docs/aspic-view.schema.json` byte for byte. Static JSON imports can retain this
-contract without a visualiser change once Rust export exists.
+contract through the checked Rust exporter.
 
 The live editor's `server/solver-plugin.ts` currently spawns Python to run
 `server/solve.py`, which imports the EAL solver. A separate visualiser PR must
@@ -152,8 +170,9 @@ visualiser.
 Parser tests establish recognition and the tested lexical representation.
 The authored semantic core adds differential assessments, independent Dung
 checks, numerical and identity fixtures, dependency planning and semantic
-formatter checks. Complete port acceptance still requires ASPIC checks, real
-stdio/HTTP round trips, process ownership and deadline tests, observation reuse,
+formatter checks. The finite ASPIC stage adds complete extension-family checks,
+snapshot comparisons and recomputed graph exports. Complete port acceptance
+requires real stdio/HTTP round trips, process ownership and deadline tests, observation reuse,
 packet/context/catalogue adapters, visualiser validation and a Python-free
 installed-package smoke test. Pending components remain explicit until these
 checks exercise their implementations.

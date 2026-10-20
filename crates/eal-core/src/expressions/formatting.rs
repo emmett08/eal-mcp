@@ -2,6 +2,58 @@
 use super::{binary_symbol, literal_value, property_path};
 use crate::{ExecutionLimits, Expression, UnaryOperator};
 use serde_json::Value;
+
+/// Python diagnostic representation after bounded finite-JSON validation.
+pub fn diagnostic_repr(value: &Value, limits: &ExecutionLimits) -> Result<String, String> {
+    limits.validate()?;
+    let mut pending = vec![(value, 0usize)];
+    let mut remaining = limits.json_nodes;
+    let mut raw_bytes = 0usize;
+    while let Some((value, depth)) = pending.pop() {
+        if remaining == 0 || depth > limits.json_depth.min(128) {
+            return Err("Diagnostic JSON resource limit exceeded".into());
+        }
+        remaining -= 1;
+        let bytes = match value {
+            Value::Null => 4,
+            Value::Bool(true) => 4,
+            Value::Bool(false) => 5,
+            Value::Number(number) => number.as_str().len(),
+            Value::String(value) => value.len().saturating_add(2),
+            Value::Array(values) => {
+                if values.len().saturating_add(pending.len()) > remaining {
+                    return Err("Diagnostic JSON resource limit exceeded".into());
+                }
+                pending.extend(values.iter().map(|value| (value, depth + 1)));
+                2
+            }
+            Value::Object(values) => {
+                if values.len().saturating_add(pending.len()) > remaining {
+                    return Err("Diagnostic JSON resource limit exceeded".into());
+                }
+                for (name, value) in values {
+                    raw_bytes = raw_bytes.saturating_add(name.len());
+                    pending.push((value, depth + 1));
+                }
+                2
+            }
+        };
+        raw_bytes = raw_bytes.saturating_add(bytes);
+        if raw_bytes > limits.record_bytes {
+            return Err("Diagnostic JSON exceeds the record byte budget".into());
+        }
+    }
+    let encoded = crate::canonical::canonical_json_bytes(value, limits)?;
+    if encoded.len() > limits.record_bytes {
+        return Err("Diagnostic JSON exceeds the record byte budget".into());
+    }
+    let result = python_repr(value);
+    if result.len() > limits.record_bytes {
+        return Err("Diagnostic representation exceeds the record byte budget".into());
+    }
+    Ok(result)
+}
+
 pub(crate) fn python_repr(value: &Value) -> String {
     match value {
         Value::Null => "None".into(),

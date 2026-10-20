@@ -15,7 +15,7 @@ use serde_json::{Number, Value};
 use crate::semantic::Predicate;
 use crate::{BinaryOperator, ExecutionLimits, Expression, JsonValue, NumberLiteral};
 pub(crate) use formatting::python_repr;
-pub use formatting::{format_expression, format_expression_with_limits};
+pub use formatting::{diagnostic_repr, format_expression, format_expression_with_limits};
 pub use interchange::{
     expression_from_json, expression_to_json, expression_to_json_with_limits, optional_serde,
 };

@@ -10,8 +10,8 @@ mod structural;
 mod validation;
 
 pub use contracts::{
-    MethodContract, MethodImplementation, MethodRegistry, NativeMethodIdentity, default_registry,
-    is_method_identifier,
+    MethodContract, MethodError, MethodImplementation, MethodRegistry, NativeMethodIdentity,
+    default_registry, is_method_identifier,
 };
 pub use dispatch::{
     assess_mode, assess_mode_with_limits, evidence_kind, validate_mode, validate_mode_with_limits,

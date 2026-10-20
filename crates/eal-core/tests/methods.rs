@@ -215,6 +215,17 @@ fn schema_subset_distinguishes_booleans_integers_floats_and_enum_types() {
         )
         .is_empty()
     );
+    let huge: Value = serde_json::from_str(&format!("1{}", "0".repeat(400))).unwrap();
+    assert!(schema_errors(&huge, &json!({"type":"integer"}), "$").is_empty());
+    assert_eq!(
+        schema_errors(&huge, &json!({"type":"integer","maximum":1000}), "$"),
+        ["$: number is outside declared bounds"]
+    );
+    assert_eq!(
+        schema_errors(&huge, &json!({"type":"number"}), "$"),
+        ["$: int too large to convert to float"]
+    );
+    assert!(eal_core::methods::validate_schema(&json!({"type":"integer","enum":[huge]})).is_ok());
 }
 
 #[test]
@@ -245,7 +256,10 @@ fn caller_limits_cannot_remove_schema_stack_ceiling() {
 
 #[test]
 fn registry_extensions_are_immutable_and_cannot_replace_builtins() {
-    fn run(v: &Value) -> Result<Value, String> {
+    fn run(
+        v: &Value,
+        _: &eal_core::ExecutionLimits,
+    ) -> Result<Value, eal_core::methods::MethodError> {
         Ok(json!({"answer":v["x"]}))
     }
     let mut contract = MethodContract::native(
@@ -288,6 +302,62 @@ fn registry_extensions_are_immutable_and_cannot_replace_builtins() {
     assert!(extension.with_method(contract.clone()).is_err());
     contract.identifier = "deductive/1".into();
     assert!(default_registry().with_method(contract).is_err());
+}
+
+#[test]
+fn native_callbacks_receive_explicit_limits_and_preserve_incomplete() {
+    use eal_core::{
+        ExecutionLimits,
+        methods::{MethodError, assess_mode_with_limits},
+    };
+    fn bounded(payload: &Value, limits: &ExecutionLimits) -> Result<Value, MethodError> {
+        match payload["x"].as_i64() {
+            Some(0) => Err(MethodError::Incomplete(
+                "test construction budget exhausted".into(),
+            )),
+            Some(-1) => Err(MethodError::Invalid("invalid test input".into())),
+            _ => Ok(json!({"budget":limits.formal_arguments})),
+        }
+    }
+    let contract = MethodContract::native(
+        "example/bounded/1",
+        "bounded",
+        json!({"type":"object","properties":{"x":{"type":"integer"}},"required":["x"],"additionalProperties":false}),
+        json!({"type":"object","properties":{},"required":[],"additionalProperties":false}),
+        json!({"type":"object","properties":{"budget":{"type":"integer"}},"required":["budget"],"additionalProperties":false}),
+        NativeMethodIdentity {
+            version: "test-bounded/1".into(),
+            artifact_sha256: "c".repeat(64),
+        },
+        bounded,
+    );
+    let registry = default_registry().with_method(contract).unwrap();
+    let limits = ExecutionLimits {
+        formal_arguments: 3,
+        ..Default::default()
+    };
+    let run = |x| {
+        assess_mode_with_limits(
+            "example/bounded/1",
+            &[json!({"id":"case","kind":"bounded","value":{"x":x}})],
+            &[],
+            &registry,
+            &limits,
+        )
+    };
+    let success = run(1);
+    assert_eq!(success["details"]["budget"], 3);
+    let incomplete = run(0);
+    assert_eq!(incomplete["status"], "incomplete");
+    assert_eq!(incomplete["details"], json!({}));
+    assert_eq!(
+        incomplete["method_contract"]["identifier"],
+        "example/bounded/1"
+    );
+    assert_eq!(incomplete["evidence_id"], "case");
+    let invalid = run(-1);
+    assert_eq!(invalid["status"], "unsupported");
+    assert_eq!(invalid["details"], json!({}));
 }
 
 #[test]

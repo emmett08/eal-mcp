@@ -13,8 +13,10 @@ provides evidence planning, standalone Dung grounded labelling and checked
 semantic formatting. The development commands `eal-syntax` and `eal-core` run
 without Python or Java.
 
-ASPIC solving/export, observation storage and acquisition, process supervision,
-MCP, the model host, coordination and visualiser integration remain pending.
+The opt-in [finite ASPIC implementation](docs/aspic.md) provides explicit theory
+solving, observation-bound EAL compilation and recomputed `aspic-view/3` export.
+Observation storage and acquisition, process supervision, MCP, the model host,
+coordination and the visualiser's live-solver bridge remain pending.
 Assessment-packet, model-context and catalogue adapters are also later work.
 See the [implementation status](docs/port-status.md) and frozen
 [source inventory](contracts/source-lock.json). The production `eal`, `eal-mcp`,
@@ -41,7 +43,7 @@ tokens, and `format` checks lexical preservation. The semantic development CLI
 accepts these commands:
 
 ```text
-eal-core [--workspace DIR] [--limits FILE] [--methods builtin|engineering] COMMAND
+eal-core [--workspace DIR] [--limits FILE] [--methods builtin|engineering|aspic|all] COMMAND
 
 compile SOURCE
 validate SOURCE
@@ -49,6 +51,11 @@ format SOURCE
 plan SOURCE --claim NAME
 evaluate SOURCE --now ISO_TIME [--context JSON|@FILE] [--records FILE]
 grounded GRAPH
+aspic THEORY_JSON
+compile-aspic SOURCE --claim NAME --now ISO_TIME [--context JSON|@FILE] [--records FILE]
+  [--semantics grounded|preferred|stable] [--query-mode credulous|sceptical]
+  [--preference minimum_rank|last_link_rank|last_link_partial]
+export-aspic RESULT_JSON
 describe
 ```
 
@@ -79,8 +86,15 @@ The default registry contains `structured/1`, `deductive/1`, `inductive/1`,
 `abductive/1`, `causal/1`, `counterfactual/1`, `analogical/1` and `temporal/1`.
 `--methods engineering` adds `engineering/api-load-criteria/1`,
 `engineering/reachability/1`, `engineering/rms/1` and
-`engineering/sampled-negative/1`. The optional ASPIC method is pending with the
-ASPIC solver.
+`engineering/sampled-negative/1`. Profile `aspic` installs the eight defaults
+plus `argumentation/aspic/2`; `all` installs all thirteen methods.
+
+`aspic` accepts exactly `{"theory": ...}` and emits its theory and formal result.
+`compile-aspic` translates a checked observation snapshot, retaining both the
+formal and authored claim results. `export-aspic` recomputes the supplied formal
+result before emitting the graph. See [ASPIC semantics and examples](docs/aspic.md)
+for preference, extension, query and provenance contracts. An exhausted formal
+search returns `incomplete` with empty details and exit status 1.
 
 Expressions preserve arbitrary integers, binary64 arithmetic, negative modulo,
 missing values and expression errors. Typed bindings use exact rational unit
@@ -166,7 +180,8 @@ from the handwritten adapter, core and CLI.
 [`contracts/public-contracts.json`](contracts/public-contracts.json) freezes the
 current methods, MCP catalogues, CLI operations and schemas. The retained
 `aspic-view/3` schema matches the visualiser at the pinned consumer revision.
-Rust export and the visualiser's native live-solver bridge are later stages.
+Rust export checks that schema and recomputes the complete formal result.
+The visualiser's native live-solver bridge remains a later stage.
 
 The repository retains its GPLv3 licence. Imported source attribution and
 third-party notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
