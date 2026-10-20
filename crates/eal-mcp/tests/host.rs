@@ -1,0 +1,467 @@
+//! Retained source behavior and native one-request client boundaries.
+use eal_mcp::{
+    auth::{BearerTokenVerifier, HttpPolicy},
+    client::{self, ClientTarget},
+    host, redaction,
+    settings::{self, ServerSettings},
+};
+use serde_json::{Value, json};
+use std::{
+    collections::BTreeMap,
+    path::PathBuf,
+    sync::atomic::{AtomicUsize, Ordering},
+};
+static NEXT: AtomicUsize = AtomicUsize::new(0);
+struct Directory(PathBuf);
+impl Directory {
+    fn new() -> Self {
+        let p = std::env::temp_dir().join(format!(
+            "eal-host-{}-{}",
+            std::process::id(),
+            NEXT.fetch_add(1, Ordering::Relaxed)
+        ));
+        std::fs::create_dir(&p).unwrap();
+        Self(p)
+    }
+}
+impl Drop for Directory {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+fn strings(values: &[&str]) -> Vec<String> {
+    values.iter().map(|s| (*s).to_owned()).collect()
+}
+fn reference() -> Value {
+    eal_core::json::parse(
+        include_str!("../../../fixtures/host/reference.json"),
+        &eal_core::ExecutionLimits::default(),
+    )
+    .unwrap()
+}
+#[test]
+fn strict_requests_match_retained_python_reference() {
+    for case in reference()["requests"].as_array().unwrap() {
+        let text = case["input"].as_str().unwrap();
+        let result = host::parse_request(text);
+        if let Some(expected) = case.get("output") {
+            let (tool, args) = result.unwrap_or_else(|e| panic!("{text}: {e}"));
+            assert_eq!(json!([tool, args]), *expected);
+        } else {
+            assert!(result.is_err(), "{text}");
+        }
+    }
+    for text in [
+        "{}{}",
+        "{\"operation\":\"describe\"} false",
+        "{\"operation\":\"eal_describe\"}",
+    ] {
+        assert!(host::parse_request(text).is_err());
+    }
+    assert!(
+        host::parse_request(&" ".repeat(host::MAX_REQUEST_BYTES + 1))
+            .unwrap_err()
+            .contains("2 MiB")
+    );
+}
+#[test]
+fn client_urls_and_redaction_match_retained_python_reference() {
+    let fixture = reference();
+    for case in fixture["urls"].as_array().unwrap() {
+        let result = client::validate_http_url(case["input"].as_str().unwrap());
+        if let Some(expected) = case.get("output") {
+            assert_eq!(result.unwrap(), expected.as_str().unwrap());
+        } else {
+            assert!(result.is_err(), "{}", case["input"]);
+        }
+    }
+    for case in fixture["redactions"].as_array().unwrap() {
+        let result = redaction::sanitise_response(&case["input"], case["token"].as_str());
+        if let Some(expected) = case.get("output") {
+            assert_eq!(result.unwrap(), *expected, "token {:?}", case["token"]);
+        } else {
+            assert_eq!(result.unwrap_err(), case["error"].as_str().unwrap());
+        }
+    }
+}
+#[test]
+fn configuration_precedence_retains_path_origins_and_replaces_lists() {
+    let directory = Directory::new();
+    let config_dir = directory.0.join("config");
+    std::fs::create_dir(&config_dir).unwrap();
+    let config = config_dir.join("server.toml");
+    std::fs::write(&config,"[service]\nworkspace='file-workspace'\nregistry='tools.toml'\nknown_entries=['file']\n[server]\nmax_in_flight=2\n[server.http]\nport=1234\n").unwrap();
+    let env = BTreeMap::from([
+        ("EAL_MCP_CONFIG".into(), config.to_str().unwrap().into()),
+        ("EAL_MCP_WORKSPACE".into(), "environment-workspace".into()),
+        ("EAL_MCP_KNOWN_ENTRIES".into(), "[\"environment\"]".into()),
+        ("EAL_MCP_PORT".into(), "invalid overridden value".into()),
+    ]);
+    let settings = settings::parse_server_settings(
+        &strings(&[
+            "--port",
+            "32123",
+            "--known-entry",
+            "one",
+            "--known-entry",
+            "two",
+        ]),
+        &env,
+        &directory.0,
+    )
+    .unwrap();
+    assert_eq!(
+        settings.workspace,
+        directory.0.join("environment-workspace")
+    );
+    assert_eq!(settings.registry, Some(config_dir.join("tools.toml")));
+    assert_eq!(settings.known_entries, ["one", "two"]);
+    assert_eq!(settings.exposure, "registered");
+    assert_eq!(settings.max_in_flight, 2);
+    assert_eq!(settings.port, 32123);
+    let inherited = settings::parse_server_settings(
+        &strings(&["--config", config.to_str().unwrap()]),
+        &BTreeMap::new(),
+        &directory.0,
+    )
+    .unwrap();
+    assert_eq!(inherited.workspace, config_dir.join("file-workspace"));
+    assert!(!settings.workspace.exists());
+}
+#[test]
+fn configuration_rejects_unknown_types_ambiguity_and_remote_without_auth() {
+    let directory = Directory::new();
+    for args in [
+        vec!["--max-in-flight", "0"],
+        vec!["--port", "65536"],
+        vec!["--known-entry", "one", "--known-entry", "one"],
+        vec!["--known-entry", "one", "--exposure", "operator"],
+        vec!["--exposure", "registered"],
+        vec!["--path", "/mcp/{tenant}"],
+        vec!["--path", "/mcp/../other"],
+        vec!["--host", "http://localhost"],
+        vec!["--transport", "http", "--host", "0.0.0.0"],
+        vec![
+            "--transport",
+            "http",
+            "--allowed-origin",
+            "http://2130706433",
+        ],
+    ] {
+        assert!(
+            settings::parse_server_settings(&strings(&args), &BTreeMap::new(), &directory.0)
+                .is_err(),
+            "{args:?}"
+        );
+    }
+    let config = directory.0.join("server.toml");
+    for source in [
+        "[unknown]\nvalue=1",
+        "[server]\nmax_in_flight=true",
+        "[server]\n[server.http]\nunknown=1",
+        "[service]\nknown_entries='one'",
+        "[service]\nknown_entries=[1979-05-27]",
+    ] {
+        std::fs::write(&config, source).unwrap();
+        assert!(
+            settings::parse_server_settings(
+                &strings(&["--config", config.to_str().unwrap()]),
+                &BTreeMap::new(),
+                &directory.0
+            )
+            .is_err()
+        );
+    }
+}
+#[test]
+fn credentials_are_opaque_and_http_admission_matches_source_defaults() {
+    let token = "synthetic-token.ABC_123~";
+    let settings = ServerSettings {
+        transport: "http".into(),
+        host: "0.0.0.0".into(),
+        token_env: Some("OPERATOR_TOKEN".into()),
+        allowed_hosts: vec!["engineering.example".into()],
+        allowed_origins: vec!["https://trusted.example".into()],
+        ..Default::default()
+    };
+    assert!(
+        HttpPolicy::from_settings(&settings, &BTreeMap::new())
+            .unwrap_err()
+            .contains("OPERATOR_TOKEN")
+    );
+    let env = BTreeMap::from([("OPERATOR_TOKEN".into(), token.into())]);
+    let policy = HttpPolicy::from_settings(&settings, &env).unwrap();
+    assert!(!format!("{policy:?}").contains(token));
+    let verifier = BearerTokenVerifier::new(token).unwrap();
+    assert!(verifier.verify(token));
+    assert!(!verifier.verify("wrong"));
+    assert!(!verifier.verify(""));
+    let auth = format!("Bearer {token}");
+    for (host, origin) in [
+        ("127.0.0.1:8000", None),
+        ("localhost:8000", Some("https://localhost:9999")),
+        ("[::1]:8000", Some("http://127.0.0.1:80")),
+        ("engineering.example", Some("http://engineering.example")),
+        ("engineering.example", Some("https://trusted.example")),
+    ] {
+        policy.authorize(Some(host), origin, Some(&auth)).unwrap();
+    }
+    assert_eq!(
+        policy
+            .authorize(Some("foreign.example"), None, Some(&auth))
+            .unwrap_err()
+            .status,
+        421
+    );
+    assert_eq!(
+        policy
+            .authorize(
+                Some("127.0.0.1"),
+                Some("https://foreign.example"),
+                Some(&auth)
+            )
+            .unwrap_err()
+            .status,
+        403
+    );
+    assert_eq!(
+        policy
+            .authorize(Some("127.0.0.1"), None, None)
+            .unwrap_err()
+            .status,
+        401
+    );
+    let stdio = ServerSettings {
+        token_env: Some("MISSING_UNUSED_TOKEN".into()),
+        ..Default::default()
+    };
+    HttpPolicy::from_settings(&stdio, &BTreeMap::new()).unwrap();
+}
+#[test]
+fn targets_preserve_operator_http_policy_and_exact_child_configuration() {
+    let directory = Directory::new();
+    let env = BTreeMap::from([
+        ("EAL_MCP_CONFIG".into(), "ignored.toml".into()),
+        ("EAL_MCP_HOST".into(), "remote.example".into()),
+        ("RETAINED".into(), "yes".into()),
+        ("TOKEN".into(), "synthetic-secret".into()),
+    ]);
+    assert!(
+        client::create_http_target("http://remote.example/mcp", None, &env)
+            .unwrap_err()
+            .contains("beyond loopback")
+    );
+    assert!(client::create_http_target("http://2130706433/mcp", None, &env).is_err());
+    let target =
+        client::create_http_target("http://remote.example/mcp", Some("TOKEN"), &env).unwrap();
+    assert!(!format!("{target:?}").contains("synthetic-secret"));
+    let settings = ServerSettings {
+        workspace: directory.0.clone(),
+        methods: "all".into(),
+        known_entries: vec!["registered".into()],
+        exposure: "registered".into(),
+        ..Default::default()
+    };
+    let ClientTarget::Stdio(target) =
+        host::stdio_target(&settings, &env, PathBuf::from("/operator/eal-mcp"))
+    else {
+        panic!()
+    };
+    assert_eq!(target.command, PathBuf::from("/operator/eal-mcp"));
+    assert!(
+        target
+            .environment
+            .keys()
+            .all(|k| !k.starts_with("EAL_MCP_"))
+    );
+    assert_eq!(target.environment["RETAINED"], "yes");
+    assert_eq!(target.arguments, host::server_arguments(&settings));
+    assert!(!target.arguments.contains(&"--config".into()));
+    assert!(
+        target
+            .arguments
+            .windows(2)
+            .any(|pair| pair == ["--methods", "all"])
+    );
+    let wildcard = ServerSettings {
+        host: "::".into(),
+        ..Default::default()
+    };
+    assert!(host::configured_http_url(&wildcard).is_err());
+}
+
+#[derive(Clone)]
+struct RemoteServer {
+    calls: std::sync::Arc<AtomicUsize>,
+    mode: usize,
+    token: String,
+}
+impl rmcp::ServerHandler for RemoteServer {
+    fn get_info(&self) -> rmcp::model::ServerConfig {
+        rmcp::model::ServerConfig::new(
+            rmcp::model::ServerCapabilities::builder()
+                .enable_tools()
+                .build(),
+        )
+    }
+    async fn list_tools(
+        &self,
+        _request: Option<rmcp::model::PaginatedRequestParams>,
+        _context: rmcp::service::RequestContext<rmcp::RoleServer>,
+    ) -> Result<rmcp::model::ListToolsResult, rmcp::ErrorData> {
+        let required = if self.mode == 2 {
+            json!(["extra"])
+        } else {
+            json!([])
+        };
+        let tool=serde_json::from_value(json!({"name":"eal_describe","inputSchema":{"type":"object","properties":{"extra":{"type":"string"}},"required":required,"additionalProperties":false}})).unwrap();
+        Ok(rmcp::model::ListToolsResult::with_all_items(vec![tool]))
+    }
+    async fn call_tool(
+        &self,
+        _request: rmcp::model::CallToolRequestParams,
+        _context: rmcp::service::RequestContext<rmcp::RoleServer>,
+    ) -> Result<rmcp::model::CallToolResponse, rmcp::ErrorData> {
+        self.calls.fetch_add(1, Ordering::SeqCst);
+        let value = if self.mode == 3 {
+            let mut values = serde_json::Map::new();
+            values.insert(self.token.clone(), json!("first"));
+            values.insert("[redacted]".into(), json!("second"));
+            Value::Object(values)
+        } else {
+            json!({"remote":self.token})
+        };
+        Ok(if self.mode == 1 {
+            rmcp::model::CallToolResult::structured_error(value)
+        } else {
+            rmcp::model::CallToolResult::structured(value)
+        }
+        .into())
+    }
+}
+#[tokio::test]
+async fn actual_host_binary_checks_discovered_schema_redacts_results_and_preserves_exit_codes() {
+    use rmcp::transport::streamable_http_server::{
+        StreamableHttpServerConfig, StreamableHttpService, session::never::NeverSessionManager,
+    };
+    use std::{process::Stdio, sync::Arc, time::Duration};
+    use tokio::io::AsyncWriteExt;
+    for mode in 0..4 {
+        let directory = Directory::new();
+        let workspace = directory.0.join("must-not-be-created");
+        let calls = Arc::new(AtomicUsize::new(0));
+        let token = if mode == 3 {
+            "Credential"
+        } else {
+            "synthetic-host-token"
+        };
+        let server = RemoteServer {
+            calls: Arc::clone(&calls),
+            mode,
+            token: token.into(),
+        };
+        let cancel = tokio_util::sync::CancellationToken::new();
+        let service = StreamableHttpService::new(
+            move || Ok(server.clone()),
+            Arc::new(NeverSessionManager::default()),
+            StreamableHttpServerConfig::default()
+                .with_legacy_session_mode(false)
+                .with_json_response(true)
+                .with_stateless_protocol_metadata_required(false)
+                .with_cancellation_token(cancel.clone()),
+        );
+        let router = axum::Router::new().route_service("/mcp", service);
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let url = format!("http://{}/mcp", listener.local_addr().unwrap());
+        let shutdown = cancel.clone();
+        let task = tokio::spawn(async move {
+            axum::serve(listener, router)
+                .with_graceful_shutdown(shutdown.cancelled_owned())
+                .await
+                .unwrap();
+        });
+        let mut child = tokio::process::Command::new(env!("CARGO_BIN_EXE_eal-host"))
+            .args([
+                "--url",
+                &url,
+                "--workspace",
+                workspace.to_str().unwrap(),
+                "--token-env",
+                "TOKEN",
+                "--timeout",
+                "5",
+            ])
+            .env_clear()
+            .env("TOKEN", token)
+            .env("NO_PROXY", "*")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .kill_on_drop(true)
+            .spawn()
+            .unwrap();
+        child
+            .stdin
+            .take()
+            .unwrap()
+            .write_all(b"{\"operation\":\"describe\"}")
+            .await
+            .unwrap();
+        let output = tokio::time::timeout(Duration::from_secs(8), child.wait_with_output())
+            .await
+            .unwrap()
+            .unwrap();
+        let stdout = String::from_utf8(output.stdout).unwrap();
+        let result = eal_core::json::parse(&stdout, &eal_core::ExecutionLimits::default()).unwrap();
+        assert!(!stdout.contains(token), "mode {mode}: {stdout}");
+        assert!(!workspace.exists());
+        assert_eq!(
+            output.status.code(),
+            Some(match mode {
+                0 => 0,
+                1 => 1,
+                _ => 2,
+            }),
+            "mode {mode}: {stdout}; stderr {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert_eq!(calls.load(Ordering::SeqCst), usize::from(mode != 2));
+        if mode < 2 {
+            assert_eq!(result["result"]["remote"], "[redacted]");
+            assert_eq!(result["protocol_version"], "2025-11-25");
+            assert_eq!(result["is_error"], mode == 1);
+        } else if mode == 2 {
+            assert!(
+                result["error"]
+                    .as_str()
+                    .unwrap()
+                    .contains("Discovered input schema rejected request")
+            );
+        } else {
+            assert!(
+                result["error"]
+                    .as_str()
+                    .unwrap()
+                    .contains("merge distinct JSON object keys")
+            );
+        }
+        cancel.cancel();
+        task.await.unwrap();
+    }
+}
+
+#[tokio::test]
+async fn direct_client_deadline_values_fail_without_panicking_or_starting_a_child() {
+    for timeout in [0.0, -1.0, f64::NAN, f64::INFINITY, 1e30, 1e19] {
+        let target = ClientTarget::Stdio(client::StdioTarget {
+            command: PathBuf::from("/must-not-start-eal-host-deadline-test"),
+            arguments: vec![],
+            environment: BTreeMap::new(),
+            cwd: None,
+        });
+        let error = client::dispatch_tool("eal_describe", &json!({}), target, timeout)
+            .await
+            .unwrap_err();
+        assert!(error.contains("Host timeout"), "{timeout}: {error}");
+    }
+}

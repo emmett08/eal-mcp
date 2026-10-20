@@ -16,12 +16,17 @@ without Python or Java.
 The opt-in [finite ASPIC implementation](docs/aspic.md) provides explicit theory
 solving, observation-bound EAL compilation and recomputed `aspic-view/3` export.
 The [native runtime](docs/runtime.md) adds private SQLite storage, trusted collector
-acquisition, observation reuse and supervised optional methods. MCP, the model
-host, coordination and the visualiser's live-solver bridge remain pending.
-Assessment-packet, model-context and catalogue adapters are also later work.
+acquisition, observation reuse and supervised optional methods. The
+[application layer](docs/applications.md) provides the production `eal` CLI,
+immutable source catalogues, registered assessment, bounded packets and model
+context. `eal-mcp` serves the operator or registered catalogue over stdio or
+Streamable HTTP; [`eal-host`](docs/text-host.md) sends one checked request through
+the official Rust MCP SDK. The SDK has a documented
+[local JSON-preservation patch](vendor/rmcp/README.md).
 See the [implementation status](docs/port-status.md) and frozen
-[source inventory](contracts/source-lock.json). The production `eal`, `eal-mcp`,
-`eal-host` and `eal-coordinate` entry points remain pending.
+[source inventory](contracts/source-lock.json). Coordination, including
+`eal-coordinate`, is the next stage; the visualiser's native live-solver bridge
+and final packaging verification follow it.
 
 ## Build and use
 
@@ -37,6 +42,22 @@ cargo run --locked -p eal-cli --bin eal-syntax -- recognise fixtures/parser/sour
 cargo run --locked -p eal-cli --bin eal-core -- --methods engineering validate fixtures/parser/sources/api-load-test.eal
 cargo run --locked -p eal-cli --bin eal-core -- describe
 ```
+
+Install all three application packages into the same prefix so the production
+commands can find their companion executables:
+
+```sh
+cargo install --path crates/eal-runtime --locked
+cargo install --path crates/eal-cli --locked
+cargo install --path crates/eal-mcp --locked
+```
+
+This installs `eal`, `eal-mcp`, `eal-host`, the development commands,
+`eal-command-supervisor` and `eal-method-worker`. The durable runtime currently
+requires the documented POSIX private-store profile. See
+[application commands and catalogue boundaries](docs/applications.md),
+[HTTP and text-host policy](docs/text-host.md), and
+[packet and model-context projections](docs/packets.md).
 
 The API load-test fixture contains synthetic observations. In `eal-syntax`,
 `parse` emits the typed lexical AST, `recognise` emits the concrete tree and
@@ -132,10 +153,14 @@ when the emitted source would exceed the selected budgets. Library callers can
 use `eal_core::Program::format_with_limits` for lexical formatting with explicit
 budgets; semantic formatting uses the compiled programme's limits.
 
-The staged `eal-runtime` driver connects validation, planning, collection, durable
-assessment, supervised ASPIC compilation and explanation. Build all workspace
-binaries before using it; its supervisor and method worker are separate companion
-executables. See [runtime configuration, installation and boundaries](docs/runtime.md).
+The production `eal` command connects validation, planning, collection, durable
+assessment, supervised ASPIC compilation, catalogues and explanation. The
+development `eal-runtime` driver remains available. Build all workspace binaries
+before using runtime operations; the supervisor and method worker are separate
+companion executables. Production `grounded` and `export-aspic` run before service
+construction and create no database. Other production commands use the shared
+service; the pure `eal-core` development commands remain available when storage
+is unnecessary. See [runtime configuration and boundaries](docs/runtime.md).
 
 ## Verify
 
@@ -161,6 +186,13 @@ observation identities remain exact. The differential reference profile is
 CPython 3.12.14 with Unicode 15; `sum` uses its 64-bit C-long profile consistently
 across Rust targets. Python is used only to capture development references,
 never by normal Rust tests.
+
+Application references retain catalogue revisions and history, packet/context
+projections, discovery, MCP descriptors and rejected calls, and host admission
+and redaction. Native integration tests exercise registered reuse, both MCP
+transports, HTTP policy and cancellation. These fixtures and checks establish
+their recorded cases; coordination, the consumer's live bridge and complete
+package acceptance remain separate work.
 
 The GitHub workflow runs on manual dispatch. It checks Rust on Linux and Windows
 and checks parser regeneration separately on Linux.

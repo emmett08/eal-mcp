@@ -1,11 +1,12 @@
 # Durable acquisition and supervised methods
 
-`eal-runtime` supplies the native runtime beneath the later production CLI,
+`eal-runtime` supplies the native runtime beneath the production CLI,
 catalogues and transports. It keeps IO, clock lookup and process execution out
 of `eal-core` and `eal-aspic`. The shared `ReasoningService` implements validation,
 formatting, evidence planning, collection, stored-collection assessment,
-supervised ASPIC compilation and durable explanation. Packet, catalogue,
-model-context and MCP operations remain pending.
+supervised ASPIC compilation, durable explanation, catalogue revision history
+and registered assessment. See [applications](applications.md) for production
+commands and MCP exposure, and [packets](packets.md) for bounded projections.
 
 ## Build and use
 
@@ -15,11 +16,13 @@ Build the workspace so the command and its two companions are available together
 cargo build --release --workspace --locked
 ```
 
-For an installation, install both packages into the same prefix:
+For the complete application installation, install all three packages into the
+same prefix:
 
 ```sh
 cargo install --path crates/eal-runtime --locked
 cargo install --path crates/eal-cli --locked
+cargo install --path crates/eal-mcp --locked
 ```
 
 The development driver finds `eal-command-supervisor` and `eal-method-worker`
@@ -124,9 +127,10 @@ indexed store and verifies the exact stored original before preparing a detached
 record. It requires current binding and, for commands, execution-environment
 identity. It retains original `collected_at`, `observed_at` and origin identity;
 rebinding never refreshes measurement age. Freshness and evidence predicates are
-assessed later at the explicit assessment instant. The registered-source policy
-that chooses and atomically commits reused collections belongs to the catalogue
-stage.
+assessed later at the assessment instant. The registered assessment host plans
+the complete claim closure, chooses compatible observations individually,
+collects missing observations and atomically stores its rebinding batch. See
+[registered assessment boundaries](applications.md).
 
 The retained runtime references contain 119 acquisition witnesses and 38
 collection-identity/reuse cases from the unmodified pinned Python source. Malformed

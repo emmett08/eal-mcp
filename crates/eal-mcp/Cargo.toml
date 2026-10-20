@@ -1,0 +1,38 @@
+[package]
+name = "eal-mcp"
+description = "Native EAL/3 MCP services and text-model host"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "eal-mcp"
+path = "src/bin/server.rs"
+
+[[bin]]
+name = "eal-host"
+path = "src/bin/host.rs"
+
+[dependencies]
+eal-core.workspace = true
+eal-aspic.workspace = true
+eal-runtime.workspace = true
+rmcp.workspace = true
+tokio.workspace = true
+tokio-util.workspace = true
+axum.workspace = true
+reqwest.workspace = true
+url.workspace = true
+http.workspace = true
+tower.workspace = true
+jsonschema.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+toml.workspace = true
+indexmap.workspace = true
+
+[lints]
+workspace = true

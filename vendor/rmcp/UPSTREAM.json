@@ -1,0 +1,25 @@
+{
+  "name": "rmcp",
+  "version": "3.6.0",
+  "repository": "https://github.com/modelcontextprotocol/rust-sdk/",
+  "upstream_commit": "74d789515fdee63ef46a1635b801364aad6695e4",
+  "archive": "rmcp-3.6.0.crate",
+  "archive_source": "https://static.crates.io/crates/rmcp/rmcp-3.6.0.crate",
+  "archive_sha256": "ceb42e9e47443cd83a834dea57b5816d35481417bae72ade5dc5615c59122e26",
+  "archive_bytes": 624559,
+  "archive_regular_files": 181,
+  "archive_uncompressed_file_bytes": 3504281,
+  "license": "Apache-2.0",
+  "license_file": "LICENSE",
+  "notice_file": null,
+  "manifest_changes": [
+    "Replace upstream git-hook build script with bounded archive reconstruction",
+    "Use a local package README for provenance; library documentation still uses the archived upstream README",
+    "Forbid unsafe code in the handwritten build script and crate wrapper",
+    "Generate explicit root-module paths using byte-identical mod.rs copies to preserve nested module resolution",
+    "Allow macro_expanded_macro_exports_accessed_by_absolute_paths for upstream macro imports through the generated include",
+    "Add pinned Rust-only archive reconstruction build dependencies",
+    "Omit upstream explicit test targets and development dependencies; disable vendor library test/doctest/bench harnesses; complete upstream sources remain in the archive"
+  ],
+  "patches": "patches.rs declares exact, ordered before/after replacement hunks"
+}

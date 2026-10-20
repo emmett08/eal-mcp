@@ -183,6 +183,32 @@ impl RunStore {
         self.check_files()?;
         Ok(connection)
     }
+    /// Internal repositories borrow one checked, owned connection; no handle
+    /// escapes this boundary or remains shared between operations.
+    pub(crate) fn with_connection<T>(
+        &self,
+        operation: impl FnOnce(&Connection) -> Result<T, String>,
+    ) -> Result<T, String> {
+        let connection = self.connect()?;
+        let result = operation(&connection)?;
+        self.check_files()?;
+        Ok(result)
+    }
+    /// Repository updates commit only after validating the captured file identities.
+    pub(crate) fn with_transaction<T>(
+        &self,
+        operation: impl FnOnce(&rusqlite::Transaction<'_>) -> Result<T, String>,
+    ) -> Result<T, String> {
+        let mut connection = self.connect()?;
+        let transaction = connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|e| e.to_string())?;
+        let result = operation(&transaction)?;
+        self.check_files()?;
+        transaction.commit().map_err(|e| e.to_string())?;
+        self.check_files()?;
+        Ok(result)
+    }
     pub fn put(
         &self,
         kind: &str,

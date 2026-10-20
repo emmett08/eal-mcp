@@ -33,7 +33,7 @@
       "rust_components": [
         "workspace"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/abstractions.py",
@@ -114,7 +114,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/cli.py",
@@ -124,7 +124,7 @@
       "rust_components": [
         "eal-cli"
       ],
-      "implementation_status": "partial_native"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/client_transports.py",
@@ -132,9 +132,9 @@
       "lines": 69,
       "purpose": "Transport factories for the one-shot host client.",
       "rust_components": [
-        "eal-cli"
+        "eal-mcp"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/collection_identity.py",
@@ -214,7 +214,7 @@
       "rust_components": [
         "eal-cli"
       ],
-      "implementation_status": "partial_native"
+      "implementation_status": "pending"
     },
     {
       "path": "src/eal/coordination/codec_process.py",
@@ -342,9 +342,9 @@
       "lines": 33,
       "purpose": "Read and validate operator-owned opaque bearer credentials without disclosure.",
       "rust_components": [
-        "eal-runtime"
+        "eal-mcp"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/dialectic.py",
@@ -362,9 +362,9 @@
       "lines": 127,
       "purpose": "Packaged language reference for models with no prior knowledge of EAL.",
       "rust_components": [
-        "eal-core"
+        "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/evaluator.py",
@@ -412,9 +412,9 @@
       "lines": 179,
       "purpose": "Strict JSON adapter for clients which cannot call MCP tools directly.",
       "rust_components": [
-        "eal-cli"
+        "eal-mcp"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/host_redaction.py",
@@ -422,9 +422,9 @@
       "lines": 90,
       "purpose": "Sanitise remote JSON keys and values while retaining fixed host wrappers.",
       "rust_components": [
-        "eal-cli"
+        "eal-mcp"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/knowledge.py",
@@ -434,7 +434,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/limits.py",
@@ -454,7 +454,7 @@
       "rust_components": [
         "eal-mcp"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/methods.py",
@@ -465,8 +465,7 @@
         "eal-core",
         "eal-runtime"
       ],
-      "implementation_status": "implemented_native",
-      "remaining": "Python factory loading, external method workers and process supervision; see docs/port-status.md"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/model.py",
@@ -486,7 +485,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/modes.py",
@@ -516,7 +515,7 @@
       "rust_components": [
         "eal-mcp"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/operations.py",
@@ -526,7 +525,7 @@
       "rust_components": [
         "eal-mcp"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/packets.py",
@@ -536,7 +535,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/parser.py",
@@ -697,7 +696,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/runtime.py",
@@ -707,7 +706,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "partial_native"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/sampled_negative.py",
@@ -747,7 +746,7 @@
       "rust_components": [
         "eal-mcp"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/server_auth.py",
@@ -757,7 +756,7 @@
       "rust_components": [
         "eal-mcp"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/server_settings.py",
@@ -767,7 +766,7 @@
       "rust_components": [
         "eal-mcp"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/source_printer.py",

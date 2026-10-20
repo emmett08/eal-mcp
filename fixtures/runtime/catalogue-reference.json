@@ -1,0 +1,1497 @@
+{
+  "schema": "EAL/catalogue-reference/1",
+  "source_revision": "e2d6f346a37f92483b9f9a13923b98feb053447b",
+  "comparison": "Every portable metadata field; wallclock timestamps and backend method-registry fingerprints are independently checked and normalized only at known result fields. Native intentionally fixes refreshing previously generated path entry IDs.",
+  "cases": [
+    {
+      "name": "register-search-reload",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "context": {
+            "site": "bench"
+          },
+          "claims": [
+            "ready"
+          ],
+          "label": "Readiness",
+          "save": "first",
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "Readiness",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "site": "bench"
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": [
+                "ready"
+              ],
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z"
+            }
+          }
+        },
+        {
+          "op": "register",
+          "path": "source.eal",
+          "context": {
+            "site": "bench"
+          },
+          "claims": [
+            "ready"
+          ],
+          "label": "Readiness",
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "Readiness",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "site": "bench"
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": [
+                "ready"
+              ],
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z"
+            }
+          }
+        },
+        {
+          "op": "reload",
+          "expected": {
+            "value": null
+          }
+        },
+        {
+          "op": "get",
+          "entry_id": "source.eal",
+          "include_source": true,
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "Readiness",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "site": "bench"
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": [
+                "ready"
+              ],
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z",
+              "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+            }
+          }
+        },
+        {
+          "op": "list",
+          "expected": {
+            "value": [
+              {
+                "entry_id": "source.eal",
+                "path": "source.eal",
+                "label": "Readiness",
+                "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+                "current": true,
+                "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+                "context": {
+                  "site": "bench"
+                },
+                "claims": [
+                  "ready"
+                ],
+                "selected_claims": [
+                  "ready"
+                ],
+                "claim_metadata": {
+                  "ready": {
+                    "environment": "lab",
+                    "statement": "The service is ready."
+                  }
+                },
+                "registered_at": "2040-01-01T00:00:00.000000Z"
+              }
+            ]
+          }
+        },
+        {
+          "op": "find",
+          "query": "readiness",
+          "claim": "ready",
+          "context": {
+            "site": "bench"
+          },
+          "expected": {
+            "value": [
+              {
+                "entry_id": "source.eal",
+                "path": "source.eal",
+                "label": "Readiness",
+                "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+                "current": true,
+                "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+                "context": {
+                  "site": "bench"
+                },
+                "claims": [
+                  "ready"
+                ],
+                "selected_claims": [
+                  "ready"
+                ],
+                "claim_metadata": {
+                  "ready": {
+                    "environment": "lab",
+                    "statement": "The service is ready."
+                  }
+                },
+                "registered_at": "2040-01-01T00:00:00.000000Z"
+              }
+            ]
+          }
+        },
+        {
+          "op": "find",
+          "query": "service is ready",
+          "expected": {
+            "value": [
+              {
+                "entry_id": "source.eal",
+                "path": "source.eal",
+                "label": "Readiness",
+                "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+                "current": true,
+                "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+                "context": {
+                  "site": "bench"
+                },
+                "claims": [
+                  "ready"
+                ],
+                "selected_claims": [
+                  "ready"
+                ],
+                "claim_metadata": {
+                  "ready": {
+                    "environment": "lab",
+                    "statement": "The service is ready."
+                  }
+                },
+                "registered_at": "2040-01-01T00:00:00.000000Z"
+              }
+            ]
+          }
+        },
+        {
+          "op": "find",
+          "claim": "missing",
+          "expected": {
+            "value": []
+          }
+        },
+        {
+          "op": "find",
+          "context": {
+            "site": "field"
+          },
+          "expected": {
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "immutable-revisions",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "context": {
+            "site": "bench"
+          },
+          "claims": [
+            "ready"
+          ],
+          "label": "Readiness",
+          "save": "first",
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "Readiness",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "site": "bench"
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": [
+                "ready"
+              ],
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z"
+            }
+          }
+        },
+        {
+          "op": "write",
+          "path": "source.eal",
+          "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The bounded revised service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n",
+          "expected": {
+            "value": null
+          }
+        },
+        {
+          "op": "get",
+          "entry_id": "source.eal",
+          "include_source": true,
+          "save": "second",
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "Readiness",
+              "source_digest": "494285781b4ce7509ef204b5eeb3e37cb2a3de5ead712402c43c988bd8d9e7b5",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "site": "bench"
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": [
+                "ready"
+              ],
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The bounded revised service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000001Z",
+              "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The bounded revised service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+            }
+          }
+        },
+        {
+          "op": "get_revision",
+          "entry_id": "source.eal",
+          "source_digest": "$first.source_digest",
+          "include_source": true,
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "Readiness",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "current": false,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "site": "bench"
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": [
+                "ready"
+              ],
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z",
+              "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+            }
+          }
+        },
+        {
+          "op": "revisions",
+          "entry_id": "source.eal",
+          "expected": {
+            "value": [
+              {
+                "source_digest": "494285781b4ce7509ef204b5eeb3e37cb2a3de5ead712402c43c988bd8d9e7b5",
+                "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+                "registered_at": "2040-01-01T00:00:00.000001Z",
+                "claims": [
+                  "ready"
+                ],
+                "current": true
+              },
+              {
+                "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+                "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+                "registered_at": "2040-01-01T00:00:00.000000Z",
+                "claims": [
+                  "ready"
+                ],
+                "current": false
+              }
+            ]
+          }
+        },
+        {
+          "op": "write",
+          "path": "source.eal",
+          "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim gone {\n  statement \"The bounded revised service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => gone\n",
+          "expected": {
+            "value": null
+          }
+        },
+        {
+          "op": "get",
+          "entry_id": "source.eal",
+          "expected": {
+            "error": "Selected claims are absent from the source: ready",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "get_revision",
+          "entry_id": "source.eal",
+          "source_digest": "$second.source_digest",
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "Readiness",
+              "source_digest": "494285781b4ce7509ef204b5eeb3e37cb2a3de5ead712402c43c988bd8d9e7b5",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "site": "bench"
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": [
+                "ready"
+              ],
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The bounded revised service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000001Z"
+            }
+          }
+        },
+        {
+          "op": "write",
+          "path": "source.eal",
+          "source": "invalid source",
+          "expected": {
+            "value": null
+          }
+        },
+        {
+          "op": "get",
+          "entry_id": "source.eal",
+          "expected": {
+            "error": "Registered source failed EAL validation: 1:1: mismatched input 'invalid' expecting {'language', NL}",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "get_cached",
+          "entry_id": "source.eal",
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "Readiness",
+              "source_digest": "494285781b4ce7509ef204b5eeb3e37cb2a3de5ead712402c43c988bd8d9e7b5",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "site": "bench"
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": [
+                "ready"
+              ],
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The bounded revised service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000001Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "nested-default-refresh-source-bug",
+      "files": {
+        "nested/source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "nested/source.eal",
+          "save": "first",
+          "expected": {
+            "value": {
+              "entry_id": "nested/source.eal",
+              "path": "nested/source.eal",
+              "label": "source",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {},
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": null,
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z"
+            }
+          }
+        },
+        {
+          "op": "get",
+          "entry_id": "nested/source.eal",
+          "include_source": true,
+          "native_fix": "existing_generated_id_refresh",
+          "expected": {
+            "error": "Explicit entry_id must be a simple developer name",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "nested-explicit-id",
+      "files": {
+        "nested/source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "nested/source.eal",
+          "entry_id": "readiness",
+          "context": {
+            "site": "bench"
+          },
+          "expected": {
+            "value": {
+              "entry_id": "readiness",
+              "path": "nested/source.eal",
+              "label": "source",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "site": "bench"
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": null,
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z"
+            }
+          }
+        },
+        {
+          "op": "get",
+          "entry_id": "readiness",
+          "include_source": true,
+          "expected": {
+            "value": {
+              "entry_id": "readiness",
+              "path": "nested/source.eal",
+              "label": "source",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "site": "bench"
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": null,
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z",
+              "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "fixed-metadata",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "context": {
+            "site": "bench"
+          },
+          "claims": [
+            "ready"
+          ],
+          "label": "Readiness",
+          "save": "first",
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "Readiness",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "site": "bench"
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": [
+                "ready"
+              ],
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z"
+            }
+          }
+        },
+        {
+          "op": "register",
+          "path": "source.eal",
+          "label": "Changed",
+          "context": {
+            "site": "bench"
+          },
+          "claims": [
+            "ready"
+          ],
+          "expected": {
+            "error": "Registered entry metadata differs; use another developer entry_id",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "register",
+          "path": "source.eal",
+          "entry_id": "different",
+          "expected": {
+            "error": "Source path is already registered under another entry_id",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "list",
+          "expected": {
+            "value": [
+              {
+                "entry_id": "source.eal",
+                "path": "source.eal",
+                "label": "Readiness",
+                "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+                "current": true,
+                "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+                "context": {
+                  "site": "bench"
+                },
+                "claims": [
+                  "ready"
+                ],
+                "selected_claims": [
+                  "ready"
+                ],
+                "claim_metadata": {
+                  "ready": {
+                    "environment": "lab",
+                    "statement": "The service is ready."
+                  }
+                },
+                "registered_at": "2040-01-01T00:00:00.000000Z"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "empty-id",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "entry_id": "",
+          "expected": {
+            "error": "entry_id must be a bounded nonempty string",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "path-id",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "entry_id": "a/b",
+          "expected": {
+            "error": "Explicit entry_id must be a simple developer name",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "numeric-id",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "entry_id": "1abc",
+          "expected": {
+            "error": "Explicit entry_id must be a simple developer name",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "long-id",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "entry_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "expected": {
+            "error": "Explicit entry_id must be a simple developer name",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "blank-label",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "label": "\u001c\u001d\u001e\u001f",
+          "expected": {
+            "error": "label must contain one to 128 characters",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "long-label",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "label": "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ",
+          "expected": {
+            "error": "label must contain one to 128 characters",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "unicode-label",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "label": "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ",
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {},
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": null,
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "context-array",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "context": [],
+          "expected": {
+            "error": "context must be a JSON object",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "context-large",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "context": {
+            "padding": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          },
+          "expected": {
+            "error": "context exceeds 8192 UTF-8 bytes",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "context-exact-byte-limit",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "context": {
+            "padding": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          },
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "source",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "padding": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": null,
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "empty-claims",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "claims": [],
+          "expected": {
+            "error": "claims must contain unique claim identifiers",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "duplicate-claims",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "claims": [
+            "ready",
+            "ready"
+          ],
+          "expected": {
+            "error": "claims must contain unique claim identifiers",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "missing-claims",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "claims": [
+            "z_absent",
+            "a_absent"
+          ],
+          "expected": {
+            "error": "Selected claims are absent from the source: a_absent, z_absent",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "input-controls",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "/source.eal",
+          "expected": {
+            "error": "path must be a workspace-relative .eal file",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "register",
+          "path": "../outside.eal",
+          "expected": {
+            "error": "Path is outside the workspace: ../outside.eal",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "register",
+          "path": "source.txt",
+          "expected": {
+            "error": "path must be a workspace-relative .eal file",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "list",
+          "limit": 0,
+          "expected": {
+            "error": "limit must be an integer from 1 through 100",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "list",
+          "offset": 10001,
+          "expected": {
+            "error": "offset must be an integer from 0 through 10000",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "find",
+          "query": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "expected": {
+            "error": "query must be at most 256 characters",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "find",
+          "context": [],
+          "expected": {
+            "error": "context must be a JSON object",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "get_revision",
+          "entry_id": "absent",
+          "source_digest": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "expected": {
+            "error": "source_digest must be a lowercase SHA-256 digest",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "get_revision",
+          "entry_id": "absent",
+          "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "method_registry_fingerprint": "bad",
+          "expected": {
+            "error": "method_registry_fingerprint must be a lowercase SHA-256 digest",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "get",
+          "entry_id": "absent",
+          "expected": {
+            "error": "\"Unknown catalogue entry or source revision 'absent'\"",
+            "kind": "KeyError"
+          }
+        },
+        {
+          "op": "revisions",
+          "entry_id": "absent",
+          "expected": {
+            "error": "\"Unknown catalogue entry 'absent'\"",
+            "kind": "KeyError"
+          }
+        },
+        {
+          "op": "register_tree",
+          "directory": "/outside",
+          "expected": {
+            "error": "directory must be workspace-relative",
+            "kind": "ValueError"
+          }
+        },
+        {
+          "op": "register_tree",
+          "limit": 0,
+          "expected": {
+            "error": "limit must be an integer from 1 through 512",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "bounded-discovery",
+      "files": {
+        "nested/good.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n",
+        "nested/bad.eal": "invalid source",
+        "nested/ignored.txt": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register_tree",
+          "directory": "nested",
+          "context": {
+            "site": "bench"
+          },
+          "expected": {
+            "value": {
+              "registered": [
+                {
+                  "entry_id": "nested/good.eal",
+                  "path": "nested/good.eal",
+                  "label": "good",
+                  "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+                  "current": true,
+                  "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+                  "context": {
+                    "site": "bench"
+                  },
+                  "claims": [
+                    "ready"
+                  ],
+                  "selected_claims": null,
+                  "claim_metadata": {
+                    "ready": {
+                      "environment": "lab",
+                      "statement": "The service is ready."
+                    }
+                  },
+                  "registered_at": "2040-01-01T00:00:00.000000Z"
+                }
+              ],
+              "rejected": [
+                {
+                  "path": "nested/bad.eal",
+                  "reason": "Registered source failed EAL validation: 1:1: mismatched input 'invalid' expecting {'language', NL}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "register_tree",
+          "directory": "nested",
+          "limit": 1,
+          "expected": {
+            "error": "Directory contains more EAL files than the discovery limit",
+            "kind": "ValueError"
+          }
+        }
+      ]
+    },
+    {
+      "name": "import-bundle-revision",
+      "files": {
+        "source.eal": "language \"EAL/3\"\nimport \"support.eal\" as support\nclaim ready {\n statement \"The bounded condition holds.\"\n environment support.lab\n}\n",
+        "support.eal": "language \"EAL/3\"\nenvironment lab {\n require site == \"bench\"\n}\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "save": "first",
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "source",
+              "source_digest": "00576861053bf83dcf16450392ce0dd4557495814056eb5aff8e6665e8c48554",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {},
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": null,
+              "claim_metadata": {
+                "ready": {
+                  "environment": "support.lab",
+                  "statement": "The bounded condition holds."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z"
+            }
+          }
+        },
+        {
+          "op": "write",
+          "path": "support.eal",
+          "source": "language \"EAL/3\"\nenvironment lab {\n require site == \"field\"\n}\n",
+          "expected": {
+            "value": null
+          }
+        },
+        {
+          "op": "get",
+          "entry_id": "source.eal",
+          "include_source": true,
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "source",
+              "source_digest": "f737ccb0d850bc1d7df5863f59ccae7525a72e6fcb7783a536a937142578bc71",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {},
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": null,
+              "claim_metadata": {
+                "ready": {
+                  "environment": "support.lab",
+                  "statement": "The bounded condition holds."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000001Z",
+              "source": "language \"EAL/3\"\nimport \"support.eal\" as support\nclaim ready {\n statement \"The bounded condition holds.\"\n environment support.lab\n}\n"
+            }
+          }
+        },
+        {
+          "op": "get_revision",
+          "entry_id": "source.eal",
+          "source_digest": "$first.source_digest",
+          "include_source": true,
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "source",
+              "source_digest": "00576861053bf83dcf16450392ce0dd4557495814056eb5aff8e6665e8c48554",
+              "current": false,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {},
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": null,
+              "claim_metadata": {
+                "ready": {
+                  "environment": "support.lab",
+                  "statement": "The bounded condition holds."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z",
+              "source": "language \"EAL/3\"\nimport \"support.eal\" as support\nclaim ready {\n statement \"The bounded condition holds.\"\n environment support.lab\n}\n"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "historical-source-context-and-selected-claims",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "context": {
+            "site": "bench"
+          },
+          "claims": [
+            "ready"
+          ],
+          "label": "Readiness",
+          "save": "first",
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "Readiness",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "site": "bench"
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": [
+                "ready"
+              ],
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z"
+            }
+          }
+        },
+        {
+          "op": "put",
+          "kind": "collection",
+          "record_id": "collection-good",
+          "payload": {
+            "source_digest": "$first.source_digest",
+            "context": {
+              "site": "bench"
+            },
+            "records": {
+              "observation": {
+                "value": {
+                  "secret": "not catalogue metadata"
+                }
+              }
+            }
+          },
+          "expected": {
+            "value": "collection-good"
+          }
+        },
+        {
+          "op": "put",
+          "kind": "collection",
+          "record_id": "collection-other",
+          "payload": {
+            "source_digest": "$first.source_digest",
+            "context": {
+              "site": "field"
+            },
+            "records": {}
+          },
+          "expected": {
+            "value": "collection-other"
+          }
+        },
+        {
+          "op": "put",
+          "kind": "assessment",
+          "record_id": "assessment-good",
+          "payload": {
+            "source_digest": "$first.source_digest",
+            "context_fingerprint": {
+              "digest": {
+                "site": "bench"
+              }
+            },
+            "method_registry_fingerprint": "$first.method_registry_fingerprint",
+            "collection_id": "collection-good",
+            "assessed_at": "2040-01-01T00:00:00Z",
+            "claims": {
+              "ready": {
+                "status": "supported"
+              },
+              "unselected": {
+                "status": "contested"
+              }
+            }
+          },
+          "expected": {
+            "value": "assessment-good"
+          }
+        },
+        {
+          "op": "put",
+          "kind": "assessment",
+          "record_id": "assessment-other",
+          "payload": {
+            "source_digest": "$first.source_digest",
+            "context_fingerprint": "other",
+            "claims": {
+              "ready": {
+                "status": "unsupported"
+              }
+            }
+          },
+          "expected": {
+            "value": "assessment-other"
+          }
+        },
+        {
+          "op": "runs",
+          "entry_id": "source.eal",
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "collections": [
+                {
+                  "collection_id": "collection-good",
+                  "created_at": "2040-01-01T00:00:00.000001Z",
+                  "record_count": 1
+                }
+              ],
+              "assessments": [
+                {
+                  "assessment_id": "assessment-good",
+                  "collection_id": "collection-good",
+                  "created_at": "2040-01-01T00:00:00.000003Z",
+                  "assessed_at": "2040-01-01T00:00:00Z",
+                  "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+                  "claim_statuses": {
+                    "ready": "supported"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "literal-context-identity-keys",
+      "files": {
+        "source.eal": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool reader {\n  version \"1\"\n}\n\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 60\n  require \"ok\" == true\n}\n\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The measurement supports this claim.\"\n}\n\nclaim ready {\n  statement \"The service is ready.\"\n  environment lab\n}\n\nargument route = [evidence observation] via authored => ready\n"
+      },
+      "steps": [
+        {
+          "op": "register",
+          "path": "source.eal",
+          "context": {
+            "registered_at": "literal",
+            "method_registry_fingerprint": "literal",
+            "span": {
+              "line": 7
+            },
+            "contract": {
+              "identity_basis": "literal"
+            }
+          },
+          "expected": {
+            "value": {
+              "entry_id": "source.eal",
+              "path": "source.eal",
+              "label": "source",
+              "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+              "current": true,
+              "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+              "context": {
+                "contract": {
+                  "identity_basis": "literal"
+                },
+                "method_registry_fingerprint": "literal",
+                "registered_at": "literal",
+                "span": {
+                  "line": 7
+                }
+              },
+              "claims": [
+                "ready"
+              ],
+              "selected_claims": null,
+              "claim_metadata": {
+                "ready": {
+                  "environment": "lab",
+                  "statement": "The service is ready."
+                }
+              },
+              "registered_at": "2040-01-01T00:00:00.000000Z"
+            }
+          }
+        },
+        {
+          "op": "find",
+          "context": {
+            "registered_at": "literal",
+            "method_registry_fingerprint": "literal",
+            "span": {
+              "line": 7
+            },
+            "contract": {
+              "identity_basis": "literal"
+            }
+          },
+          "expected": {
+            "value": [
+              {
+                "entry_id": "source.eal",
+                "path": "source.eal",
+                "label": "source",
+                "source_digest": "2aa406bd2cc3d0ff31c56c3d47e90996324e7321911e313aa60a4df74375b6b9",
+                "current": true,
+                "method_registry_fingerprint": "31ad450d8b06500f2e294d0c9e1d5d5d7b9397a1e4d089f3a598b92494e228e5",
+                "context": {
+                  "contract": {
+                    "identity_basis": "literal"
+                  },
+                  "method_registry_fingerprint": "literal",
+                  "registered_at": "literal",
+                  "span": {
+                    "line": 7
+                  }
+                },
+                "claims": [
+                  "ready"
+                ],
+                "selected_claims": null,
+                "claim_metadata": {
+                  "ready": {
+                    "environment": "lab",
+                    "statement": "The service is ready."
+                  }
+                },
+                "registered_at": "2040-01-01T00:00:00.000000Z"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

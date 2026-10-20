@@ -16,6 +16,10 @@ name = "eal-core"
 path = "src/core_main.rs"
 
 [[bin]]
+name = "eal"
+path = "src/application_main.rs"
+
+[[bin]]
 name = "eal-runtime"
 path = "src/runtime_main.rs"
 
@@ -27,6 +31,7 @@ eal-runtime.workspace = true
 serde_json.workspace = true
 serde.workspace = true
 toml.workspace = true
+rustix.workspace = true
 
 [dev-dependencies]
 sha2.workspace = true

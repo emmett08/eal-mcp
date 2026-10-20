@@ -121,7 +121,7 @@ fn unchanged(path: &Path, before: &std::fs::Metadata) -> Result<(), AcquisitionE
     Ok(())
 }
 
-pub(super) fn read_regular(
+pub(crate) fn read_regular(
     path: &Path,
     limit: usize,
     not_regular: &str,

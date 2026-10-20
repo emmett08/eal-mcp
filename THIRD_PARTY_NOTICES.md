@@ -45,6 +45,17 @@ the accompanying historical notices in
 [`CPython-LICENSE.txt`](crates/eal-core/src/methods/CPython-LICENSE.txt).
 Copyright (c) 2001–2023 Python Software Foundation; all rights reserved.
 
+## Official MCP Rust SDK
+
+The MCP transports use the official `rmcp` SDK, version `3.6.0`, under the
+[Apache License 2.0](vendor/rmcp/LICENSE). Its original published crate is
+retained with a verified digest in `vendor/rmcp`; the build applies the reviewed
+codec changes described in [the patch notes](vendor/rmcp/README.md). These
+changes preserve literal JSON object keys with arbitrary-precision numbers and
+bound HTTP response decoding. The original SDK supplies protocol negotiation,
+dispatch, cancellation and transports. Upstream source identity, archive hash
+and the extraction procedure are retained in that directory.
+
 ## Coordination material reserved for a later stage
 
 The source implementation embeds a Rust MAS codec derived from the MAS Protocol
