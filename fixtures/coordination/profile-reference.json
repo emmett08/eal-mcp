@@ -1,0 +1,2640 @@
+{
+  "schema": "eal-coordination-profile-reference/1",
+  "source_revision": "e2d6f346a37f92483b9f9a13923b98feb053447b",
+  "source_sha256": "78a020bce869210e9c6b327da93a79411a1c954d72c5ccf36b174bc5c3a39afb",
+  "requirements": [
+    {
+      "name": "generic",
+      "profile": "registered_claims/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "dataset": "synthetic",
+          "count": 1
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "api",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "unknown_profile",
+      "profile": "other/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "dataset": "synthetic",
+          "count": 1
+        }
+      },
+      "error": "Unknown installed coordination profile"
+    },
+    {
+      "name": "unknown_requirement",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        },
+        "now": "2026-01-01T00:00:00Z"
+      },
+      "error": "Profile requires exactly its declared requirement fields"
+    },
+    {
+      "name": "context_array",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": [],
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "context requires a JSON object"
+    },
+    {
+      "name": "workload_missing",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {},
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "API workload requires all five identity fields"
+    },
+    {
+      "name": "workload_whitespace",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": " run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "run_id requires nonempty bounded text without surrounding whitespace"
+    },
+    {
+      "name": "clients_boolean",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": true
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "Concurrent clients requires a positive integer"
+    },
+    {
+      "name": "clients_float",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10.0
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "Concurrent clients requires a positive integer"
+    },
+    {
+      "name": "clients_zero",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 0
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "Concurrent clients requires a positive integer"
+    },
+    {
+      "name": "clients_negative",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": -1
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "Concurrent clients requires a positive integer"
+    },
+    {
+      "name": "clients_big_integer",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "context_extra",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "extra": true
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "API context requires service, build_id and dataset"
+    },
+    {
+      "name": "criteria_missing",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {},
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "API criteria require the complete criterion and freshness contract"
+    },
+    {
+      "name": "criteria_boolean",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": true,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "API criteria require finite nonnegative numbers and integer request count"
+    },
+    {
+      "name": "criteria_string",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": "1",
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "API criteria require finite nonnegative numbers and integer request count"
+    },
+    {
+      "name": "criteria_negative",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": -1,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "API criteria require finite nonnegative numbers and integer request count"
+    },
+    {
+      "name": "criteria_huge",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "API criteria require finite nonnegative numbers and integer request count"
+    },
+    {
+      "name": "criteria_float_count",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100.0,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": "API criteria require finite nonnegative numbers and integer request count"
+    },
+    {
+      "name": "criteria_float_limit",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200.0,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "criteria_changed",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 201,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "freshness_changed",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 42
+        },
+        "claim_outputs": {
+          "ready": "passes",
+          "challenged": "fails"
+        }
+      },
+      "error": null
+    },
+    {
+      "name": "outputs_missing",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "passes"
+        }
+      },
+      "error": "API claim_outputs must bind each selected claim to passes or fails"
+    },
+    {
+      "name": "output_wrong",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": "unknown",
+          "challenged": "fails"
+        }
+      },
+      "error": "API claim_outputs must bind each selected claim to passes or fails"
+    },
+    {
+      "name": "output_array",
+      "profile": "api_load/1",
+      "claims": [
+        "ready",
+        "challenged"
+      ],
+      "requirements": {
+        "context": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic"
+        },
+        "workload": {
+          "service": "orders-api",
+          "build_id": "build-1",
+          "dataset": "synthetic",
+          "run_id": "run-1",
+          "concurrent_clients": 10
+        },
+        "criteria": {
+          "minimum_requests": 100,
+          "maximum_sample_p95_ms": 200,
+          "maximum_error_rate_percent": 1,
+          "evidence_max_age_seconds": 86400
+        },
+        "claim_outputs": {
+          "ready": [],
+          "challenged": "fails"
+        }
+      },
+      "error": "API claim_outputs must bind each selected claim to passes or fails"
+    }
+  ],
+  "answers": [
+    {
+      "name": "matching",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39",
+        "claims": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "assessed",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": []
+    },
+    {
+      "name": "not_object",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": [],
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "answer",
+          "detail": "Answer requires exactly its declared fields"
+        }
+      ]
+    },
+    {
+      "name": "missing_field",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39",
+        "claims": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "assessed"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "answer",
+          "detail": "Answer requires exactly its declared fields"
+        }
+      ]
+    },
+    {
+      "name": "task_identity",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": {
+        "task_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39",
+        "claims": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "assessed",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "task_digest",
+          "detail": "Answer differs from the trusted task finding"
+        }
+      ]
+    },
+    {
+      "name": "finding_identity",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "claims": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "assessed",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "finding_id",
+          "detail": "Answer differs from the trusted task finding"
+        }
+      ]
+    },
+    {
+      "name": "qualification",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39",
+        "claims": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "assessed",
+        "qualification": "proved"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "qualification",
+          "detail": "Assessment remains conditional on the registered argument; no proof of prose follows"
+        }
+      ]
+    },
+    {
+      "name": "context_type",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39",
+        "claims": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": true
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": true
+            }
+          }
+        },
+        "conclusion": "assessed",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "scope",
+          "detail": "Answer must retain the complete requested context and profile requirements"
+        }
+      ]
+    },
+    {
+      "name": "requirements_omitted",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39",
+        "claims": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {}
+        },
+        "conclusion": "assessed",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "scope",
+          "detail": "Answer must retain the complete requested context and profile requirements"
+        }
+      ]
+    },
+    {
+      "name": "claims_missing",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39",
+        "claims": {},
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "assessed",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "claims",
+          "detail": "Answer must include exactly the selected claims"
+        }
+      ]
+    },
+    {
+      "name": "claim_array",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39",
+        "claims": {
+          "ready": [],
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "assessed",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "claims.ready",
+          "detail": "Claim result must match the persisted assessment identity, status and time"
+        }
+      ]
+    },
+    {
+      "name": "claim_status",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39",
+        "claims": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "unsupported",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "assessed",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "claims.ready",
+          "detail": "Claim result must match the persisted assessment identity, status and time"
+        }
+      ]
+    },
+    {
+      "name": "claim_identity",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39",
+        "claims": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          },
+          "challenged": {
+            "assessment_id": "replacement",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "assessed",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "claims.challenged",
+          "detail": "Claim result must match the persisted assessment identity, status and time"
+        }
+      ]
+    },
+    {
+      "name": "claim_time",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39",
+        "claims": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:02Z"
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "assessed",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "claims.challenged",
+          "detail": "Claim result must match the persisted assessment identity, status and time"
+        }
+      ]
+    },
+    {
+      "name": "wrong_conclusion",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": true,
+          "code": null,
+          "detail": "Matched"
+        },
+        "assessments": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z",
+            "collected_count": 1,
+            "reused_count": 0
+          }
+        },
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 2,
+        "reused_count": 0,
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_63d93b8141e42fd5465f3f112e5a732a948fd025e3188853665f0602c545dd39",
+        "claims": {
+          "ready": {
+            "assessment_id": "assessment-ready",
+            "status": "supported",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          },
+          "challenged": {
+            "assessment_id": "assessment-challenged",
+            "status": "contested",
+            "assessed_at": "2026-09-23T12:00:01Z"
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "unresolved",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "conclusion",
+          "detail": "Conclusion must distinguish existing EAL assessments from scope mismatch and unavailable results"
+        }
+      ]
+    },
+    {
+      "name": "source_changed",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": false,
+          "code": "source_changed",
+          "detail": "Unavailable"
+        },
+        "assessments": {},
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 0,
+        "reused_count": 0,
+        "finding_id": "finding_310d419fdd13322cc782c648fc36a0941b1b9d3ce753e812a3d621350ac45761"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_310d419fdd13322cc782c648fc36a0941b1b9d3ce753e812a3d621350ac45761",
+        "claims": {
+          "ready": {
+            "assessment_id": null,
+            "status": null,
+            "assessed_at": null
+          },
+          "challenged": {
+            "assessment_id": null,
+            "status": null,
+            "assessed_at": null
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "out_of_scope",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": []
+    },
+    {
+      "name": "source_changed_fabricated_status",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": false,
+          "code": "source_changed",
+          "detail": "Unavailable"
+        },
+        "assessments": {},
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 0,
+        "reused_count": 0,
+        "finding_id": "finding_310d419fdd13322cc782c648fc36a0941b1b9d3ce753e812a3d621350ac45761"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_310d419fdd13322cc782c648fc36a0941b1b9d3ce753e812a3d621350ac45761",
+        "claims": {
+          "ready": {
+            "assessment_id": null,
+            "status": "unsupported",
+            "assessed_at": null
+          },
+          "challenged": {
+            "assessment_id": null,
+            "status": null,
+            "assessed_at": null
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "out_of_scope",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "claims.ready",
+          "detail": "Claim result must match the persisted assessment identity, status and time"
+        }
+      ]
+    },
+    {
+      "name": "evidence_unavailable",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": false,
+          "code": "evidence_unavailable",
+          "detail": "Unavailable"
+        },
+        "assessments": {},
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 0,
+        "reused_count": 0,
+        "finding_id": "finding_e47e0d9ff818aa112e86491053f41fcd363fde4678aa50aeeb0e30427f2181b0"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_e47e0d9ff818aa112e86491053f41fcd363fde4678aa50aeeb0e30427f2181b0",
+        "claims": {
+          "ready": {
+            "assessment_id": null,
+            "status": null,
+            "assessed_at": null
+          },
+          "challenged": {
+            "assessment_id": null,
+            "status": null,
+            "assessed_at": null
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "unresolved",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": []
+    },
+    {
+      "name": "evidence_unavailable_fabricated_status",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": false,
+          "code": "evidence_unavailable",
+          "detail": "Unavailable"
+        },
+        "assessments": {},
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 0,
+        "reused_count": 0,
+        "finding_id": "finding_e47e0d9ff818aa112e86491053f41fcd363fde4678aa50aeeb0e30427f2181b0"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_e47e0d9ff818aa112e86491053f41fcd363fde4678aa50aeeb0e30427f2181b0",
+        "claims": {
+          "ready": {
+            "assessment_id": null,
+            "status": "unsupported",
+            "assessed_at": null
+          },
+          "challenged": {
+            "assessment_id": null,
+            "status": null,
+            "assessed_at": null
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "unresolved",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "claims.ready",
+          "detail": "Claim result must match the persisted assessment identity, status and time"
+        }
+      ]
+    },
+    {
+      "name": "effect_outcome_unknown",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": false,
+          "code": "effect_outcome_unknown",
+          "detail": "Unavailable"
+        },
+        "assessments": {},
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 0,
+        "reused_count": 0,
+        "finding_id": "finding_92a7079698e6856cdd4742cefb56ecc75c24635ca94ff79209dcd385adf9be94"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_92a7079698e6856cdd4742cefb56ecc75c24635ca94ff79209dcd385adf9be94",
+        "claims": {
+          "ready": {
+            "assessment_id": null,
+            "status": null,
+            "assessed_at": null
+          },
+          "challenged": {
+            "assessment_id": null,
+            "status": null,
+            "assessed_at": null
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "unresolved",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": []
+    },
+    {
+      "name": "effect_outcome_unknown_fabricated_status",
+      "anchor": {
+        "schema": "EAL/MAS-coordination-task/3",
+        "task": {
+          "task_id": "bounded-review",
+          "question": "What do these claims support?",
+          "entry_id": "sample",
+          "claims": [
+            "ready",
+            "challenged"
+          ],
+          "profile": "registered_claims/1",
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "source_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "method_registry_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "registered_context": {
+          "dataset": "synthetic",
+          "count": 1
+        },
+        "pinned_at": "2026-09-23T12:00:00Z",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82"
+      },
+      "finding": {
+        "schema": "EAL/MAS-coordination-finding/3",
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "check": {
+          "ok": false,
+          "code": "effect_outcome_unknown",
+          "detail": "Unavailable"
+        },
+        "assessments": {},
+        "packets": {},
+        "explanations": {},
+        "mcp": {
+          "transport": "actual_mcp_stdio",
+          "calls": []
+        },
+        "collected_count": 0,
+        "reused_count": 0,
+        "finding_id": "finding_92a7079698e6856cdd4742cefb56ecc75c24635ca94ff79209dcd385adf9be94"
+      },
+      "answer": {
+        "task_digest": "d63ca478651b7fe21104b961d84381511f529639d6f406d5d6cfb0b45b941a82",
+        "finding_id": "finding_92a7079698e6856cdd4742cefb56ecc75c24635ca94ff79209dcd385adf9be94",
+        "claims": {
+          "ready": {
+            "assessment_id": null,
+            "status": "unsupported",
+            "assessed_at": null
+          },
+          "challenged": {
+            "assessment_id": null,
+            "status": null,
+            "assessed_at": null
+          }
+        },
+        "scope": {
+          "context": {
+            "dataset": "synthetic",
+            "count": 1
+          },
+          "requirements": {
+            "context": {
+              "dataset": "synthetic",
+              "count": 1
+            }
+          }
+        },
+        "conclusion": "unresolved",
+        "qualification": "conditional_on_registered_argument"
+      },
+      "diagnostics": [
+        {
+          "code": "answer_mismatch",
+          "path": "claims.ready",
+          "detail": "Claim result must match the persisted assessment identity, status and time"
+        }
+      ]
+    }
+  ]
+}

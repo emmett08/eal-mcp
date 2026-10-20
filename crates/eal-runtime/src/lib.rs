@@ -12,6 +12,7 @@ pub mod method_worker;
 pub mod methods;
 pub mod model_context;
 pub mod packets;
+pub mod private_sqlite;
 pub mod process;
 pub mod registered_assessment;
 pub mod reuse;

@@ -9,8 +9,10 @@ ASPIC reasoning, checked source compilation and graph export.
 Durable runtime services, trusted acquisition, observation reuse and supervised
 method execution are implemented. The application stage adds the production
 `eal`, `eal-mcp` and `eal-host` entry points, catalogue revisions, registered
-assessment, packet/context projections and discovery. Coordination remains the
-next implementation stage.
+assessment, packet/context projections and discovery. Durable coordination adds
+`eal-coordinate`, role-scoped MCP gateways, native mailbox serving and the nom
+codec. The visualiser bridge and final combined acceptance remain
+the next stage.
 
 ## Scope and component boundaries
 
@@ -27,15 +29,15 @@ their corresponding implementation is ported.
 | `eal-aspic` | Finite ASPIC construction, preferences, defeat, extensions, compilation and checked view export | Implemented and differentially checked; live visualiser bridge pending |
 | `eal-runtime` | Collection, immutable records, reuse, catalogue, registered assessment, packets, context, method execution and supervision | Implemented within the documented POSIX runtime profile |
 | `eal-mcp` | Exclusive operator/registered catalogues, authentication, transports and text host | Implemented with the official SDK and a documented local codec patch |
-| `eal-coordination` | Durable task coordination, delivery and effect identities, codec and worker adapters | Pending |
+| `eal-coordination` | Durable task coordination, delivery and effect identities, codec and worker adapters | Implemented within the trusted single-host profile |
 | `eal-cli` | Production and development command-line interfaces | `eal`, `eal-syntax`, `eal-core` and `eal-runtime` implemented; text host is in `eal-mcp` |
 
 The inventory retains the pinned source paths, hashes and planned component
 boundaries. Its `implemented_native` labels identify the implemented and tested
 native operations with the deltas documented here, rather than complete semantic
 equivalence. Python import factories are replaced by explicit native registries
-and a versioned subprocess method protocol. Coordination modules retain pending
-labels. The table above records component progress.
+and a versioned subprocess method protocol. The table above records component
+progress; each inventory label retains the scope and deltas documented here.
 
 Pure assessment uses typed values, supplied observations, explicit context and
 an explicit timezone-aware instant. Source composition accepts a host-supplied
@@ -81,8 +83,8 @@ The development `eal-core` commands are `compile SOURCE`, `validate SOURCE`,
 `--workspace DIR` selects the trusted file boundary; `--limits FILE` reads a
 TOML `[limits]` table. `--methods builtin|engineering` selects the eight-method
 default or adds the four optional engineering methods. Production application
-entry points are described in [applications](applications.md) and
-[the text-host policy](text-host.md); `eal-coordinate` remains pending.
+entry points are described in [applications](applications.md),
+[the text-host policy](text-host.md) and [coordination](coordination.md).
 
 JSON traversal defaults to depth 64 and has a hard ceiling of 128. Expressions
 and schema instance checks also have hard depth ceilings of 128. The Rust
@@ -200,6 +202,11 @@ normalize only documented backend identities, clock fields and parser-specific
 diagnostics. They establish the exercised cases, rather than unrestricted
 application equivalence or final package acceptance.
 
+Application-stage installed-package smoke checks exercised `eal`, `eal-mcp`,
+`eal-host` and their runtime companions with Python absent. Those checks cover
+the installed application entry points. Coordination's installed-package smoke
+checks are recorded below; live visualiser compatibility remains separate.
+
 Three application differences are explicit. Internal refresh preserves a trusted
 path-generated entry ID such as `nested/source.eal`, fixing the source's erroneous
 explicit-ID revalidation; newly supplied developer IDs retain the source regex.
@@ -209,17 +216,74 @@ routes: braces are rejected rather than interpreted as framework route syntax.
 Production `grounded` and `export-aspic` avoid service and database construction;
 other production commands retain the shared-service path.
 
+## Implemented durable coordination
+
+The [coordination layer](coordination.md) freezes registered tasks, selected
+claims, source/context/method identities, actual pin time and finite budgets.
+The two installed correspondence profiles check registered claims and API-load
+workloads/criteria without acquiring observations. Role-specific gateways use
+actual registered MCP assessment and separate operator packet/explanation
+retrieval. Worker-authored handoffs and answers must preserve their complete
+trusted references, scope, claim statuses and assessment times.
+
+An authoritative private SQLite ledger reserves effects before execution and
+atomically retains exact first-response bytes, execution evidence, admission
+and immutable outbox. Stable message IDs deduplicate identical publication.
+Recovery reconciles committed delivery, ACK and accounting without repeating an
+uncertain external effect. Unknown assessment outcomes have no fabricated
+assessment references or acquisition counts. Rejected and interrupted first
+attempts cannot be replaced by repairs.
+
+`eal-coordinate` implements all ten lifecycle/gateway commands. Command workers
+use explicit environments, bounded process IO, deadlines and cancellation;
+their live receipts remain operator assertions. The default JSON transport and
+native persistent MCP mailbox retain the delivery/effect contracts. The published
+worker-response schema remains byte-identical. Task and finding schemas keep
+their `/3` versions; the independent transport envelope stays at version 1.
+
+Native installation differences are explicit. `HostPaths` selects installed
+companions independently of the frozen five-field server specification. The
+Lab `runtime` field names a directory containing native `eal-mas-server`, replacing
+an external Python Lab checkout. The nom codec executes in process and also
+ships as `mas-protocol-codec`, replacing the Python SDK/codec process bridge.
+Native method profiles replace Python factories; semantic contract checks and
+the complete pinned supervised registry identity remain separate checks.
+Bundled pure method workers now use an empty environment consistently across
+entry points; custom worker and collector environments keep their configured
+identity. This changes the earlier application-stage native fingerprint.
+Catalogue refresh retains a new immutable method revision and leaves old
+assessment identities unchanged.
+The pure `--response-schema` option is additive. Successful CLI exports return
+exit 0, fixing the source CLI's uncaught set-membership error on their nested
+status object. Native JSON, file and raw-response bounds are documented rather
+than presented as unbounded source behaviour.
+
+Pure profile references retain 25 requirement checks and 20 answer-diagnostic
+checks. Native tests cover correspondence, manual and command worker paths,
+exact bytes, private environment handling, first-response locking, quotas,
+delivery/restart and actual MCP retrieval. These establish the exercised local
+mechanisms, not model-quality gains, authenticated provider receipts or
+operating-system role isolation.
+
+Installed coordination smoke checks completed four runs under the engineering
+registry with child `PATH` empty: two JSON-mailbox runs and two native Lab MCP runs. Exact
+scoped answers, assessment IDs/times, first-response bytes/hashes and distinct
+command receipts were checked. The first collected one observation; the next
+three reused it. Each run made six MCP calls and two gateway calls; replay added
+no calls or worker executions. A forced receipt-commit failure after persisted
+assessment left an unknown effect. Recovery made no further assessment or MCP
+call, then admitted a manual software disposition and reviewer-only command
+with null unassessed fields. These are deterministic software checks, not model
+or provider trials. Installed smoke coverage now includes `eal`, `eal-mcp`,
+`eal-host` and `eal-coordinate` with their native companions.
+
 ## Remaining implementation sequence
 
-1. **Port coordination.** Implement `eal-coordinate` and the production
-   coordination modules, replacing Python-specific process bridges. Preserve
-   delivery and effect identity, durable reservations, worker/codec contracts
-   and refusal to retry calls with an uncertain execution outcome.
-2. **Verify visualisation and packaging.** Connect the native solver to the
+1. **Verify visualisation and packaging.** Connect the native solver to the
    visualiser's live bridge and exercise complete browser consumption alongside
-   the retained schema and graph checks. Complete installed-package verification
-   with Python absent, including coordination, MCP transports and native
-   companions, while retaining process-death and reuse regressions.
+   the retained schema and graph checks. Complete final combined acceptance with
+   the installed native commands and visualiser, while retaining process-death,
+   transport and reuse regressions.
 
 The selected ANTLR generator is pinned with its runtime and recognisers are
 checked in. A normal build uses those Rust sources. Java is needed only for
@@ -248,8 +312,10 @@ The authored semantic core adds differential assessments, independent Dung
 checks, numerical and identity fixtures, dependency planning and semantic
 formatter checks. The finite ASPIC stage adds complete extension-family checks,
 snapshot comparisons and recomputed graph exports. Complete port acceptance
-also requires the coordination implementation, visualiser validation and a
-Python-free installed-package acceptance test across all production entry points.
+also requires visualiser validation and final combined release acceptance.
+Python-free installed smoke checks already cover the four production entry
+points and their companions.
 Application tests retain real stdio/HTTP round trips, process ownership and
-deadline tests, observation reuse and packet/context/catalogue checks. Pending
+deadline tests, observation reuse, packet/context/catalogue checks and durable
+coordination recovery. Pending
 components remain explicit until their own checks exercise them.

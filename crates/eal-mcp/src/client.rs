@@ -123,7 +123,8 @@ fn configuration() -> ClientConfig {
     )
     .with_protocol_version(ProtocolVersion::V_2025_11_25)
 }
-type Client = RunningService<RoleClient, ClientConfig>;
+pub type McpClient = RunningService<RoleClient, ClientConfig>;
+type Client = McpClient;
 async fn invoke(client: &Client, tool: &str, arguments: &Value) -> Result<Value, String> {
     let tools = client.list_all_tools().await.map_err(|e| e.to_string())?;
     let entry = tools
@@ -172,12 +173,42 @@ pub async fn dispatch_tool(
     }
     let duration = Duration::try_from_secs_f64(timeout_seconds)
         .map_err(|_| "Host timeout is outside supported bounds")?;
-    std::time::Instant::now()
+    let deadline = std::time::Instant::now()
         .checked_add(duration)
         .ok_or("Host timeout is outside supported bounds")?;
     let mut running: Option<Client> = None;
     let outcome = tokio::time::timeout(duration, async {
-        let client = match target {
+        let client = connect(target, deadline).await?;
+        running = Some(client);
+        let client = running.as_mut().unwrap();
+        let result = invoke(client, tool, arguments).await;
+        client.close().await.map_err(|e| e.to_string())?;
+        result
+    })
+    .await;
+    match outcome {
+        Ok(result) => result,
+        Err(_) => {
+            if let Some(client) = running.as_mut() {
+                client.cancellation_token().cancel();
+                let _ = client.close_with_timeout(Duration::from_millis(250)).await;
+            }
+            Err("MCP session exceeded its configured deadline".into())
+        }
+    }
+}
+
+/// Connect once without invocation or replay. The absolute deadline includes initialization.
+pub async fn connect(
+    target: ClientTarget,
+    deadline: std::time::Instant,
+) -> Result<McpClient, String> {
+    let duration = deadline.saturating_duration_since(std::time::Instant::now());
+    if duration.is_zero() {
+        return Err("MCP session exceeded its configured deadline".into());
+    }
+    tokio::time::timeout_at(tokio::time::Instant::from_std(deadline), async {
+        Ok::<McpClient, String>(match target {
             ClientTarget::Stdio(target) => {
                 let mut command = tokio::process::Command::new(&target.command);
                 command
@@ -215,22 +246,8 @@ pub async fn dispatch_tool(
                     .await
                     .map_err(|e| e.to_string())?
             }
-        };
-        running = Some(client);
-        let client = running.as_mut().unwrap();
-        let result = invoke(client, tool, arguments).await;
-        client.close().await.map_err(|e| e.to_string())?;
-        result
+        })
     })
-    .await;
-    match outcome {
-        Ok(result) => result,
-        Err(_) => {
-            if let Some(client) = running.as_mut() {
-                client.cancellation_token().cancel();
-                let _ = client.close_with_timeout(Duration::from_millis(250)).await;
-            }
-            Err("MCP session exceeded its configured deadline".into())
-        }
-    }
+    .await
+    .map_err(|_| "MCP session exceeded its configured deadline".to_owned())?
 }

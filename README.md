@@ -23,10 +23,12 @@ context. `eal-mcp` serves the operator or registered catalogue over stdio or
 Streamable HTTP; [`eal-host`](docs/text-host.md) sends one checked request through
 the official Rust MCP SDK. The SDK has a documented
 [local JSON-preservation patch](vendor/rmcp/README.md).
+The [coordination layer](docs/coordination.md) adds durable assessor/reviewer
+runs, immutable first responses, role-scoped MCP gateways and native mailbox
+and codec executables.
 See the [implementation status](docs/port-status.md) and frozen
-[source inventory](contracts/source-lock.json). Coordination, including
-`eal-coordinate`, is the next stage; the visualiser's native live-solver bridge
-and final packaging verification follow it.
+[source inventory](contracts/source-lock.json). The visualiser's native
+live-solver bridge and final packaging verification remain separate work.
 
 ## Build and use
 
@@ -43,21 +45,26 @@ cargo run --locked -p eal-cli --bin eal-core -- --methods engineering validate f
 cargo run --locked -p eal-cli --bin eal-core -- describe
 ```
 
-Install all three application packages into the same prefix so the production
+Install all four application packages into the same prefix so the production
 commands can find their companion executables:
 
 ```sh
 cargo install --path crates/eal-runtime --locked
 cargo install --path crates/eal-cli --locked
 cargo install --path crates/eal-mcp --locked
+cargo install --path crates/eal-coordination --locked
 ```
 
 This installs `eal`, `eal-mcp`, `eal-host`, the development commands,
-`eal-command-supervisor` and `eal-method-worker`. The durable runtime currently
+`eal-command-supervisor`, `eal-method-worker`, `eal-coordinate`, `eal-mas-server`
+and `mas-protocol-codec`. The durable runtime currently
 requires the documented POSIX private-store profile. See
 [application commands and catalogue boundaries](docs/applications.md),
 [HTTP and text-host policy](docs/text-host.md), and
-[packet and model-context projections](docs/packets.md).
+[packet and model-context projections](docs/packets.md). Coordination retains
+the ten lifecycle/gateway commands, trusted task profiles and finite run budgets.
+Its default transport is a durable JSON mailbox; selecting `--runtime` uses an
+installed native `eal-mas-server` through persistent MCP.
 
 The API load-test fixture contains synthetic observations. In `eal-syntax`,
 `parse` emits the typed lexical AST, `recognise` emits the concrete tree and
@@ -190,9 +197,11 @@ never by normal Rust tests.
 Application references retain catalogue revisions and history, packet/context
 projections, discovery, MCP descriptors and rejected calls, and host admission
 and redaction. Native integration tests exercise registered reuse, both MCP
-transports, HTTP policy and cancellation. These fixtures and checks establish
-their recorded cases; coordination, the consumer's live bridge and complete
-package acceptance remain separate work.
+transports, HTTP policy and cancellation. Coordination checks add task/profile
+correspondence, exact first-response retention, durable reservations, delivery
+recovery and bounded command execution. These fixtures and checks establish
+their recorded cases; the consumer's live bridge and complete package acceptance
+remain separate work.
 
 The GitHub workflow runs on manual dispatch. It checks Rust on Linux and Windows
 and checks parser regeneration separately on Linux.

@@ -1,0 +1,1750 @@
+{
+  "schema": "eal-native-lab-store-reference/1",
+  "store_sha256": "f2510cbad31646c372d0006cb50be3f9d3f027a540c9142a0a4a09c1ea84b638",
+  "provenance": "Pinned toolkit Store; deterministic per-scenario clock; official baseline Rust codec; no model execution",
+  "scenarios": [
+    {
+      "name": "delivery-redelivery-ack-identity",
+      "steps": [
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "b"
+            ]
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 100000,
+              "max_calls": 20,
+              "max_messages": 100,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "1",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 0,
+              "bytes": 0,
+              "calls": 0
+            },
+            "messages": [],
+            "protocols": [],
+            "calls": [],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "result": {
+            "accepted": true,
+            "duplicate": false,
+            "sequence": 1
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "$serde_json::private::Number": "literal",
+                "nested": {
+                  "a": false,
+                  "z": 1
+                },
+                "text": "€"
+              }
+            },
+            "actor": "a"
+          },
+          "result": {
+            "accepted": true,
+            "duplicate": true,
+            "sequence": 1
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "changed": true
+              }
+            },
+            "actor": "a"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "message identity reused with different content"
+          }
+        },
+        {
+          "operation": "ack",
+          "arguments": {
+            "run_id": "run",
+            "message_id": "m",
+            "recipient": "b"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "message has not been received"
+          }
+        },
+        {
+          "operation": "receive",
+          "arguments": {
+            "run_id": "run",
+            "recipient": "b"
+          },
+          "result": [
+            {
+              "message": {
+                "kind": "request",
+                "message_id": "m",
+                "payload": {
+                  "$serde_json::private::Number": "literal",
+                  "nested": {
+                    "a": false,
+                    "z": 1
+                  },
+                  "text": "€"
+                },
+                "recipient": "b",
+                "run_id": "run",
+                "sender": "a",
+                "version": "1"
+              },
+              "sequence": 1,
+              "redelivered": false
+            }
+          ]
+        },
+        {
+          "operation": "receive",
+          "arguments": {
+            "run_id": "run",
+            "recipient": "b"
+          },
+          "result": [
+            {
+              "message": {
+                "kind": "request",
+                "message_id": "m",
+                "payload": {
+                  "$serde_json::private::Number": "literal",
+                  "nested": {
+                    "a": false,
+                    "z": 1
+                  },
+                  "text": "€"
+                },
+                "recipient": "b",
+                "run_id": "run",
+                "sender": "a",
+                "version": "1"
+              },
+              "sequence": 1,
+              "redelivered": true
+            }
+          ]
+        },
+        {
+          "operation": "ack",
+          "arguments": {
+            "run_id": "run",
+            "message_id": "m",
+            "recipient": "a"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "message not addressed to worker"
+          }
+        },
+        {
+          "operation": "ack",
+          "arguments": {
+            "run_id": "run",
+            "message_id": "m",
+            "recipient": "b"
+          },
+          "result": {
+            "acknowledged": true,
+            "message_id": "m"
+          }
+        },
+        {
+          "operation": "ack",
+          "arguments": {
+            "run_id": "run",
+            "message_id": "m",
+            "recipient": "b"
+          },
+          "result": {
+            "acknowledged": true,
+            "message_id": "m"
+          }
+        },
+        {
+          "operation": "receive",
+          "arguments": {
+            "run_id": "run",
+            "recipient": "b"
+          },
+          "result": []
+        },
+        {
+          "operation": "inspect",
+          "arguments": {
+            "run_id": "run"
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 100000,
+              "max_calls": 20,
+              "max_messages": 100,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "1",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 1,
+              "bytes": 186,
+              "calls": 0
+            },
+            "messages": [
+              {
+                "id": "m",
+                "sender": "a",
+                "recipient": "b",
+                "received": 1,
+                "acked": 1,
+                "hash": "5602daa86c0dcd2fc7bf7e1482cdd250bea60f5b4d58ce5e43495e0dfcdce407"
+              }
+            ],
+            "protocols": [],
+            "calls": [],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        }
+      ]
+    },
+    {
+      "name": "frozen-config-and-exact-actors",
+      "steps": [
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "b"
+            ]
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 100000,
+              "max_calls": 20,
+              "max_messages": 100,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "1",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 0,
+              "bytes": 0,
+              "calls": 0
+            },
+            "messages": [],
+            "protocols": [],
+            "calls": [],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        },
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "b"
+            ]
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 100000,
+              "max_calls": 20,
+              "max_messages": 100,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "1",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 0,
+              "bytes": 0,
+              "calls": 0
+            },
+            "messages": [],
+            "protocols": [],
+            "calls": [],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        },
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "b",
+              "a"
+            ]
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "frozen run configuration differs"
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "unknown"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "unregistered worker"
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "unknown",
+              "recipient": "unknown",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "sender differs from host worker identity"
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "unknown",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "unregistered recipient"
+          }
+        },
+        {
+          "operation": "receive",
+          "arguments": {
+            "run_id": "run",
+            "recipient": "unknown"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "unregistered worker"
+          }
+        },
+        {
+          "operation": "inspect",
+          "arguments": {
+            "run_id": "absent"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "unknown run"
+          }
+        },
+        {
+          "operation": "inspect",
+          "arguments": {
+            "run_id": "run"
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 100000,
+              "max_calls": 20,
+              "max_messages": 100,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "1",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 0,
+              "bytes": 0,
+              "calls": 0
+            },
+            "messages": [],
+            "protocols": [],
+            "calls": [],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        }
+      ]
+    },
+    {
+      "name": "deadline-does-not-reopen-or-block-receipts",
+      "steps": [
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "b"
+            ],
+            "wall_seconds": 1
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 100000,
+              "max_calls": 20,
+              "max_messages": 100,
+              "wall_seconds": 1
+            },
+            "active_protocol": "1",
+            "deadline": 1001.25,
+            "usage": {
+              "messages": 0,
+              "bytes": 0,
+              "calls": 0
+            },
+            "messages": [],
+            "protocols": [],
+            "calls": [],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "result": {
+            "accepted": true,
+            "duplicate": false,
+            "sequence": 1
+          }
+        },
+        {
+          "operation": "reserve_call",
+          "arguments": {
+            "run_id": "run",
+            "actor": "a",
+            "call_id": "call"
+          },
+          "result": {
+            "reserved": true,
+            "call_id": "call"
+          }
+        },
+        {
+          "operation": "advance",
+          "arguments": 1,
+          "result": null
+        },
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "b"
+            ],
+            "wall_seconds": 1
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 100000,
+              "max_calls": 20,
+              "max_messages": 100,
+              "wall_seconds": 1
+            },
+            "active_protocol": "1",
+            "deadline": 1001.25,
+            "usage": {
+              "messages": 1,
+              "bytes": 186,
+              "calls": 1
+            },
+            "messages": [
+              {
+                "id": "m",
+                "sender": "a",
+                "recipient": "b",
+                "received": 0,
+                "acked": 0,
+                "hash": "5602daa86c0dcd2fc7bf7e1482cdd250bea60f5b4d58ce5e43495e0dfcdce407"
+              }
+            ],
+            "protocols": [],
+            "calls": [
+              {
+                "id": "call",
+                "actor": "a",
+                "state": "reserved",
+                "evidence": null
+              }
+            ],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "result": {
+            "accepted": true,
+            "duplicate": true,
+            "sequence": 1
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "changed": true
+              }
+            },
+            "actor": "a"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "message identity reused with different content"
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "new",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "wall-clock budget exhausted"
+          }
+        },
+        {
+          "operation": "reserve_call",
+          "arguments": {
+            "run_id": "run",
+            "actor": "a",
+            "call_id": "call"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "wall-clock budget exhausted"
+          }
+        },
+        {
+          "operation": "receive",
+          "arguments": {
+            "run_id": "run",
+            "recipient": "b"
+          },
+          "result": [
+            {
+              "message": {
+                "kind": "request",
+                "message_id": "m",
+                "payload": {
+                  "$serde_json::private::Number": "literal",
+                  "nested": {
+                    "a": false,
+                    "z": 1
+                  },
+                  "text": "€"
+                },
+                "recipient": "b",
+                "run_id": "run",
+                "sender": "a",
+                "version": "1"
+              },
+              "sequence": 1,
+              "redelivered": false
+            }
+          ]
+        },
+        {
+          "operation": "ack",
+          "arguments": {
+            "run_id": "run",
+            "message_id": "m",
+            "recipient": "b"
+          },
+          "result": {
+            "acknowledged": true,
+            "message_id": "m"
+          }
+        },
+        {
+          "operation": "finish_call",
+          "arguments": {
+            "run_id": "run",
+            "actor": "a",
+            "call_id": "call",
+            "evidence": {
+              "retained": false,
+              "count": 0,
+              "estimate": 1.0
+            }
+          },
+          "result": {
+            "recorded": true
+          }
+        },
+        {
+          "operation": "finish_call",
+          "arguments": {
+            "run_id": "run",
+            "actor": "a",
+            "call_id": "call",
+            "evidence": {}
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "call already completed"
+          }
+        },
+        {
+          "operation": "inspect",
+          "arguments": {
+            "run_id": "run"
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 100000,
+              "max_calls": 20,
+              "max_messages": 100,
+              "wall_seconds": 1
+            },
+            "active_protocol": "1",
+            "deadline": 1001.25,
+            "usage": {
+              "messages": 1,
+              "bytes": 186,
+              "calls": 1
+            },
+            "messages": [
+              {
+                "id": "m",
+                "sender": "a",
+                "recipient": "b",
+                "received": 1,
+                "acked": 1,
+                "hash": "5602daa86c0dcd2fc7bf7e1482cdd250bea60f5b4d58ce5e43495e0dfcdce407"
+              }
+            ],
+            "protocols": [],
+            "calls": [
+              {
+                "id": "call",
+                "actor": "a",
+                "state": "recorded",
+                "evidence": {
+                  "count": 0,
+                  "estimate": 1.0,
+                  "retained": false
+                }
+              }
+            ],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        }
+      ]
+    },
+    {
+      "name": "exact-stored-json-byte-budget",
+      "steps": [
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "b"
+            ],
+            "max_bytes": 186
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 186,
+              "max_calls": 20,
+              "max_messages": 100,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "1",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 0,
+              "bytes": 0,
+              "calls": 0
+            },
+            "messages": [],
+            "protocols": [],
+            "calls": [],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "result": {
+            "accepted": true,
+            "duplicate": false,
+            "sequence": 1
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "result": {
+            "accepted": true,
+            "duplicate": true,
+            "sequence": 1
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "n",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "communication budget exhausted"
+          }
+        },
+        {
+          "operation": "inspect",
+          "arguments": {
+            "run_id": "run"
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 186,
+              "max_calls": 20,
+              "max_messages": 100,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "1",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 1,
+              "bytes": 186,
+              "calls": 0
+            },
+            "messages": [
+              {
+                "id": "m",
+                "sender": "a",
+                "recipient": "b",
+                "received": 0,
+                "acked": 0,
+                "hash": "5602daa86c0dcd2fc7bf7e1482cdd250bea60f5b4d58ce5e43495e0dfcdce407"
+              }
+            ],
+            "protocols": [],
+            "calls": [],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        }
+      ]
+    },
+    {
+      "name": "message-and-call-budgets",
+      "steps": [
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "b"
+            ],
+            "max_messages": 1,
+            "max_calls": 1
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 100000,
+              "max_calls": 1,
+              "max_messages": 1,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "1",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 0,
+              "bytes": 0,
+              "calls": 0
+            },
+            "messages": [],
+            "protocols": [],
+            "calls": [],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "result": {
+            "accepted": true,
+            "duplicate": false,
+            "sequence": 1
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "n",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "communication budget exhausted"
+          }
+        },
+        {
+          "operation": "reserve_call",
+          "arguments": {
+            "run_id": "run",
+            "actor": "a",
+            "call_id": " "
+          },
+          "result": {
+            "reserved": true,
+            "call_id": " "
+          }
+        },
+        {
+          "operation": "reserve_call",
+          "arguments": {
+            "run_id": "run",
+            "actor": "a",
+            "call_id": " "
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "call already reserved; reconcile rather than repeat"
+          }
+        },
+        {
+          "operation": "reserve_call",
+          "arguments": {
+            "run_id": "run",
+            "actor": "b",
+            "call_id": "next"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "call budget exhausted"
+          }
+        },
+        {
+          "operation": "finish_call",
+          "arguments": {
+            "run_id": "run",
+            "actor": "b",
+            "call_id": " ",
+            "evidence": {}
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "call reservation belongs to another worker"
+          }
+        },
+        {
+          "operation": "finish_call",
+          "arguments": {
+            "run_id": "run",
+            "actor": "a",
+            "call_id": " ",
+            "evidence": {
+              "execution_id": "software-test"
+            }
+          },
+          "result": {
+            "recorded": true
+          }
+        },
+        {
+          "operation": "finish_call",
+          "arguments": {
+            "run_id": "run",
+            "actor": "a",
+            "call_id": " ",
+            "evidence": {
+              "execution_id": "software-test"
+            }
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "call already completed"
+          }
+        },
+        {
+          "operation": "inspect",
+          "arguments": {
+            "run_id": "run"
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 100000,
+              "max_calls": 1,
+              "max_messages": 1,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "1",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 1,
+              "bytes": 186,
+              "calls": 1
+            },
+            "messages": [
+              {
+                "id": "m",
+                "sender": "a",
+                "recipient": "b",
+                "received": 0,
+                "acked": 0,
+                "hash": "5602daa86c0dcd2fc7bf7e1482cdd250bea60f5b4d58ce5e43495e0dfcdce407"
+              }
+            ],
+            "protocols": [],
+            "calls": [
+              {
+                "id": " ",
+                "actor": "a",
+                "state": "recorded",
+                "evidence": {
+                  "execution_id": "software-test"
+                }
+              }
+            ],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        }
+      ]
+    },
+    {
+      "name": "active-version-and-duplicate-priority",
+      "steps": [
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "b"
+            ]
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 100000,
+              "max_calls": 20,
+              "max_messages": 100,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "1",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 0,
+              "bytes": 0,
+              "calls": 0
+            },
+            "messages": [],
+            "protocols": [],
+            "calls": [],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "result": {
+            "accepted": true,
+            "duplicate": false,
+            "sequence": 1
+          }
+        },
+        {
+          "operation": "set_active",
+          "arguments": "2",
+          "result": null
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "result": {
+            "accepted": true,
+            "duplicate": true,
+            "sequence": 1
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "n",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "text": "€",
+                "nested": {
+                  "z": 1,
+                  "a": false
+                },
+                "$serde_json::private::Number": "literal"
+              }
+            },
+            "actor": "a"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "inactive or incompatible protocol version"
+          }
+        },
+        {
+          "operation": "inspect",
+          "arguments": {
+            "run_id": "run"
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 100000,
+              "max_calls": 20,
+              "max_messages": 100,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "2",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 1,
+              "bytes": 186,
+              "calls": 0
+            },
+            "messages": [
+              {
+                "id": "m",
+                "sender": "a",
+                "recipient": "b",
+                "received": 0,
+                "acked": 0,
+                "hash": "5602daa86c0dcd2fc7bf7e1482cdd250bea60f5b4d58ce5e43495e0dfcdce407"
+              }
+            ],
+            "protocols": [],
+            "calls": [],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        }
+      ]
+    },
+    {
+      "name": "large-integer-budgets-remain-exact",
+      "steps": [
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "b"
+            ],
+            "max_messages": 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,
+            "max_bytes": 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,
+            "max_calls": 100000000000000000000000000000000000000000000000000000000000000000000000000000000
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,
+              "max_calls": 100000000000000000000000000000000000000000000000000000000000000000000000000000000,
+              "max_messages": 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "1",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 0,
+              "bytes": 0,
+              "calls": 0
+            },
+            "messages": [],
+            "protocols": [],
+            "calls": [],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        },
+        {
+          "operation": "send",
+          "arguments": {
+            "envelope": {
+              "message_id": "m",
+              "run_id": "run",
+              "sender": "a",
+              "recipient": "b",
+              "version": "1",
+              "kind": "request",
+              "payload": {
+                "large": 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,
+                "zero": 0,
+                "negative": -1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+              }
+            },
+            "actor": "a"
+          },
+          "result": {
+            "accepted": true,
+            "duplicate": false,
+            "sequence": 1
+          }
+        },
+        {
+          "operation": "reserve_call",
+          "arguments": {
+            "run_id": "run",
+            "actor": "a",
+            "call_id": "call"
+          },
+          "result": {
+            "reserved": true,
+            "call_id": "call"
+          }
+        },
+        {
+          "operation": "inspect",
+          "arguments": {
+            "run_id": "run"
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,
+              "max_calls": 100000000000000000000000000000000000000000000000000000000000000000000000000000000,
+              "max_messages": 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "1",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 1,
+              "bytes": 738,
+              "calls": 1
+            },
+            "messages": [
+              {
+                "id": "m",
+                "sender": "a",
+                "recipient": "b",
+                "received": 0,
+                "acked": 0,
+                "hash": "1268f49fb16a59d774090e2a9a29d3b17db5babb4b964b7673df4ef23e72c734"
+              }
+            ],
+            "protocols": [],
+            "calls": [
+              {
+                "id": "call",
+                "actor": "a",
+                "state": "reserved",
+                "evidence": null
+              }
+            ],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        }
+      ]
+    },
+    {
+      "name": "create-input-admission",
+      "steps": [
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "bad id",
+            "agents": [
+              "a",
+              "b"
+            ]
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "invalid run id"
+          }
+        },
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "café",
+            "agents": [
+              "a",
+              "b"
+            ]
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "invalid run id"
+          }
+        },
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a"
+            ]
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "register between 2 and 32 workers"
+          }
+        },
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "a"
+            ]
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "worker ids must be unique non-empty strings"
+          }
+        },
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              1
+            ]
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "worker ids must be unique non-empty strings"
+          }
+        },
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "b"
+            ],
+            "max_messages": 0
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "budgets must be positive integers"
+          }
+        },
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "b"
+            ],
+            "max_bytes": false
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "budgets must be positive integers"
+          }
+        },
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "b"
+            ],
+            "max_calls": 1.0
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "budgets must be positive integers"
+          }
+        },
+        {
+          "operation": "inspect",
+          "arguments": {
+            "run_id": "run"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "unknown run"
+          }
+        }
+      ]
+    },
+    {
+      "name": "receive-input-and-missing-message",
+      "steps": [
+        {
+          "operation": "create_run",
+          "arguments": {
+            "run_id": "run",
+            "agents": [
+              "a",
+              "b"
+            ]
+          },
+          "result": {
+            "run_id": "run",
+            "config": {
+              "agents": [
+                "a",
+                "b"
+              ],
+              "max_bytes": 100000,
+              "max_calls": 20,
+              "max_messages": 100,
+              "wall_seconds": 3600
+            },
+            "active_protocol": "1",
+            "deadline": 4600.25,
+            "usage": {
+              "messages": 0,
+              "bytes": 0,
+              "calls": 0
+            },
+            "messages": [],
+            "protocols": [],
+            "calls": [],
+            "execution_claim": "Host execution must be substantiated by external agent records; receive and ack alone do not prove cognition."
+          }
+        },
+        {
+          "operation": "receive",
+          "arguments": {
+            "run_id": "run",
+            "recipient": "b",
+            "limit": 0
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "limit must be 1..100"
+          }
+        },
+        {
+          "operation": "receive",
+          "arguments": {
+            "run_id": "run",
+            "recipient": "b",
+            "limit": 101
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "limit must be 1..100"
+          }
+        },
+        {
+          "operation": "receive",
+          "arguments": {
+            "run_id": "run",
+            "recipient": "b",
+            "limit": true
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "limit must be 1..100"
+          }
+        },
+        {
+          "operation": "receive",
+          "arguments": {
+            "run_id": "run",
+            "recipient": "b",
+            "limit": 1.0
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "limit must be 1..100"
+          }
+        },
+        {
+          "operation": "ack",
+          "arguments": {
+            "run_id": "run",
+            "message_id": "missing",
+            "recipient": "b"
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "message not addressed to worker"
+          }
+        },
+        {
+          "operation": "reserve_call",
+          "arguments": {
+            "run_id": "run",
+            "actor": "a",
+            "call_id": ""
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "call id required"
+          }
+        },
+        {
+          "operation": "finish_call",
+          "arguments": {
+            "run_id": "run",
+            "actor": "a",
+            "call_id": "missing",
+            "evidence": {}
+          },
+          "error": {
+            "code": "operation_rejected",
+            "message": "call reservation belongs to another worker"
+          }
+        }
+      ]
+    }
+  ]
+}
