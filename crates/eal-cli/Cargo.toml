@@ -23,6 +23,10 @@ path = "src/application_main.rs"
 name = "eal-runtime"
 path = "src/runtime_main.rs"
 
+[[bin]]
+name = "eal-aspic-solve"
+path = "src/aspic_solver_main.rs"
+
 [dependencies]
 eal-parser.workspace = true
 eal-core.workspace = true

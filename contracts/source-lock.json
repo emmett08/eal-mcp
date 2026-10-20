@@ -878,7 +878,10 @@
       "git_blob_sha": "7e3fa97cd4e29eed4337716c563da6f4f1bc7546",
       "current_executable": "Python",
       "script": "server/solve.py",
-      "rust_integration_status": "pending separate consumer PR"
+      "rust_integration_status": "implemented_native; companion PR awaiting merge",
+      "native_executable": "eal-aspic-solve",
+      "native_consumer_revision": "a86e0984c8aa36142ba3383ade6edb5dc170b873",
+      "native_integration_pr": "https://github.com/emmett08/aspic_visualisation/pull/6"
     }
   },
   "toolchain": {

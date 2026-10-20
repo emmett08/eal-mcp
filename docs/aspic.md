@@ -89,8 +89,8 @@ codes against the retained schema.
 Exports state `formal_result: "recomputed"` and `provenance: "supplied"`.
 Recomputation establishes the supplied graph's formal result. Source hashes,
 observation identities and review references remain supplied provenance rather
-than authenticated observations. The visualiser's Python live-solver bridge
-remains a separate integration task.
+than authenticated observations. The [native visualiser adapter](native-visualiser.md)
+connects the explicit theory contract to the companion editor.
 
 ## Native commands and APIs
 
@@ -117,7 +117,9 @@ Common `--workspace` and TOML `--limits` options apply. Source or JSON input can
 be `-` for standard input. Output goes to standard output. Registry profile
 `aspic` installs the default eight methods plus ASPIC; `all` also installs the
 four engineering methods. Explicit theory options belong inside its JSON
-`options` object. The production service commands remain a later stage.
+`options` object. The [production service](applications.md) also exposes checked
+formal operations. `eal-aspic-solve` accepts the same theory request directly on
+stdin and emits the checked view through its separately bounded process protocol.
 
 Library callers use `solve_aspic`, `validate_theory`, `CompileOptions`,
 `compile_eal_aspic`, `export_aspic_view`, `aspic_registry` or `with_aspic`.
@@ -144,9 +146,10 @@ also enforce the ASPIC contract's 256 KiB input and 1 MiB response limits.
 
 Native implementation identity identifies a retained Rust source bundle and its
 semantic helpers. It is distinct from the Python backend identity. The core
-checks deterministic work and data budgets; process deadlines and memory
-isolation belong to the pending runtime supervisor. Timeout metadata alone
-provides neither guarantee.
+checks deterministic work and data budgets. The [runtime supervisor](runtime.md)
+owns process deadlines and resource limits for supervised methods. The standalone
+visualiser adapter remains a pure process whose HTTP owner enforces its deadline
+and cancellation. Timeout metadata alone provides neither guarantee.
 
 ## Verification scope
 
@@ -165,13 +168,14 @@ before executing its unchanged graph-checking function bodies. The retained
 fixture cases produced 148 native views (87 explicit and 61 compiled); all
 passed those checks, the separately validated published schema and the
 consumer's size/count policies, while seven forged-graph controls failed.
-The check does not run Ajv, Vue, an actual browser or the live solver bridge;
-those integration checks remain pending. Consumer policy additionally caps
+That static check is complemented by the companion consumer's Ajv, Vue, static
+browser and actual native live-bridge suites, described in the integration guide.
+Consumer policy additionally caps
 imports at 4 MiB, 4,096 arguments and 65,536 defeat witnesses, so arbitrary
 raised producer budgets do not guarantee browser import acceptance.
 
 These checks establish the tested finite profile. They do not establish every
 ASPIC+ rationality condition, truth of external premises, deductive validity of
 an authored strict rule or general correspondence between authored and formal
-assessment. The remaining runtime, MCP and visualiser work is recorded in
+assessment. Implemented runtime, MCP and visualiser boundaries are recorded in
 [port status](port-status.md).

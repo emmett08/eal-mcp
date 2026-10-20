@@ -25,10 +25,12 @@ the official Rust MCP SDK. The SDK has a documented
 [local JSON-preservation patch](vendor/rmcp/README.md).
 The [coordination layer](docs/coordination.md) adds durable assessor/reviewer
 runs, immutable first responses, role-scoped MCP gateways and native mailbox
-and codec executables.
+and codec executables. The
+[native visualiser adapter](docs/native-visualiser.md) adds `eal-aspic-solve` for
+the companion editor's bounded theory-to-view process protocol.
 See the [implementation status](docs/port-status.md) and frozen
-[source inventory](contracts/source-lock.json). The visualiser's native
-live-solver bridge and final packaging verification remain separate work.
+[source inventory](contracts/source-lock.json). Companion browser integration and
+installed acceptance checks are described in the native visualiser guide.
 
 ## Build and use
 
@@ -55,7 +57,7 @@ cargo install --path crates/eal-mcp --locked
 cargo install --path crates/eal-coordination --locked
 ```
 
-This installs `eal`, `eal-mcp`, `eal-host`, the development commands,
+This installs `eal`, `eal-mcp`, `eal-host`, `eal-aspic-solve`, the development commands,
 `eal-command-supervisor`, `eal-method-worker`, `eal-coordinate`, `eal-mas-server`
 and `mas-protocol-codec`. The durable runtime currently
 requires the documented POSIX private-store profile. See
@@ -228,7 +230,8 @@ from the handwritten adapter, core and CLI.
 current methods, MCP catalogues, CLI operations and schemas. The retained
 `aspic-view/3` schema matches the visualiser at the pinned consumer revision.
 Rust export checks that schema and recomputes the complete formal result.
-The visualiser's native live-solver bridge remains a later stage.
+The [native live bridge](docs/native-visualiser.md) retains that graph contract
+and delegates solving to the installed Rust adapter.
 
 The repository retains its GPLv3 licence. Imported source attribution and
 third-party notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
