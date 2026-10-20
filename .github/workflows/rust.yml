@@ -1,4 +1,4 @@
-name: Rust front end
+name: Rust language and semantic core
 
 on:
   workflow_dispatch:
@@ -24,7 +24,7 @@ jobs:
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Test without a reference interpreter
         run: cargo test --workspace --locked
-      - name: Build the standalone syntax command
+      - name: Build the standalone development commands
         run: cargo build --release --locked -p eal-cli
 
   regeneration:

@@ -2,10 +2,10 @@
 
 The development reference is
 [`earl@e2d6f346a37f92483b9f9a13923b98feb053447b`](https://github.com/emmett08/earl/tree/e2d6f346a37f92483b9f9a13923b98feb053447b),
-package `3.2.4`, language `EAL/3`. The first PR establishes the Rust workspace,
-frozen contracts, generated recognition, owned lexical syntax representation and
-lexical formatting.
-It does not yet provide the EAL reasoning service or an MCP server.
+package `3.2.4`, language `EAL/3`. The source repository remains unchanged.
+The first PR established the workspace, frozen contracts and syntax front end.
+The current PR adds the authored semantic core and development CLI. Production
+services and entry points remain pending; this is not a complete port.
 
 ## Scope and component boundaries
 
@@ -17,58 +17,120 @@ their corresponding implementation is ported.
 
 | Planned component | Responsibility | Stage |
 | --- | --- | --- |
-| `eal-parser` | Generated recognisers and syntax diagnostics | First PR |
-| `eal-core` | Owned syntax, formatting, binding, checking, expressions, methods and authored evaluation | Syntax and lexical formatting in first PR, semantics pending |
+| `eal-parser` | Generated recognisers and syntax diagnostics | Implemented |
+| `eal-core` | Owned syntax, composition, validation, expressions, methods, authored assessment, planning and formatting | Authored semantic core implemented; public adapters remain pending |
 | `eal-aspic` | Finite ASPIC construction, preferences, defeat, extensions, compilation and checked view export | Pending |
 | `eal-runtime` | Collection, immutable records, reuse, catalogue, method execution and supervision | Pending |
 | `eal-mcp` | Exclusive operator/registered catalogues, authentication and transports | Pending |
 | `eal-coordination` | Durable task coordination, delivery and effect identities, codec and worker adapters | Pending |
-| `eal-cli` | Command-line interfaces and text-only model host | `eal-syntax` front end in first PR, production commands pending |
+| `eal-cli` | Command-line interfaces and text-only model host | Development `eal-syntax` and `eal-core` implemented; production commands pending |
 
-Pure reasoning must depend on typed values and explicit inputs. Storage, process
-execution, filesystem access and transports remain outside that core. The
-authored EAL evaluator and opt-in ASPIC compiler retain their separate semantics.
+The inventory retains the pinned source paths, hashes and planned component
+boundaries. Its `implemented_native` labels identify the tested authored-core
+scope with the deltas documented here, rather than complete semantic
+equivalence. `methods.py` remains `partial_native` because external factories,
+workers and supervision are deferred. The table above records component progress.
+
+Pure assessment uses typed values, supplied observations, explicit context and
+an explicit timezone-aware instant. Source composition accepts a host-supplied
+resolver; the CLI restricts files and trusted imports to its selected workspace.
+Storage, acquisition, process execution and transports remain outside the core.
+The authored EAL evaluator and pending opt-in ASPIC compiler retain separate
+semantics.
+
+## Implemented authored semantic core
+
+Composition handles modules, inherited context, qualified references, trusted
+imports and closed pattern expansion, including guarded recursive lists and
+definition-relative template imports. Static passes check reference kinds and
+scopes, method contracts, propositions, validity intervals, dependency cycles,
+generated declarations and aggregate resource budgets.
+
+Expressions retain arbitrary integers, binary64 arithmetic, Python-compatible
+negative modulo, missing values and error propagation. The registry provides
+all eight built-in methods and four opt-in engineering methods: API load
+criteria, reachability, RMS and sampled negative evidence. Typed proposition
+bindings check exact query correspondence, canonical identities and rational
+unit conversions. Native implementations report their own backend identities;
+custom callback artefact hashes are host declarations whose loaded-code
+correspondence must be established by the host. Contract timeout metadata does
+not provide process supervision or deadline enforcement in this core.
+
+Authored assessment includes observation correspondence and age checks,
+assumption validity, support, scoped objections and defences, conditional scope
+transfer and grounded graph labelling. The standalone Dung solver is bounded
+independently. Evidence planning follows the complete support, attack and
+defence closure and emits declared calls without acquiring observations.
+
+Semantic formatting validates and replays captured imports, then checks
+source-independent composed meaning and idempotence. It preserves user payload
+keys such as `span`. Direct IR without retained authored syntax rejects imports,
+templates and generated declarations when formatting would require recovering
+their source provenance. Formatting changes source identity and requires newly
+bound observations.
+
+The development `eal-core` commands are `compile SOURCE`, `validate SOURCE`,
+`format SOURCE`, `plan SOURCE --claim NAME`, `evaluate SOURCE --now ISO_TIME
+[--context JSON|@FILE] [--records FILE]`, `grounded GRAPH` and `describe`.
+`--workspace DIR` selects the trusted file boundary; `--limits FILE` reads a
+TOML `[limits]` table. `--methods builtin|engineering` selects the eight-method
+default or adds the four optional engineering methods. The production `eal`,
+`eal-mcp`, `eal-host` and `eal-coordinate` entry points remain pending.
+
+JSON traversal defaults to depth 64 and has a hard ceiling of 128. Expressions
+and schema instance checks also have hard depth ceilings of 128. The Rust
+source-import and block walkers bound native recursion at 128 independently of
+the host's iterative application-expansion budget. The Rust
+`structural_values` budget counts serializer scalar, compound and object-key
+visits through a bounded streaming pass. This is a representation-specific
+budget, not Python's dataclass reflection count. Malformed direct expression
+trees receive checked errors, including empty `sum()`; the source implementation
+can raise an uncaught exception for that invalid direct IR.
+
+Normal tests consume retained references without Python. They include the
+101-case parser corpus and separate expression, method, static-validation,
+canonical-identity and planning corpora. The 93-case cross-component corpus
+covers composed source through assessment, including import failures. Its
+[comparison notes](../fixtures/semantics/README.md) identify native method
+identity projections and the limited binary64 tolerances. These checks support
+the implemented operations on their retained cases, rather than complete port
+acceptance. Differential development uses CPython 3.12.14 with Unicode 15.
+Expression `sum` retains that reference's 64-bit C-long specialisation profile
+across Rust targets, including those whose native C `long` has a different size.
 
 ## Remaining implementation sequence
 
-1. **Complete the typed semantic representation and static passes.** Port name
-   binding, trusted imports, inherited defaults, typed closed patterns,
-   composition and propositions. Extend formatting through these checked
-   semantic passes. Compare valid and invalid current
-   fixtures with the pinned Python implementation. Require parse–format–parse
-   equivalence, formatter idempotence and aggregate resource limits.
-2. **Port pure reasoning.** Implement all eight built-in methods, strict typed
-   expressions, arbitrary integers, binary64 arithmetic, exact rational unit
-   conversions and Python-compatible negative modulo. Retain missing-value and
-   expression-error propagation. Port authored objection and support semantics
-   and the standalone Dung grounded solver.
-3. **Port finite ASPIC.** Preserve premise kinds, rule kinds, all three defeat
+1. **Port finite ASPIC.** Preserve premise kinds, rule kinds, all three defeat
    kinds and preference policies, grounded/preferred/stable semantics,
    credulous/sceptical queries and finite premise-founded cyclic construction.
    Distinguish unconstructed, undecided, no-extension and resource-incomplete
    outcomes. Check small theories independently before introducing indexed or
-   bitset optimisations.
-4. **Port runtime and extensions.** Preserve original observation times, exact
+   bitset optimisations. Include the optional ASPIC method and checked exports.
+2. **Port runtime and extensions.** Preserve original observation times, exact
    acquisition correspondence, canonical identities, SQLite records and private
    store ownership. Implement a supervisor process that owns collector cleanup
    and inherited acquisition leases. Replace Python import-based method loading
    with a typed Rust registry and schema-checked subprocess extension protocol.
    Rust reports its own implementation identities.
-5. **Port MCP, host, catalogue and coordination.** Use the official `rmcp` SDK
+3. **Port MCP, host, catalogue and coordination.** Use the official `rmcp` SDK
    for stdio and stateless Streamable HTTP. Preserve the eleven-tool operator
    catalogue and separate three-tool registered-source catalogue. Port all four
    entry points and the production coordination modules, including replacement
    of Python-specific process bridges. Preserve delivery identity, durable
    reservations and refusal to retry calls with an uncertain execution outcome.
-6. **Verify visualisation and packaging.** Implement checked `aspic-view/3`
+   Implement the `EAL/assessment-packet/2` projection, omission, truncation,
+   observation-correspondence and age adapters; `EAL/model-context/2`
+   requirement-state projection; language/reference discovery; operation
+   admission metadata and dispatch; and the knowledge catalogue/prompt façade.
+4. **Verify visualisation and packaging.** Implement checked `aspic-view/3`
    exports. Validate against both the retained schema and the visualiser's
    additional graph checks. Exercise real MCP sessions, cancellation, abrupt
    process death, observation reuse and an installed package with Python absent.
 
 The selected ANTLR generator is pinned with its runtime and recognisers are
 checked in. A normal build uses those Rust sources. Java is needed only for
-regeneration. The first PR's frozen Python fixtures support normal Rust tests
-without importing Python.
+regeneration. Retained Python fixtures support native tests without importing
+Python.
 
 ## Visualiser boundary
 
@@ -82,14 +144,16 @@ The live editor's `server/solver-plugin.ts` currently spawns Python to run
 `server/solve.py`, which imports the EAL solver. A separate visualiser PR must
 select a native Rust executable that accepts the current theory request and
 emits checked view JSON. File import compatibility and live solving require
-separate end-to-end checks. This first PR changes neither source repository nor
+separate end-to-end checks. This port changes neither source repository nor
 visualiser.
 
 ## Completion criteria
 
 Parser tests establish recognition and the tested lexical representation.
-Complete port acceptance additionally requires differential semantic results,
-independent small-graph solver checks, numerical and identity fixtures, real
-stdio/HTTP round trips, process ownership tests, observation reuse checks,
-visualiser validation and a Python-free installed-package smoke test. Pending
-components remain explicit until these checks exercise their implementations.
+The authored semantic core adds differential assessments, independent Dung
+checks, numerical and identity fixtures, dependency planning and semantic
+formatter checks. Complete port acceptance still requires ASPIC checks, real
+stdio/HTTP round trips, process ownership and deadline tests, observation reuse,
+packet/context/catalogue adapters, visualiser validation and a Python-free
+installed-package smoke test. Pending components remain explicit until these
+checks exercise their implementations.

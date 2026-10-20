@@ -1,0 +1,3416 @@
+{
+  "schema": "eal-rust-method-reference/1",
+  "source_revision": "e2d6f346a37f92483b9f9a13923b98feb053447b",
+  "provenance": "Synthetic mathematical witnesses; not experimental measurements",
+  "cases": [
+    {
+      "name": "structured-empty",
+      "method": "structured/1",
+      "evidence": [],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method structured/1: Structured reasoning requires evidence or a supported premise"
+        ],
+        "details": {
+          "authored": true,
+          "mechanically_proved": false
+        },
+        "method": "structured/1"
+      }
+    },
+    {
+      "name": "structured-premise-supported",
+      "method": "structured/1",
+      "evidence": [],
+      "premises": [
+        {
+          "status": "supported"
+        }
+      ],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method structured/1: Authored support is available; prose sufficiency is not mechanically established"
+        ],
+        "details": {
+          "authored": true,
+          "mechanically_proved": false
+        },
+        "method": "structured/1"
+      }
+    },
+    {
+      "name": "structured-premise-contested",
+      "method": "structured/1",
+      "evidence": [],
+      "premises": [
+        {
+          "status": "contested"
+        }
+      ],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method structured/1: Authored support is available; prose sufficiency is not mechanically established"
+        ],
+        "details": {
+          "authored": true,
+          "mechanically_proved": false
+        },
+        "method": "structured/1"
+      }
+    },
+    {
+      "name": "structured-premise-unsupported",
+      "method": "structured/1",
+      "evidence": [],
+      "premises": [
+        {
+          "status": "unsupported"
+        }
+      ],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method structured/1: Structured reasoning requires evidence or a supported premise"
+        ],
+        "details": {
+          "authored": true,
+          "mechanically_proved": false
+        },
+        "method": "structured/1"
+      }
+    },
+    {
+      "name": "structured-evidence",
+      "method": "structured/1",
+      "evidence": [
+        {
+          "id": "e",
+          "kind": "observation",
+          "value": {
+            "x": 1
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method structured/1: Authored support is available; prose sufficiency is not mechanically established"
+        ],
+        "details": {
+          "authored": true,
+          "mechanically_proved": false
+        },
+        "method": "structured/1"
+      }
+    },
+    {
+      "name": "structured-malformed-evidence",
+      "method": "structured/1",
+      "evidence": [
+        {
+          "id": "e",
+          "kind": "observation"
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method structured/1: Method evaluation failed: Each evidence entry requires id, kind and value"
+        ],
+        "details": {},
+        "method": "structured/1"
+      }
+    },
+    {
+      "name": "structured-duplicate-evidence",
+      "method": "structured/1",
+      "evidence": [
+        {
+          "id": "e",
+          "kind": "x",
+          "value": 1
+        },
+        {
+          "id": "e",
+          "kind": "x",
+          "value": 1
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method structured/1: Method evaluation failed: Evidence identifiers must be unique"
+        ],
+        "details": {},
+        "method": "structured/1"
+      }
+    },
+    {
+      "name": "modus-ponens",
+      "method": "deductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "logical_case",
+          "value": {
+            "premises": [
+              "p",
+              {
+                "implies": [
+                  "p",
+                  "q"
+                ]
+              }
+            ],
+            "conclusion": "q"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method deductive/1: Finite entailment established with satisfiable premises"
+        ],
+        "details": {
+          "entailed": true,
+          "consistent_premises": true,
+          "counterexample": null,
+          "atoms": [
+            "p",
+            "q"
+          ],
+          "valuations": 4,
+          "satisfying_premise_valuations": 1
+        },
+        "evidence_id": "case",
+        "input_digest": "edd564b31f72820a060d561a43cb7c635157008dfc90ecf87a6a07e004ada90c",
+        "method": "deductive/1"
+      }
+    },
+    {
+      "name": "affirm-consequent",
+      "method": "deductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "logical_case",
+          "value": {
+            "premises": [
+              "q",
+              {
+                "implies": [
+                  "p",
+                  "q"
+                ]
+              }
+            ],
+            "conclusion": "p"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method deductive/1: A counterexample refutes entailment"
+        ],
+        "details": {
+          "entailed": false,
+          "consistent_premises": true,
+          "counterexample": {
+            "p": false,
+            "q": true
+          },
+          "atoms": [
+            "p",
+            "q"
+          ],
+          "valuations": 4,
+          "satisfying_premise_valuations": 2
+        },
+        "evidence_id": "case",
+        "input_digest": "c4ec833a5ce4a5c4e1e88ab8812583aec1213788e7f763d2fa7807ed03cb9b6b",
+        "method": "deductive/1"
+      }
+    },
+    {
+      "name": "inconsistent",
+      "method": "deductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "logical_case",
+          "value": {
+            "premises": [
+              "p",
+              {
+                "not": "p"
+              }
+            ],
+            "conclusion": "q"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method deductive/1: Premises are inconsistent"
+        ],
+        "details": {
+          "entailed": true,
+          "consistent_premises": false,
+          "counterexample": null,
+          "atoms": [
+            "p",
+            "q"
+          ],
+          "valuations": 4,
+          "satisfying_premise_valuations": 0
+        },
+        "evidence_id": "case",
+        "input_digest": "0f602f553265d2df7df055abdd4706689ec1b664d9a1c023078429eab91bfa3d",
+        "method": "deductive/1"
+      }
+    },
+    {
+      "name": "tautology",
+      "method": "deductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "logical_case",
+          "value": {
+            "premises": [],
+            "conclusion": {
+              "or": [
+                "p",
+                {
+                  "not": "p"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method deductive/1: Finite entailment established with satisfiable premises"
+        ],
+        "details": {
+          "entailed": true,
+          "consistent_premises": true,
+          "counterexample": null,
+          "atoms": [
+            "p"
+          ],
+          "valuations": 2,
+          "satisfying_premise_valuations": 2
+        },
+        "evidence_id": "case",
+        "input_digest": "15d00e18d0fd8416d41f8d4bcc6eb22281a9d55411898e7bbc76118b3ac82b4a",
+        "method": "deductive/1"
+      }
+    },
+    {
+      "name": "bad-formula-0",
+      "method": "deductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "logical_case",
+          "value": {
+            "premises": [],
+            "conclusion": true
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method deductive/1: Method evaluation failed: A formula is an atom or one not/and/or/implies object"
+        ],
+        "details": {},
+        "method": "deductive/1"
+      }
+    },
+    {
+      "name": "bad-formula-1",
+      "method": "deductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "logical_case",
+          "value": {
+            "premises": [],
+            "conclusion": {
+              "implies": [
+                "p"
+              ]
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method deductive/1: Method evaluation failed: implies operands must be a list with 2..2 entries"
+        ],
+        "details": {},
+        "method": "deductive/1"
+      }
+    },
+    {
+      "name": "bad-formula-2",
+      "method": "deductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "logical_case",
+          "value": {
+            "premises": [],
+            "conclusion": {
+              "and": []
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method deductive/1: Method evaluation failed: and operands must be a list with 2..128 entries"
+        ],
+        "details": {},
+        "method": "deductive/1"
+      }
+    },
+    {
+      "name": "bad-formula-3",
+      "method": "deductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "logical_case",
+          "value": {
+            "premises": [],
+            "conclusion": {
+              "xor": [
+                "p",
+                "q"
+              ]
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method deductive/1: Method evaluation failed: Unsupported logical operator 'xor'"
+        ],
+        "details": {},
+        "method": "deductive/1"
+      }
+    },
+    {
+      "name": "too-many-atoms",
+      "method": "deductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "logical_case",
+          "value": {
+            "premises": [
+              "p0",
+              "p1",
+              "p2",
+              "p3",
+              "p4",
+              "p5",
+              "p6",
+              "p7",
+              "p8",
+              "p9",
+              "p10",
+              "p11",
+              "p12"
+            ],
+            "conclusion": "p0"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method deductive/1: Method evaluation failed: Finite deduction supports at most 12 distinct atoms"
+        ],
+        "details": {},
+        "method": "deductive/1"
+      }
+    },
+    {
+      "name": "wilson-20-25-0.95",
+      "method": "inductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sample",
+          "value": {
+            "successes": 20,
+            "trials": 25,
+            "confidence": 0.95
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method inductive/1: Wilson interval computed under the stated binomial sampling model"
+        ],
+        "details": {
+          "estimate": 0.8,
+          "lower": 0.6086904963045967,
+          "upper": 0.9113941531319742,
+          "sample_size": 25,
+          "successes": 20,
+          "confidence": 0.95,
+          "method": "wilson_score",
+          "interpretation": "approximate_frequentist",
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "8a86cbd03934c8489d85ab05ec3d1ee30697cc6758a40527c2a92be9151264f4",
+        "method": "inductive/1"
+      }
+    },
+    {
+      "name": "wilson-0-10-0.95",
+      "method": "inductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sample",
+          "value": {
+            "successes": 0,
+            "trials": 10,
+            "confidence": 0.95
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method inductive/1: Wilson interval computed under the stated binomial sampling model"
+        ],
+        "details": {
+          "estimate": 0.0,
+          "lower": 2.7755575615628914e-17,
+          "upper": 0.27753279986288915,
+          "sample_size": 10,
+          "successes": 0,
+          "confidence": 0.95,
+          "method": "wilson_score",
+          "interpretation": "approximate_frequentist",
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "ca8829b0b92b841b019a91587c8d8e8717c7f582dece2d9ff5f3b583c125bdc3",
+        "method": "inductive/1"
+      }
+    },
+    {
+      "name": "wilson-10-10-0.95",
+      "method": "inductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sample",
+          "value": {
+            "successes": 10,
+            "trials": 10,
+            "confidence": 0.95
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method inductive/1: Wilson interval computed under the stated binomial sampling model"
+        ],
+        "details": {
+          "estimate": 1.0,
+          "lower": 0.7224672001371109,
+          "upper": 1.0,
+          "sample_size": 10,
+          "successes": 10,
+          "confidence": 0.95,
+          "method": "wilson_score",
+          "interpretation": "approximate_frequentist",
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "81351ca3cdc34da590f8c7deb4332c01ef53d8a7e8c0f0ed33c06e3f271194d7",
+        "method": "inductive/1"
+      }
+    },
+    {
+      "name": "wilson-1-2-0.001",
+      "method": "inductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sample",
+          "value": {
+            "successes": 1,
+            "trials": 2,
+            "confidence": 0.001
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method inductive/1: Wilson interval computed under the stated binomial sampling model"
+        ],
+        "details": {
+          "estimate": 0.5,
+          "lower": 0.4995568865952771,
+          "upper": 0.5004431134047229,
+          "sample_size": 2,
+          "successes": 1,
+          "confidence": 0.001,
+          "method": "wilson_score",
+          "interpretation": "approximate_frequentist",
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "cba76d0ab3736cb1128af535dc7d852e06e8645e2eceb12cc1ab925a2c220a7b",
+        "method": "inductive/1"
+      }
+    },
+    {
+      "name": "wilson-1-2-0.999999",
+      "method": "inductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sample",
+          "value": {
+            "successes": 1,
+            "trials": 2,
+            "confidence": 0.999999
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method inductive/1: Wilson interval computed under the stated binomial sampling model"
+        ],
+        "details": {
+          "estimate": 0.5,
+          "lower": 0.01967102639177848,
+          "upper": 0.9803289736082215,
+          "sample_size": 2,
+          "successes": 1,
+          "confidence": 0.999999,
+          "method": "wilson_score",
+          "interpretation": "approximate_frequentist",
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "07efea2fd4bf990e7d906b3e86cefd9c6dd6bebb2b6279891e0ecab498a345a1",
+        "method": "inductive/1"
+      }
+    },
+    {
+      "name": "wilson-500000000-1000000000-0.9",
+      "method": "inductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sample",
+          "value": {
+            "successes": 500000000,
+            "trials": 1000000000,
+            "confidence": 0.9
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method inductive/1: Wilson interval computed under the stated binomial sampling model"
+        ],
+        "details": {
+          "estimate": 0.5,
+          "lower": 0.4999739925806414,
+          "upper": 0.5000260074193585,
+          "sample_size": 1000000000,
+          "successes": 500000000,
+          "confidence": 0.9,
+          "method": "wilson_score",
+          "interpretation": "approximate_frequentist",
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "8755e4a15a028094b9bd9e1c025a9d2f9214461a2ec04f0da39b50ab9f69a600",
+        "method": "inductive/1"
+      }
+    },
+    {
+      "name": "bad-binomial-0",
+      "method": "inductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sample",
+          "value": {
+            "successes": true,
+            "trials": 2,
+            "confidence": 0.95
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method inductive/1: Method evaluation failed: Method input contract violation: $.successes: expected integer"
+        ],
+        "details": {},
+        "method": "inductive/1"
+      }
+    },
+    {
+      "name": "bad-binomial-1",
+      "method": "inductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sample",
+          "value": {
+            "successes": 0,
+            "trials": 0,
+            "confidence": 0.95
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method inductive/1: Method evaluation failed: Method input contract violation: $.trials: number is outside declared bounds"
+        ],
+        "details": {},
+        "method": "inductive/1"
+      }
+    },
+    {
+      "name": "bad-binomial-2",
+      "method": "inductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sample",
+          "value": {
+            "successes": 3,
+            "trials": 2,
+            "confidence": 0.95
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method inductive/1: Method evaluation failed: successes must be an integer in [0, 2]"
+        ],
+        "details": {},
+        "method": "inductive/1"
+      }
+    },
+    {
+      "name": "bad-binomial-3",
+      "method": "inductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sample",
+          "value": {
+            "successes": 1,
+            "trials": 2.0,
+            "confidence": 0.95
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method inductive/1: Method evaluation failed: Method input contract violation: $.trials: expected integer"
+        ],
+        "details": {},
+        "method": "inductive/1"
+      }
+    },
+    {
+      "name": "bad-binomial-4",
+      "method": "inductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sample",
+          "value": {
+            "successes": 1,
+            "trials": 2,
+            "confidence": 1
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method inductive/1: Method evaluation failed: Method input contract violation: $.confidence: number is outside declared bounds"
+        ],
+        "details": {},
+        "method": "inductive/1"
+      }
+    },
+    {
+      "name": "posterior-tie",
+      "method": "abductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "hypotheses",
+          "value": {
+            "observed": "alarm",
+            "candidates": [
+              {
+                "name": "fault",
+                "prior": 0.1,
+                "likelihood": 0.9
+              },
+              {
+                "name": "healthy",
+                "prior": 0.9,
+                "likelihood": 0.1
+              }
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method abductive/1: Posterior probabilities computed within the supplied finite hypothesis model"
+        ],
+        "details": {
+          "posterior": {
+            "fault": 0.5,
+            "healthy": 0.5
+          },
+          "best": null,
+          "best_posterior": 0.5,
+          "ties": [
+            "fault",
+            "healthy"
+          ],
+          "log_evidence_probability": -1.7147984280919264,
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "b0ee2c1b4d697b49113d2ce367d0829a1e3ebea011359e95456fcedf98399208",
+        "method": "abductive/1"
+      }
+    },
+    {
+      "name": "posterior-best",
+      "method": "abductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "hypotheses",
+          "value": {
+            "observed": "alarm",
+            "candidates": [
+              {
+                "name": "fault",
+                "prior": 0.2,
+                "likelihood": 0.8
+              },
+              {
+                "name": "healthy",
+                "prior": 0.8,
+                "likelihood": 0.1
+              }
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method abductive/1: Posterior probabilities computed within the supplied finite hypothesis model"
+        ],
+        "details": {
+          "posterior": {
+            "fault": 0.6666666666666666,
+            "healthy": 0.3333333333333334
+          },
+          "best": "fault",
+          "best_posterior": 0.6666666666666666,
+          "ties": [],
+          "log_evidence_probability": -1.4271163556401456,
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "89cd5a7b98030049f60b052476720c341f02f453c1fb2c725d379cdf8ae9ae18",
+        "method": "abductive/1"
+      }
+    },
+    {
+      "name": "posterior-underflow",
+      "method": "abductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "hypotheses",
+          "value": {
+            "observed": "alarm",
+            "candidates": [
+              {
+                "name": "a",
+                "prior": 1e-200,
+                "likelihood": 1e-200
+              },
+              {
+                "name": "b",
+                "prior": 1.0,
+                "likelihood": 0.0
+              }
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method abductive/1: Posterior probabilities computed within the supplied finite hypothesis model"
+        ],
+        "details": {
+          "posterior": {
+            "a": 1.0,
+            "b": 0.0
+          },
+          "best": "a",
+          "best_posterior": 1.0,
+          "ties": [],
+          "log_evidence_probability": -921.0340371976183,
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "708f1e0e32c8c90633f1a82bf363e1340de3b19cb8f8fe34092071f9ae002ddf",
+        "method": "abductive/1"
+      }
+    },
+    {
+      "name": "posterior-impossible",
+      "method": "abductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "hypotheses",
+          "value": {
+            "observed": "alarm",
+            "candidates": [
+              {
+                "name": "a",
+                "prior": 0.5,
+                "likelihood": 0
+              },
+              {
+                "name": "b",
+                "prior": 0.5,
+                "likelihood": 0
+              }
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method abductive/1: The supplied hypotheses assign zero probability to the observed evidence"
+        ],
+        "details": {
+          "posterior": {},
+          "best": null,
+          "ties": [],
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "9b7012772d7a62fc15182eb7458f468e4de3018e9518929e6819ce2d58fcbe5d",
+        "method": "abductive/1"
+      }
+    },
+    {
+      "name": "posterior-bad-prior",
+      "method": "abductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "hypotheses",
+          "value": {
+            "observed": "alarm",
+            "candidates": [
+              {
+                "name": "a",
+                "prior": 0.4,
+                "likelihood": 0.5
+              },
+              {
+                "name": "b",
+                "prior": 0.5,
+                "likelihood": 0.1
+              }
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method abductive/1: Method evaluation failed: Prior probabilities must sum to 1 within absolute tolerance 1e-9"
+        ],
+        "details": {},
+        "method": "abductive/1"
+      }
+    },
+    {
+      "name": "posterior-duplicate",
+      "method": "abductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "hypotheses",
+          "value": {
+            "observed": "alarm",
+            "candidates": [
+              {
+                "name": "a",
+                "prior": 0.5,
+                "likelihood": 0.5
+              },
+              {
+                "name": "a",
+                "prior": 0.5,
+                "likelihood": 0.1
+              }
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method abductive/1: Method evaluation failed: Hypothesis names must be unique"
+        ],
+        "details": {},
+        "method": "abductive/1"
+      }
+    },
+    {
+      "name": "contrast-ordinary",
+      "method": "causal/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "experiment",
+          "value": {
+            "assignment": "randomised",
+            "treatment": [
+              3,
+              5,
+              7
+            ],
+            "control": [
+              1,
+              2,
+              3
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method causal/1: Randomised two-group mean contrast computed; assignment and causal assumptions require evidence"
+        ],
+        "details": {
+          "estimate": 3,
+          "standard_error": 1.2909944487358058,
+          "treatment_mean": 5,
+          "control_mean": 2,
+          "treatment_size": 3,
+          "control_size": 3,
+          "sample_size": 6,
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "e7f2d45594ab3283ff37942637167d0c7c59d9db9c065b4392d723177c5c9051",
+        "method": "causal/1"
+      }
+    },
+    {
+      "name": "contrast-large-neighbours",
+      "method": "causal/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "experiment",
+          "value": {
+            "assignment": "randomised",
+            "treatment": [
+              1152921504606846978,
+              1152921504606846978
+            ],
+            "control": [
+              1152921504606846977,
+              1152921504606846977
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method causal/1: Randomised two-group mean contrast computed; assignment and causal assumptions require evidence"
+        ],
+        "details": {
+          "estimate": 1,
+          "standard_error": 0.0,
+          "treatment_mean": 1152921504606846978,
+          "control_mean": 1152921504606846977,
+          "treatment_size": 2,
+          "control_size": 2,
+          "sample_size": 4,
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "f21b081a4e98f3c5b85d88c50c95abebf6e15b731c82ced3530dcc02fa1e4e05",
+        "method": "causal/1"
+      }
+    },
+    {
+      "name": "contrast-tiny-se",
+      "method": "causal/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "experiment",
+          "value": {
+            "assignment": "randomised",
+            "treatment": [
+              0.0,
+              1e-200
+            ],
+            "control": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method causal/1: Randomised two-group mean contrast computed; assignment and causal assumptions require evidence"
+        ],
+        "details": {
+          "estimate": 5e-201,
+          "standard_error": 4.999999999999999e-201,
+          "treatment_mean": 5e-201,
+          "control_mean": 0,
+          "treatment_size": 2,
+          "control_size": 2,
+          "sample_size": 4,
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "9b2c16819f26486a32db70af4488e308e03b5a6a8c3361888b1b97e41aa2a5b3",
+        "method": "causal/1"
+      }
+    },
+    {
+      "name": "contrast-fractional",
+      "method": "causal/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "experiment",
+          "value": {
+            "assignment": "randomised",
+            "treatment": [
+              1,
+              2
+            ],
+            "control": [
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method causal/1: Randomised two-group mean contrast computed; assignment and causal assumptions require evidence"
+        ],
+        "details": {
+          "estimate": 1.5,
+          "standard_error": 0.5,
+          "treatment_mean": 1.5,
+          "control_mean": 0,
+          "treatment_size": 2,
+          "control_size": 2,
+          "sample_size": 4,
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "34dfa6309ecebd82f0594fb1c69d61c1bd2c6a0eb975ef0b19eba780fc9df75e",
+        "method": "causal/1"
+      }
+    },
+    {
+      "name": "contrast-mean-underflow",
+      "method": "causal/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "experiment",
+          "value": {
+            "assignment": "randomised",
+            "treatment": [
+              5e-324,
+              0.0
+            ],
+            "control": [
+              0.0,
+              0.0
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method causal/1: Method evaluation failed: Computed mean or contrast underflows the representable number range"
+        ],
+        "details": {},
+        "method": "causal/1"
+      }
+    },
+    {
+      "name": "bad-assignment",
+      "method": "causal/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "experiment",
+          "value": {
+            "assignment": "observational",
+            "treatment": [
+              3,
+              5
+            ],
+            "control": [
+              1,
+              2
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method causal/1: Method evaluation failed: Method input contract violation: $.assignment: value is outside the declared enumeration"
+        ],
+        "details": {},
+        "method": "causal/1"
+      }
+    },
+    {
+      "name": "scm-baseline",
+      "method": "counterfactual/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "causal_model",
+          "value": {
+            "variables": {
+              "x": {
+                "intercept": 1,
+                "coefficients": {},
+                "noise": 2
+              },
+              "y": {
+                "intercept": 4,
+                "coefficients": {
+                  "x": 2
+                },
+                "noise": 1
+              },
+              "z": {
+                "intercept": 0,
+                "coefficients": {
+                  "y": 3
+                },
+                "noise": -1
+              }
+            },
+            "intervention": {
+              "variable": "x",
+              "value": 5
+            },
+            "outcome": "z"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method counterfactual/1: Intervention evaluated in an acyclic affine model with the same supplied exogenous values"
+        ],
+        "details": {
+          "factual": 32,
+          "counterfactual": 44,
+          "difference": 12,
+          "factual_values": {
+            "x": 3,
+            "y": 11,
+            "z": 32
+          },
+          "counterfactual_values": {
+            "x": 5,
+            "y": 15,
+            "z": 44
+          },
+          "outcome": "z",
+          "evaluation_order": [
+            "x",
+            "y",
+            "z"
+          ],
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "7e0150ed3c8a2c4f77fa5c8c6eaf527e1a161e3afb142ee3f361cceede61321b",
+        "method": "counterfactual/1"
+      }
+    },
+    {
+      "name": "scm-zero-cycle",
+      "method": "counterfactual/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "causal_model",
+          "value": {
+            "variables": {
+              "x": {
+                "intercept": 1,
+                "coefficients": {
+                  "z": 0
+                },
+                "noise": 2
+              },
+              "y": {
+                "intercept": 4,
+                "coefficients": {
+                  "x": 2
+                },
+                "noise": 1
+              },
+              "z": {
+                "intercept": 0,
+                "coefficients": {
+                  "y": 3
+                },
+                "noise": -1
+              }
+            },
+            "intervention": {
+              "variable": "x",
+              "value": 5
+            },
+            "outcome": "z"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method counterfactual/1: Method evaluation failed: Structural equations must be acyclic, including zero-coefficient references"
+        ],
+        "details": {},
+        "method": "counterfactual/1"
+      }
+    },
+    {
+      "name": "scm-unknown-parent",
+      "method": "counterfactual/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "causal_model",
+          "value": {
+            "variables": {
+              "x": {
+                "intercept": 1,
+                "coefficients": {
+                  "missing": 0.5
+                },
+                "noise": 2
+              },
+              "y": {
+                "intercept": 4,
+                "coefficients": {
+                  "x": 2
+                },
+                "noise": 1
+              },
+              "z": {
+                "intercept": 0,
+                "coefficients": {
+                  "y": 3
+                },
+                "noise": -1
+              }
+            },
+            "intervention": {
+              "variable": "x",
+              "value": 5
+            },
+            "outcome": "z"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method counterfactual/1: Method evaluation failed: Structural equation references an unknown parent variable"
+        ],
+        "details": {},
+        "method": "counterfactual/1"
+      }
+    },
+    {
+      "name": "scm-large-integer",
+      "method": "counterfactual/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "causal_model",
+          "value": {
+            "variables": {
+              "x": {
+                "intercept": 1208925819614629174706176,
+                "coefficients": {},
+                "noise": 2
+              },
+              "y": {
+                "intercept": 4,
+                "coefficients": {
+                  "x": 2
+                },
+                "noise": 1
+              },
+              "z": {
+                "intercept": 0,
+                "coefficients": {
+                  "y": 3
+                },
+                "noise": -1
+              }
+            },
+            "intervention": {
+              "variable": "x",
+              "value": 1208925819614629174706177
+            },
+            "outcome": "z"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method counterfactual/1: Intervention evaluated in an acyclic affine model with the same supplied exogenous values"
+        ],
+        "details": {
+          "factual": 7253554917687775048237082,
+          "counterfactual": 7253554917687775048237076,
+          "difference": -6,
+          "factual_values": {
+            "x": 1208925819614629174706178,
+            "y": 2417851639229258349412361,
+            "z": 7253554917687775048237082
+          },
+          "counterfactual_values": {
+            "x": 1208925819614629174706177,
+            "y": 2417851639229258349412359,
+            "z": 7253554917687775048237076
+          },
+          "outcome": "z",
+          "evaluation_order": [
+            "x",
+            "y",
+            "z"
+          ],
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "21123701e9afcdd494064fcaa36088329e5e02767ee4b9366fd2790706c42315",
+        "method": "counterfactual/1"
+      }
+    },
+    {
+      "name": "scm-mixed-float",
+      "method": "counterfactual/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "causal_model",
+          "value": {
+            "variables": {
+              "x": {
+                "intercept": 1.5,
+                "coefficients": {},
+                "noise": 2
+              },
+              "y": {
+                "intercept": 4,
+                "coefficients": {
+                  "x": 2
+                },
+                "noise": 1
+              },
+              "z": {
+                "intercept": 0,
+                "coefficients": {
+                  "y": 3
+                },
+                "noise": -1
+              }
+            },
+            "intervention": {
+              "variable": "x",
+              "value": 5
+            },
+            "outcome": "z"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method counterfactual/1: Intervention evaluated in an acyclic affine model with the same supplied exogenous values"
+        ],
+        "details": {
+          "factual": 35.0,
+          "counterfactual": 44,
+          "difference": 9.0,
+          "factual_values": {
+            "x": 3.5,
+            "y": 12.0,
+            "z": 35.0
+          },
+          "counterfactual_values": {
+            "x": 5,
+            "y": 15,
+            "z": 44
+          },
+          "outcome": "z",
+          "evaluation_order": [
+            "x",
+            "y",
+            "z"
+          ],
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "46612a11442b6daa8133a8d4a098148ee82ba1e310ea1b7bea6a9c314e673f50",
+        "method": "counterfactual/1"
+      }
+    },
+    {
+      "name": "features-matching",
+      "method": "analogical/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "analogy",
+          "value": {
+            "relevant_features": [
+              "x"
+            ],
+            "source": {
+              "x": 1
+            },
+            "target": {
+              "x": 1.0
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method analogical/1: Declared features compared exactly; feature relevance and conclusion transfer remain authored reasoning"
+        ],
+        "details": {
+          "complete": true,
+          "feature_count": 1,
+          "matched": 1,
+          "match_fraction": 1.0,
+          "mismatches": [],
+          "missing": [],
+          "interpretation": "feature_correspondence",
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "92e2c1ee190de8396c15ed018eac0819ca01d5c96b4b8cf2be484d19459f30ac",
+        "method": "analogical/1"
+      }
+    },
+    {
+      "name": "features-typed",
+      "method": "analogical/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "analogy",
+          "value": {
+            "relevant_features": [
+              "x"
+            ],
+            "source": {
+              "x": true
+            },
+            "target": {
+              "x": 1
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method analogical/1: Declared features compared exactly; feature relevance and conclusion transfer remain authored reasoning"
+        ],
+        "details": {
+          "complete": true,
+          "feature_count": 1,
+          "matched": 0,
+          "match_fraction": 0.0,
+          "mismatches": [
+            "x"
+          ],
+          "missing": [],
+          "interpretation": "feature_correspondence",
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "e35cc031a7cb9fc11037593de70da98208a9d9a49e1d3853e54044dfd6967bd5",
+        "method": "analogical/1"
+      }
+    },
+    {
+      "name": "features-missing",
+      "method": "analogical/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "analogy",
+          "value": {
+            "relevant_features": [
+              "x"
+            ],
+            "source": {
+              "x": 1
+            },
+            "target": {}
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method analogical/1: The relevant-feature mapping is incomplete"
+        ],
+        "details": {
+          "complete": false,
+          "missing": [
+            "x"
+          ],
+          "match_fraction": null,
+          "mismatches": [],
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "66ca5f6816bdc5952c42ab4bd4d25a88d1c0df24fa760e0928fc053920e20b20",
+        "method": "analogical/1"
+      }
+    },
+    {
+      "name": "features-nonscalar",
+      "method": "analogical/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "analogy",
+          "value": {
+            "relevant_features": [
+              "x"
+            ],
+            "source": {
+              "x": [
+                1
+              ]
+            },
+            "target": {
+              "x": [
+                1
+              ]
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method analogical/1: Method evaluation failed: Mapped feature values must be JSON scalars"
+        ],
+        "details": {},
+        "method": "analogical/1"
+      }
+    },
+    {
+      "name": "features-integer-float-precision",
+      "method": "analogical/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "analogy",
+          "value": {
+            "relevant_features": [
+              "x"
+            ],
+            "source": {
+              "x": 1152921504606846977
+            },
+            "target": {
+              "x": 1.152921504606847e+18
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method analogical/1: Declared features compared exactly; feature relevance and conclusion transfer remain authored reasoning"
+        ],
+        "details": {
+          "complete": true,
+          "feature_count": 1,
+          "matched": 0,
+          "match_fraction": 0.0,
+          "mismatches": [
+            "x"
+          ],
+          "missing": [],
+          "interpretation": "feature_correspondence",
+          "assumptions_verified": false
+        },
+        "evidence_id": "case",
+        "input_digest": "f768ee74df4beab76007130bc5f8fab50197be8d4592a0ea8b4e2a299f206577",
+        "method": "analogical/1"
+      }
+    },
+    {
+      "name": "trace-complete",
+      "method": "temporal/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "trace",
+          "value": {
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 2
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ],
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method temporal/1: The sampled property holds throughout the complete declared sampling contract"
+        ],
+        "details": {
+          "holds": true,
+          "coverage": true,
+          "sample_size": 3,
+          "largest_gap": 1,
+          "violation_count": 0,
+          "violation_times": [],
+          "semantics": "sampled",
+          "continuous_truth_established": false
+        },
+        "evidence_id": "case",
+        "input_digest": "c68bb326fff140d95b381c04ea6ab8ad57e2215ad824e0af779675bf7e9030e0",
+        "method": "temporal/1"
+      }
+    },
+    {
+      "name": "trace-negative",
+      "method": "temporal/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "trace",
+          "value": {
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 9
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ],
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method temporal/1: The sampled trace contains a property violation"
+        ],
+        "details": {
+          "holds": false,
+          "coverage": true,
+          "sample_size": 3,
+          "largest_gap": 1,
+          "violation_count": 1,
+          "violation_times": [
+            1
+          ],
+          "semantics": "sampled",
+          "continuous_truth_established": false
+        },
+        "evidence_id": "case",
+        "input_digest": "54db651f948bc82a905ba5bb0320836f23364fe7b8d0e1a1f914d2dd5219dd72",
+        "method": "temporal/1"
+      }
+    },
+    {
+      "name": "trace-gap",
+      "method": "temporal/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "trace",
+          "value": {
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ],
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method temporal/1: The sampling contract has a gap or missing endpoint"
+        ],
+        "details": {
+          "holds": true,
+          "coverage": false,
+          "sample_size": 2,
+          "largest_gap": 2,
+          "violation_count": 0,
+          "violation_times": [],
+          "semantics": "sampled",
+          "continuous_truth_established": false
+        },
+        "evidence_id": "case",
+        "input_digest": "7cc86619d0f59113325a4f3a7069f66da4ffa596c0229ba3e3052325169540c1",
+        "method": "temporal/1"
+      }
+    },
+    {
+      "name": "trace-missing-end",
+      "method": "temporal/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "trace",
+          "value": {
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 2
+              }
+            ],
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method temporal/1: The sampling contract has a gap or missing endpoint"
+        ],
+        "details": {
+          "holds": true,
+          "coverage": false,
+          "sample_size": 2,
+          "largest_gap": 1,
+          "violation_count": 0,
+          "violation_times": [],
+          "semantics": "sampled",
+          "continuous_truth_established": false
+        },
+        "evidence_id": "case",
+        "input_digest": "1bb7da56e82d4b081cde0e6ddb4c3b6a1e20c1f6ef15ba036632620534cba20e",
+        "method": "temporal/1"
+      }
+    },
+    {
+      "name": "trace-singleton",
+      "method": "temporal/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "trace",
+          "value": {
+            "start": 0,
+            "end": 0,
+            "max_gap": 1,
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              }
+            ],
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method temporal/1: The sampled property holds throughout the complete declared sampling contract"
+        ],
+        "details": {
+          "holds": true,
+          "coverage": true,
+          "sample_size": 1,
+          "largest_gap": 0.0,
+          "violation_count": 0,
+          "violation_times": [],
+          "semantics": "sampled",
+          "continuous_truth_established": false
+        },
+        "evidence_id": "case",
+        "input_digest": "5269e45de3e54297fcfedddcb128aa53222f28b5cac028a58edf28739f30b20a",
+        "method": "temporal/1"
+      }
+    },
+    {
+      "name": "trace-bad-order",
+      "method": "temporal/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "trace",
+          "value": {
+            "start": 0,
+            "end": 1,
+            "max_gap": 1,
+            "events": [
+              {
+                "time": 1,
+                "value": 1
+              },
+              {
+                "time": 0,
+                "value": 1
+              }
+            ],
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method temporal/1: Method evaluation failed: Events must be strictly time-ordered and within the declared interval"
+        ],
+        "details": {},
+        "method": "temporal/1"
+      }
+    },
+    {
+      "name": "trace-integer-time-precision",
+      "method": "temporal/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "trace",
+          "value": {
+            "start": 1152921504606846976,
+            "end": 1152921504606846977,
+            "max_gap": 1,
+            "events": [
+              {
+                "time": 1152921504606846976,
+                "value": 1
+              },
+              {
+                "time": 1152921504606846977,
+                "value": 1
+              }
+            ],
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled"
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "supported",
+        "reasons": [
+          "Method temporal/1: The sampled property holds throughout the complete declared sampling contract"
+        ],
+        "details": {
+          "holds": true,
+          "coverage": true,
+          "sample_size": 2,
+          "largest_gap": 1,
+          "violation_count": 0,
+          "violation_times": [],
+          "semantics": "sampled",
+          "continuous_truth_established": false
+        },
+        "evidence_id": "case",
+        "input_digest": "459a0fce69ad557e770c6196fc5e49d402267fb271def6cf7441348ae30063e0",
+        "method": "temporal/1"
+      }
+    },
+    {
+      "name": "unknown-method-56",
+      "method": "inference",
+      "evidence": [],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method inference: Unknown registered reasoning method 'inference'; use an installed versioned identifier"
+        ],
+        "details": {},
+        "method": "inference"
+      }
+    },
+    {
+      "name": "unknown-method-57",
+      "method": "a'b/1",
+      "evidence": [],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method a'b/1: Unknown registered reasoning method \"a'b/1\"; use an installed versioned identifier"
+        ],
+        "details": {},
+        "method": "a'b/1"
+      }
+    },
+    {
+      "name": "unknown-method-58",
+      "method": "unknown\n/1",
+      "evidence": [],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method unknown\n/1: Unknown registered reasoning method 'unknown\\n/1'; use an installed versioned identifier"
+        ],
+        "details": {},
+        "method": "unknown\n/1"
+      }
+    },
+    {
+      "name": "quoted-operator",
+      "method": "deductive/1",
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "logical_case",
+          "value": {
+            "premises": [],
+            "conclusion": {
+              "bad'operator": [
+                "p",
+                "q"
+              ]
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected": {
+        "status": "unsupported",
+        "reasons": [
+          "Method deductive/1: Method evaluation failed: Unsupported logical operator \"bad'operator\""
+        ],
+        "details": {},
+        "method": "deductive/1"
+      }
+    },
+    {
+      "name": "api-boundary",
+      "method": "engineering/api-load-criteria/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "api_report",
+          "value": {
+            "request_count": 100,
+            "p95_ms": 200,
+            "error_rate_percent": 1
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "sample_size_met": true,
+          "latency_met": true,
+          "error_limit_met": true,
+          "passes": true,
+          "fails": false
+        }
+      }
+    },
+    {
+      "name": "api-latency-fails",
+      "method": "engineering/api-load-criteria/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "api_report",
+          "value": {
+            "request_count": 100,
+            "p95_ms": 201,
+            "error_rate_percent": 1
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "sample_size_met": true,
+          "latency_met": false,
+          "error_limit_met": true,
+          "passes": false,
+          "fails": true
+        }
+      }
+    },
+    {
+      "name": "api-small-sample",
+      "method": "engineering/api-load-criteria/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "api_report",
+          "value": {
+            "request_count": 99,
+            "p95_ms": 100,
+            "error_rate_percent": 0
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "sample_size_met": false,
+          "latency_met": true,
+          "error_limit_met": true,
+          "passes": false,
+          "fails": true
+        }
+      }
+    },
+    {
+      "name": "api-empty",
+      "method": "engineering/api-load-criteria/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "api_report",
+          "value": {
+            "request_count": 0,
+            "p95_ms": null,
+            "error_rate_percent": null
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "sample_size_met": false,
+          "latency_met": null,
+          "error_limit_met": null,
+          "passes": false,
+          "fails": true
+        }
+      }
+    },
+    {
+      "name": "api-unknown-count",
+      "method": "engineering/api-load-criteria/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "api_report",
+          "value": {
+            "request_count": null,
+            "p95_ms": null,
+            "error_rate_percent": null
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "An admitted report requires a measured request count"
+      }
+    },
+    {
+      "name": "api-missing-latency",
+      "method": "engineering/api-load-criteria/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "api_report",
+          "value": {
+            "request_count": 100,
+            "p95_ms": null,
+            "error_rate_percent": 0
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "A nonempty report requires both measured statistics"
+      }
+    },
+    {
+      "name": "api-empty-with-statistic",
+      "method": "engineering/api-load-criteria/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "api_report",
+          "value": {
+            "request_count": 0,
+            "p95_ms": 0,
+            "error_rate_percent": null
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "An empty report cannot carry latency or error-rate statistics"
+      }
+    },
+    {
+      "name": "reachability-sorted-shortest",
+      "method": "engineering/reachability/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "finite_graph",
+          "value": {
+            "node_count": 4,
+            "edges": [
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                1,
+                3
+              ]
+            ],
+            "start": 0,
+            "forbidden": [
+              3
+            ],
+            "horizon": 2
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "reachable": true,
+          "shortest_length": 2,
+          "counterexample": [
+            0,
+            1,
+            3
+          ],
+          "visited": 4
+        }
+      }
+    },
+    {
+      "name": "reachability-short-horizon",
+      "method": "engineering/reachability/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "finite_graph",
+          "value": {
+            "node_count": 4,
+            "edges": [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            "start": 0,
+            "forbidden": [
+              2
+            ],
+            "horizon": 1
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "reachable": false,
+          "shortest_length": -1,
+          "counterexample": [],
+          "visited": 2
+        }
+      }
+    },
+    {
+      "name": "reachability-initial-forbidden",
+      "method": "engineering/reachability/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "finite_graph",
+          "value": {
+            "node_count": 4,
+            "edges": [],
+            "start": 0,
+            "forbidden": [
+              0
+            ],
+            "horizon": 0
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "reachable": true,
+          "shortest_length": 0,
+          "counterexample": [
+            0
+          ],
+          "visited": 1
+        }
+      }
+    },
+    {
+      "name": "reachability-cycle",
+      "method": "engineering/reachability/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "finite_graph",
+          "value": {
+            "node_count": 4,
+            "edges": [
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            "start": 0,
+            "forbidden": [
+              3
+            ],
+            "horizon": 8
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "reachable": false,
+          "shortest_length": -1,
+          "counterexample": [],
+          "visited": 2
+        }
+      }
+    },
+    {
+      "name": "reachability-duplicate-edge",
+      "method": "engineering/reachability/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "finite_graph",
+          "value": {
+            "node_count": 4,
+            "edges": [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "start": 0,
+            "forbidden": [
+              3
+            ],
+            "horizon": 2
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "Duplicate forbidden states or transition edges"
+      }
+    },
+    {
+      "name": "reachability-outside-endpoint",
+      "method": "engineering/reachability/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "finite_graph",
+          "value": {
+            "node_count": 4,
+            "edges": [
+              [
+                0,
+                4
+              ]
+            ],
+            "start": 0,
+            "forbidden": [
+              3
+            ],
+            "horizon": 2
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "A transition endpoint is outside the graph"
+      }
+    },
+    {
+      "name": "rms-ordinary",
+      "method": "engineering/rms/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "measurement_series",
+          "value": {
+            "origin": 0,
+            "samples": [
+              3,
+              4
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "rms": 3.5355339059327373,
+          "sample_size": 2
+        }
+      }
+    },
+    {
+      "name": "rms-zero",
+      "method": "engineering/rms/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "measurement_series",
+          "value": {
+            "origin": 2,
+            "samples": [
+              2,
+              2
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "rms": 0.0,
+          "sample_size": 2
+        }
+      }
+    },
+    {
+      "name": "rms-tiny",
+      "method": "engineering/rms/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "measurement_series",
+          "value": {
+            "origin": 0,
+            "samples": [
+              1e-200,
+              1e-200
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "rms": 9.999999999999998e-201,
+          "sample_size": 2
+        }
+      }
+    },
+    {
+      "name": "rms-large-neighbour",
+      "method": "engineering/rms/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "measurement_series",
+          "value": {
+            "origin": 1152921504606846976,
+            "samples": [
+              1152921504606846977
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "rms": 1.0,
+          "sample_size": 1
+        }
+      }
+    },
+    {
+      "name": "rms-large-scale",
+      "method": "engineering/rms/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "measurement_series",
+          "value": {
+            "origin": 0,
+            "samples": [
+              1e+100,
+              -1e+100
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "rms": 9.999999999999998e+99,
+          "sample_size": 2
+        }
+      }
+    },
+    {
+      "name": "rms-maximum-deviation",
+      "method": "engineering/rms/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "measurement_series",
+          "value": {
+            "origin": -1e+100,
+            "samples": [
+              1e+100
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "rms": 2e+100,
+          "sample_size": 1
+        }
+      }
+    },
+    {
+      "name": "sampled-observed-violation",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "counterexample",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 1,
+              "minimum_sensitivity": 0.9
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 9
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "finding": true,
+          "mode": "counterexample",
+          "sample_size": 3,
+          "violation_count": 1,
+          "coverage": true,
+          "largest_gap": 1,
+          "detector_contract_met": false,
+          "continuous_truth_established": false
+        }
+      }
+    },
+    {
+      "name": "sampled-violation-despite-gap",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "counterexample",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 1,
+              "minimum_sensitivity": 0.9
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 2,
+                "value": 9
+              }
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "finding": true,
+          "mode": "counterexample",
+          "sample_size": 2,
+          "violation_count": 1,
+          "coverage": false,
+          "largest_gap": 2,
+          "detector_contract_met": false,
+          "continuous_truth_established": false
+        }
+      }
+    },
+    {
+      "name": "sampled-no-observed-violation",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "counterexample",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 1,
+              "minimum_sensitivity": 0.9
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 2
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "No observed violating sample; partial sampling cannot establish absence"
+      }
+    },
+    {
+      "name": "sampled-calibrated-non-detection",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "non_detection",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 1,
+              "minimum_sensitivity": 0.9
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 2
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ],
+            "calibration": {
+              "detection_limit": 1,
+              "sensitivity_lower_bound": 0.95
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "finding": true,
+          "mode": "non_detection",
+          "sample_size": 3,
+          "violation_count": 0,
+          "coverage": true,
+          "largest_gap": 1,
+          "detector_contract_met": true,
+          "continuous_truth_established": false
+        }
+      }
+    },
+    {
+      "name": "sampled-missing-calibration",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "non_detection",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 1,
+              "minimum_sensitivity": 0.9
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 2
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "Non-detection requires documented detector calibration"
+      }
+    },
+    {
+      "name": "sampled-non-detection-gap",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "non_detection",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 1,
+              "minimum_sensitivity": 0.9
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ],
+            "calibration": {
+              "detection_limit": 1,
+              "sensitivity_lower_bound": 0.95
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "Non-detection requires both endpoints and every sampled gap within max_gap"
+      }
+    },
+    {
+      "name": "sampled-non-detection-violation",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "non_detection",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 1,
+              "minimum_sensitivity": 0.9
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 9
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ],
+            "calibration": {
+              "detection_limit": 1,
+              "sensitivity_lower_bound": 0.95
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "A violating sample prevents a non-detection finding"
+      }
+    },
+    {
+      "name": "sampled-zero-sensitivity",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "non_detection",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 1,
+              "minimum_sensitivity": 0
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 2
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ],
+            "calibration": {
+              "detection_limit": 1,
+              "sensitivity_lower_bound": 0.95
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "Non-detection requires a positive minimum sensitivity"
+      }
+    },
+    {
+      "name": "sampled-detector-limit-too-high",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "non_detection",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 6,
+              "minimum_sensitivity": 0.9
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 2
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ],
+            "calibration": {
+              "detection_limit": 1,
+              "sensitivity_lower_bound": 0.95
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "Detector limit could miss values violating the declared upper bound"
+      }
+    },
+    {
+      "name": "sampled-calibration-limit-too-high",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "non_detection",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 1,
+              "minimum_sensitivity": 0.9
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 2
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ],
+            "calibration": {
+              "detection_limit": 2,
+              "sensitivity_lower_bound": 0.95
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "Documented detector limit exceeds the declared maximum"
+      }
+    },
+    {
+      "name": "sampled-calibration-sensitivity-too-low",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "non_detection",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 1,
+              "minimum_sensitivity": 0.9
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 2
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ],
+            "calibration": {
+              "detection_limit": 1,
+              "sensitivity_lower_bound": 0.5
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "Documented detector sensitivity is below the declared minimum"
+      }
+    },
+    {
+      "name": "sampled-inclusive-boundary",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "non_detection",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "le",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 1,
+              "minimum_sensitivity": 0.9
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 5
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ],
+            "calibration": {
+              "detection_limit": 1,
+              "sensitivity_lower_bound": 0.95
+            }
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "finding": true,
+          "mode": "non_detection",
+          "sample_size": 3,
+          "violation_count": 0,
+          "coverage": true,
+          "largest_gap": 1,
+          "detector_contract_met": true,
+          "continuous_truth_established": false
+        }
+      }
+    },
+    {
+      "name": "sampled-strict-boundary",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "counterexample",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 1,
+              "minimum_sensitivity": 0.9
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 1,
+                "value": 5
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "details": {
+          "finding": true,
+          "mode": "counterexample",
+          "sample_size": 3,
+          "violation_count": 1,
+          "coverage": true,
+          "largest_gap": 1,
+          "detector_contract_met": false,
+          "continuous_truth_established": false
+        }
+      }
+    },
+    {
+      "name": "sampled-duplicate-time",
+      "method": "engineering/sampled-negative/1",
+      "optional": true,
+      "evidence": [
+        {
+          "id": "case",
+          "kind": "sampled_negative_trace",
+          "value": {
+            "mode": "counterexample",
+            "start": 0,
+            "end": 2,
+            "max_gap": 1,
+            "property": {
+              "operator": "lt",
+              "value": 5
+            },
+            "semantics": "sampled",
+            "detector_contract": {
+              "maximum_detection_limit": 1,
+              "minimum_sensitivity": 0.9
+            },
+            "events": [
+              {
+                "time": 0,
+                "value": 1
+              },
+              {
+                "time": 0,
+                "value": 9
+              },
+              {
+                "time": 2,
+                "value": 3
+              }
+            ]
+          }
+        }
+      ],
+      "premises": [],
+      "expected_callback": {
+        "error": "Samples must be strictly ordered within the declared interval"
+      }
+    }
+  ]
+}

@@ -5,17 +5,20 @@ This repository ports the production EAL/3 implementation from
 [`e2d6f346`](https://github.com/emmett08/earl/tree/e2d6f346a37f92483b9f9a13923b98feb053447b),
 package version `3.2.4`. The source repository remains unchanged.
 
-The current implementation provides generated recognition of the unchanged
-`EAL.g4`, owned syntax trees, typed unexpanded declarations and expressions,
-structural diagnostics and a canonical source formatter. The development command
-`eal-syntax` exercises these components without Python or Java.
+The implementation now includes generated recognition of the unchanged `EAL.g4`
+and an authored semantic core: composed scopes, trusted imports, inherited
+defaults, closed patterns, static validation, typed propositions and bindings,
+expressions, reasoning methods and assessment of supplied observations. It also
+provides evidence planning, standalone Dung grounded labelling and checked
+semantic formatting. The development commands `eal-syntax` and `eal-core` run
+without Python or Java.
 
-Reasoning, ASPIC solving/export, trusted import resolution, pattern expansion,
-observation storage, collection, MCP, the model host and coordination are the
-remaining port stages. See the [implementation sequence](docs/port-status.md)
-and the [module inventory](contracts/source-lock.json). The production `eal`,
-`eal-mcp`, `eal-host` and `eal-coordinate` entry points will be implemented with
-their corresponding services.
+ASPIC solving/export, observation storage and acquisition, process supervision,
+MCP, the model host, coordination and visualiser integration remain pending.
+Assessment-packet, model-context and catalogue adapters are also later work.
+See the [implementation status](docs/port-status.md) and frozen
+[source inventory](contracts/source-lock.json). The production `eal`, `eal-mcp`,
+`eal-host` and `eal-coordinate` entry points remain pending.
 
 ## Build and use
 
@@ -28,25 +31,91 @@ cargo build --workspace --locked
 cargo run --locked -p eal-cli --bin eal-syntax -- parse fixtures/parser/sources/api-load-test.eal
 cargo run --locked -p eal-cli --bin eal-syntax -- format fixtures/parser/sources/api-load-test.eal
 cargo run --locked -p eal-cli --bin eal-syntax -- recognise fixtures/parser/sources/api-load-test.eal
+cargo run --locked -p eal-cli --bin eal-core -- --methods engineering validate fixtures/parser/sources/api-load-test.eal
+cargo run --locked -p eal-cli --bin eal-core -- describe
 ```
 
-The API load-test fixture contains synthetic observations. `parse` emits the
-typed lexical AST as JSON. `recognise` emits the concrete tree, tokens and source
-spans. `format` emits canonical source after checking its recognition limits and
-typed AST preservation. Use `-` in place of a file to read UTF-8
-source from standard input. Errors go to standard error and return a failing
-exit status. Recognition and structural checks execute no source imports,
-collectors or reasoning methods.
+The API load-test fixture contains synthetic observations. In `eal-syntax`,
+`parse` emits the typed lexical AST, `recognise` emits the concrete tree and
+tokens, and `format` checks lexical preservation. The semantic development CLI
+accepts these commands:
 
-Default recognition limits are 1 MiB of UTF-8 source, 100,000 tokens, nesting
-depth 64 and 1,000,000 concrete syntax nodes. Configured nesting has a hard
-ceiling of 128, including retained unary operators. Recognition and lexical
+```text
+eal-core [--workspace DIR] [--limits FILE] [--methods builtin|engineering] COMMAND
+
+compile SOURCE
+validate SOURCE
+format SOURCE
+plan SOURCE --claim NAME
+evaluate SOURCE --now ISO_TIME [--context JSON|@FILE] [--records FILE]
+grounded GRAPH
+describe
+```
+
+`compile` emits composed semantic entities; `validate` emits ordered static
+diagnostics. `evaluate` assesses the supplied records at the explicit,
+timezone-aware instant. Context defaults to `{}` and can be supplied inline or
+from a JSON file prefixed with `@`; records default to `{}`. It uses no clock,
+collector or persistent store. `plan` follows alternative derivations, premises,
+backing, assumption validation, objections and defences to produce the complete
+evidence dependency closure and declared calls. It does not execute those calls.
+`grounded` reads a JSON object with `arguments` and `attacks`, for example
+`{"arguments":["a","b"],"attacks":[["a","b"]]}`. `describe` emits method,
+typed-binding and budget contracts.
+
+Use `-` for source from standard input. The workspace defaults to the current
+directory; all file inputs and trusted `.eal` imports must resolve within it.
+`--limits FILE` reads a TOML `[limits]` table, with unspecified fields retaining
+their defaults. For example:
+
+```toml
+[limits]
+source_bytes = 1048576
+declarations = 4096
+json_depth = 64
+```
+
+The default registry contains `structured/1`, `deductive/1`, `inductive/1`,
+`abductive/1`, `causal/1`, `counterfactual/1`, `analogical/1` and `temporal/1`.
+`--methods engineering` adds `engineering/api-load-criteria/1`,
+`engineering/reachability/1`, `engineering/rms/1` and
+`engineering/sampled-negative/1`. The optional ASPIC method is pending with the
+ASPIC solver.
+
+Expressions preserve arbitrary integers, binary64 arithmetic, negative modulo,
+missing values and expression errors. Typed bindings use exact rational unit
+conversions and canonical request/observation identities. Native methods report
+Rust implementation identities. A custom native callback's artefact hash is a
+host declaration; the core checks its shape, while the host must establish its
+correspondence to the loaded code. Callback process supervision and deadlines
+belong to the pending runtime.
+
+Semantic `format` validates, replays captured imports, and checks composed
+semantic preservation and idempotence. Formatting changes source identity, so
+observations must be bound to the new source. Library callers supplying direct
+IR without retained authored syntax can format plain declarations; imports,
+templates and generated declarations require that authored syntax. Validation
+failure returns exit status 1; input or command errors return status 2.
+
+Default `eal-syntax` recognition limits are 1 MiB of UTF-8 source, 100,000
+tokens, nesting depth 64 and 1,000,000 concrete syntax nodes. Configured nesting
+has a hard ceiling of 128, including retained unary operators. Semantic
+composition selects nesting from `expansion_depth`, which defaults to 128.
+Recognition and lexical
 lowering each run on a temporary worker reserving a 16 MiB stack, so embedded
 callers can use ordinary small stacks. Typed expression depth is bounded at
-128, including flat operator chains. Limits produce diagnostics. Formatting can
+128, including flat operator chains. JSON depth defaults to 64 with a hard
+ceiling of 128; schema instance checks also cap traversal at 128. Semantic
+source-import and block traversal cap native recursion at 128; iterative pattern
+applications retain the host's selected expansion-depth budget. Semantic
+budgets additionally bound declarations, expansion, references and graph edges.
+`structural_values` counts scalar, compound and object-key visits in the Rust
+IR serializer, rather than Python dataclass reflection values; its boundary is
+representation-specific. Limits produce diagnostics. Formatting can
 increase whitespace, tokens or nesting. The checked formatter reports a limit
 when the emitted source would exceed the selected budgets. Library callers can
-use `Program::format_with_limits` to apply their selected budgets explicitly.
+use `eal_core::Program::format_with_limits` for lexical formatting with explicit
+budgets; semantic formatting uses the compiled programme's limits.
 
 ## Verify
 
@@ -56,15 +125,22 @@ cargo clippy --workspace --all-targets --locked -- -D warnings
 cargo test --workspace --locked
 ```
 
-The retained Python reference corpus covers all 76 grammar rules in 101 cases.
+The retained parser reference covers all 76 grammar rules in 101 cases.
 Rust tests compare complete parse trees, token identities/text/channels and
 Unicode scalar/byte positions, reject malformed input after recovery, check
 frozen artefact hashes and exercise the CLI with an empty executable search
 path. Further tests cover structural checks and formatter round trips.
 The [fixture notes](fixtures/parser/README.md) distinguish recognition from
 composed Python lowering. These checks establish the implemented front end's
-behaviour on the retained corpus. Semantic comparison belongs to each later
-port stage.
+behaviour on the retained corpus. Native tests also compare the retained
+expression, method, validation, canonical-identity, planning and
+[cross-component semantic](fixtures/semantics/README.md) corpora. The latter
+contains 93 source-to-assessment and import-failure cases. Fixtures state any
+numerical tolerance or native backend identity projection; source, query and
+observation identities remain exact. The differential reference profile is
+CPython 3.12.14 with Unicode 15; `sum` uses its 64-bit C-long profile consistently
+across Rust targets. Python is used only to capture development references,
+never by normal Rust tests.
 
 The GitHub workflow runs on manual dispatch. It checks Rust on Linux and Windows
 and checks parser regeneration separately on Linux.

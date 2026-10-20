@@ -30,6 +30,21 @@ the resolved dependency versions, and Cargo package metadata identifies their
 licences. Binary distribution packaging must retain the applicable dependency
 notices.
 
+## CPython numerical algorithms
+
+The native statistical methods adapt the inverse-normal approximation from
+CPython 3.12's `statistics.py` (`NormalDist`), its scaled rational square-root
+calculation (`_float_sqrt_of_frac`), and the built-in `sum` specialisation from
+`Python/bltinmodule.c`, including compensated binary64 accumulation. The Rust
+adaptations retain these algorithms while using Rust binary64 operations and
+arbitrary-precision integers/rationals. They do not embed or invoke the Python
+runtime.
+
+These adaptations retain the Python Software Foundation License Version 2 and
+the accompanying historical notices in
+[`CPython-LICENSE.txt`](crates/eal-core/src/methods/CPython-LICENSE.txt).
+Copyright (c) 2001–2023 Python Software Foundation; all rights reserved.
+
 ## Coordination material reserved for a later stage
 
 The source implementation embeds a Rust MAS codec derived from the MAS Protocol

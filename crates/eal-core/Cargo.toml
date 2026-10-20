@@ -10,6 +10,15 @@ description = "Typed EAL/3 lexical syntax and structural validation"
 eal-parser.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+sha2.workspace = true
+num-bigint.workspace = true
+num-rational.workspace = true
+num-traits.workspace = true
+num-integer.workspace = true
+chrono.workspace = true
+ryu.workspace = true
+indexmap.workspace = true
+unicode-general-category.workspace = true
 
 [lints]
 workspace = true

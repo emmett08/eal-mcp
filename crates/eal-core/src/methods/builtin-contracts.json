@@ -1,0 +1,974 @@
+{
+  "abductive/1": {
+    "identifier": "abductive/1",
+    "evidence_kind": "hypotheses",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "observed": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "prior": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              },
+              "likelihood": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              }
+            },
+            "required": [
+              "name",
+              "prior",
+              "likelihood"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 2,
+          "maxItems": 128
+        }
+      },
+      "required": [
+        "observed",
+        "candidates"
+      ],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {
+        "observed": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "prior": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              },
+              "likelihood": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              }
+            },
+            "required": [
+              "name",
+              "prior",
+              "likelihood"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 2,
+          "maxItems": 128
+        }
+      },
+      "required": [
+        "observed",
+        "candidates"
+      ],
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "best_posterior": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "posterior": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          }
+        }
+      },
+      "required": [
+        "best_posterior",
+        "posterior"
+      ],
+      "additionalProperties": {
+        "type": "json"
+      }
+    },
+    "outputs": {
+      "best_posterior": "dimensionless",
+      "posterior.*": "dimensionless"
+    },
+    "quantities": [
+      "probability"
+    ],
+    "exact_unit": false,
+    "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+    "limits": {
+      "timeout_seconds": 1.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "eal-builtin-2.1.0",
+    "reference_execution": "bounded_builtin"
+  },
+  "analogical/1": {
+    "identifier": "analogical/1",
+    "evidence_kind": "analogy",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "relevant_features": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "minItems": 1,
+          "maxItems": 256
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "json"
+          }
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "json"
+          }
+        }
+      },
+      "required": [
+        "relevant_features",
+        "source",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {
+        "relevant_features": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "minItems": 1,
+          "maxItems": 256
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "json"
+          }
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "json"
+          }
+        }
+      },
+      "required": [
+        "relevant_features",
+        "source",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "match_fraction": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "complete": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "match_fraction",
+        "complete"
+      ],
+      "additionalProperties": {
+        "type": "json"
+      }
+    },
+    "outputs": {
+      "match_fraction": "dimensionless",
+      "complete": "boolean"
+    },
+    "quantities": [
+      "dimensionless"
+    ],
+    "exact_unit": false,
+    "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+    "limits": {
+      "timeout_seconds": 1.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "eal-builtin-2.1.0",
+    "reference_execution": "bounded_builtin"
+  },
+  "causal/1": {
+    "identifier": "causal/1",
+    "evidence_kind": "experiment",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "assignment": {
+          "type": "string",
+          "enum": [
+            "randomised"
+          ]
+        },
+        "treatment": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "minItems": 2,
+          "maxItems": 10000
+        },
+        "control": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "minItems": 2,
+          "maxItems": 10000
+        }
+      },
+      "required": [
+        "assignment",
+        "treatment",
+        "control"
+      ],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {
+        "assignment": {
+          "type": "string",
+          "enum": [
+            "randomised"
+          ]
+        }
+      },
+      "required": [
+        "assignment"
+      ],
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "estimate": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "standard_error": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "treatment_mean": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "control_mean": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        }
+      },
+      "required": [
+        "estimate",
+        "standard_error",
+        "treatment_mean",
+        "control_mean"
+      ],
+      "additionalProperties": {
+        "type": "json"
+      }
+    },
+    "outputs": {
+      "estimate": "basis",
+      "standard_error": "basis",
+      "treatment_mean": "basis",
+      "control_mean": "basis"
+    },
+    "quantities": [
+      "pressure",
+      "time",
+      "length",
+      "mass",
+      "temperature_difference",
+      "velocity",
+      "volumetric_flow",
+      "dimensionless",
+      "probability"
+    ],
+    "exact_unit": false,
+    "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+    "limits": {
+      "timeout_seconds": 1.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "eal-builtin-2.1.0",
+    "reference_execution": "bounded_builtin"
+  },
+  "counterfactual/1": {
+    "identifier": "counterfactual/1",
+    "evidence_kind": "causal_model",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "variables": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "intercept": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              },
+              "coefficients": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                }
+              },
+              "noise": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              }
+            },
+            "required": [
+              "intercept",
+              "coefficients",
+              "noise"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "intervention": {
+          "type": "object",
+          "properties": {
+            "variable": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "value": {
+              "type": "number",
+              "minimum": -1e+100,
+              "maximum": 1e+100
+            }
+          },
+          "required": [
+            "variable",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "outcome": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "required": [
+        "variables",
+        "intervention",
+        "outcome"
+      ],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {
+        "variables": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "intercept": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              },
+              "coefficients": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                }
+              },
+              "noise": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              }
+            },
+            "required": [
+              "intercept",
+              "coefficients",
+              "noise"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "intervention": {
+          "type": "object",
+          "properties": {
+            "variable": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "value": {
+              "type": "number",
+              "minimum": -1e+100,
+              "maximum": 1e+100
+            }
+          },
+          "required": [
+            "variable",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "outcome": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "required": [
+        "variables",
+        "intervention",
+        "outcome"
+      ],
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "factual": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "counterfactual": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "difference": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        }
+      },
+      "required": [
+        "factual",
+        "counterfactual",
+        "difference"
+      ],
+      "additionalProperties": {
+        "type": "json"
+      }
+    },
+    "outputs": {
+      "factual": "basis",
+      "counterfactual": "basis",
+      "difference": "basis"
+    },
+    "quantities": [
+      "pressure",
+      "time",
+      "length",
+      "mass",
+      "temperature_difference",
+      "velocity",
+      "volumetric_flow",
+      "dimensionless",
+      "probability"
+    ],
+    "exact_unit": true,
+    "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+    "limits": {
+      "timeout_seconds": 1.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "eal-builtin-2.1.0",
+    "reference_execution": "bounded_builtin"
+  },
+  "deductive/1": {
+    "identifier": "deductive/1",
+    "evidence_kind": "logical_case",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "premises": {
+          "type": "array",
+          "items": {
+            "type": "json"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        },
+        "conclusion": {
+          "type": "json"
+        }
+      },
+      "required": [
+        "premises",
+        "conclusion"
+      ],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {
+        "premises": {
+          "type": "array",
+          "items": {
+            "type": "json"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        },
+        "conclusion": {
+          "type": "json"
+        }
+      },
+      "required": [
+        "premises",
+        "conclusion"
+      ],
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "entailed": {
+          "type": "boolean"
+        },
+        "consistent_premises": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "entailed",
+        "consistent_premises"
+      ],
+      "additionalProperties": {
+        "type": "json"
+      }
+    },
+    "outputs": {
+      "entailed": "boolean",
+      "consistent_premises": "boolean"
+    },
+    "quantities": [
+      "proposition"
+    ],
+    "exact_unit": false,
+    "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+    "limits": {
+      "timeout_seconds": 1.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "eal-builtin-2.1.0",
+    "reference_execution": "bounded_builtin"
+  },
+  "inductive/1": {
+    "identifier": "inductive/1",
+    "evidence_kind": "sample",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "successes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "trials": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000000
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.001,
+          "maximum": 0.999999
+        }
+      },
+      "required": [
+        "successes",
+        "trials",
+        "confidence"
+      ],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {
+        "confidence": {
+          "type": "number",
+          "minimum": 0.001,
+          "maximum": 0.999999
+        }
+      },
+      "required": [
+        "confidence"
+      ],
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "estimate": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "lower": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "upper": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        }
+      },
+      "required": [
+        "estimate",
+        "lower",
+        "upper"
+      ],
+      "additionalProperties": {
+        "type": "json"
+      }
+    },
+    "outputs": {
+      "estimate": "dimensionless",
+      "lower": "dimensionless",
+      "upper": "dimensionless"
+    },
+    "quantities": [
+      "probability"
+    ],
+    "exact_unit": false,
+    "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+    "limits": {
+      "timeout_seconds": 1.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "eal-builtin-2.1.0",
+    "reference_execution": "bounded_builtin"
+  },
+  "structured/1": {
+    "identifier": "structured/1",
+    "evidence_kind": null,
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "authored": {
+          "type": "boolean"
+        },
+        "mechanically_proved": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "authored",
+        "mechanically_proved"
+      ],
+      "additionalProperties": false
+    },
+    "outputs": {},
+    "quantities": [],
+    "exact_unit": false,
+    "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+    "limits": {
+      "timeout_seconds": 1.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "eal-builtin-2.1.0",
+    "reference_execution": "bounded_builtin"
+  },
+  "temporal/1": {
+    "identifier": "temporal/1",
+    "evidence_kind": "trace",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "end": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "max_gap": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "time": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              },
+              "value": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              }
+            },
+            "required": [
+              "time",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 10000
+        },
+        "property": {
+          "type": "object",
+          "properties": {
+            "operator": {
+              "type": "string",
+              "enum": [
+                "lt",
+                "le",
+                "eq",
+                "ne",
+                "ge",
+                "gt"
+              ]
+            },
+            "value": {
+              "type": "number",
+              "minimum": -1e+100,
+              "maximum": 1e+100
+            }
+          },
+          "required": [
+            "operator",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "semantics": {
+          "type": "string",
+          "enum": [
+            "sampled"
+          ]
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "max_gap",
+        "events",
+        "property",
+        "semantics"
+      ],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "end": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "max_gap": {
+          "type": "number",
+          "minimum": -1e+100,
+          "maximum": 1e+100
+        },
+        "property": {
+          "type": "object",
+          "properties": {
+            "operator": {
+              "type": "string",
+              "enum": [
+                "lt",
+                "le",
+                "eq",
+                "ne",
+                "ge",
+                "gt"
+              ]
+            },
+            "value": {
+              "type": "number",
+              "minimum": -1e+100,
+              "maximum": 1e+100
+            }
+          },
+          "required": [
+            "operator",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        "semantics": {
+          "type": "string",
+          "enum": [
+            "sampled"
+          ]
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "max_gap",
+        "property",
+        "semantics"
+      ],
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "holds": {
+          "type": "boolean"
+        },
+        "coverage": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "holds",
+        "coverage"
+      ],
+      "additionalProperties": {
+        "type": "json"
+      }
+    },
+    "outputs": {
+      "holds": "boolean",
+      "coverage": "boolean"
+    },
+    "quantities": [
+      "pressure",
+      "time",
+      "length",
+      "mass",
+      "temperature_difference",
+      "velocity",
+      "volumetric_flow",
+      "dimensionless",
+      "probability"
+    ],
+    "exact_unit": true,
+    "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+    "limits": {
+      "timeout_seconds": 1.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "eal-builtin-2.1.0",
+    "reference_execution": "bounded_builtin"
+  }
+}

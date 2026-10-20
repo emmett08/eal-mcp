@@ -43,7 +43,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/acquisition_coordination.py",
@@ -63,7 +63,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/aspic.py",
@@ -104,7 +104,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/catalogue.py",
@@ -184,7 +184,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/__init__.py",
@@ -354,7 +354,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/discovery.py",
@@ -374,7 +374,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/expressions.py",
@@ -384,7 +384,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/extensions.py",
@@ -394,7 +394,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/formatter.py",
@@ -404,7 +404,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/host.py",
@@ -444,7 +444,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/mcp_guard.py",
@@ -465,7 +465,8 @@
         "eal-core",
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "partial_native",
+      "remaining": "Python factory loading, external method workers and process supervision; see docs/port-status.md"
     },
     {
       "path": "src/eal/model.py",
@@ -475,7 +476,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/model_context.py",
@@ -495,7 +496,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/observation_reuse.py",
@@ -546,7 +547,7 @@
         "eal-parser",
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/planning.py",
@@ -556,7 +557,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/propositions.py",
@@ -566,7 +567,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/reachability.py",
@@ -576,7 +577,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/reasoning/__init__.py",
@@ -586,7 +587,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/reasoning/abductive.py",
@@ -596,7 +597,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/reasoning/analogical.py",
@@ -606,7 +607,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/reasoning/causal.py",
@@ -616,7 +617,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/reasoning/counterfactual.py",
@@ -626,7 +627,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/reasoning/deductive.py",
@@ -636,7 +637,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/reasoning/inductive.py",
@@ -646,7 +647,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/reasoning/strategy.py",
@@ -656,7 +657,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/reasoning/structured.py",
@@ -666,7 +667,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/reasoning/temporal.py",
@@ -676,7 +677,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/reasoning/validation.py",
@@ -686,7 +687,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/registered_assessment.py",
@@ -716,7 +717,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/scope_transfer.py",
@@ -726,7 +727,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/semantics.py",
@@ -736,7 +737,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/server.py",
@@ -776,7 +777,7 @@
       "rust_components": [
         "eal-core"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/store.py",

@@ -8,4 +8,4 @@ contracts/licenses/* -text
 
 # Preserve the generator's original whitespace for exact drift checks.
 crates/eal-parser/src/generated/* -whitespace linguist-generated=true
-fixtures/parser/reference.json linguist-generated=true
+fixtures/**/reference.json linguist-generated=true

@@ -1,7 +1,24 @@
-//! Pure, typed EAL/3 lexical lowering. Binding and execution are separate stages.
+//! Typed EAL/3 syntax, composition, validation and authored reasoning with explicit inputs.
 mod ast;
+pub mod canonical;
+pub mod composition;
+pub mod dialectic;
+pub mod evaluation;
+pub mod expressions;
 mod format;
+pub mod json;
+mod limits;
 mod lower;
+pub mod methods;
+pub mod planning;
+pub mod propositions;
+pub mod scope_transfer;
+pub mod semantic;
+pub mod semantic_format;
+mod semantic_spans;
+pub mod validation;
+
+pub use limits::ExecutionLimits;
 
 pub use ast::*;
 pub use eal_parser::ParseLimits;
