@@ -153,7 +153,9 @@ fn assess(
             },
             json!({"authored":true,"mechanically_proved":false}),
         )
-    } else if let Some(mode) = &contract.builtin_mode {
+    } else if let Some(mode) = &contract.builtin_mode
+        && contract.implementation.is_none()
+    {
         if mode.starts_with("engineering/") {
             let mut output = match super::optional::compute(mode, payload) {
                 Ok(details) => result(
@@ -172,8 +174,8 @@ fn assess(
         } else {
             compute_builtin(mode, payload)?
         }
-    } else if let Some(callback) = contract.implementation {
-        let mut output = match callback(payload, limits) {
+    } else if let Some(callback) = &contract.implementation {
+        let mut output = match callback.call(payload, limits) {
             Ok(details) => result(
                 true,
                 &format!("Computed registered method {}", contract.identifier),

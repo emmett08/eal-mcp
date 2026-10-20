@@ -15,10 +15,15 @@ path = "src/main.rs"
 name = "eal-core"
 path = "src/core_main.rs"
 
+[[bin]]
+name = "eal-runtime"
+path = "src/runtime_main.rs"
+
 [dependencies]
 eal-parser.workspace = true
 eal-core.workspace = true
 eal-aspic.workspace = true
+eal-runtime.workspace = true
 serde_json.workspace = true
 serde.workspace = true
 toml.workspace = true

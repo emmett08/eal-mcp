@@ -10,3 +10,4 @@ contracts/licenses/* -text
 crates/eal-parser/src/generated/* -whitespace linguist-generated=true
 fixtures/**/reference.json linguist-generated=true
 fixtures/aspic/*-reference.json linguist-generated=true
+fixtures/runtime/*-reference.json linguist-generated=true

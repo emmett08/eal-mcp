@@ -2,7 +2,7 @@
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
-use std::sync::OnceLock;
+use std::sync::{Arc, OnceLock};
 
 use super::schema::validate_schema;
 
@@ -34,7 +34,32 @@ impl From<&str> for MethodError {
 
 /// Trusted callbacks receive captured host budgets and return declared output objects.
 /// Callbacks report exhaustion explicitly. Process supervision belongs to the runtime.
-pub type MethodImplementation = fn(&Value, &crate::ExecutionLimits) -> Result<Value, MethodError>;
+type MethodCallback =
+    dyn Fn(&Value, &crate::ExecutionLimits) -> Result<Value, MethodError> + Send + Sync;
+#[derive(Clone)]
+pub struct MethodImplementation(Arc<MethodCallback>);
+impl MethodImplementation {
+    pub fn new(
+        callback: impl Fn(&Value, &crate::ExecutionLimits) -> Result<Value, MethodError>
+        + Send
+        + Sync
+        + 'static,
+    ) -> Self {
+        Self(Arc::new(callback))
+    }
+    pub fn call(
+        &self,
+        value: &Value,
+        limits: &crate::ExecutionLimits,
+    ) -> Result<Value, MethodError> {
+        (self.0)(value, limits)
+    }
+}
+impl std::fmt::Debug for MethodImplementation {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str("MethodImplementation(..)")
+    }
+}
 
 /// A host declaration binding a native callback to its retained build artefact.
 /// The core checks identity shape; verifying loaded artefacts belongs to the host.
@@ -63,6 +88,7 @@ pub struct MethodContract {
     pub max_memory_bytes: usize,
     pub implementation: Option<MethodImplementation>,
     pub(crate) builtin_mode: Option<String>,
+    executor_identity: Option<NativeMethodIdentity>,
 }
 
 impl MethodContract {
@@ -118,6 +144,7 @@ impl MethodContract {
                 .as_u64()
                 .expect("memory bytes") as usize,
             implementation: None,
+            executor_identity: None,
             builtin_mode: Some(
                 identifier
                     .rsplit_once('/')
@@ -135,7 +162,10 @@ impl MethodContract {
         query_schema: Value,
         output_schema: Value,
         identity: NativeMethodIdentity,
-        implementation: MethodImplementation,
+        implementation: impl Fn(&Value, &crate::ExecutionLimits) -> Result<Value, MethodError>
+        + Send
+        + Sync
+        + 'static,
     ) -> Self {
         let query_fields = query_schema["required"]
             .as_array()
@@ -162,8 +192,9 @@ impl MethodContract {
             max_input_bytes: 1024 * 1024,
             max_output_bytes: 1024 * 1024,
             max_memory_bytes: 256 * 1024 * 1024,
-            implementation: Some(implementation),
+            implementation: Some(MethodImplementation::new(implementation)),
             builtin_mode: None,
+            executor_identity: None,
         }
     }
 
@@ -178,14 +209,19 @@ impl MethodContract {
     }
 
     pub fn describe(&self) -> Value {
-        json!({"identifier":self.identifier,"evidence_kind":self.evidence_kind,"input_schema":self.input_schema,
+        let mut description = json!({"identifier":self.identifier,"evidence_kind":self.evidence_kind,"input_schema":self.input_schema,
             "query_schema":self.query_schema,"output_schema":self.output_schema,"outputs":self.outputs,"quantities":self.quantities,
             "exact_unit":self.exact_unit,"quantity_interpretation":"input measurement basis; each output separately declares its unit interpretation",
             "implementation_version":self.implementation_version,"implementation_source_digest":if self.builtin_mode.is_some(){Some(source_fingerprint())}else{None},
             "implementation_code_digest":Value::Null,"implementation_artifact_digest":self.implementation_artifact_digest,"identity_basis":if self.builtin_mode.is_some(){"rust-source-and-package-version; binary attestation is separate"}else{"host-declared native artefact SHA-256; runtime attestation is separate"},
             "limits":{"timeout_seconds":self.timeout_seconds,"max_input_bytes":self.max_input_bytes,"max_output_bytes":self.max_output_bytes,
                 "max_memory_bytes":self.max_memory_bytes,"startup_timeout_seconds":5.0},
-            "execution":if self.builtin_mode.as_ref().is_some_and(|m|m.starts_with("engineering/")){"bounded_native_optional"}else if self.builtin_mode.is_some(){"bounded_native_builtin"}else{"trusted_native_callback"}})
+            "execution":if self.executor_identity.is_some(){"host_registered_executor"}else if self.builtin_mode.as_ref().is_some_and(|m|m.starts_with("engineering/")){"bounded_native_optional"}else if self.builtin_mode.is_some(){"bounded_native_builtin"}else{"trusted_native_callback"}});
+        if let Some(identity) = &self.executor_identity {
+            description["executor_identity"] =
+                json!({"version":identity.version,"artifact_sha256":identity.artifact_sha256});
+        }
+        description
     }
 }
 
@@ -229,6 +265,34 @@ pub struct MethodRegistry {
 }
 
 impl MethodRegistry {
+    /// Bind an explicitly installed non-builtin method to an immutable host executor.
+    /// The core records the host identity; process guarantees belong to that executor.
+    pub fn with_executor(
+        &self,
+        identifier: &str,
+        identity: NativeMethodIdentity,
+        implementation: impl Fn(&Value, &crate::ExecutionLimits) -> Result<Value, MethodError>
+        + Send
+        + Sync
+        + 'static,
+    ) -> Result<Self, String> {
+        if default_identifiers().contains(identifier) {
+            return Err("Original built-in methods retain their native execution profiles".into());
+        }
+        let mut contract = self
+            .get(identifier)
+            .ok_or("Cannot bind an unknown method executor")?
+            .clone();
+        if contract.executor_identity.is_some() {
+            return Err("Method executor is already bound".into());
+        }
+        contract.executor_identity = Some(identity);
+        contract.implementation = Some(MethodImplementation::new(implementation));
+        let mut registry = self.clone();
+        validate_contract(&contract)?;
+        registry.contracts.insert(identifier.to_owned(), contract);
+        Ok(registry)
+    }
     pub fn new(contracts: impl IntoIterator<Item = MethodContract>) -> Result<Self, String> {
         let mut registry = Self::default();
         for contract in contracts {
@@ -330,6 +394,20 @@ pub fn is_method_identifier(value: &str) -> bool {
 }
 
 fn validate_contract(contract: &MethodContract) -> Result<(), String> {
+    if let Some(identity) = &contract.executor_identity {
+        if identity.version.trim().is_empty()
+            || identity.artifact_sha256.len() != 64
+            || !identity
+                .artifact_sha256
+                .bytes()
+                .all(|c| c.is_ascii_digit() || (b'a'..=b'f').contains(&c))
+        {
+            return Err("Method executor requires a version and lowercase SHA-256 identity".into());
+        }
+        if default_identifiers().contains(contract.identifier.as_str()) {
+            return Err("Original built-in executors are reserved".into());
+        }
+    }
     if !is_method_identifier(&contract.identifier) {
         return Err("Method identifier requires a name and positive integer version".into());
     }
@@ -339,7 +417,7 @@ fn validate_contract(contract: &MethodContract) -> Result<(), String> {
     if let Some(mode) = &contract.builtin_mode {
         if !compiled_identifiers().contains(contract.identifier.as_str())
             || contract.identifier != format!("{mode}/1")
-            || contract.implementation.is_some()
+            || (contract.implementation.is_some() != contract.executor_identity.is_some())
         {
             return Err("Built-in method identities are reserved".into());
         }

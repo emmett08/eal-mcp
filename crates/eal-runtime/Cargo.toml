@@ -1,0 +1,35 @@
+[package]
+name = "eal-runtime"
+description = "Durable EAL/3 acquisition and supervised native execution"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "eal-command-supervisor"
+path = "src/bin/command_supervisor.rs"
+
+[[bin]]
+name = "eal-method-worker"
+path = "src/bin/method_worker.rs"
+
+[dependencies]
+eal-core.workspace = true
+eal-aspic.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+chrono = { workspace = true, features = ["clock"] }
+indexmap.workspace = true
+toml.workspace = true
+rusqlite.workspace = true
+rustix.workspace = true
+hmac.workspace = true
+uuid.workspace = true
+signal-hook.workspace = true
+getrandom.workspace = true
+
+[lints]
+workspace = true

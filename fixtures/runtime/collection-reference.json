@@ -1,0 +1,3364 @@
+{
+  "schema": "eal-runtime-collection-reference/1",
+  "source_revision": "e2d6f346a37f92483b9f9a13923b98feb053447b",
+  "provenance": "Synthetic acquisition correspondence; UUID and rebound time fixed only in the capture process",
+  "identity_cases": [
+    {
+      "name": "same-source-context",
+      "collection": {
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "context": {
+          "site": "bench"
+        },
+        "records": {
+          "measured": {
+            "schema": "EAL/observation-record/1",
+            "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+            "evidence_id": "measured",
+            "tool": "runner",
+            "tool_version": "1",
+            "evidence_kind": "test",
+            "environment": "lab",
+            "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+            "input": {
+              "value": 7
+            },
+            "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+            "context": {
+              "site": "bench"
+            },
+            "acquisition_request": {
+              "tool": "runner",
+              "tool_version": "1",
+              "input": {
+                "value": 7
+              },
+              "context": {
+                "site": "bench"
+              }
+            },
+            "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+            "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+            "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "run_id": "original-run",
+            "started_at": "2020-01-01T00:00:00Z",
+            "collected_at": "2020-01-01T00:00:00Z",
+            "ingested_at": "2026-09-23T12:00:00Z",
+            "status": "ok",
+            "value": {
+              "passed": true
+            },
+            "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+            "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+            "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+            "stdout_bytes": 100,
+            "stderr_bytes": 0
+          }
+        }
+      },
+      "context": {
+        "site": "bench"
+      },
+      "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+      "records": {
+        "measured": {
+          "schema": "EAL/observation-record/1",
+          "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+          "evidence_id": "measured",
+          "tool": "runner",
+          "tool_version": "1",
+          "evidence_kind": "test",
+          "environment": "lab",
+          "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+          "input": {
+            "value": 7
+          },
+          "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+          "context": {
+            "site": "bench"
+          },
+          "acquisition_request": {
+            "tool": "runner",
+            "tool_version": "1",
+            "input": {
+              "value": 7
+            },
+            "context": {
+              "site": "bench"
+            }
+          },
+          "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+          "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+          "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "run_id": "original-run",
+          "started_at": "2020-01-01T00:00:00Z",
+          "collected_at": "2020-01-01T00:00:00Z",
+          "ingested_at": "2026-09-23T12:00:00Z",
+          "status": "ok",
+          "value": {
+            "passed": true
+          },
+          "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+          "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+          "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+          "stdout_bytes": 100,
+          "stderr_bytes": 0
+        }
+      }
+    },
+    {
+      "name": "changed-source",
+      "collection": {
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "context": {
+          "site": "bench"
+        },
+        "records": {
+          "measured": {
+            "schema": "EAL/observation-record/1",
+            "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+            "evidence_id": "measured",
+            "tool": "runner",
+            "tool_version": "1",
+            "evidence_kind": "test",
+            "environment": "lab",
+            "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+            "input": {
+              "value": 7
+            },
+            "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+            "context": {
+              "site": "bench"
+            },
+            "acquisition_request": {
+              "tool": "runner",
+              "tool_version": "1",
+              "input": {
+                "value": 7
+              },
+              "context": {
+                "site": "bench"
+              }
+            },
+            "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+            "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+            "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "run_id": "original-run",
+            "started_at": "2020-01-01T00:00:00Z",
+            "collected_at": "2020-01-01T00:00:00Z",
+            "ingested_at": "2026-09-23T12:00:00Z",
+            "status": "ok",
+            "value": {
+              "passed": true
+            },
+            "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+            "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+            "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+            "stdout_bytes": 100,
+            "stderr_bytes": 0
+          }
+        }
+      },
+      "context": {
+        "site": "bench"
+      },
+      "source_digest": "changed",
+      "error": "Collection differs from the assessment source"
+    },
+    {
+      "name": "changed-context",
+      "collection": {
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "context": {
+          "site": "bench"
+        },
+        "records": {
+          "measured": {
+            "schema": "EAL/observation-record/1",
+            "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+            "evidence_id": "measured",
+            "tool": "runner",
+            "tool_version": "1",
+            "evidence_kind": "test",
+            "environment": "lab",
+            "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+            "input": {
+              "value": 7
+            },
+            "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+            "context": {
+              "site": "bench"
+            },
+            "acquisition_request": {
+              "tool": "runner",
+              "tool_version": "1",
+              "input": {
+                "value": 7
+              },
+              "context": {
+                "site": "bench"
+              }
+            },
+            "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+            "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+            "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "run_id": "original-run",
+            "started_at": "2020-01-01T00:00:00Z",
+            "collected_at": "2020-01-01T00:00:00Z",
+            "ingested_at": "2026-09-23T12:00:00Z",
+            "status": "ok",
+            "value": {
+              "passed": true
+            },
+            "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+            "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+            "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+            "stdout_bytes": 100,
+            "stderr_bytes": 0
+          }
+        }
+      },
+      "context": {
+        "site": "elsewhere"
+      },
+      "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+      "error": "Collection differs from the assessment context"
+    },
+    {
+      "name": "nonobject",
+      "collection": [],
+      "context": {
+        "site": "bench"
+      },
+      "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+      "error": "Stored collection must be a JSON object"
+    },
+    {
+      "name": "missing-records",
+      "collection": {
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "context": {
+          "site": "bench"
+        }
+      },
+      "context": {
+        "site": "bench"
+      },
+      "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+      "error": "Collection records must map evidence IDs to observations"
+    },
+    {
+      "name": "bad-record",
+      "collection": {
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "context": {
+          "site": "bench"
+        },
+        "records": {
+          "measured": "wrong"
+        }
+      },
+      "context": {
+        "site": "bench"
+      },
+      "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+      "error": "Collection records must map evidence IDs to observations"
+    },
+    {
+      "name": "integer-float-context",
+      "collection": {
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "context": {
+          "x": 1
+        },
+        "records": {}
+      },
+      "context": {
+        "x": 1.0
+      },
+      "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+      "error": "Collection differs from the assessment context"
+    },
+    {
+      "name": "integer-boolean-context",
+      "collection": {
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "context": {
+          "x": 1
+        },
+        "records": {}
+      },
+      "context": {
+        "x": true
+      },
+      "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+      "error": "Collection differs from the assessment context"
+    },
+    {
+      "name": "negative-zero-context",
+      "collection": {
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "context": {
+          "x": 0.0
+        },
+        "records": {}
+      },
+      "context": {
+        "x": -0.0
+      },
+      "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+      "error": "Collection differs from the assessment context"
+    }
+  ],
+  "reuse_cases": [
+    {
+      "name": "exact-original",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "prepared": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "derived-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "origin_run_id": "original-run",
+        "reused_from_run_id": "original-run",
+        "rebound_at": "2026-09-23T12:34:56Z"
+      }
+    },
+    {
+      "name": "source-rationale-revision",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Revised rationale.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "prepared": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "420a3dd9bba3a971c73646b81dba99ce61464e581d8eee08e8a71793e032bfb9",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "derived-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "origin_run_id": "original-run",
+        "reused_from_run_id": "original-run",
+        "rebound_at": "2026-09-23T12:34:56Z"
+      }
+    },
+    {
+      "name": "missing-current-binding",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": null,
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "No current tool binding for evidence 'measured'"
+    },
+    {
+      "name": "invalid-current-binding",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "No current tool binding for evidence 'measured'"
+    },
+    {
+      "name": "different-current-binding",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation tool_binding_digest differs from the requested acquisition"
+    },
+    {
+      "name": "invalid-execution-digest",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": "invalid",
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Invalid current process environment for evidence 'measured'"
+    },
+    {
+      "name": "different-evidence-id",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence another_id {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence another_id] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "another_id",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation evidence_id differs from the requested acquisition"
+    },
+    {
+      "name": "undeclared-evidence-id",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "absent",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Undeclared evidence identifier 'absent'"
+    },
+    {
+      "name": "different-context",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "elsewhere"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation environment_fingerprint differs from the requested acquisition"
+    },
+    {
+      "name": "different-input",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 8}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation input differs from the requested acquisition"
+    },
+    {
+      "name": "failed-observation",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "error",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "error",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Only a successful observation can be rebound"
+    },
+    {
+      "name": "wrong-schema",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "wrong",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "wrong",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Rebinding requires an EAL/observation-record/1 observation"
+    },
+    {
+      "name": "missing-run-id",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": null,
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": null,
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation 'measured' has no run_id"
+    },
+    {
+      "name": "bad-collected-time",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Timestamp must include a timezone"
+    },
+    {
+      "name": "bad-observed-time",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "observed_at": "yesterday"
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "observed_at": "yesterday"
+      },
+      "error": "Timestamp requires a date and time separated by T"
+    },
+    {
+      "name": "wrong-data-digest",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation data digest differs from its value"
+    },
+    {
+      "name": "changed-kind",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "other",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "other",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation evidence_kind differs from the requested acquisition"
+    },
+    {
+      "name": "changed-input-digest",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation input_digest differs from the requested acquisition"
+    },
+    {
+      "name": "changed-request-digest",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation request_digest differs from the requested acquisition"
+    },
+    {
+      "name": "changed-environment-fingerprint",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation environment_fingerprint differs from the requested acquisition"
+    },
+    {
+      "name": "changed-tool-version",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "2",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "2",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation tool_version differs from the requested acquisition"
+    },
+    {
+      "name": "missing-value",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation data digest differs from its value"
+    },
+    {
+      "name": "changed-data",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": false
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": false
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation data digest differs from its value"
+    },
+    {
+      "name": "strip-legacy-streams",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "stdout": "private legacy stream",
+        "stderr": "private legacy diagnostic"
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "stdout": "private legacy stream",
+        "stderr": "private legacy diagnostic"
+      },
+      "prepared": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "derived-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "origin_run_id": "original-run",
+        "reused_from_run_id": "original-run",
+        "rebound_at": "2026-09-23T12:34:56Z"
+      }
+    },
+    {
+      "name": "preserve-earliest-origin",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "origin_run_id": "earliest-run",
+        "reused_from_run_id": "previous-run"
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "origin_run_id": "earliest-run",
+        "reused_from_run_id": "previous-run"
+      },
+      "prepared": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "derived-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "origin_run_id": "earliest-run",
+        "reused_from_run_id": "original-run",
+        "rebound_at": "2026-09-23T12:34:56Z"
+      }
+    },
+    {
+      "name": "missing-current-execution",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "process_environment_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "process_environment_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "error": "Current process environment identity is required for command reuse"
+    },
+    {
+      "name": "matching-current-execution",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "process_environment_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "process_environment_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "prepared": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "derived-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "process_environment_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "origin_run_id": "original-run",
+        "reused_from_run_id": "original-run",
+        "rebound_at": "2026-09-23T12:34:56Z"
+      }
+    },
+    {
+      "name": "changed-current-execution",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "process_environment_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0,
+        "process_environment_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "error": "Observation process_environment_digest differs from the requested acquisition"
+    },
+    {
+      "name": "edited-original-metadata",
+      "source": "language \"EAL/3\"\n\nenvironment lab {\n  require \"site\" == \"bench\"\n}\n\ntool runner {\n  version \"1\"\n}\n\nevidence measured {\n  tool runner\n  kind test\n  environment lab\n  max_age 60\n  input {\"value\": 7}\n  require \"passed\" == true\n}\n\nreasoning observation {\n  method \"structured/1\"\n  rationale \"Measurement supports the bounded claim.\"\n}\n\nclaim works {\n  statement \"The configured measurement passes.\"\n  environment lab\n}\n\nargument result = [evidence measured] via observation => works\n",
+      "context": {
+        "site": "bench"
+      },
+      "evidence_id": "measured",
+      "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "execution_digest": null,
+      "stored": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2020-01-01T00:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "supplied": {
+        "schema": "EAL/observation-record/1",
+        "source_digest": "7e08cba5f1fd9131908567ba2184b31ecfdc41546b90defef962cda6460502ef",
+        "evidence_id": "measured",
+        "tool": "runner",
+        "tool_version": "1",
+        "evidence_kind": "test",
+        "environment": "lab",
+        "environment_fingerprint": "7819eee6d3f9f8c9448e8b3d7fc6e8cafa921d8871c92f9c149d6c1f65fd5aed",
+        "input": {
+          "value": 7
+        },
+        "input_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "context": {
+          "site": "bench"
+        },
+        "acquisition_request": {
+          "tool": "runner",
+          "tool_version": "1",
+          "input": {
+            "value": 7
+          },
+          "context": {
+            "site": "bench"
+          }
+        },
+        "acquisition_request_digest": "5283d2e6bcc764f3f2aa6d77b2e50da07affb0876e2d56c3a28474f2fdf841a9",
+        "request_digest": "3870dd1ba5611ce7ddc7d7f2629094dc81d74cbcf21168266c3cfd5452ddcd82",
+        "tool_binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "original-run",
+        "started_at": "2026-09-23T12:00:00Z",
+        "collected_at": "2020-01-01T00:00:00Z",
+        "ingested_at": "2026-09-23T12:00:00Z",
+        "status": "ok",
+        "value": {
+          "passed": true
+        },
+        "data_digest": "11c11db30f4b3f6c758722ba3e27eea08145b7d212f6a157451e364b48475280",
+        "stdout_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stderr_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stdout_bytes": 100,
+        "stderr_bytes": 0
+      },
+      "error": "Observation 'measured' differs from stored acquisition"
+    }
+  ]
+}

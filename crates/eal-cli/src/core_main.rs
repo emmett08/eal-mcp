@@ -1,7 +1,7 @@
 //! Exercise native pure semantics with explicit source, observations and time.
 mod core_options;
-mod input;
 use core_options::Options;
+use eal_cli::input;
 mod aspic;
 
 use eal_core::{

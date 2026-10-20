@@ -1,4 +1,4 @@
-name: Rust language and semantic core
+name: Rust language and runtime
 
 on:
   workflow_dispatch:
@@ -24,8 +24,8 @@ jobs:
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Test without a reference interpreter
         run: cargo test --workspace --locked
-      - name: Build the standalone development commands
-        run: cargo build --release --locked -p eal-cli
+      - name: Build standalone commands and native companions
+        run: cargo build --release --workspace --locked
 
   regeneration:
     runs-on: ubuntu-latest
