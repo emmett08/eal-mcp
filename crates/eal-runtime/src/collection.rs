@@ -24,6 +24,13 @@ pub const MAX_COLLECTION_EVIDENCE: usize = 128;
 pub const MAX_COLLECTION_OUTPUT_BYTES: usize = 128 * 1024 * 1024;
 pub const MAX_COLLECTION_BYTES: usize = 32 * 1024 * 1024;
 
+pub(crate) fn stored_collection_size(
+    value: &Value,
+    limits: &eal_core::ExecutionLimits,
+) -> Result<usize, String> {
+    size::collection_size(value, limits)
+}
+
 /// Identity independent of local declaration names. Collection additionally
 /// binds exact source, evidence identity, environment and the private binding.
 pub fn acquisition_request(

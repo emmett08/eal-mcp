@@ -10,7 +10,6 @@ use eal_core::{
 };
 use serde_json::{Value, json};
 use std::{
-    io::Read,
     path::{Path, PathBuf},
     sync::Arc,
     time::Duration,
@@ -110,6 +109,35 @@ impl ReasoningService {
         &self.limits
     }
 
+    pub fn describe(&self) -> Result<Value, String> {
+        let mut description = crate::discovery::describe_language(&self.methods)?;
+        description["execution_limits"] = self.limits.describe();
+        Ok(description)
+    }
+
+    pub fn packet(&self, assessment_id: &str, claim: Option<&str>) -> Result<Value, String> {
+        let assessment = self.explain(assessment_id, None)?;
+        if assessment["method_registry_fingerprint"] != self.methods.fingerprint() {
+            return Err(
+                "Stored assessment method registry differs from the current packet contract".into(),
+            );
+        }
+        let collection = match assessment.get("collection_id").and_then(Value::as_str) {
+            Some(id) => {
+                let mut collection = self.store.get(id, Some("collection"))?;
+                collection["collection_id"] = json!(id);
+                Some(collection)
+            }
+            None => None,
+        };
+        let claims = claim.map(|claim| vec![claim.to_owned()]);
+        crate::packets::AssessmentPacketBuilder::new(
+            crate::packets::PacketLimits::default(),
+            Some(self.methods.clone()),
+        )?
+        .build(&assessment, claims.as_deref(), collection.as_ref())
+    }
+
     /// Bounded source-only imports remain inside the selected workspace.
     pub fn parse_resolver(&self, relative: &str) -> Result<String, String> {
         let path = self
@@ -123,12 +151,12 @@ impl ReasoningService {
         {
             return Err("An import must name a workspace .eal file".into());
         }
-        let mut bytes = Vec::new();
-        std::fs::File::open(path)
-            .map_err(|e| e.to_string())?
-            .take((self.limits.source_bytes as u64).saturating_add(1))
-            .read_to_end(&mut bytes)
-            .map_err(|e| e.to_string())?;
+        let bytes = crate::acquisition::read_regular(
+            &path,
+            self.limits.source_bytes,
+            "An import must name a workspace .eal file",
+        )
+        .map_err(|e| e.to_string())?;
         if bytes.len() > self.limits.source_bytes {
             return Err("Imported source exceeds the host byte budget".into());
         }
@@ -178,7 +206,7 @@ impl ReasoningService {
                 "objections":program.objections.keys().filter(|n|closure.objections.contains(*n)).collect::<Vec<_>>()}}))
     }
 
-    fn runtime(&self) -> Result<EvidenceRuntime, String> {
+    pub(crate) fn runtime(&self) -> Result<EvidenceRuntime, String> {
         let registry = match &self.registry_path {
             Some(path) => ToolRegistry::load(path).map_err(|e| e.to_string())?,
             None => self.registry.clone(),
@@ -199,8 +227,21 @@ impl ReasoningService {
         context: &Value,
         evidence_ids: Option<&[String]>,
     ) -> Result<Value, String> {
+        self.collect_with_lease(source, context, evidence_ids, self.acquisition_lease()?)
+    }
+
+    pub fn acquisition_lease(&self) -> Result<Arc<crate::lease::AcquisitionLease>, String> {
+        Ok(Arc::new(self.acquisition.hold(self.lease_timeout)?))
+    }
+
+    pub fn collect_with_lease(
+        &self,
+        source: &str,
+        context: &Value,
+        evidence_ids: Option<&[String]>,
+        lease: Arc<crate::lease::AcquisitionLease>,
+    ) -> Result<Value, String> {
         let program = self.parse(source)?;
-        let lease = Arc::new(self.acquisition.hold(self.lease_timeout)?);
         self.runtime()?
             .collect_with_lease(&program, context, evidence_ids, Some(lease))
     }
@@ -210,6 +251,16 @@ impl ReasoningService {
         source: &str,
         context: &Value,
         claim: &str,
+    ) -> Result<Value, String> {
+        self.collect_claim_with_lease(source, context, claim, self.acquisition_lease()?)
+    }
+
+    pub fn collect_claim_with_lease(
+        &self,
+        source: &str,
+        context: &Value,
+        claim: &str,
+        lease: Arc<crate::lease::AcquisitionLease>,
     ) -> Result<Value, String> {
         let plan = self.plan(source, claim)?;
         let evidence_ids = plan["evidence_ids"]
@@ -222,7 +273,8 @@ impl ReasoningService {
                     .ok_or("Invalid evidence identifier")
             })
             .collect::<Result<Vec<_>, _>>()?;
-        let mut collection = self.collect(source, context, Some(&evidence_ids))?;
+        let mut collection =
+            self.collect_with_lease(source, context, Some(&evidence_ids), lease)?;
         collection["plan"] = plan;
         Ok(collection)
     }

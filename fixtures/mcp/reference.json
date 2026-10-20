@@ -1,0 +1,950 @@
+{
+  "http_admission": [
+    {
+      "allowed_hosts": [],
+      "allowed_origins": [],
+      "bind_host": "0.0.0.0",
+      "host_header": "127.0.0.1:8000",
+      "name": "wildcard-bind-loopback-client",
+      "origin": null,
+      "status": 204
+    },
+    {
+      "allowed_hosts": [],
+      "allowed_origins": [],
+      "bind_host": "127.0.0.1",
+      "host_header": "localhost:8000",
+      "name": "default-localhost-client",
+      "origin": null,
+      "status": 204
+    },
+    {
+      "allowed_hosts": [],
+      "allowed_origins": [],
+      "bind_host": "127.0.0.1",
+      "host_header": "[::1]:8000",
+      "name": "default-ipv6-loopback-client",
+      "origin": null,
+      "status": 204
+    },
+    {
+      "allowed_hosts": [],
+      "allowed_origins": [],
+      "bind_host": "127.0.0.1",
+      "host_header": "127.0.0.1:8000",
+      "name": "same-request-origin",
+      "origin": "http://127.0.0.1:8000",
+      "status": 204
+    },
+    {
+      "allowed_hosts": [],
+      "allowed_origins": [],
+      "bind_host": "127.0.0.1",
+      "host_header": "127.0.0.1:8000",
+      "name": "different-loopback-origin",
+      "origin": "https://localhost:9999",
+      "status": 204
+    },
+    {
+      "allowed_hosts": [
+        "engineering.example"
+      ],
+      "allowed_origins": [],
+      "bind_host": "0.0.0.0",
+      "host_header": "engineering.example",
+      "name": "proxy-same-origin",
+      "origin": "http://engineering.example",
+      "status": 204
+    },
+    {
+      "allowed_hosts": [
+        "engineering.example"
+      ],
+      "allowed_origins": [],
+      "bind_host": "0.0.0.0",
+      "host_header": "engineering.example",
+      "name": "proxy-different-scheme",
+      "origin": "https://engineering.example",
+      "status": 403
+    },
+    {
+      "allowed_hosts": [
+        "engineering.example"
+      ],
+      "allowed_origins": [
+        "https://engineering.example"
+      ],
+      "bind_host": "0.0.0.0",
+      "host_header": "engineering.example",
+      "name": "explicit-proxy-origin",
+      "origin": "https://engineering.example",
+      "status": 204
+    },
+    {
+      "allowed_hosts": [],
+      "allowed_origins": [],
+      "bind_host": "127.0.0.1",
+      "host_header": "foreign.example",
+      "name": "foreign-host",
+      "origin": null,
+      "status": 421
+    },
+    {
+      "allowed_hosts": [],
+      "allowed_origins": [],
+      "bind_host": "127.0.0.1",
+      "host_header": "127.0.0.1:8000",
+      "name": "foreign-origin",
+      "origin": "https://foreign.example",
+      "status": 403
+    }
+  ],
+  "operator_errors": [
+    {
+      "arguments": {
+        "source": 7
+      },
+      "name": "validate-source-number",
+      "result": {
+        "content": [
+          {
+            "text": "Tool input schema rejected request: 7 is not of type 'string'",
+            "type": "text"
+          }
+        ],
+        "is_error": true,
+        "structured_content": null
+      },
+      "tool": "eal_validate"
+    },
+    {
+      "arguments": {
+        "source": "",
+        "unknown": true
+      },
+      "name": "validate-unknown-field",
+      "result": {
+        "content": [
+          {
+            "text": "Tool input schema rejected request: Additional properties are not allowed ('unknown' was unexpected)",
+            "type": "text"
+          }
+        ],
+        "is_error": true,
+        "structured_content": null
+      },
+      "tool": "eal_validate"
+    },
+    {
+      "arguments": {},
+      "name": "validate-missing-source",
+      "result": {
+        "content": [
+          {
+            "text": "Tool input schema rejected request: 'source' is a required property",
+            "type": "text"
+          }
+        ],
+        "is_error": true,
+        "structured_content": null
+      },
+      "tool": "eal_validate"
+    },
+    {
+      "arguments": {
+        "arguments": "a",
+        "attacks": []
+      },
+      "name": "grounded-arguments-string",
+      "result": {
+        "content": [
+          {
+            "text": "Tool input schema rejected request: 'a' is not of type 'array'",
+            "type": "text"
+          }
+        ],
+        "is_error": true,
+        "structured_content": null
+      },
+      "tool": "eal_grounded"
+    },
+    {
+      "arguments": {},
+      "name": "unknown-tool",
+      "result": {
+        "content": [
+          {
+            "text": "Unknown tool: 'eal_unregistered'",
+            "type": "text"
+          }
+        ],
+        "is_error": true,
+        "structured_content": null
+      },
+      "tool": "eal_unregistered"
+    },
+    {
+      "arguments": {
+        "claim": "outcome",
+        "source": ""
+      },
+      "name": "plan-empty-source",
+      "result": {
+        "content": [
+          {
+            "text": "Error calling tool 'eal_plan': 1:1: mismatched input '<EOF>' expecting {'language', NL}",
+            "type": "text"
+          }
+        ],
+        "is_error": true,
+        "structured_content": null
+      },
+      "tool": "eal_plan"
+    }
+  ],
+  "operator_tools": [
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Discover supported language versions, syntax, method contracts and interpretation limits.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "name": "eal_describe",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Describe"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Return canonical checked EAL source; changed source bytes require new collection bindings.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "name": "eal_format",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Format"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Parse EAL and check names, types and dependency structure without running tools.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "name": "eal_validate",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Validate"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Plan all evidence for a claim, including alternative supports and objections.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "claim": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "claim"
+        ],
+        "type": "object"
+      },
+      "name": "eal_plan",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Plan"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Run the configured collectors for selected evidence; return collection_id.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "evidence_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "context"
+        ],
+        "type": "object"
+      },
+      "name": "eal_collect",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Collect"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Collect the complete declared evidence closure for a claim.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "claim": {
+            "type": "string"
+          },
+          "context": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "context",
+          "claim"
+        ],
+        "type": "object"
+      },
+      "name": "eal_collect_claim",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Collect Claim"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Evaluate declared support and objections at an explicit or current UTC time.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "collection_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "context": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "now": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "context"
+        ],
+        "type": "object"
+      },
+      "name": "eal_reason",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Reason"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Compile checked EAL routes to an opt-in bounded ASPIC+ snapshot with a source map.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "collection_id": {
+            "type": "string"
+          },
+          "context": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "goal": {
+            "type": "string"
+          },
+          "now": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "preference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "query_mode": {
+            "default": "sceptical",
+            "type": "string"
+          },
+          "semantics": {
+            "default": "grounded",
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "context",
+          "collection_id",
+          "goal"
+        ],
+        "type": "object"
+      },
+      "name": "eal_compile_aspic",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Compile Aspic"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Retrieve a persisted reasoning result and its dependency explanations.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "assessment_id": {
+            "type": "string"
+          },
+          "claim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "assessment_id"
+        ],
+        "type": "object"
+      },
+      "name": "eal_explain",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Explain"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Return compact claim results with a reference to the full explanation.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "assessment_id": {
+            "type": "string"
+          },
+          "claim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "assessment_id"
+        ],
+        "type": "object"
+      },
+      "name": "eal_packet",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Packet"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Compute Dung grounded semantics for an explicitly supplied finite attack graph.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "arguments": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "attacks": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "arguments",
+          "attacks"
+        ],
+        "type": "object"
+      },
+      "name": "eal_grounded",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Grounded"
+    }
+  ],
+  "provenance": {
+    "capture": "FastMCP Client(create_server(...)) initialize and list_tools",
+    "environment_distributions": {
+      "Authlib": "1.9.1",
+      "PyJWT": "2.15.1",
+      "PyYAML": "6.0.3",
+      "Pygments": "2.21.0",
+      "SecretStorage": "3.5.0",
+      "aiofile": "3.12.3",
+      "annotated-types": "0.8.0",
+      "antlr4-python3-runtime": "4.13.2",
+      "anyio": "4.15.1",
+      "attrs": "26.1.0",
+      "beartype": "0.23.1",
+      "cachetools": "7.2.4",
+      "caio": "0.12.9",
+      "cffi": "2.1.1",
+      "click": "8.5.0",
+      "cryptography": "50.0.2",
+      "cyclopts": "5.2.0",
+      "dnspython": "2.9.0",
+      "docstring_parser": "0.18.0",
+      "email-validator": "2.3.0",
+      "exceptiongroup": "1.3.1",
+      "fastmcp": "4.0.10",
+      "fastmcp-slim": "4.0.10",
+      "filelock": "3.20.0",
+      "griffelib": "2.4.0",
+      "h11": "0.16.0",
+      "httpcore2": "2.15.1",
+      "httpx2": "2.15.1",
+      "idna": "3.20",
+      "jaraco.classes": "3.4.0",
+      "jaraco.context": "6.1.2",
+      "jaraco.functools": "4.6.0",
+      "jeepney": "0.9.0",
+      "joserfc": "1.7.7",
+      "jsonref": "1.1.0",
+      "jsonschema": "4.23.0",
+      "jsonschema-path": "0.5.0",
+      "jsonschema-specifications": "2025.9.1",
+      "keyring": "25.7.0",
+      "markdown-it-py": "4.2.0",
+      "mcp": "2.2.0",
+      "mcp-types": "2.2.0",
+      "mdurl": "0.1.2",
+      "more-itertools": "11.2.1",
+      "openapi-pydantic": "0.6.0",
+      "opentelemetry-api": "1.45.1",
+      "packaging": "26.3",
+      "pathable": "0.6.0",
+      "pip": "25.0.1",
+      "platformdirs": "4.13.5",
+      "py-key-value-aio": "0.4.6",
+      "pycparser": "3.11",
+      "pydantic": "2.14.1",
+      "pydantic-settings": "2.16.1",
+      "pydantic_core": "2.50.1",
+      "pyperclip": "1.11.0",
+      "python-dotenv": "1.2.4",
+      "python-multipart": "0.0.32",
+      "referencing": "0.37.0",
+      "rich": "15.0.0",
+      "rich-rst": "2.2.0",
+      "rpds-py": "2026.9.1",
+      "sse-starlette": "3.5.0",
+      "starlette": "1.9.0",
+      "truststore": "0.10.5",
+      "typing-inspection": "0.4.4",
+      "typing_extensions": "4.16.0",
+      "uncalled-for": "0.4.1",
+      "uvicorn": "0.54.0",
+      "watchfiles": "1.3.0",
+      "websockets": "17.3"
+    },
+    "framework_pins": {
+      "antlr4-python3-runtime": "4.13.2",
+      "fastmcp": "4.0.10",
+      "filelock": "3.20.0",
+      "jsonschema": "4.23.0",
+      "mcp": "2.2.0"
+    },
+    "normalization": "Object key order and SDK omission of absent/None optional fields only; no non-null descriptor field or value removed",
+    "source_files_sha256": {
+      "src/eal/catalogue.py": "2f523f13801ca7448870fa48987639def2911b88c1273c2eb8a870ad91b370ab",
+      "src/eal/mcp_guard.py": "25603349edabe80fc8c509ca15708516762f7d3d91e5bab142b2cdeeff281392",
+      "src/eal/operation_contracts.py": "88ddb317f79eee851be62471c0efe353b0534bb442c3cb5258567523b8a6512c",
+      "src/eal/operations.py": "ea56614cac7231469ed6616f635c2e7a1f631823599132b2bf6f5c27343f2a13",
+      "src/eal/registered_assessment.py": "79ad4efd43bb9602a8c356df1c23d046ac581abdf9e30f508cc38d636591b81b",
+      "src/eal/server.py": "0eb7ffdf6a3980b346d4f303bbdeb4f24a222cb759bff2f1e57e291413e52cbb"
+    },
+    "source_revision": "e2d6f346a37f92483b9f9a13923b98feb053447b"
+  },
+  "registered_calls": [
+    {
+      "arguments": {
+        "limit": 1.0
+      },
+      "comparison": "Rejection outcome; Pydantic diagnostic is backend-specific",
+      "name": "sources-integral-float-limit",
+      "result": {
+        "content": [
+          {
+            "text": "1 validation error for call[eal_sources]\nlimit\n  Input should be a valid integer [type=int_type, input_value=1.0, input_type=float]\n    For further information visit https://errors.pydantic.dev/2.14/v/int_type",
+            "type": "text"
+          }
+        ],
+        "is_error": true,
+        "structured_content": null
+      },
+      "tool": "eal_sources"
+    },
+    {
+      "arguments": {
+        "offset": 0.0
+      },
+      "comparison": "Rejection outcome; Pydantic diagnostic is backend-specific",
+      "name": "sources-integral-float-offset",
+      "result": {
+        "content": [
+          {
+            "text": "1 validation error for call[eal_sources]\noffset\n  Input should be a valid integer [type=int_type, input_value=0.0, input_type=float]\n    For further information visit https://errors.pydantic.dev/2.14/v/int_type",
+            "type": "text"
+          }
+        ],
+        "is_error": true,
+        "structured_content": null
+      },
+      "tool": "eal_sources"
+    }
+  ],
+  "registered_errors": [
+    {
+      "arguments": {
+        "limit": true
+      },
+      "name": "sources-boolean-limit",
+      "result": {
+        "content": [
+          {
+            "text": "Tool input schema rejected request: True is not of type 'integer'",
+            "type": "text"
+          }
+        ],
+        "is_error": true,
+        "structured_content": null
+      },
+      "tool": "eal_sources"
+    },
+    {
+      "arguments": {
+        "limit": 1.5
+      },
+      "name": "sources-fractional-limit",
+      "result": {
+        "content": [
+          {
+            "text": "Tool input schema rejected request: 1.5 is not of type 'integer'",
+            "type": "text"
+          }
+        ],
+        "is_error": true,
+        "structured_content": null
+      },
+      "tool": "eal_sources"
+    },
+    {
+      "arguments": {
+        "claim": "outcome",
+        "context": {},
+        "entry_id": "synthetic"
+      },
+      "name": "registered-context-injection",
+      "result": {
+        "content": [
+          {
+            "text": "Tool input schema rejected request: Additional properties are not allowed ('context' was unexpected)",
+            "type": "text"
+          }
+        ],
+        "is_error": true,
+        "structured_content": null
+      },
+      "tool": "eal_assess_known"
+    },
+    {
+      "arguments": {
+        "limit": 0
+      },
+      "name": "sources-zero-limit",
+      "result": {
+        "content": [
+          {
+            "text": "Error calling tool 'eal_sources': limit must be an integer from 1 through 100",
+            "type": "text"
+          }
+        ],
+        "is_error": true,
+        "structured_content": null
+      },
+      "tool": "eal_sources"
+    },
+    {
+      "arguments": {
+        "claim": "outcome",
+        "entry_id": "unexposed"
+      },
+      "name": "registered-unexposed-entry",
+      "result": {
+        "content": [
+          {
+            "text": "Error calling tool 'eal_assess_known': Registered source is not exposed by this server",
+            "type": "text"
+          }
+        ],
+        "is_error": true,
+        "structured_content": null
+      },
+      "tool": "eal_assess_known"
+    }
+  ],
+  "registered_tools": [
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "List developer-registered EAL sources and their selectable claims.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "name": "eal_sources",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Sources"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Find registered claim metadata; use an exact entry ID and claim to assess.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "claim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "name": "eal_find_claims",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Find Claims"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Reuse compatible observations or collect missing evidence for a registered claim.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "claim": {
+            "type": "string"
+          },
+          "entry_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "entry_id",
+          "claim"
+        ],
+        "type": "object"
+      },
+      "name": "eal_assess_known",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Assess Known"
+    }
+  ]
+}

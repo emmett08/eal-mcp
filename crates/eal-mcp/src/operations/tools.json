@@ -1,0 +1,526 @@
+{
+  "operator_tools": [
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Discover supported language versions, syntax, method contracts and interpretation limits.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "name": "eal_describe",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Describe"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Return canonical checked EAL source; changed source bytes require new collection bindings.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "name": "eal_format",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Format"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Parse EAL and check names, types and dependency structure without running tools.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "name": "eal_validate",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Validate"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Plan all evidence for a claim, including alternative supports and objections.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "claim": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "claim"
+        ],
+        "type": "object"
+      },
+      "name": "eal_plan",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Plan"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Run the configured collectors for selected evidence; return collection_id.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "evidence_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "context"
+        ],
+        "type": "object"
+      },
+      "name": "eal_collect",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Collect"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Collect the complete declared evidence closure for a claim.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "claim": {
+            "type": "string"
+          },
+          "context": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "context",
+          "claim"
+        ],
+        "type": "object"
+      },
+      "name": "eal_collect_claim",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Collect Claim"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Evaluate declared support and objections at an explicit or current UTC time.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "collection_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "context": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "now": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "context"
+        ],
+        "type": "object"
+      },
+      "name": "eal_reason",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Reason"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Compile checked EAL routes to an opt-in bounded ASPIC+ snapshot with a source map.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "collection_id": {
+            "type": "string"
+          },
+          "context": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "goal": {
+            "type": "string"
+          },
+          "now": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "preference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "query_mode": {
+            "default": "sceptical",
+            "type": "string"
+          },
+          "semantics": {
+            "default": "grounded",
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "context",
+          "collection_id",
+          "goal"
+        ],
+        "type": "object"
+      },
+      "name": "eal_compile_aspic",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Compile Aspic"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Retrieve a persisted reasoning result and its dependency explanations.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "assessment_id": {
+            "type": "string"
+          },
+          "claim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "assessment_id"
+        ],
+        "type": "object"
+      },
+      "name": "eal_explain",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Explain"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Return compact claim results with a reference to the full explanation.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "assessment_id": {
+            "type": "string"
+          },
+          "claim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "assessment_id"
+        ],
+        "type": "object"
+      },
+      "name": "eal_packet",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Packet"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Compute Dung grounded semantics for an explicitly supplied finite attack graph.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "arguments": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "attacks": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "arguments",
+          "attacks"
+        ],
+        "type": "object"
+      },
+      "name": "eal_grounded",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Grounded"
+    }
+  ],
+  "registered_tools": [
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "List developer-registered EAL sources and their selectable claims.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "offset": {
+            "default": 0,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "name": "eal_sources",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Sources"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Find registered claim metadata; use an exact entry ID and claim to assess.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "claim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "type": "object"
+      },
+      "name": "eal_find_claims",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Find Claims"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Reuse compatible observations or collect missing evidence for a registered claim.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "claim": {
+            "type": "string"
+          },
+          "entry_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "entry_id",
+          "claim"
+        ],
+        "type": "object"
+      },
+      "name": "eal_assess_known",
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Eal Assess Known"
+    }
+  ]
+}
