@@ -1,0 +1,23 @@
+[package]
+name = "eal-cli"
+description = "Development commands for the EAL/3 Rust language front end"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "eal-syntax"
+path = "src/main.rs"
+
+[dependencies]
+eal-parser.workspace = true
+eal-core.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+sha2.workspace = true
+
+[lints]
+workspace = true

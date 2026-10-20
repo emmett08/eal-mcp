@@ -1,0 +1,4139 @@
+{
+  "schema": "eal-rust-port-public-contracts/1",
+  "source_revision": "e2d6f346a37f92483b9f9a13923b98feb053447b",
+  "entry_points": {
+    "eal": "eal.cli:main",
+    "eal-mcp": "eal.server:main",
+    "eal-host": "eal.host:main",
+    "eal-coordinate": "eal.coordination.cli:main"
+  },
+  "mcp": {
+    "request_schema_origin": "Application type annotations and OPERATION_FIELDS, not FastMCP-generated schemas; framework-specific titles and descriptions omitted",
+    "transports": [
+      "stdio",
+      "stateless Streamable HTTP"
+    ],
+    "operator_tool_count": 11,
+    "registered_tool_count": 3,
+    "exposure_exclusive": true,
+    "registered_allowlist_maximum": 128,
+    "operations": {
+      "eal_assess_known": {
+        "exposure": "registered",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "entry_id": {
+              "type": "string"
+            },
+            "claim": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "claim",
+            "entry_id"
+          ],
+          "additionalProperties": false
+        },
+        "acquisition_lock": true
+      },
+      "eal_collect": {
+        "exposure": "operator",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "context": {
+              "type": "object"
+            },
+            "evidence_ids": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "context",
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        "acquisition_lock": true
+      },
+      "eal_collect_claim": {
+        "exposure": "operator",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "context": {
+              "type": "object"
+            },
+            "claim": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "claim",
+            "context",
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        "acquisition_lock": true
+      },
+      "eal_compile_aspic": {
+        "exposure": "operator",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "context": {
+              "type": "object"
+            },
+            "collection_id": {
+              "type": "string"
+            },
+            "goal": {
+              "type": "string"
+            },
+            "now": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "semantics": {
+              "type": "string",
+              "default": "grounded"
+            },
+            "query_mode": {
+              "type": "string",
+              "default": "sceptical"
+            },
+            "preference": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "collection_id",
+            "context",
+            "goal",
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        "acquisition_lock": false
+      },
+      "eal_describe": {
+        "exposure": "operator",
+        "input_schema": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        },
+        "acquisition_lock": false
+      },
+      "eal_explain": {
+        "exposure": "operator",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "assessment_id": {
+              "type": "string"
+            },
+            "claim": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "assessment_id"
+          ],
+          "additionalProperties": false
+        },
+        "acquisition_lock": false
+      },
+      "eal_find_claims": {
+        "exposure": "registered",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "claim": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "limit": {
+              "type": "integer",
+              "default": 50
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "acquisition_lock": false
+      },
+      "eal_format": {
+        "exposure": "operator",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        "acquisition_lock": false
+      },
+      "eal_grounded": {
+        "exposure": "operator",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "arguments": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "attacks": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": [
+            "arguments",
+            "attacks"
+          ],
+          "additionalProperties": false
+        },
+        "acquisition_lock": false
+      },
+      "eal_packet": {
+        "exposure": "operator",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "assessment_id": {
+              "type": "string"
+            },
+            "claim": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "assessment_id"
+          ],
+          "additionalProperties": false
+        },
+        "acquisition_lock": false
+      },
+      "eal_plan": {
+        "exposure": "operator",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "claim": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "claim",
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        "acquisition_lock": false
+      },
+      "eal_reason": {
+        "exposure": "operator",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "context": {
+              "type": "object"
+            },
+            "collection_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "now": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "context",
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        "acquisition_lock": false
+      },
+      "eal_sources": {
+        "exposure": "registered",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "default": 50
+            },
+            "offset": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "acquisition_lock": false
+      },
+      "eal_validate": {
+        "exposure": "operator",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        "acquisition_lock": false
+      }
+    }
+  },
+  "cli": {
+    "eal": {
+      "arguments": [
+        {
+          "name": "workspace",
+          "flags": [
+            "--workspace"
+          ],
+          "required": false,
+          "action": "store",
+          "type": "Path",
+          "default": "$CWD"
+        },
+        {
+          "name": "registry",
+          "flags": [
+            "--registry"
+          ],
+          "required": false,
+          "action": "store",
+          "type": "Path",
+          "default": null
+        },
+        {
+          "name": "database",
+          "flags": [
+            "--database"
+          ],
+          "required": false,
+          "action": "store",
+          "type": "Path",
+          "default": null
+        },
+        {
+          "name": "methods",
+          "flags": [
+            "--methods"
+          ],
+          "required": false,
+          "action": "store",
+          "default": null
+        },
+        {
+          "name": "limits",
+          "flags": [
+            "--limits"
+          ],
+          "required": false,
+          "action": "store",
+          "type": "Path",
+          "default": null
+        }
+      ],
+      "subcommands": {
+        "describe": {
+          "arguments": []
+        },
+        "register": {
+          "arguments": [
+            {
+              "name": "source",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "entry_id",
+              "flags": [
+                "--entry-id"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "label",
+              "flags": [
+                "--label"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "claims",
+              "flags": [
+                "--claim"
+              ],
+              "required": false,
+              "action": "append",
+              "default": null
+            },
+            {
+              "name": "context",
+              "flags": [
+                "--context"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            }
+          ]
+        },
+        "register-tree": {
+          "arguments": [
+            {
+              "name": "directory",
+              "flags": [],
+              "required": false,
+              "action": "store",
+              "nargs": "?",
+              "default": "."
+            },
+            {
+              "name": "context",
+              "flags": [
+                "--context"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "limit",
+              "flags": [
+                "--limit"
+              ],
+              "required": false,
+              "action": "store",
+              "type": "int",
+              "default": 512
+            }
+          ]
+        },
+        "sources": {
+          "arguments": [
+            {
+              "name": "limit",
+              "flags": [
+                "--limit"
+              ],
+              "required": false,
+              "action": "store",
+              "type": "int",
+              "default": 50
+            },
+            {
+              "name": "offset",
+              "flags": [
+                "--offset"
+              ],
+              "required": false,
+              "action": "store",
+              "type": "int",
+              "default": 0
+            }
+          ]
+        },
+        "find": {
+          "arguments": [
+            {
+              "name": "query",
+              "flags": [],
+              "required": false,
+              "action": "store",
+              "nargs": "?",
+              "default": null
+            },
+            {
+              "name": "claim",
+              "flags": [
+                "--claim"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "context",
+              "flags": [
+                "--context"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "path",
+              "flags": [
+                "--path"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "limit",
+              "flags": [
+                "--limit"
+              ],
+              "required": false,
+              "action": "store",
+              "type": "int",
+              "default": 50
+            }
+          ]
+        },
+        "assess-known": {
+          "arguments": [
+            {
+              "name": "entry_id",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "claim",
+              "flags": [
+                "--claim"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "context",
+              "flags": [
+                "--context"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "now",
+              "flags": [
+                "--now"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "reuse",
+              "flags": [
+                "--reuse"
+              ],
+              "required": false,
+              "action": "store",
+              "choices": [
+                "compatible",
+                "fresh"
+              ],
+              "default": "compatible"
+            }
+          ]
+        },
+        "history": {
+          "arguments": [
+            {
+              "name": "entry_id",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "source_digest",
+              "flags": [
+                "--source-digest"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "limit",
+              "flags": [
+                "--limit"
+              ],
+              "required": false,
+              "action": "store",
+              "type": "int",
+              "default": 50
+            }
+          ]
+        },
+        "model-context": {
+          "arguments": [
+            {
+              "name": "entry_id",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "claim",
+              "flags": [
+                "--claim"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "question",
+              "flags": [
+                "--question"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "context",
+              "flags": [
+                "--context"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "now",
+              "flags": [
+                "--now"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "reuse",
+              "flags": [
+                "--reuse"
+              ],
+              "required": false,
+              "action": "store",
+              "choices": [
+                "compatible",
+                "fresh"
+              ],
+              "default": "compatible"
+            }
+          ]
+        },
+        "validate": {
+          "arguments": [
+            {
+              "name": "source",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            }
+          ]
+        },
+        "format": {
+          "arguments": [
+            {
+              "name": "source",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            }
+          ]
+        },
+        "plan": {
+          "arguments": [
+            {
+              "name": "source",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "claim",
+              "flags": [
+                "--claim"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            }
+          ]
+        },
+        "collect": {
+          "arguments": [
+            {
+              "name": "source",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "context",
+              "flags": [
+                "--context"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "evidence_ids",
+              "flags": [
+                "--evidence"
+              ],
+              "required": false,
+              "action": "append",
+              "default": null
+            },
+            {
+              "name": "claim",
+              "flags": [
+                "--claim"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            }
+          ],
+          "mutually_exclusive": [
+            {
+              "required": false,
+              "fields": [
+                "evidence_ids",
+                "claim"
+              ]
+            }
+          ]
+        },
+        "reason": {
+          "arguments": [
+            {
+              "name": "source",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "context",
+              "flags": [
+                "--context"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "collection_id",
+              "flags": [
+                "--collection"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "now",
+              "flags": [
+                "--now"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            }
+          ]
+        },
+        "compile-aspic": {
+          "arguments": [
+            {
+              "name": "source",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "context",
+              "flags": [
+                "--context"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "collection_id",
+              "flags": [
+                "--collection"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "goal",
+              "flags": [
+                "--goal"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "now",
+              "flags": [
+                "--now"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "semantics",
+              "flags": [
+                "--semantics"
+              ],
+              "required": false,
+              "action": "store",
+              "choices": [
+                "grounded",
+                "preferred",
+                "stable"
+              ],
+              "default": "grounded"
+            },
+            {
+              "name": "query_mode",
+              "flags": [
+                "--query-mode"
+              ],
+              "required": false,
+              "action": "store",
+              "choices": [
+                "credulous",
+                "sceptical"
+              ],
+              "default": "sceptical"
+            },
+            {
+              "name": "preference",
+              "flags": [
+                "--preference"
+              ],
+              "required": false,
+              "action": "store",
+              "choices": [
+                "minimum_rank",
+                "last_link_rank",
+                "last_link_partial"
+              ],
+              "default": null
+            }
+          ]
+        },
+        "explain": {
+          "arguments": [
+            {
+              "name": "assessment_id",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "claim",
+              "flags": [
+                "--claim"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            }
+          ]
+        },
+        "packet": {
+          "arguments": [
+            {
+              "name": "assessment_id",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "claim",
+              "flags": [
+                "--claim"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            }
+          ]
+        },
+        "grounded": {
+          "arguments": [
+            {
+              "name": "graph",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            }
+          ]
+        },
+        "export-aspic": {
+          "arguments": [
+            {
+              "name": "result",
+              "flags": [],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "output",
+              "flags": [
+                "--output"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            }
+          ]
+        }
+      }
+    },
+    "eal-coordinate": {
+      "arguments": [],
+      "subcommands": {
+        "start": {
+          "arguments": [
+            {
+              "name": "run",
+              "flags": [
+                "--run"
+              ],
+              "required": true,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            },
+            {
+              "name": "spec",
+              "flags": [
+                "--spec"
+              ],
+              "required": false,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            },
+            {
+              "name": "demo",
+              "flags": [
+                "--demo"
+              ],
+              "required": false,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            },
+            {
+              "name": "task_id",
+              "flags": [
+                "--task-id"
+              ],
+              "required": false,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "runtime",
+              "flags": [
+                "--runtime"
+              ],
+              "required": false,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            },
+            {
+              "name": "wall_seconds",
+              "flags": [
+                "--wall-seconds"
+              ],
+              "required": false,
+              "action": "store",
+              "type": "int",
+              "default": null
+            }
+          ],
+          "mutually_exclusive": [
+            {
+              "required": true,
+              "fields": [
+                "spec",
+                "demo"
+              ]
+            }
+          ]
+        },
+        "status": {
+          "arguments": [
+            {
+              "name": "run",
+              "flags": [
+                "--run"
+              ],
+              "required": true,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            }
+          ]
+        },
+        "resume": {
+          "arguments": [
+            {
+              "name": "run",
+              "flags": [
+                "--run"
+              ],
+              "required": true,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            }
+          ]
+        },
+        "cancel": {
+          "arguments": [
+            {
+              "name": "run",
+              "flags": [
+                "--run"
+              ],
+              "required": true,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            }
+          ]
+        },
+        "reserve": {
+          "arguments": [
+            {
+              "name": "run",
+              "flags": [
+                "--run"
+              ],
+              "required": true,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            },
+            {
+              "name": "role",
+              "flags": [
+                "--role"
+              ],
+              "required": true,
+              "action": "store",
+              "choices": [
+                "assessor",
+                "reviewer"
+              ],
+              "default": null
+            },
+            {
+              "name": "execution_mode",
+              "flags": [
+                "--execution-mode"
+              ],
+              "required": true,
+              "action": "store",
+              "choices": [
+                "actual_host_agent",
+                "provider",
+                "software_test"
+              ],
+              "default": null
+            },
+            {
+              "name": "context_out",
+              "flags": [
+                "--context-out"
+              ],
+              "required": false,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            }
+          ]
+        },
+        "query": {
+          "arguments": [
+            {
+              "name": "run",
+              "flags": [
+                "--run"
+              ],
+              "required": true,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            },
+            {
+              "name": "call_id",
+              "flags": [
+                "--call-id"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            }
+          ]
+        },
+        "lookup": {
+          "arguments": [
+            {
+              "name": "run",
+              "flags": [
+                "--run"
+              ],
+              "required": true,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            },
+            {
+              "name": "call_id",
+              "flags": [
+                "--call-id"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "finding_id",
+              "flags": [
+                "--finding-id"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            }
+          ]
+        },
+        "record": {
+          "arguments": [
+            {
+              "name": "run",
+              "flags": [
+                "--run"
+              ],
+              "required": true,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            },
+            {
+              "name": "call_id",
+              "flags": [
+                "--call-id"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "response",
+              "flags": [
+                "--response"
+              ],
+              "required": true,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            },
+            {
+              "name": "execution_id",
+              "flags": [
+                "--execution-id"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "execution_mode",
+              "flags": [
+                "--execution-mode"
+              ],
+              "required": true,
+              "action": "store",
+              "choices": [
+                "actual_host_agent",
+                "provider",
+                "software_test"
+              ],
+              "default": null
+            }
+          ]
+        },
+        "export": {
+          "arguments": [
+            {
+              "name": "run",
+              "flags": [
+                "--run"
+              ],
+              "required": true,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            },
+            {
+              "name": "output",
+              "flags": [
+                "--output"
+              ],
+              "required": true,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            }
+          ]
+        },
+        "execute": {
+          "arguments": [
+            {
+              "name": "run",
+              "flags": [
+                "--run"
+              ],
+              "required": true,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            },
+            {
+              "name": "execution_mode",
+              "flags": [
+                "--execution-mode"
+              ],
+              "required": true,
+              "action": "store",
+              "choices": [
+                "actual_host_agent",
+                "provider",
+                "software_test"
+              ],
+              "default": null
+            },
+            {
+              "name": "worker_argv",
+              "flags": [
+                "--worker-argv"
+              ],
+              "required": true,
+              "action": "store",
+              "default": null
+            },
+            {
+              "name": "worker_environment",
+              "flags": [
+                "--worker-environment"
+              ],
+              "required": false,
+              "action": "store",
+              "type": "Path",
+              "default": null
+            }
+          ]
+        }
+      }
+    },
+    "eal-mcp": {
+      "arguments": [
+        {
+          "name": "config",
+          "flags": [
+            "--config"
+          ],
+          "required": false,
+          "action": "store",
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "workspace",
+          "flags": [
+            "--workspace"
+          ],
+          "required": false,
+          "action": "store",
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "registry",
+          "flags": [
+            "--registry"
+          ],
+          "required": false,
+          "action": "store",
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "database",
+          "flags": [
+            "--database"
+          ],
+          "required": false,
+          "action": "store",
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "limits",
+          "flags": [
+            "--limits"
+          ],
+          "required": false,
+          "action": "store",
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "methods",
+          "flags": [
+            "--methods"
+          ],
+          "required": false,
+          "action": "store",
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "known_entries",
+          "flags": [
+            "--known-entry"
+          ],
+          "required": false,
+          "action": "append",
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "transport",
+          "flags": [
+            "--transport"
+          ],
+          "required": false,
+          "action": "store",
+          "choices": [
+            "stdio",
+            "http"
+          ],
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "exposure",
+          "flags": [
+            "--exposure"
+          ],
+          "required": false,
+          "action": "store",
+          "choices": [
+            "operator",
+            "registered"
+          ],
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "host",
+          "flags": [
+            "--host"
+          ],
+          "required": false,
+          "action": "store",
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "port",
+          "flags": [
+            "--port"
+          ],
+          "required": false,
+          "action": "store",
+          "type": "int",
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "path",
+          "flags": [
+            "--path"
+          ],
+          "required": false,
+          "action": "store",
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "max_in_flight",
+          "flags": [
+            "--max-in-flight"
+          ],
+          "required": false,
+          "action": "store",
+          "type": "int",
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "token_env",
+          "flags": [
+            "--token-env"
+          ],
+          "required": false,
+          "action": "store",
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "allowed_hosts",
+          "flags": [
+            "--allowed-host"
+          ],
+          "required": false,
+          "action": "append",
+          "default": "==SUPPRESS=="
+        },
+        {
+          "name": "allowed_origins",
+          "flags": [
+            "--allowed-origin"
+          ],
+          "required": false,
+          "action": "append",
+          "default": "==SUPPRESS=="
+        }
+      ],
+      "defaults_and_precedence_source": "src/eal/server_settings.py:ServerSettings and parse_server_settings"
+    },
+    "eal-host": {
+      "arguments": [
+        {
+          "name": "url",
+          "flags": [
+            "--url"
+          ],
+          "required": false,
+          "action": "store",
+          "default": null
+        },
+        {
+          "name": "timeout",
+          "flags": [
+            "--timeout"
+          ],
+          "required": false,
+          "action": "store",
+          "type": "float",
+          "default": 120.0
+        }
+      ],
+      "accepts_server_settings_arguments": true
+    }
+  },
+  "builtin_methods": {
+    "abductive/1": {
+      "identifier": "abductive/1",
+      "evidence_kind": "hypotheses",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "observed": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "prior": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                },
+                "likelihood": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                }
+              },
+              "required": [
+                "name",
+                "prior",
+                "likelihood"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 2,
+            "maxItems": 128
+          }
+        },
+        "required": [
+          "observed",
+          "candidates"
+        ],
+        "additionalProperties": false
+      },
+      "query_schema": {
+        "type": "object",
+        "properties": {
+          "observed": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "prior": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                },
+                "likelihood": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                }
+              },
+              "required": [
+                "name",
+                "prior",
+                "likelihood"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 2,
+            "maxItems": 128
+          }
+        },
+        "required": [
+          "observed",
+          "candidates"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "best_posterior": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "posterior": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "minimum": -1e+100,
+              "maximum": 1e+100
+            }
+          }
+        },
+        "required": [
+          "best_posterior",
+          "posterior"
+        ],
+        "additionalProperties": {
+          "type": "json"
+        }
+      },
+      "outputs": {
+        "best_posterior": "dimensionless",
+        "posterior.*": "dimensionless"
+      },
+      "quantities": [
+        "probability"
+      ],
+      "exact_unit": false,
+      "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+      "limits": {
+        "timeout_seconds": 1.0,
+        "max_input_bytes": 1048576,
+        "max_output_bytes": 1048576,
+        "max_memory_bytes": 268435456,
+        "startup_timeout_seconds": 5.0
+      },
+      "reference_implementation_version": "eal-builtin-2.1.0",
+      "reference_execution": "bounded_builtin"
+    },
+    "analogical/1": {
+      "identifier": "analogical/1",
+      "evidence_kind": "analogy",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "relevant_features": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "minItems": 1,
+            "maxItems": 256
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "json"
+            }
+          },
+          "target": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "json"
+            }
+          }
+        },
+        "required": [
+          "relevant_features",
+          "source",
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "query_schema": {
+        "type": "object",
+        "properties": {
+          "relevant_features": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "minItems": 1,
+            "maxItems": 256
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "json"
+            }
+          },
+          "target": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "json"
+            }
+          }
+        },
+        "required": [
+          "relevant_features",
+          "source",
+          "target"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "match_fraction": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "complete": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "match_fraction",
+          "complete"
+        ],
+        "additionalProperties": {
+          "type": "json"
+        }
+      },
+      "outputs": {
+        "match_fraction": "dimensionless",
+        "complete": "boolean"
+      },
+      "quantities": [
+        "dimensionless"
+      ],
+      "exact_unit": false,
+      "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+      "limits": {
+        "timeout_seconds": 1.0,
+        "max_input_bytes": 1048576,
+        "max_output_bytes": 1048576,
+        "max_memory_bytes": 268435456,
+        "startup_timeout_seconds": 5.0
+      },
+      "reference_implementation_version": "eal-builtin-2.1.0",
+      "reference_execution": "bounded_builtin"
+    },
+    "causal/1": {
+      "identifier": "causal/1",
+      "evidence_kind": "experiment",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "assignment": {
+            "type": "string",
+            "enum": [
+              "randomised"
+            ]
+          },
+          "treatment": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": -1e+100,
+              "maximum": 1e+100
+            },
+            "minItems": 2,
+            "maxItems": 10000
+          },
+          "control": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": -1e+100,
+              "maximum": 1e+100
+            },
+            "minItems": 2,
+            "maxItems": 10000
+          }
+        },
+        "required": [
+          "assignment",
+          "treatment",
+          "control"
+        ],
+        "additionalProperties": false
+      },
+      "query_schema": {
+        "type": "object",
+        "properties": {
+          "assignment": {
+            "type": "string",
+            "enum": [
+              "randomised"
+            ]
+          }
+        },
+        "required": [
+          "assignment"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "estimate": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "standard_error": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "treatment_mean": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "control_mean": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          }
+        },
+        "required": [
+          "estimate",
+          "standard_error",
+          "treatment_mean",
+          "control_mean"
+        ],
+        "additionalProperties": {
+          "type": "json"
+        }
+      },
+      "outputs": {
+        "estimate": "basis",
+        "standard_error": "basis",
+        "treatment_mean": "basis",
+        "control_mean": "basis"
+      },
+      "quantities": [
+        "pressure",
+        "time",
+        "length",
+        "mass",
+        "temperature_difference",
+        "velocity",
+        "volumetric_flow",
+        "dimensionless",
+        "probability"
+      ],
+      "exact_unit": false,
+      "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+      "limits": {
+        "timeout_seconds": 1.0,
+        "max_input_bytes": 1048576,
+        "max_output_bytes": 1048576,
+        "max_memory_bytes": 268435456,
+        "startup_timeout_seconds": 5.0
+      },
+      "reference_implementation_version": "eal-builtin-2.1.0",
+      "reference_execution": "bounded_builtin"
+    },
+    "counterfactual/1": {
+      "identifier": "counterfactual/1",
+      "evidence_kind": "causal_model",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "variables": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "intercept": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                },
+                "coefficients": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number",
+                    "minimum": -1e+100,
+                    "maximum": 1e+100
+                  }
+                },
+                "noise": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                }
+              },
+              "required": [
+                "intercept",
+                "coefficients",
+                "noise"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "intervention": {
+            "type": "object",
+            "properties": {
+              "variable": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "value": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              }
+            },
+            "required": [
+              "variable",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "outcome": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "variables",
+          "intervention",
+          "outcome"
+        ],
+        "additionalProperties": false
+      },
+      "query_schema": {
+        "type": "object",
+        "properties": {
+          "variables": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "intercept": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                },
+                "coefficients": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number",
+                    "minimum": -1e+100,
+                    "maximum": 1e+100
+                  }
+                },
+                "noise": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                }
+              },
+              "required": [
+                "intercept",
+                "coefficients",
+                "noise"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "intervention": {
+            "type": "object",
+            "properties": {
+              "variable": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "value": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              }
+            },
+            "required": [
+              "variable",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "outcome": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "variables",
+          "intervention",
+          "outcome"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "factual": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "counterfactual": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "difference": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          }
+        },
+        "required": [
+          "factual",
+          "counterfactual",
+          "difference"
+        ],
+        "additionalProperties": {
+          "type": "json"
+        }
+      },
+      "outputs": {
+        "factual": "basis",
+        "counterfactual": "basis",
+        "difference": "basis"
+      },
+      "quantities": [
+        "pressure",
+        "time",
+        "length",
+        "mass",
+        "temperature_difference",
+        "velocity",
+        "volumetric_flow",
+        "dimensionless",
+        "probability"
+      ],
+      "exact_unit": true,
+      "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+      "limits": {
+        "timeout_seconds": 1.0,
+        "max_input_bytes": 1048576,
+        "max_output_bytes": 1048576,
+        "max_memory_bytes": 268435456,
+        "startup_timeout_seconds": 5.0
+      },
+      "reference_implementation_version": "eal-builtin-2.1.0",
+      "reference_execution": "bounded_builtin"
+    },
+    "deductive/1": {
+      "identifier": "deductive/1",
+      "evidence_kind": "logical_case",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "premises": {
+            "type": "array",
+            "items": {
+              "type": "json"
+            },
+            "minItems": 0,
+            "maxItems": 128
+          },
+          "conclusion": {
+            "type": "json"
+          }
+        },
+        "required": [
+          "premises",
+          "conclusion"
+        ],
+        "additionalProperties": false
+      },
+      "query_schema": {
+        "type": "object",
+        "properties": {
+          "premises": {
+            "type": "array",
+            "items": {
+              "type": "json"
+            },
+            "minItems": 0,
+            "maxItems": 128
+          },
+          "conclusion": {
+            "type": "json"
+          }
+        },
+        "required": [
+          "premises",
+          "conclusion"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "entailed": {
+            "type": "boolean"
+          },
+          "consistent_premises": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "entailed",
+          "consistent_premises"
+        ],
+        "additionalProperties": {
+          "type": "json"
+        }
+      },
+      "outputs": {
+        "entailed": "boolean",
+        "consistent_premises": "boolean"
+      },
+      "quantities": [
+        "proposition"
+      ],
+      "exact_unit": false,
+      "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+      "limits": {
+        "timeout_seconds": 1.0,
+        "max_input_bytes": 1048576,
+        "max_output_bytes": 1048576,
+        "max_memory_bytes": 268435456,
+        "startup_timeout_seconds": 5.0
+      },
+      "reference_implementation_version": "eal-builtin-2.1.0",
+      "reference_execution": "bounded_builtin"
+    },
+    "inductive/1": {
+      "identifier": "inductive/1",
+      "evidence_kind": "sample",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "successes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000
+          },
+          "trials": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000000
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0.001,
+            "maximum": 0.999999
+          }
+        },
+        "required": [
+          "successes",
+          "trials",
+          "confidence"
+        ],
+        "additionalProperties": false
+      },
+      "query_schema": {
+        "type": "object",
+        "properties": {
+          "confidence": {
+            "type": "number",
+            "minimum": 0.001,
+            "maximum": 0.999999
+          }
+        },
+        "required": [
+          "confidence"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "estimate": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "lower": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "upper": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          }
+        },
+        "required": [
+          "estimate",
+          "lower",
+          "upper"
+        ],
+        "additionalProperties": {
+          "type": "json"
+        }
+      },
+      "outputs": {
+        "estimate": "dimensionless",
+        "lower": "dimensionless",
+        "upper": "dimensionless"
+      },
+      "quantities": [
+        "probability"
+      ],
+      "exact_unit": false,
+      "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+      "limits": {
+        "timeout_seconds": 1.0,
+        "max_input_bytes": 1048576,
+        "max_output_bytes": 1048576,
+        "max_memory_bytes": 268435456,
+        "startup_timeout_seconds": 5.0
+      },
+      "reference_implementation_version": "eal-builtin-2.1.0",
+      "reference_execution": "bounded_builtin"
+    },
+    "structured/1": {
+      "identifier": "structured/1",
+      "evidence_kind": null,
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "query_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "authored": {
+            "type": "boolean"
+          },
+          "mechanically_proved": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "authored",
+          "mechanically_proved"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {},
+      "quantities": [],
+      "exact_unit": false,
+      "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+      "limits": {
+        "timeout_seconds": 1.0,
+        "max_input_bytes": 1048576,
+        "max_output_bytes": 1048576,
+        "max_memory_bytes": 268435456,
+        "startup_timeout_seconds": 5.0
+      },
+      "reference_implementation_version": "eal-builtin-2.1.0",
+      "reference_execution": "bounded_builtin"
+    },
+    "temporal/1": {
+      "identifier": "temporal/1",
+      "evidence_kind": "trace",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "end": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "max_gap": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                },
+                "value": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                }
+              },
+              "required": [
+                "time",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "property": {
+            "type": "object",
+            "properties": {
+              "operator": {
+                "type": "string",
+                "enum": [
+                  "lt",
+                  "le",
+                  "eq",
+                  "ne",
+                  "ge",
+                  "gt"
+                ]
+              },
+              "value": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              }
+            },
+            "required": [
+              "operator",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "semantics": {
+            "type": "string",
+            "enum": [
+              "sampled"
+            ]
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "max_gap",
+          "events",
+          "property",
+          "semantics"
+        ],
+        "additionalProperties": false
+      },
+      "query_schema": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "end": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "max_gap": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "property": {
+            "type": "object",
+            "properties": {
+              "operator": {
+                "type": "string",
+                "enum": [
+                  "lt",
+                  "le",
+                  "eq",
+                  "ne",
+                  "ge",
+                  "gt"
+                ]
+              },
+              "value": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              }
+            },
+            "required": [
+              "operator",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "semantics": {
+            "type": "string",
+            "enum": [
+              "sampled"
+            ]
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "max_gap",
+          "property",
+          "semantics"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "holds": {
+            "type": "boolean"
+          },
+          "coverage": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "holds",
+          "coverage"
+        ],
+        "additionalProperties": {
+          "type": "json"
+        }
+      },
+      "outputs": {
+        "holds": "boolean",
+        "coverage": "boolean"
+      },
+      "quantities": [
+        "pressure",
+        "time",
+        "length",
+        "mass",
+        "temperature_difference",
+        "velocity",
+        "volumetric_flow",
+        "dimensionless",
+        "probability"
+      ],
+      "exact_unit": true,
+      "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+      "limits": {
+        "timeout_seconds": 1.0,
+        "max_input_bytes": 1048576,
+        "max_output_bytes": 1048576,
+        "max_memory_bytes": 268435456,
+        "startup_timeout_seconds": 5.0
+      },
+      "reference_implementation_version": "eal-builtin-2.1.0",
+      "reference_execution": "bounded_builtin"
+    }
+  },
+  "aspic": {
+    "method": "argumentation/aspic/2",
+    "compile_profile": "EAL/3-compiled-aspic/5",
+    "view_schema": "aspic-view/3",
+    "semantics": [
+      "grounded",
+      "preferred",
+      "stable"
+    ],
+    "query_modes": [
+      "credulous",
+      "sceptical"
+    ],
+    "preferences": [
+      "minimum_rank",
+      "last_link_rank",
+      "last_link_partial"
+    ],
+    "schema_contract_pointer": "/optional_method_contracts/argumentation~1aspic~12"
+  },
+  "execution_limits": {
+    "source_bytes": 1048576,
+    "source_tokens": 100000,
+    "structural_values": 100000,
+    "declarations": 4096,
+    "premise_depth": 128,
+    "expansion_depth": 128,
+    "applications": 1000,
+    "expanded_references": 100000,
+    "expression_nodes": 10000,
+    "expression_depth": 128,
+    "json_depth": 64,
+    "json_nodes": 100000,
+    "record_bytes": 4194304,
+    "collection_evidence": 128,
+    "composed_edges": 131072,
+    "abstract_attacks": 65536,
+    "formal_premises": 64,
+    "formal_rules": 64,
+    "formal_antecedents": 8,
+    "formal_atoms": 128,
+    "formal_contraries": 128,
+    "formal_arguments": 128,
+    "formal_defeats": 4096,
+    "formal_construction": 100000,
+    "extension_search": 100000
+  },
+  "versioned_records": {
+    "observation": "EAL/observation-record/1",
+    "assessment_packet": "EAL/assessment-packet/2",
+    "model_context": "EAL/model-context/2",
+    "coordination_task": "EAL/MAS-coordination-task/3",
+    "coordination_finding": "EAL/MAS-coordination-finding/3",
+    "coordination_worker_response": "EAL/coordination-worker-response/1"
+  },
+  "persistence": {
+    "source": "src/eal/store.py and src/eal/runtime.py",
+    "sqlite_tables": {
+      "records": "id TEXT PRIMARY KEY, kind TEXT NOT NULL, created_at TEXT NOT NULL, payload TEXT NOT NULL",
+      "observation_index": "sequence INTEGER PRIMARY KEY, record_id TEXT NOT NULL UNIQUE, evidence_id TEXT NOT NULL, environment TEXT NOT NULL, request_digest TEXT NOT NULL, tool_binding_digest TEXT NOT NULL",
+      "store_metadata": "key TEXT PRIMARY KEY, value TEXT NOT NULL"
+    },
+    "observation_index_version": "1",
+    "collection_fields": [
+      "source_digest",
+      "context",
+      "records"
+    ],
+    "acquisition_request_fields": [
+      "tool",
+      "tool_version",
+      "input",
+      "context"
+    ],
+    "collector_request_additional_fields": [
+      "evidence_id",
+      "environment"
+    ],
+    "collector_envelope_allowed_fields": [
+      "value",
+      "observed_at",
+      "context",
+      "request",
+      "details"
+    ],
+    "command_envelope_required_fields": [
+      "value"
+    ],
+    "file_envelope_required_fields": [
+      "value",
+      "observed_at",
+      "context",
+      "request"
+    ],
+    "observation_base_fields": [
+      "schema",
+      "evidence_id",
+      "source_digest",
+      "tool",
+      "tool_version",
+      "evidence_kind",
+      "environment",
+      "environment_fingerprint",
+      "collected_at",
+      "started_at",
+      "run_id",
+      "input_digest",
+      "input",
+      "context",
+      "status"
+    ],
+    "successful_observation_additional_fields": [
+      "tool_binding_digest",
+      "request_digest",
+      "acquisition_request",
+      "acquisition_request_digest",
+      "value",
+      "data_digest"
+    ],
+    "persisted_output_metadata": [
+      "ingested_at",
+      "stdout_digest",
+      "stderr_digest",
+      "stdout_bytes",
+      "stderr_bytes"
+    ],
+    "measurement_time": "collected_at preserves envelope.observed_at when supplied; ingestion does not refresh it",
+    "private_binding_key_bytes": 32,
+    "keyed_digest_prefix_hex": "45414c2f3200",
+    "keyed_digest_definition": "HMAC-SHA256(key, prefix || domain || 00 || SHA256(canonical JSON))",
+    "storage_policy": "Private owned directory; SQLite, WAL and SHM mode 0600; binding key private and outside SQLite; immutable records; successful compatible observations indexed for reuse"
+  },
+  "compatibility_boundaries": [
+    "Default authored EAL evaluation and opt-in ASPIC compilation remain separate operations.",
+    "CLI --methods package.module:function is replaced by a typed Rust registry and a versioned subprocess extension contract in the runtime stage.",
+    "Integers retain arbitrary precision; booleans remain distinct from numbers; scalar arithmetic and JSON identities require explicit differential checks.",
+    "Schema snapshots describe supplied structures. They do not establish graph well-formedness or authenticate provenance.",
+    "All MCP, runtime, solver, formatter and CLI operations in this file remain pending implementation in this first parser PR."
+  ],
+  "optional_method_contracts": {
+    "argumentation/aspic/2": {
+      "identifier": "argumentation/aspic/2",
+      "evidence_kind": "aspic_theory",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "theory": {
+            "type": "object",
+            "properties": {
+              "premises": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "atom": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "axiom"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "atom",
+                        "kind"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "atom": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "ordinary"
+                          ]
+                        },
+                        "rank": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 1000
+                        }
+                      },
+                      "required": [
+                        "atom",
+                        "kind",
+                        "rank"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "minItems": 1
+              },
+              "rules": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "strict"
+                          ]
+                        },
+                        "antecedents": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 65
+                          },
+                          "minItems": 1
+                        },
+                        "consequent": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "kind",
+                        "antecedents",
+                        "consequent"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "defeasible"
+                          ]
+                        },
+                        "antecedents": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 65
+                          },
+                          "minItems": 1
+                        },
+                        "consequent": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        },
+                        "rank": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 1000
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "kind",
+                        "antecedents",
+                        "consequent",
+                        "name",
+                        "rank"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "contraries": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "attacker": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "target": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    }
+                  },
+                  "required": [
+                    "attacker",
+                    "target"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "goal": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 65
+              },
+              "options": {
+                "type": "object",
+                "properties": {
+                  "semantics": {
+                    "type": "string",
+                    "enum": [
+                      "grounded",
+                      "preferred",
+                      "stable"
+                    ]
+                  },
+                  "query_mode": {
+                    "type": "string",
+                    "enum": [
+                      "credulous",
+                      "sceptical"
+                    ]
+                  },
+                  "preference": {
+                    "type": "string",
+                    "enum": [
+                      "minimum_rank",
+                      "last_link_rank",
+                      "last_link_partial"
+                    ]
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              "priorities": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "premise",
+                        "rule"
+                      ]
+                    },
+                    "higher": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "lower": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "higher",
+                    "lower"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "premises",
+              "rules",
+              "contraries",
+              "goal"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "theory"
+        ],
+        "additionalProperties": false
+      },
+      "query_schema": {
+        "type": "object",
+        "properties": {
+          "theory": {
+            "type": "object",
+            "properties": {
+              "premises": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "atom": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "axiom"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "atom",
+                        "kind"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "atom": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "ordinary"
+                          ]
+                        },
+                        "rank": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 1000
+                        }
+                      },
+                      "required": [
+                        "atom",
+                        "kind",
+                        "rank"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "minItems": 1
+              },
+              "rules": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "strict"
+                          ]
+                        },
+                        "antecedents": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 65
+                          },
+                          "minItems": 1
+                        },
+                        "consequent": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "kind",
+                        "antecedents",
+                        "consequent"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "defeasible"
+                          ]
+                        },
+                        "antecedents": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 65
+                          },
+                          "minItems": 1
+                        },
+                        "consequent": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 65
+                        },
+                        "rank": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 1000
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "kind",
+                        "antecedents",
+                        "consequent",
+                        "name",
+                        "rank"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "contraries": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "attacker": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "target": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    }
+                  },
+                  "required": [
+                    "attacker",
+                    "target"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "goal": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 65
+              },
+              "options": {
+                "type": "object",
+                "properties": {
+                  "semantics": {
+                    "type": "string",
+                    "enum": [
+                      "grounded",
+                      "preferred",
+                      "stable"
+                    ]
+                  },
+                  "query_mode": {
+                    "type": "string",
+                    "enum": [
+                      "credulous",
+                      "sceptical"
+                    ]
+                  },
+                  "preference": {
+                    "type": "string",
+                    "enum": [
+                      "minimum_rank",
+                      "last_link_rank",
+                      "last_link_partial"
+                    ]
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              "priorities": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "premise",
+                        "rule"
+                      ]
+                    },
+                    "higher": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    },
+                    "lower": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "higher",
+                    "lower"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "premises",
+              "rules",
+              "contraries",
+              "goal"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "theory"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "semantics": {
+            "type": "string",
+            "enum": [
+              "grounded",
+              "preferred",
+              "stable"
+            ]
+          },
+          "query_mode": {
+            "type": "string",
+            "enum": [
+              "credulous",
+              "sceptical"
+            ]
+          },
+          "preference": {
+            "type": "string",
+            "enum": [
+              "minimum_rank",
+              "last_link_rank",
+              "last_link_partial"
+            ]
+          },
+          "query_status": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "rejected",
+              "undecided",
+              "unconstructed",
+              "no_extension"
+            ]
+          },
+          "query_accepted": {
+            "type": "boolean"
+          },
+          "query_rejected": {
+            "type": "boolean"
+          },
+          "extensions": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 65
+              }
+            }
+          },
+          "grounded_accepted": {
+            "type": "boolean"
+          },
+          "grounded_rejected": {
+            "type": "boolean"
+          },
+          "grounded_status": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "rejected",
+              "undecided",
+              "unconstructed"
+            ]
+          },
+          "argument_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "defeat_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "theory_sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                },
+                "conclusion": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                },
+                "top": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                },
+                "subarguments": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 65
+                  }
+                },
+                "direct_subarguments": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 65
+                  }
+                },
+                "strength": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1001
+                },
+                "label": {
+                  "type": "string",
+                  "enum": [
+                    "in",
+                    "out",
+                    "undecided"
+                  ]
+                },
+                "rule_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                },
+                "rule_name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                },
+                "rank": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1000
+                }
+              },
+              "required": [
+                "id",
+                "conclusion",
+                "top",
+                "subarguments",
+                "direct_subarguments",
+                "strength",
+                "label"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "defeats": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "attacker": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                },
+                "target": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                },
+                "subargument": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "undermine",
+                    "rebut",
+                    "undercut"
+                  ]
+                }
+              },
+              "required": [
+                "attacker",
+                "target",
+                "subargument",
+                "kind"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "semantics",
+          "query_mode",
+          "preference",
+          "query_status",
+          "query_accepted",
+          "query_rejected",
+          "extensions",
+          "grounded_accepted",
+          "grounded_rejected",
+          "grounded_status",
+          "argument_count",
+          "defeat_count",
+          "theory_sha256",
+          "arguments",
+          "defeats"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "grounded_accepted": "boolean",
+        "grounded_rejected": "boolean",
+        "query_accepted": "boolean",
+        "query_rejected": "boolean"
+      },
+      "quantities": [
+        "proposition"
+      ],
+      "exact_unit": true,
+      "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+      "limits": {
+        "timeout_seconds": 5.0,
+        "max_input_bytes": 262144,
+        "max_output_bytes": 1048576,
+        "max_memory_bytes": 268435456,
+        "startup_timeout_seconds": 5.0
+      },
+      "reference_implementation_version": "eal-aspic-finite-5",
+      "reference_execution": "bounded_process"
+    },
+    "engineering/api-load-criteria/1": {
+      "identifier": "engineering/api-load-criteria/1",
+      "evidence_kind": "api_report",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "request_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000000000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "p95_ms": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1e+100
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error_rate_percent": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "report_valid": {
+            "type": "boolean"
+          },
+          "identity_matches": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "complete_records": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "consistent_records": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "age_seconds": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1e+100
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "failed_requests": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000
+          }
+        },
+        "required": [
+          "request_count",
+          "p95_ms",
+          "error_rate_percent"
+        ],
+        "additionalProperties": false
+      },
+      "query_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "sample_size_met": {
+            "type": "boolean"
+          },
+          "latency_met": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error_limit_met": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "passes": {
+            "type": "boolean"
+          },
+          "fails": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sample_size_met",
+          "latency_met",
+          "error_limit_met",
+          "passes",
+          "fails"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "sample_size_met": "boolean",
+        "passes": "boolean",
+        "fails": "boolean"
+      },
+      "quantities": [],
+      "exact_unit": false,
+      "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+      "limits": {
+        "timeout_seconds": 1.0,
+        "max_input_bytes": 1048576,
+        "max_output_bytes": 1048576,
+        "max_memory_bytes": 268435456,
+        "startup_timeout_seconds": 5.0
+      },
+      "reference_implementation_version": "eal-api-load-criteria-1",
+      "reference_execution": "bounded_process"
+    },
+    "engineering/reachability/1": {
+      "identifier": "engineering/reachability/1",
+      "evidence_kind": "finite_graph",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "node_count": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 7
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "maxItems": 64
+          },
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 7
+          },
+          "forbidden": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 7
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "horizon": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 8
+          }
+        },
+        "required": [
+          "node_count",
+          "edges",
+          "start",
+          "forbidden",
+          "horizon"
+        ],
+        "additionalProperties": false
+      },
+      "query_schema": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 7
+          },
+          "forbidden": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 7
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "horizon": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 8
+          }
+        },
+        "required": [
+          "start",
+          "forbidden",
+          "horizon"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "reachable": {
+            "type": "boolean"
+          },
+          "shortest_length": {
+            "type": "integer",
+            "minimum": -1,
+            "maximum": 8
+          },
+          "counterexample": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 7
+            },
+            "maxItems": 9
+          },
+          "visited": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8
+          }
+        },
+        "required": [
+          "reachable",
+          "shortest_length",
+          "counterexample",
+          "visited"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "reachable": "boolean",
+        "shortest_length": "dimensionless",
+        "visited": "dimensionless"
+      },
+      "quantities": [
+        "proposition"
+      ],
+      "exact_unit": true,
+      "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+      "limits": {
+        "timeout_seconds": 2.0,
+        "max_input_bytes": 1048576,
+        "max_output_bytes": 1048576,
+        "max_memory_bytes": 268435456,
+        "startup_timeout_seconds": 5.0
+      },
+      "reference_implementation_version": "finite-graph-bfs-1",
+      "reference_execution": "bounded_process"
+    },
+    "engineering/rms/1": {
+      "identifier": "engineering/rms/1",
+      "evidence_kind": "measurement_series",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "samples": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": -1e+100,
+              "maximum": 1e+100
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          }
+        },
+        "required": [
+          "origin",
+          "samples"
+        ],
+        "additionalProperties": false
+      },
+      "query_schema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          }
+        },
+        "required": [
+          "origin"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "rms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2e+100
+          },
+          "sample_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          }
+        },
+        "required": [
+          "rms",
+          "sample_size"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "rms": "basis",
+        "sample_size": "dimensionless"
+      },
+      "quantities": [
+        "pressure",
+        "time",
+        "length",
+        "mass",
+        "temperature_difference",
+        "velocity",
+        "volumetric_flow",
+        "dimensionless",
+        "probability"
+      ],
+      "exact_unit": true,
+      "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+      "limits": {
+        "timeout_seconds": 1.0,
+        "max_input_bytes": 1048576,
+        "max_output_bytes": 1048576,
+        "max_memory_bytes": 268435456,
+        "startup_timeout_seconds": 5.0
+      },
+      "reference_implementation_version": "eal-rms-1",
+      "reference_execution": "bounded_process"
+    },
+    "engineering/sampled-negative/1": {
+      "identifier": "engineering/sampled-negative/1",
+      "evidence_kind": "sampled_negative_trace",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "counterexample",
+              "non_detection"
+            ]
+          },
+          "start": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "end": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "max_gap": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1e+100
+          },
+          "property": {
+            "type": "object",
+            "properties": {
+              "operator": {
+                "type": "string",
+                "enum": [
+                  "lt",
+                  "le"
+                ]
+              },
+              "value": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              }
+            },
+            "required": [
+              "operator",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "semantics": {
+            "type": "string",
+            "enum": [
+              "sampled"
+            ]
+          },
+          "detector_contract": {
+            "type": "object",
+            "properties": {
+              "maximum_detection_limit": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1e+100
+              },
+              "minimum_sensitivity": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "maximum_detection_limit",
+              "minimum_sensitivity"
+            ],
+            "additionalProperties": false
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                },
+                "value": {
+                  "type": "number",
+                  "minimum": -1e+100,
+                  "maximum": 1e+100
+                }
+              },
+              "required": [
+                "time",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "calibration": {
+            "type": "object",
+            "properties": {
+              "detection_limit": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1e+100
+              },
+              "sensitivity_lower_bound": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "detection_limit",
+              "sensitivity_lower_bound"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "mode",
+          "start",
+          "end",
+          "max_gap",
+          "property",
+          "semantics",
+          "detector_contract",
+          "events"
+        ],
+        "additionalProperties": false
+      },
+      "query_schema": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "counterexample",
+              "non_detection"
+            ]
+          },
+          "start": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "end": {
+            "type": "number",
+            "minimum": -1e+100,
+            "maximum": 1e+100
+          },
+          "max_gap": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1e+100
+          },
+          "property": {
+            "type": "object",
+            "properties": {
+              "operator": {
+                "type": "string",
+                "enum": [
+                  "lt",
+                  "le"
+                ]
+              },
+              "value": {
+                "type": "number",
+                "minimum": -1e+100,
+                "maximum": 1e+100
+              }
+            },
+            "required": [
+              "operator",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "semantics": {
+            "type": "string",
+            "enum": [
+              "sampled"
+            ]
+          },
+          "detector_contract": {
+            "type": "object",
+            "properties": {
+              "maximum_detection_limit": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1e+100
+              },
+              "minimum_sensitivity": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "maximum_detection_limit",
+              "minimum_sensitivity"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "mode",
+          "start",
+          "end",
+          "max_gap",
+          "property",
+          "semantics",
+          "detector_contract"
+        ],
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "finding": {
+            "type": "boolean"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "counterexample",
+              "non_detection"
+            ]
+          },
+          "sample_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "violation_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "coverage": {
+            "type": "boolean"
+          },
+          "largest_gap": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2e+100
+          },
+          "detector_contract_met": {
+            "type": "boolean"
+          },
+          "continuous_truth_established": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "finding",
+          "mode",
+          "sample_size",
+          "violation_count",
+          "coverage",
+          "largest_gap",
+          "detector_contract_met",
+          "continuous_truth_established"
+        ],
+        "additionalProperties": false
+      },
+      "outputs": {
+        "finding": "boolean"
+      },
+      "quantities": [
+        "pressure",
+        "time",
+        "length",
+        "mass",
+        "temperature_difference",
+        "velocity",
+        "volumetric_flow",
+        "dimensionless",
+        "probability"
+      ],
+      "exact_unit": true,
+      "quantity_interpretation": "input measurement basis; each output separately declares its unit interpretation",
+      "limits": {
+        "timeout_seconds": 1.0,
+        "max_input_bytes": 1048576,
+        "max_output_bytes": 1048576,
+        "max_memory_bytes": 268435456,
+        "startup_timeout_seconds": 5.0
+      },
+      "reference_implementation_version": "eal-sampled-negative-1",
+      "reference_execution": "bounded_process"
+    }
+  }
+}

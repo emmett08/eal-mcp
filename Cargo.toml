@@ -1,0 +1,21 @@
+[workspace]
+members = ["crates/eal-parser", "crates/eal-core", "crates/eal-cli"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+license = "GPL-3.0-only"
+repository = "https://github.com/emmett08/eal-mcp"
+
+[workspace.dependencies]
+antlr4rust = "=0.6.0"
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = { version = "=1.0.145", features = ["arbitrary_precision"] }
+sha2 = "=0.10.9"
+eal-parser = { path = "crates/eal-parser" }
+eal-core = { path = "crates/eal-core" }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
