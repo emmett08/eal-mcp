@@ -109,7 +109,20 @@ impl CompiledTheory {
         self.checked()?;
         self.solve_checked()
     }
+    pub fn solve_with_executor(
+        &self,
+        executor: &dyn Fn(&Value, &ExecutionLimits) -> Result<Value, AspicError>,
+    ) -> Result<Value, AspicError> {
+        self.checked()?;
+        self.solve_checked_with_executor(executor)
+    }
     fn solve_checked(&self) -> Result<Value, AspicError> {
+        self.solve_checked_with_executor(&crate::solver::solve_aspic)
+    }
+    fn solve_checked_with_executor(
+        &self,
+        executor: &dyn Fn(&Value, &ExecutionLimits) -> Result<Value, AspicError>,
+    ) -> Result<Value, AspicError> {
         let contract = crate::registry::aspic_contract();
         let payload = json!({"theory":self.theory});
         if canonical::canonical_json_bytes(&payload, &self.limits)?.len() > contract.max_input_bytes
@@ -126,7 +139,7 @@ impl CompiledTheory {
                 errors.join("; ")
             )));
         }
-        let formal = crate::solver::solve_aspic(&payload, &self.limits).map_err(execution_error)?;
+        let formal = executor(&payload, &self.limits).map_err(execution_error)?;
         crate::registry::check_output_bytes(&formal, &self.limits).map_err(execution_error)?;
         let errors =
             methods::schema_errors_with_limits(&formal, &contract.output_schema, "$", &self.limits);
@@ -186,8 +199,14 @@ impl CompiledTheory {
         )
     }
     pub fn to_dict(&self) -> Result<Value, AspicError> {
+        self.to_dict_with_executor(&crate::solver::solve_aspic)
+    }
+    pub fn to_dict_with_executor(
+        &self,
+        executor: &dyn Fn(&Value, &ExecutionLimits) -> Result<Value, AspicError>,
+    ) -> Result<Value, AspicError> {
         self.checked()?;
-        let projected = self.solve_checked()?;
+        let projected = self.solve_checked_with_executor(executor)?;
         let claim = projected["claim"]
             .as_str()
             .ok_or_else(|| AspicError::Invalid("Compiled result has no goal".into()))?;

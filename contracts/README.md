@@ -8,16 +8,15 @@ implementation at `earl@e2d6f346a37f92483b9f9a13923b98feb053447b`, package
 | --- | --- |
 | `source-lock.json` | Exact revision, grammar hash, all 77 handwritten installed Python modules, planned Rust responsibilities and imported-file provenance |
 | `public-contracts.json` | Four entry points and CLI argument structures, exclusive MCP catalogues, eight built-in and five optional method contracts, ASPIC schemas, execution budgets and persistence contracts |
-| `identity-fixtures.json` | Synthetic Python canonical JSON, SHA-256 and HMAC examples for the later Rust identity implementation |
+| `identity-fixtures.json` | Synthetic Python canonical JSON, SHA-256 and frozen HMAC examples |
 | `schemas/aspic-view.schema.json` | Byte-identical current producer schema, independently compared with the pinned visualiser |
 | `schemas/coordination-worker-response.schema.json` | Current coordination worker response schema |
 | `licenses/` | Upstream licence texts retained with the imported materials and planned coordination port |
 
-The manifest's `pending` status describes each complete Python module's Rust
-replacement. Parser recognition and owned lexical lowering form the first stage.
-Binding, checked semantic objects and execution still need their own port and
-comparison tests. Planned component names in the inventory do not imply that
-those crates already exist.
+The manifest records implemented, partial and pending native module replacements.
+The status document qualifies their tested scope and native implementation deltas.
+Packet/catalogue/discovery/transport and coordination adapters remain pending;
+planned component names do not imply complete component acceptance.
 
 The input schemas in `public-contracts.json` come from `operations.py` annotations
 and `OPERATION_FIELDS`. They retain types, required fields and defaults while
@@ -34,8 +33,7 @@ testing, and must never become a runtime key. Their `EAL/2` HMAC prefix is the
 existing frozen acquisition hash domain used by `EAL/observation-record/1`.
 It identifies that record algorithm independently of the EAL/3 source language.
 The fixtures cover arbitrary integers, integral floats, negative zero, exponent
-formatting, Unicode, key ordering and typed Boolean values. Byte-identical JSON
-requires a deliberate canonicaliser in the runtime stage.
+formatting, Unicode, key ordering and typed Boolean values. Native canonical bytes and runtime HMACs are checked against these references.
 
 Inventory extraction is deterministic: enumerate `src/eal/**/*.py` in path order,
 exclude `generated/`, hash exact bytes, and record the first module docstring line

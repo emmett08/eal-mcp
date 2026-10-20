@@ -53,7 +53,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/api_load_methods.py",
@@ -124,7 +124,7 @@
       "rust_components": [
         "eal-cli"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "partial_native"
     },
     {
       "path": "src/eal/client_transports.py",
@@ -144,7 +144,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/collection_scheduler.py",
@@ -154,7 +154,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/command_process.py",
@@ -164,7 +164,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/command_supervisor.py",
@@ -174,7 +174,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/composition.py",
@@ -214,7 +214,7 @@
       "rust_components": [
         "eal-cli"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "partial_native"
     },
     {
       "path": "src/eal/coordination/codec_process.py",
@@ -465,7 +465,7 @@
         "eal-core",
         "eal-runtime"
       ],
-      "implementation_status": "partial_native",
+      "implementation_status": "implemented_native",
       "remaining": "Python factory loading, external method workers and process supervision; see docs/port-status.md"
     },
     {
@@ -506,7 +506,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/operation_contracts.py",
@@ -707,7 +707,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "partial_native"
     },
     {
       "path": "src/eal/sampled_negative.py",
@@ -787,7 +787,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/tool_acquisition.py",
@@ -797,7 +797,7 @@
       "rust_components": [
         "eal-runtime"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     }
   ],
   "supporting_source": [

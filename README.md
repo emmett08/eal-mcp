@@ -15,8 +15,9 @@ without Python or Java.
 
 The opt-in [finite ASPIC implementation](docs/aspic.md) provides explicit theory
 solving, observation-bound EAL compilation and recomputed `aspic-view/3` export.
-Observation storage and acquisition, process supervision, MCP, the model host,
-coordination and the visualiser's live-solver bridge remain pending.
+The [native runtime](docs/runtime.md) adds private SQLite storage, trusted collector
+acquisition, observation reuse and supervised optional methods. MCP, the model
+host, coordination and the visualiser's live-solver bridge remain pending.
 Assessment-packet, model-context and catalogue adapters are also later work.
 See the [implementation status](docs/port-status.md) and frozen
 [source inventory](contracts/source-lock.json). The production `eal`, `eal-mcp`,
@@ -101,8 +102,8 @@ missing values and expression errors. Typed bindings use exact rational unit
 conversions and canonical request/observation identities. Native methods report
 Rust implementation identities. A custom native callback's artefact hash is a
 host declaration; the core checks its shape, while the host must establish its
-correspondence to the loaded code. Callback process supervision and deadlines
-belong to the pending runtime.
+correspondence to the loaded code. The runtime supplies supervised callbacks with startup and execution deadlines;
+direct core callbacks remain host-owned in-process implementations.
 
 Semantic `format` validates, replays captured imports, and checks composed
 semantic preservation and idempotence. Formatting changes source identity, so
@@ -130,6 +131,11 @@ increase whitespace, tokens or nesting. The checked formatter reports a limit
 when the emitted source would exceed the selected budgets. Library callers can
 use `eal_core::Program::format_with_limits` for lexical formatting with explicit
 budgets; semantic formatting uses the compiled programme's limits.
+
+The staged `eal-runtime` driver connects validation, planning, collection, durable
+assessment, supervised ASPIC compilation and explanation. Build all workspace
+binaries before using it; its supervisor and method worker are separate companion
+executables. See [runtime configuration, installation and boundaries](docs/runtime.md).
 
 ## Verify
 

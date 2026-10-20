@@ -4,9 +4,11 @@ The development reference is
 [`earl@e2d6f346a37f92483b9f9a13923b98feb053447b`](https://github.com/emmett08/earl/tree/e2d6f346a37f92483b9f9a13923b98feb053447b),
 package `3.2.4`, language `EAL/3`. The source repository remains unchanged.
 The first PR established the workspace, frozen contracts and syntax front end.
-The authored semantic core and development CLI are implemented. The current
-stage adds finite ASPIC reasoning, checked source compilation and graph export.
-Production services and entry points remain pending.
+The authored semantic core and development CLI are implemented, along with finite
+ASPIC reasoning, checked source compilation and graph export.
+The current stage adds durable runtime services, trusted acquisition, observation
+reuse and supervised method execution. Production transports and entry points
+remain pending.
 
 ## Scope and component boundaries
 
@@ -21,16 +23,18 @@ their corresponding implementation is ported.
 | `eal-parser` | Generated recognisers and syntax diagnostics | Implemented |
 | `eal-core` | Owned syntax, composition, validation, expressions, methods, authored assessment, planning and formatting | Authored semantic core implemented; public adapters remain pending |
 | `eal-aspic` | Finite ASPIC construction, preferences, defeat, extensions, compilation and checked view export | Implemented and differentially checked; live visualiser bridge pending |
-| `eal-runtime` | Collection, immutable records, reuse, catalogue, method execution and supervision | Pending |
+| `eal-runtime` | Collection, immutable records, reuse, catalogue, method execution and supervision | Durable runtime implemented; catalogue remains pending |
 | `eal-mcp` | Exclusive operator/registered catalogues, authentication and transports | Pending |
 | `eal-coordination` | Durable task coordination, delivery and effect identities, codec and worker adapters | Pending |
-| `eal-cli` | Command-line interfaces and text-only model host | Development `eal-syntax` and `eal-core` implemented; production commands pending |
+| `eal-cli` | Command-line interfaces and text-only model host | Development `eal-syntax`, `eal-core` and `eal-runtime` implemented; production commands pending |
 
 The inventory retains the pinned source paths, hashes and planned component
 boundaries. Its `implemented_native` labels identify the tested authored-core
 scope with the deltas documented here, rather than complete semantic
-equivalence. `methods.py` remains `partial_native` because external factories,
-workers and supervision are deferred. The table above records component progress.
+equivalence. Python import factories are replaced by explicit native registries
+and a versioned subprocess method protocol. `runtime.py` and `cli.py` remain
+partial because catalogue, discovery and packet operations are deferred. The
+table above records component progress.
 
 Pure assessment uses typed values, supplied observations, explicit context and
 an explicit timezone-aware instant. Source composition accepts a host-supplied
@@ -122,15 +126,44 @@ support this finite profile rather than unrestricted ASPIC+ semantics or the
 external validity of authored strict rules. Explicit inputs additionally enforce
 native JSON traversal budgets before the source validator's fixed schema pass.
 
+## Implemented durable runtime
+
+The [runtime](runtime.md) provides immutable private SQLite records, indexed
+observation lookup, descriptor-owned acquisition leases, strict operator TOML
+registries, command/file acquisition, keyed binding and exact process-environment
+identity, ordered bounded collection and explicit observation rebinding. Original
+measurement times survive import and reuse. The frozen observation-record/1 HMAC
+domain remains `EAL/2`. A separate supervisor owns process-group cleanup and retains
+its inherited lease until cleanup, including on caller death. Deadlines cover
+configuration and input transfer; combined output is bounded.
+
+The shared service connects planning, collection, exact collection identity,
+authored assessment, supervised ASPIC snapshots and durable explanation. A staged
+`eal-runtime` command exposes these operations without claiming the complete
+production CLI. The original eight methods remain pure. Optional and custom
+runtime methods use schema-checked workers with startup/execution deadlines and
+safe POSIX resource limits. The pure ASPIC library also retains its direct,
+resource-count-bounded solver API.
+
+Native process tests exercise blocked IO, output limits, cancellation, child
+status, caller death and inherited leases. Store tests cover atomic batches,
+concurrent initialisation, backfill, strict JSON and replacement/link/privacy
+tamper. Retained Python acquisition references cover registry validation, strict
+JSON/envelopes and keyed identities. Runtime service tests exercise durable
+collection, age, rebinding refusal and supervised formal assessment.
+
+This is a POSIX private-store/process profile. The source's Windows resource-limit
+refusal is retained; private Windows ACL validation remains unimplemented and the
+native store fails closed there. Process groups do not contain deliberately
+escaped sessions. The native store additionally rejects replacement/hardlink
+identity changes and bounds stored JSON at 64 MiB/depth 128. Its aggregate store
+budget is separate from per-observation semantic limits and the 32 MiB collection
+limit. These defensive and transport differences are documented in the runtime
+and method protocol descriptions.
+
 ## Remaining implementation sequence
 
-1. **Port runtime and extensions.** Preserve original observation times, exact
-   acquisition correspondence, canonical identities, SQLite records and private
-   store ownership. Implement a supervisor process that owns collector cleanup
-   and inherited acquisition leases. Replace Python import-based method loading
-   with a typed Rust registry and schema-checked subprocess extension protocol.
-   Rust reports its own implementation identities.
-2. **Port MCP, host, catalogue and coordination.** Use the official `rmcp` SDK
+1. **Port MCP, host, catalogue and coordination.** Use the official `rmcp` SDK
    for stdio and stateless Streamable HTTP. Preserve the eleven-tool operator
    catalogue and separate three-tool registered-source catalogue. Port all four
    entry points and the production coordination modules, including replacement
@@ -140,10 +173,10 @@ native JSON traversal budgets before the source validator's fixed schema pass.
    observation-correspondence and age adapters; `EAL/model-context/2`
    requirement-state projection; language/reference discovery; operation
    admission metadata and dispatch; and the knowledge catalogue/prompt façade.
-3. **Verify visualisation and packaging.** Connect the native solver to the
+2. **Verify visualisation and packaging.** Connect the native solver to the
    visualiser's live bridge and exercise complete browser consumption alongside
-   the retained schema and graph checks. Exercise real MCP sessions, cancellation,
-   abrupt process death, observation reuse and an installed package with Python absent.
+   the retained schema and graph checks. Exercise real MCP sessions, transport cancellation and an installed
+   complete package with Python absent, retaining the runtime process-death and reuse tests.
 
 The selected ANTLR generator is pinned with its runtime and recognisers are
 checked in. A normal build uses those Rust sources. Java is needed only for

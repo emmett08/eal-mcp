@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/eal-parser", "crates/eal-core", "crates/eal-aspic", "crates/eal-cli"]
+members = ["crates/eal-parser", "crates/eal-core", "crates/eal-aspic", "crates/eal-runtime", "crates/eal-cli"]
 resolver = "2"
 
 [workspace.package]
@@ -23,9 +23,16 @@ ryu = "=1.0.23"
 indexmap = { version = "=2.12.0", features = ["serde"] }
 unicode-general-category = "=0.6.0"
 toml = "=0.9.8"
+rusqlite = { version = "=0.37.0", features = ["bundled"] }
+rustix = { version = "=1.1.2", features = ["process", "fs", "pipe", "event", "time", "thread"] }
+hmac = "=0.12.1"
+uuid = { version = "=1.28.0", features = ["v4"] }
+signal-hook = "=0.3.18"
+getrandom = "=0.4.3"
 eal-parser = { path = "crates/eal-parser" }
 eal-core = { path = "crates/eal-core" }
 eal-aspic = { path = "crates/eal-aspic" }
+eal-runtime = { path = "crates/eal-runtime" }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
