@@ -194,7 +194,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/bus.py",
@@ -204,7 +204,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/cli.py",
@@ -214,7 +214,7 @@
       "rust_components": [
         "eal-cli"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/codec_process.py",
@@ -224,7 +224,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/contracts.py",
@@ -234,7 +234,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/gateway.py",
@@ -244,7 +244,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/lab_admission.py",
@@ -254,7 +254,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/lab_mcp.py",
@@ -264,7 +264,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/lab_server.py",
@@ -274,7 +274,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/ledger.py",
@@ -284,7 +284,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/persistent_mcp.py",
@@ -294,7 +294,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/profiles.py",
@@ -304,7 +304,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/service.py",
@@ -314,7 +314,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/state.py",
@@ -324,7 +324,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/coordination/workers.py",
@@ -334,7 +334,7 @@
       "rust_components": [
         "eal-coordination"
       ],
-      "implementation_status": "pending"
+      "implementation_status": "implemented_native"
     },
     {
       "path": "src/eal/credentials.py",

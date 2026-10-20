@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/eal-parser", "crates/eal-core", "crates/eal-aspic", "crates/eal-runtime", "crates/eal-mcp", "crates/eal-cli"]
+members = ["crates/eal-parser", "crates/eal-core", "crates/eal-aspic", "crates/eal-runtime", "crates/eal-mcp", "crates/eal-coordination", "crates/eal-cli"]
 resolver = "2"
 exclude = ["vendor/rmcp"]
 
@@ -39,11 +39,14 @@ url = "=2.5.8"
 http = "=1.5.0"
 tower = { version = "=0.5.3", features = ["util"] }
 jsonschema = { version = "=0.46.0", default-features = false, features = ["arbitrary-precision"] }
+nom = "=8.0.0"
+base64 = "=0.23.1"
 eal-parser = { path = "crates/eal-parser" }
 eal-core = { path = "crates/eal-core" }
 eal-aspic = { path = "crates/eal-aspic" }
 eal-runtime = { path = "crates/eal-runtime" }
 eal-mcp = { path = "crates/eal-mcp" }
+eal-coordination = { path = "crates/eal-coordination" }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

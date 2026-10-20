@@ -58,6 +58,8 @@ impl ExecutionError {
 
 #[derive(Clone, Debug)]
 pub struct ProcessOutcome {
+    /// Parent-observed PID of the independently owned command supervisor.
+    pub supervisor_pid: Option<u32>,
     pub stdout: Vec<u8>,
     pub stderr: Vec<u8>,
     pub returncode: i32,
@@ -73,6 +75,7 @@ pub struct ProcessOutcome {
 impl ProcessOutcome {
     pub(crate) fn new(stdout: Vec<u8>, stderr: Vec<u8>, status: protocol::Status) -> Self {
         Self {
+            supervisor_pid: None,
             stdout_bytes: stdout.len(),
             stderr_bytes: stderr.len(),
             stdout_sha256: format!("{:x}", Sha256::digest(&stdout)),

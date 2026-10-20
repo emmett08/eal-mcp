@@ -88,6 +88,7 @@ pub(super) fn run(
         .stderr(inherited)
         .process_group(0)
         .spawn()?;
+    let supervisor_pid = child.id();
     let mut owner = Owner {
         child: Some(child),
         control: None,
@@ -213,7 +214,9 @@ pub(super) fn run(
             break;
         }
     }
-    protocol::decode(&bytes, request.max_output_bytes)
+    let mut outcome = protocol::decode(&bytes, request.max_output_bytes)?;
+    outcome.supervisor_pid = Some(supervisor_pid);
+    Ok(outcome)
 }
 
 fn validate(

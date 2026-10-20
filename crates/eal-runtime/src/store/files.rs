@@ -42,6 +42,25 @@ pub(crate) fn absolute(path: &Path) -> Result<PathBuf, String> {
     }
     Ok(path)
 }
+
+pub(crate) fn check_sqlite_sidecars(database: &Path) -> Result<(), String> {
+    for ending in ["-wal", "-shm", "-journal"] {
+        let path = suffix(database, ending);
+        match fs::symlink_metadata(&path) {
+            Ok(_) => {
+                if let Err(error) = open_private(&path, false, false, None, "SQLite store sidecar")
+                    && !fs::symlink_metadata(&path)
+                        .is_err_and(|error| error.kind() == std::io::ErrorKind::NotFound)
+                {
+                    return Err(error);
+                }
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error.to_string()),
+        }
+    }
+    Ok(())
+}
 pub(crate) fn private_directory(path: &Path, label: &str) -> Result<Identity, String> {
     #[cfg(not(unix))]
     {

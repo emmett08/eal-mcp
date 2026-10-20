@@ -154,5 +154,6 @@ see [text host and HTTP policy](text-host.md).
 Retained application references cover catalogue metadata/history, packet/context
 projections, discovery, MCP descriptors and rejected requests, and host policy.
 Native tests add registered reuse, transport and cancellation regressions.
-These checks describe the exercised cases; coordination, the visualiser's native
-live-solver bridge and complete installed-package acceptance remain outstanding.
+These checks describe the exercised cases. [Coordination](coordination.md) adds
+durable role-scoped task execution; the visualiser's native live-solver bridge
+and complete installed-package acceptance remain outstanding.

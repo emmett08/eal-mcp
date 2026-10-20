@@ -176,3 +176,22 @@ fn startup_line_is_exact_even_when_the_collector_exits_immediately() {
     ));
     assert_eq!(result.stdout, b"BAD");
 }
+
+#[test]
+fn supervisor_identity_is_observed_by_the_owner_and_reaped_before_return() {
+    let result = supervisor()
+        .run(request(&["/bin/sh", "-c", "printf '%s' \"$PPID\""]), None)
+        .unwrap();
+    let observed = std::str::from_utf8(&result.stdout)
+        .unwrap()
+        .parse::<u32>()
+        .unwrap();
+    assert_eq!(result.supervisor_pid, Some(observed));
+    assert_ne!(observed, std::process::id());
+    assert_eq!(
+        rustix::process::test_kill_process(
+            rustix::process::Pid::from_raw(observed as i32).unwrap()
+        ),
+        Err(rustix::io::Errno::SRCH)
+    );
+}

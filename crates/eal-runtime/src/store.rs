@@ -150,23 +150,7 @@ impl RunStore {
             Some(self.database),
             "SQLite store file",
         )?;
-        for suffix in ["-wal", "-shm", "-journal"] {
-            let path = files::suffix(&self.path, suffix);
-            match std::fs::symlink_metadata(&path) {
-                Ok(_) => {
-                    if let Err(error) =
-                        files::open_private(&path, false, false, None, "SQLite store sidecar")
-                        && !std::fs::symlink_metadata(&path)
-                            .is_err_and(|error| error.kind() == std::io::ErrorKind::NotFound)
-                    {
-                        return Err(error);
-                    }
-                }
-                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
-                Err(error) => return Err(error.to_string()),
-            }
-        }
-        Ok(())
+        files::check_sqlite_sidecars(&self.path)
     }
     fn connect(&self) -> Result<Connection, String> {
         self.check_files()?;

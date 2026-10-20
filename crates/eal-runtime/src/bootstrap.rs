@@ -97,17 +97,9 @@ pub fn build_service(options: RuntimeOptions) -> Result<ReasoningService, String
         .unwrap_or(sibling_executable("eal-method-worker")?)
         .canonicalize()
         .map_err(|e| format!("Cannot resolve method worker executable: {e}"))?;
-    let environment = std::env::vars_os()
-        .map(|(key, value)| {
-            Ok((
-                key.into_string()
-                    .map_err(|_| "Environment names must be UTF-8")?,
-                value
-                    .into_string()
-                    .map_err(|_| "Environment values must be UTF-8")?,
-            ))
-        })
-        .collect::<Result<BTreeMap<_, _>, String>>()?;
+    // Bundled algorithms are closed pure native functions; their environment is
+    // deliberately empty and identical across CLI, MCP and configured workers.
+    let environment = BTreeMap::new();
     let worker = WorkerCommand::new(
         vec![
             worker

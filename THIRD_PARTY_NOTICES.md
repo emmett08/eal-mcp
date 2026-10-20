@@ -56,7 +56,7 @@ bound HTTP response decoding. The original SDK supplies protocol negotiation,
 dispatch, cancellation and transports. Upstream source identity, archive hash
 and the extraction procedure are retained in that directory.
 
-## Coordination material reserved for a later stage
+## Coordination material
 
 The source implementation embeds a Rust MAS codec derived from the MAS Protocol
 Lab toolkit. Its source files, manifest and provenance record are identified in
@@ -65,5 +65,6 @@ carry an [MIT licence](contracts/licenses/coordination-MIT.txt):
 
 Copyright (c) 2026 Emmett Miller.
 
-The codec implementation is pending port. Retain this MIT notice when those
-sources are imported or translated.
+The native nom codec and mailbox admission translate this material. The MIT
+notice remains retained with its source provenance; the native implementation
+does not embed the Python Lab runtime.
