@@ -205,8 +205,8 @@ recovery and bounded command execution. These fixtures and checks establish
 their recorded cases; the consumer's live bridge and complete package acceptance
 remain separate work.
 
-The GitHub workflow runs on manual dispatch. It checks Rust on Linux and Windows
-and checks parser regeneration separately on Linux.
+The GitHub workflow runs on manual dispatch. It runs Rust checks and parser
+regeneration in separate jobs on `ubuntu-latest`.
 
 ## Regenerate the parser
 
