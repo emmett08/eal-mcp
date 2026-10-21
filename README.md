@@ -211,6 +211,13 @@ remain separate work.
 
 The GitHub workflow runs on manual dispatch. It runs Rust checks and parser
 regeneration in separate jobs on `ubuntu-latest`.
+The Rust job retains file/line backtraces with `line-tables-only` dev/test debug
+information and disables incremental compilation to reduce cached build output.
+Debug assertions, overflow checks and release-profile settings remain unchanged.
+Cargo downloads and build outputs are cached by runner environment, native
+compiler, pinned Rust toolchain and build configuration. Each revision has its
+own cache key; compatible earlier revisions provide a fallback. Cache hits do
+not skip formatting, Clippy, any workspace test or the release build.
 
 ## Regenerate the parser
 

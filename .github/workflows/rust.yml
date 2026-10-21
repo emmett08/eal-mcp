@@ -10,6 +10,12 @@ jobs:
   rust:
     name: rust (ubuntu-latest)
     runs-on: ubuntu-latest
+    env:
+      # Keep file/line backtraces without full type/variable debug information.
+      # Assertions and overflow checks retain their normal dev/test settings.
+      CARGO_PROFILE_DEV_DEBUG: line-tables-only
+      CARGO_PROFILE_TEST_DEBUG: line-tables-only
+      CARGO_INCREMENTAL: '0'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install the pinned Rust toolchain
@@ -17,6 +23,34 @@ jobs:
         run: rustup show
       - name: Check formatting
         run: cargo fmt --all --check
+      - name: Identify compatible build environment
+        id: build-environment
+        env:
+          EAL_BUILD_CONFIGURATION: ${{ hashFiles('rust-toolchain.toml', 'Cargo.lock', '**/Cargo.toml', '**/build.rs', '.cargo/config*', '.github/workflows/rust.yml') }}
+        shell: bash
+        run: |
+          fingerprint=$(
+            {
+              rustc -vV
+              cc --version
+              printf '%s\n' "${ImageOS:-unknown}" "${ImageVersion:-unknown}"
+            } | sha256sum | cut -d ' ' -f 1
+          )
+          printf 'prefix=%s-%s-cargo-v1-%s-%s\n' \
+            "$RUNNER_OS" "$RUNNER_ARCH" "$fingerprint" \
+            "$EAL_BUILD_CONFIGURATION" >> "$GITHUB_OUTPUT"
+      - name: Restore Cargo downloads and build outputs
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0, Node.js 24
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/registry/src
+            ~/.cargo/git/db
+            target
+          key: ${{ steps.build-environment.outputs.prefix }}-${{ github.sha }}
+          restore-keys: ${{ steps.build-environment.outputs.prefix }}-
+      # Cache hits never replace verification: Cargo rechecks changed inputs.
       - name: Check lints
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Test without a reference interpreter
