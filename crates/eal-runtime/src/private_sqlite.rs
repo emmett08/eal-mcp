@@ -30,7 +30,7 @@ impl PrivateDatabase {
         let lock = PrivateLock::new(&lock_path)?;
         let _guard = lock.hold(timeout)?;
         files::check_directory(parent_path, parent, "Private database directory")?;
-        let (_, database) = files::open_private(&path, true, true, None, "Private database file")?;
+        let database = files::create_sqlite_file(&path, "Private database file")?;
         let value = Self {
             path,
             parent,
@@ -54,13 +54,7 @@ impl PrivateDatabase {
             self.parent,
             "Private database directory",
         )?;
-        files::open_private(
-            &self.path,
-            false,
-            false,
-            Some(self.database),
-            "Private database file",
-        )?;
+        files::check_sqlite_file(&self.path, Some(self.database), "Private database file")?;
         files::check_sqlite_sidecars(&self.path)
     }
     fn connect(&self) -> Result<Connection, String> {

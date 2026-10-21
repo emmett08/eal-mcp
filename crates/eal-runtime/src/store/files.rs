@@ -47,19 +47,50 @@ pub(crate) fn check_sqlite_sidecars(database: &Path) -> Result<(), String> {
     for ending in ["-wal", "-shm", "-journal"] {
         let path = suffix(database, ending);
         match fs::symlink_metadata(&path) {
-            Ok(_) => {
-                if let Err(error) = open_private(&path, false, false, None, "SQLite store sidecar")
-                    && !fs::symlink_metadata(&path)
-                        .is_err_and(|error| error.kind() == std::io::ErrorKind::NotFound)
-                {
-                    return Err(error);
-                }
+            Ok(metadata) => {
+                check_metadata(&metadata, "SQLite store sidecar")?;
             }
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
             Err(error) => return Err(error.to_string()),
         }
     }
     Ok(())
+}
+
+/// Validate SQLite-owned paths without opening another descriptor. Closing any
+/// descriptor for an inode releases this process's POSIX locks on it, including
+/// SQLite's database and WAL shared-memory locks held by other connections.
+/// See https://sqlite.org/howtocorrupt.html#posix_close_bug.
+pub(crate) fn check_sqlite_file(
+    path: &Path,
+    expected: Option<Identity>,
+    label: &str,
+) -> Result<Identity, String> {
+    let metadata = fs::symlink_metadata(path).map_err(|e| format!("{label}: {e}"))?;
+    let found = check_metadata(&metadata, label)?;
+    if expected.is_some_and(|expected| found != expected) {
+        return Err(format!("{label} was replaced"));
+    }
+    Ok(found)
+}
+
+/// Create an absent database privately, or validate an existing database using
+/// metadata alone. An existing file must never be opened and closed here, even
+/// while its initialisation lock is held: another connection may own SQL locks.
+pub(crate) fn create_sqlite_file(path: &Path, label: &str) -> Result<Identity, String> {
+    let mut options = OpenOptions::new();
+    options.read(true).write(true).create_new(true);
+    #[cfg(unix)]
+    options
+        .mode(0o600)
+        .custom_flags((rustix::fs::OFlags::NOFOLLOW | rustix::fs::OFlags::NONBLOCK).bits() as i32);
+    match options.open(path) {
+        Ok(file) => validate_file(path, &file, None, label),
+        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
+            check_sqlite_file(path, None, label)
+        }
+        Err(error) => Err(format!("{label}: {error}")),
+    }
 }
 pub(crate) fn private_directory(path: &Path, label: &str) -> Result<Identity, String> {
     #[cfg(not(unix))]
