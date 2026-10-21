@@ -1,8 +1,11 @@
 # EAL/3 Rust port
 
 Port production code from `emmett08/earl` at the revision in
-`contracts/source-lock.json`. Keep the source repository unchanged. Experiments,
-papers and research reporting scripts are outside this port.
+`contracts/source-lock.json`. Keep the source repository unchanged. Production
+porting work excludes experiments, papers and research reporting scripts. The
+explicitly requested EAL-CONTEXT-001 experiment lives separately under
+`experiments/eal-context-001/`; its optional Python dependencies and execution
+must remain outside production builds, tests and published binaries.
 
 EAL/3 is the supported language. Preserve `grammar/EAL.g4` byte for byte. Keep
 recognition, typed lexical lowering, binding, checking and evaluation separate.

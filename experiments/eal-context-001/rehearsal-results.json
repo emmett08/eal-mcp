@@ -1,0 +1,4442 @@
+{
+  "status": "synthetic_host_machinery_rehearsal_completed_not_empirical_pilot",
+  "protocol_id": "EAL-CONTEXT-001",
+  "protocol_version": "0.1.0",
+  "command": "python3 experiments/eal-context-001/rehearse.py",
+  "started_at_utc": "2026-10-21T08:08:23.944205+00:00",
+  "completed_at_utc": "2026-10-21T08:08:24.487703+00:00",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "code_sha256": {
+    "history.py": "da7c6c5a8639fb0ae30fcbe67bac3e73dce76e747af1c261f7ef1dc86606a8fe",
+    "test_history.py": "dc00367e717bd7e51ee7cf6b8be2f57d37e8c047ac958a17e69b706970057936",
+    "rehearse.py": "d8513b48298ba0667bc9fe15f846de7519a336ffa90b0c62300627b67fea89fe"
+  },
+  "calibration_checks_run": 6,
+  "calibration_check_failures": 0,
+  "calibration_check_errors": 0,
+  "synthetic_history_traces": 9,
+  "synthetic_turns_completed": 720,
+  "model_sessions": 0,
+  "provider_model_requests": 0,
+  "provider_usage": null,
+  "quality_scores": null,
+  "limitations": [
+    "All packets, user turns and placeholder answers in this rehearsal are synthetic fixtures.",
+    "No EAL service, ModelContextBuilder or provider request is executed by this rehearsal.",
+    "The cap and recorded occupancies are serialised UTF-8 bytes, not model tokens or token estimates.",
+    "Three trace lengths and three policies are machinery configurations, not independent scenario families.",
+    "The six software checks do not validate assessors or replace the protocol's six independently reviewed calibration cases.",
+    "No model-directed retrieval, empirical efficiency, answer correctness or retention result is established.",
+    "The production adapter must supply actual checked model messages, actual MCP schemas, and a validated full-request token counter."
+  ],
+  "traces": [
+    {
+      "condition": "A",
+      "scheduled_synthetic_turns": 40,
+      "completed_synthetic_turns": 40,
+      "shared_anchor_exposures": 12,
+      "request_size_unit": "UTF-8 bytes of complete serialised synthetic request",
+      "request_sampling": "once per synthetic user turn after scripted exchanges; no model request cycles",
+      "request_byte_cap": 32768,
+      "peak_request_bytes": 32732,
+      "final_request_bytes": 31196,
+      "cumulative_serialised_request_bytes": 1070496,
+      "logical_historical_lookups": 0,
+      "host_cache_hits": 0,
+      "synthetic_service_callback_calls": 0,
+      "synthetic_packet_body_bytes_exposed": 26284,
+      "A_historical_revisits_without_visible_packet": 1,
+      "packet_exchange_evictions": 0,
+      "emergency_turn_evictions": 4,
+      "events": [
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 25,
+          "removed_turn": 1,
+          "count_before": 32964,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 30,
+          "removed_turn": 2,
+          "count_before": 34161,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 36,
+          "removed_turn": 3,
+          "count_before": 32892,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 40,
+          "removed_turn": 4,
+          "count_before": 33857,
+          "cap": 32768
+        }
+      ]
+    },
+    {
+      "condition": "B",
+      "scheduled_synthetic_turns": 40,
+      "completed_synthetic_turns": 40,
+      "shared_anchor_exposures": 12,
+      "request_size_unit": "UTF-8 bytes of complete serialised synthetic request",
+      "request_sampling": "once per synthetic user turn after scripted exchanges; no model request cycles",
+      "request_byte_cap": 32768,
+      "peak_request_bytes": 19450,
+      "final_request_bytes": 19450,
+      "cumulative_serialised_request_bytes": 540239,
+      "logical_historical_lookups": 3,
+      "host_cache_hits": 3,
+      "synthetic_service_callback_calls": 0,
+      "synthetic_packet_body_bytes_exposed": 32854,
+      "A_historical_revisits_without_visible_packet": 0,
+      "packet_exchange_evictions": 14,
+      "emergency_turn_evictions": 0,
+      "events": [
+        {
+          "type": "packet_eviction",
+          "at_turn": 5,
+          "exposure_turn": 1,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 6,
+          "exposure_turn": 2,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-2",
+            "source_digest": "source-1-2",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:02Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 7,
+          "exposure_turn": 3,
+          "reference": {
+            "entry_id": "entry-2",
+            "claim": "ready",
+            "assessment_id": "assessment-3",
+            "source_digest": "source-2-3",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:03Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 8,
+          "exposure_turn": 4,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-4",
+            "source_digest": "source-3-4",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:04Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 9,
+          "exposure_turn": 5,
+          "reference": {
+            "entry_id": "entry-4",
+            "claim": "ready",
+            "assessment_id": "assessment-5",
+            "source_digest": "source-4-5",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:05Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 10,
+          "exposure_turn": 6,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-6",
+            "source_digest": "source-5-6",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:06Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 11,
+          "exposure_turn": 7,
+          "reference": {
+            "entry_id": "entry-6",
+            "claim": "ready",
+            "assessment_id": "assessment-7",
+            "source_digest": "source-6-7",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:07Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 12,
+          "exposure_turn": 8,
+          "reference": {
+            "entry_id": "entry-7",
+            "claim": "ready",
+            "assessment_id": "assessment-8",
+            "source_digest": "source-7-8",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:08Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 14,
+          "exposure_turn": 10,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-10",
+            "source_digest": "source-1-10",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:10Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 16,
+          "exposure_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 24,
+          "exposure_turn": 20,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-20",
+            "source_digest": "source-3-20",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:20Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 28,
+          "exposure_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 34,
+          "exposure_turn": 30,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-30",
+            "source_digest": "source-5-30",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:30Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 40,
+          "exposure_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        }
+      ]
+    },
+    {
+      "condition": "C",
+      "scheduled_synthetic_turns": 40,
+      "completed_synthetic_turns": 40,
+      "shared_anchor_exposures": 12,
+      "request_size_unit": "UTF-8 bytes of complete serialised synthetic request",
+      "request_sampling": "once per synthetic user turn after scripted exchanges; no model request cycles",
+      "request_byte_cap": 32768,
+      "peak_request_bytes": 20383,
+      "final_request_bytes": 20383,
+      "cumulative_serialised_request_bytes": 563972,
+      "logical_historical_lookups": 6,
+      "host_cache_hits": 0,
+      "synthetic_service_callback_calls": 6,
+      "synthetic_packet_body_bytes_exposed": 34924,
+      "A_historical_revisits_without_visible_packet": 0,
+      "packet_exchange_evictions": 17,
+      "emergency_turn_evictions": 0,
+      "events": [
+        {
+          "type": "packet_eviction",
+          "at_turn": 5,
+          "exposure_turn": 1,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 6,
+          "exposure_turn": 2,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-2",
+            "source_digest": "source-1-2",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:02Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 7,
+          "exposure_turn": 3,
+          "reference": {
+            "entry_id": "entry-2",
+            "claim": "ready",
+            "assessment_id": "assessment-3",
+            "source_digest": "source-2-3",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:03Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 8,
+          "exposure_turn": 4,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-4",
+            "source_digest": "source-3-4",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:04Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 9,
+          "exposure_turn": 5,
+          "reference": {
+            "entry_id": "entry-4",
+            "claim": "ready",
+            "assessment_id": "assessment-5",
+            "source_digest": "source-4-5",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:05Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 10,
+          "exposure_turn": 6,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-6",
+            "source_digest": "source-5-6",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:06Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 11,
+          "exposure_turn": 7,
+          "reference": {
+            "entry_id": "entry-6",
+            "claim": "ready",
+            "assessment_id": "assessment-7",
+            "source_digest": "source-6-7",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:07Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 12,
+          "exposure_turn": 8,
+          "reference": {
+            "entry_id": "entry-7",
+            "claim": "ready",
+            "assessment_id": "assessment-8",
+            "source_digest": "source-7-8",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:08Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 14,
+          "exposure_turn": 10,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-10",
+            "source_digest": "source-1-10",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:10Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 16,
+          "exposure_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 16,
+          "exposure_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 24,
+          "exposure_turn": 20,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-20",
+            "source_digest": "source-3-20",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:20Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 28,
+          "exposure_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 28,
+          "exposure_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 34,
+          "exposure_turn": 30,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-30",
+            "source_digest": "source-5-30",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:30Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 40,
+          "exposure_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 40,
+          "exposure_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        }
+      ]
+    },
+    {
+      "condition": "A",
+      "scheduled_synthetic_turns": 80,
+      "completed_synthetic_turns": 80,
+      "shared_anchor_exposures": 16,
+      "request_size_unit": "UTF-8 bytes of complete serialised synthetic request",
+      "request_sampling": "once per synthetic user turn after scripted exchanges; no model request cycles",
+      "request_byte_cap": 32768,
+      "peak_request_bytes": 32748,
+      "final_request_bytes": 32742,
+      "cumulative_serialised_request_bytes": 2346578,
+      "logical_historical_lookups": 0,
+      "host_cache_hits": 0,
+      "synthetic_service_callback_calls": 0,
+      "synthetic_packet_body_bytes_exposed": 35048,
+      "A_historical_revisits_without_visible_packet": 4,
+      "packet_exchange_evictions": 0,
+      "emergency_turn_evictions": 21,
+      "events": [
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 25,
+          "removed_turn": 1,
+          "count_before": 32964,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 30,
+          "removed_turn": 2,
+          "count_before": 34161,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 36,
+          "removed_turn": 3,
+          "count_before": 32892,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 40,
+          "removed_turn": 4,
+          "count_before": 33857,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 47,
+          "removed_turn": 5,
+          "count_before": 32820,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 50,
+          "removed_turn": 6,
+          "count_before": 33553,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 59,
+          "removed_turn": 7,
+          "count_before": 32980,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 60,
+          "removed_turn": 8,
+          "count_before": 33249,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 70,
+          "removed_turn": 9,
+          "count_before": 35606,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 70,
+          "removed_turn": 10,
+          "count_before": 35376,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 71,
+          "removed_turn": 11,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 72,
+          "removed_turn": 12,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 73,
+          "removed_turn": 13,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 74,
+          "removed_turn": 14,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 75,
+          "removed_turn": 15,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 76,
+          "removed_turn": 16,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 77,
+          "removed_turn": 17,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 78,
+          "removed_turn": 18,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 79,
+          "removed_turn": 19,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 80,
+          "removed_turn": 20,
+          "count_before": 35640,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 80,
+          "removed_turn": 21,
+          "count_before": 32974,
+          "cap": 32768
+        }
+      ]
+    },
+    {
+      "condition": "B",
+      "scheduled_synthetic_turns": 80,
+      "completed_synthetic_turns": 80,
+      "shared_anchor_exposures": 16,
+      "request_size_unit": "UTF-8 bytes of complete serialised synthetic request",
+      "request_sampling": "once per synthetic user turn after scripted exchanges; no model request cycles",
+      "request_byte_cap": 32768,
+      "peak_request_bytes": 31971,
+      "final_request_bytes": 31971,
+      "cumulative_serialised_request_bytes": 1539536,
+      "logical_historical_lookups": 6,
+      "host_cache_hits": 6,
+      "synthetic_service_callback_calls": 0,
+      "synthetic_packet_body_bytes_exposed": 48188,
+      "A_historical_revisits_without_visible_packet": 0,
+      "packet_exchange_evictions": 21,
+      "emergency_turn_evictions": 0,
+      "events": [
+        {
+          "type": "packet_eviction",
+          "at_turn": 5,
+          "exposure_turn": 1,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 6,
+          "exposure_turn": 2,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-2",
+            "source_digest": "source-1-2",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:02Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 7,
+          "exposure_turn": 3,
+          "reference": {
+            "entry_id": "entry-2",
+            "claim": "ready",
+            "assessment_id": "assessment-3",
+            "source_digest": "source-2-3",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:03Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 8,
+          "exposure_turn": 4,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-4",
+            "source_digest": "source-3-4",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:04Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 9,
+          "exposure_turn": 5,
+          "reference": {
+            "entry_id": "entry-4",
+            "claim": "ready",
+            "assessment_id": "assessment-5",
+            "source_digest": "source-4-5",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:05Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 10,
+          "exposure_turn": 6,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-6",
+            "source_digest": "source-5-6",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:06Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 11,
+          "exposure_turn": 7,
+          "reference": {
+            "entry_id": "entry-6",
+            "claim": "ready",
+            "assessment_id": "assessment-7",
+            "source_digest": "source-6-7",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:07Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 12,
+          "exposure_turn": 8,
+          "reference": {
+            "entry_id": "entry-7",
+            "claim": "ready",
+            "assessment_id": "assessment-8",
+            "source_digest": "source-7-8",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:08Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 14,
+          "exposure_turn": 10,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-10",
+            "source_digest": "source-1-10",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:10Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 16,
+          "exposure_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 24,
+          "exposure_turn": 20,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-20",
+            "source_digest": "source-3-20",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:20Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 28,
+          "exposure_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 34,
+          "exposure_turn": 30,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-30",
+            "source_digest": "source-5-30",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:30Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 40,
+          "exposure_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 44,
+          "exposure_turn": 40,
+          "reference": {
+            "entry_id": "entry-7",
+            "claim": "ready",
+            "assessment_id": "assessment-40",
+            "source_digest": "source-7-40",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:40Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 48,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 52,
+          "exposure_turn": 48,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 54,
+          "exposure_turn": 50,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-50",
+            "source_digest": "source-1-50",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:50Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 60,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 64,
+          "exposure_turn": 60,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-60",
+            "source_digest": "source-3-60",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:00Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 64,
+          "exposure_turn": 60,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 72,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 74,
+          "exposure_turn": 70,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-70",
+            "source_digest": "source-5-70",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:10Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 76,
+          "exposure_turn": 72,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        }
+      ]
+    },
+    {
+      "condition": "C",
+      "scheduled_synthetic_turns": 80,
+      "completed_synthetic_turns": 80,
+      "shared_anchor_exposures": 16,
+      "request_size_unit": "UTF-8 bytes of complete serialised synthetic request",
+      "request_sampling": "once per synthetic user turn after scripted exchanges; no model request cycles",
+      "request_byte_cap": 32768,
+      "peak_request_bytes": 32557,
+      "final_request_bytes": 31673,
+      "cumulative_serialised_request_bytes": 1609119,
+      "logical_historical_lookups": 12,
+      "host_cache_hits": 0,
+      "synthetic_service_callback_calls": 12,
+      "synthetic_packet_body_bytes_exposed": 52328,
+      "A_historical_revisits_without_visible_packet": 0,
+      "packet_exchange_evictions": 27,
+      "emergency_turn_evictions": 4,
+      "events": [
+        {
+          "type": "packet_eviction",
+          "at_turn": 5,
+          "exposure_turn": 1,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 6,
+          "exposure_turn": 2,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-2",
+            "source_digest": "source-1-2",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:02Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 7,
+          "exposure_turn": 3,
+          "reference": {
+            "entry_id": "entry-2",
+            "claim": "ready",
+            "assessment_id": "assessment-3",
+            "source_digest": "source-2-3",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:03Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 8,
+          "exposure_turn": 4,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-4",
+            "source_digest": "source-3-4",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:04Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 9,
+          "exposure_turn": 5,
+          "reference": {
+            "entry_id": "entry-4",
+            "claim": "ready",
+            "assessment_id": "assessment-5",
+            "source_digest": "source-4-5",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:05Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 10,
+          "exposure_turn": 6,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-6",
+            "source_digest": "source-5-6",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:06Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 11,
+          "exposure_turn": 7,
+          "reference": {
+            "entry_id": "entry-6",
+            "claim": "ready",
+            "assessment_id": "assessment-7",
+            "source_digest": "source-6-7",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:07Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 12,
+          "exposure_turn": 8,
+          "reference": {
+            "entry_id": "entry-7",
+            "claim": "ready",
+            "assessment_id": "assessment-8",
+            "source_digest": "source-7-8",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:08Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 14,
+          "exposure_turn": 10,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-10",
+            "source_digest": "source-1-10",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:10Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 16,
+          "exposure_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 16,
+          "exposure_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 24,
+          "exposure_turn": 20,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-20",
+            "source_digest": "source-3-20",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:20Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 28,
+          "exposure_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 28,
+          "exposure_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 34,
+          "exposure_turn": 30,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-30",
+            "source_digest": "source-5-30",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:30Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 40,
+          "exposure_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 40,
+          "exposure_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 44,
+          "exposure_turn": 40,
+          "reference": {
+            "entry_id": "entry-7",
+            "claim": "ready",
+            "assessment_id": "assessment-40",
+            "source_digest": "source-7-40",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:40Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 48,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 48,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 52,
+          "exposure_turn": 48,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 52,
+          "exposure_turn": 48,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 54,
+          "exposure_turn": 50,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-50",
+            "source_digest": "source-1-50",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:50Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 60,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 60,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 64,
+          "exposure_turn": 60,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-60",
+            "source_digest": "source-3-60",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:00Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 64,
+          "exposure_turn": 60,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 64,
+          "exposure_turn": 60,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 72,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 72,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 72,
+          "removed_turn": 1,
+          "count_before": 34180,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 72,
+          "removed_turn": 2,
+          "count_before": 33639,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 72,
+          "removed_turn": 3,
+          "count_before": 33098,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 73,
+          "removed_turn": 4,
+          "count_before": 32789,
+          "cap": 32768
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 74,
+          "exposure_turn": 70,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-70",
+            "source_digest": "source-5-70",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:10Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 76,
+          "exposure_turn": 72,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 76,
+          "exposure_turn": 72,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        }
+      ]
+    },
+    {
+      "condition": "A",
+      "scheduled_synthetic_turns": 120,
+      "completed_synthetic_turns": 120,
+      "shared_anchor_exposures": 20,
+      "request_size_unit": "UTF-8 bytes of complete serialised synthetic request",
+      "request_sampling": "once per synthetic user turn after scripted exchanges; no model request cycles",
+      "request_byte_cap": 32768,
+      "peak_request_bytes": 32748,
+      "final_request_bytes": 32694,
+      "cumulative_serialised_request_bytes": 3624486,
+      "logical_historical_lookups": 0,
+      "host_cache_hits": 0,
+      "synthetic_service_callback_calls": 0,
+      "synthetic_packet_body_bytes_exposed": 43815,
+      "A_historical_revisits_without_visible_packet": 8,
+      "packet_exchange_evictions": 0,
+      "emergency_turn_evictions": 66,
+      "events": [
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 25,
+          "removed_turn": 1,
+          "count_before": 32964,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 30,
+          "removed_turn": 2,
+          "count_before": 34161,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 36,
+          "removed_turn": 3,
+          "count_before": 32892,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 40,
+          "removed_turn": 4,
+          "count_before": 33857,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 47,
+          "removed_turn": 5,
+          "count_before": 32820,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 50,
+          "removed_turn": 6,
+          "count_before": 33553,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 59,
+          "removed_turn": 7,
+          "count_before": 32980,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 60,
+          "removed_turn": 8,
+          "count_before": 33249,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 70,
+          "removed_turn": 9,
+          "count_before": 35606,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 70,
+          "removed_turn": 10,
+          "count_before": 35376,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 71,
+          "removed_turn": 11,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 72,
+          "removed_turn": 12,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 73,
+          "removed_turn": 13,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 74,
+          "removed_turn": 14,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 75,
+          "removed_turn": 15,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 76,
+          "removed_turn": 16,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 77,
+          "removed_turn": 17,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 78,
+          "removed_turn": 18,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 79,
+          "removed_turn": 19,
+          "count_before": 32942,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 80,
+          "removed_turn": 20,
+          "count_before": 35640,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 80,
+          "removed_turn": 21,
+          "count_before": 32974,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 81,
+          "removed_turn": 22,
+          "count_before": 32974,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 82,
+          "removed_turn": 23,
+          "count_before": 32974,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 83,
+          "removed_turn": 24,
+          "count_before": 32974,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 84,
+          "removed_turn": 25,
+          "count_before": 32974,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 85,
+          "removed_turn": 26,
+          "count_before": 32974,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 86,
+          "removed_turn": 27,
+          "count_before": 32974,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 87,
+          "removed_turn": 28,
+          "count_before": 32974,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 88,
+          "removed_turn": 29,
+          "count_before": 32974,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 89,
+          "removed_turn": 30,
+          "count_before": 32974,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 90,
+          "removed_turn": 31,
+          "count_before": 33238,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 90,
+          "removed_turn": 32,
+          "count_before": 33006,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 90,
+          "removed_turn": 33,
+          "count_before": 32774,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 91,
+          "removed_turn": 34,
+          "count_before": 32774,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 92,
+          "removed_turn": 35,
+          "count_before": 32774,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 93,
+          "removed_turn": 36,
+          "count_before": 32774,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 94,
+          "removed_turn": 37,
+          "count_before": 32774,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 95,
+          "removed_turn": 38,
+          "count_before": 32774,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 96,
+          "removed_turn": 39,
+          "count_before": 32774,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 97,
+          "removed_turn": 40,
+          "count_before": 32774,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 100,
+          "removed_turn": 41,
+          "count_before": 33508,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 100,
+          "removed_turn": 42,
+          "count_before": 33276,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 100,
+          "removed_turn": 43,
+          "count_before": 33044,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 100,
+          "removed_turn": 44,
+          "count_before": 32812,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 101,
+          "removed_turn": 45,
+          "count_before": 32814,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 102,
+          "removed_turn": 46,
+          "count_before": 32816,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 103,
+          "removed_turn": 47,
+          "count_before": 32818,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 104,
+          "removed_turn": 48,
+          "count_before": 32820,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 105,
+          "removed_turn": 49,
+          "count_before": 32822,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 106,
+          "removed_turn": 50,
+          "count_before": 32824,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 51,
+          "count_before": 33797,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 52,
+          "count_before": 33565,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 53,
+          "count_before": 33333,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 54,
+          "count_before": 33101,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 55,
+          "count_before": 32869,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 111,
+          "removed_turn": 56,
+          "count_before": 32871,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 112,
+          "removed_turn": 57,
+          "count_before": 32873,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 113,
+          "removed_turn": 58,
+          "count_before": 32875,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 114,
+          "removed_turn": 59,
+          "count_before": 32877,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 115,
+          "removed_turn": 60,
+          "count_before": 32879,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 61,
+          "count_before": 34086,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 62,
+          "count_before": 33854,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 63,
+          "count_before": 33622,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 64,
+          "count_before": 33390,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 65,
+          "count_before": 33158,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 66,
+          "count_before": 32926,
+          "cap": 32768
+        }
+      ]
+    },
+    {
+      "condition": "B",
+      "scheduled_synthetic_turns": 120,
+      "completed_synthetic_turns": 120,
+      "shared_anchor_exposures": 20,
+      "request_size_unit": "UTF-8 bytes of complete serialised synthetic request",
+      "request_sampling": "once per synthetic user turn after scripted exchanges; no model request cycles",
+      "request_byte_cap": 32768,
+      "peak_request_bytes": 32763,
+      "final_request_bytes": 32580,
+      "cumulative_serialised_request_bytes": 2809301,
+      "logical_historical_lookups": 10,
+      "host_cache_hits": 10,
+      "synthetic_service_callback_calls": 0,
+      "synthetic_packet_body_bytes_exposed": 65715,
+      "A_historical_revisits_without_visible_packet": 0,
+      "packet_exchange_evictions": 28,
+      "emergency_turn_evictions": 42,
+      "events": [
+        {
+          "type": "packet_eviction",
+          "at_turn": 5,
+          "exposure_turn": 1,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 6,
+          "exposure_turn": 2,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-2",
+            "source_digest": "source-1-2",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:02Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 7,
+          "exposure_turn": 3,
+          "reference": {
+            "entry_id": "entry-2",
+            "claim": "ready",
+            "assessment_id": "assessment-3",
+            "source_digest": "source-2-3",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:03Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 8,
+          "exposure_turn": 4,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-4",
+            "source_digest": "source-3-4",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:04Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 9,
+          "exposure_turn": 5,
+          "reference": {
+            "entry_id": "entry-4",
+            "claim": "ready",
+            "assessment_id": "assessment-5",
+            "source_digest": "source-4-5",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:05Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 10,
+          "exposure_turn": 6,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-6",
+            "source_digest": "source-5-6",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:06Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 11,
+          "exposure_turn": 7,
+          "reference": {
+            "entry_id": "entry-6",
+            "claim": "ready",
+            "assessment_id": "assessment-7",
+            "source_digest": "source-6-7",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:07Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 12,
+          "exposure_turn": 8,
+          "reference": {
+            "entry_id": "entry-7",
+            "claim": "ready",
+            "assessment_id": "assessment-8",
+            "source_digest": "source-7-8",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:08Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 14,
+          "exposure_turn": 10,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-10",
+            "source_digest": "source-1-10",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:10Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 16,
+          "exposure_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 24,
+          "exposure_turn": 20,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-20",
+            "source_digest": "source-3-20",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:20Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 28,
+          "exposure_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 34,
+          "exposure_turn": 30,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-30",
+            "source_digest": "source-5-30",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:30Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 40,
+          "exposure_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 44,
+          "exposure_turn": 40,
+          "reference": {
+            "entry_id": "entry-7",
+            "claim": "ready",
+            "assessment_id": "assessment-40",
+            "source_digest": "source-7-40",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:40Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 48,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 52,
+          "exposure_turn": 48,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 54,
+          "exposure_turn": 50,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-50",
+            "source_digest": "source-1-50",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:50Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 60,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 64,
+          "exposure_turn": 60,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-60",
+            "source_digest": "source-3-60",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:00Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 64,
+          "exposure_turn": 60,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 72,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 74,
+          "exposure_turn": 70,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-70",
+            "source_digest": "source-5-70",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:10Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 76,
+          "exposure_turn": 72,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 84,
+          "exposure_turn": 80,
+          "reference": {
+            "entry_id": "entry-7",
+            "claim": "ready",
+            "assessment_id": "assessment-80",
+            "source_digest": "source-7-80",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:20Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 84,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 84,
+          "removed_turn": 1,
+          "count_before": 33209,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 85,
+          "removed_turn": 2,
+          "count_before": 32900,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 87,
+          "removed_turn": 3,
+          "count_before": 32823,
+          "cap": 32768
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 88,
+          "exposure_turn": 84,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 90,
+          "removed_turn": 4,
+          "count_before": 33556,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 90,
+          "removed_turn": 5,
+          "count_before": 33015,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 92,
+          "removed_turn": 6,
+          "count_before": 32938,
+          "cap": 32768
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 94,
+          "exposure_turn": 90,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-90",
+            "source_digest": "source-1-90",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:30Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 96,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 96,
+          "removed_turn": 7,
+          "count_before": 33635,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 96,
+          "removed_turn": 8,
+          "count_before": 33094,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 97,
+          "removed_turn": 9,
+          "count_before": 32785,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 98,
+          "removed_turn": 10,
+          "count_before": 32787,
+          "cap": 32768
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 100,
+          "exposure_turn": 96,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 100,
+          "removed_turn": 11,
+          "count_before": 33290,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 100,
+          "removed_turn": 12,
+          "count_before": 33058,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 102,
+          "removed_turn": 13,
+          "count_before": 32983,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 103,
+          "removed_turn": 14,
+          "count_before": 32985,
+          "cap": 32768
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 104,
+          "exposure_turn": 100,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-100",
+            "source_digest": "source-3-100",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:40Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 108,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 15,
+          "count_before": 34234,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 16,
+          "count_before": 34002,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 17,
+          "count_before": 33770,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 18,
+          "count_before": 33538,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 19,
+          "count_before": 33306,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 20,
+          "count_before": 33074,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 21,
+          "count_before": 35700,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 22,
+          "count_before": 35468,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 23,
+          "count_before": 35236,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 24,
+          "count_before": 35004,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 25,
+          "count_before": 34461,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 26,
+          "count_before": 34229,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 27,
+          "count_before": 33997,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 28,
+          "count_before": 33765,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 29,
+          "count_before": 33533,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 30,
+          "count_before": 33301,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 111,
+          "removed_turn": 31,
+          "count_before": 32990,
+          "cap": 32768
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 112,
+          "exposure_turn": 108,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 114,
+          "exposure_turn": 110,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-110",
+            "source_digest": "source-5-110",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:50Z"
+          }
+        },
+        {
+          "type": "cache_hit",
+          "at_turn": 120,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 32,
+          "count_before": 35756,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 33,
+          "count_before": 35524,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 34,
+          "count_before": 35292,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 35,
+          "count_before": 35060,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 36,
+          "count_before": 34828,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 37,
+          "count_before": 34285,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 38,
+          "count_before": 34053,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 39,
+          "count_before": 33821,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 40,
+          "count_before": 33589,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 41,
+          "count_before": 33044,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 42,
+          "count_before": 32812,
+          "cap": 32768
+        }
+      ]
+    },
+    {
+      "condition": "C",
+      "scheduled_synthetic_turns": 120,
+      "completed_synthetic_turns": 120,
+      "shared_anchor_exposures": 20,
+      "request_size_unit": "UTF-8 bytes of complete serialised synthetic request",
+      "request_sampling": "once per synthetic user turn after scripted exchanges; no model request cycles",
+      "request_byte_cap": 32768,
+      "peak_request_bytes": 32761,
+      "final_request_bytes": 32624,
+      "cumulative_serialised_request_bytes": 2870128,
+      "logical_historical_lookups": 20,
+      "host_cache_hits": 0,
+      "synthetic_service_callback_calls": 20,
+      "synthetic_packet_body_bytes_exposed": 72615,
+      "A_historical_revisits_without_visible_packet": 0,
+      "packet_exchange_evictions": 37,
+      "emergency_turn_evictions": 50,
+      "events": [
+        {
+          "type": "packet_eviction",
+          "at_turn": 5,
+          "exposure_turn": 1,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 6,
+          "exposure_turn": 2,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-2",
+            "source_digest": "source-1-2",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:02Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 7,
+          "exposure_turn": 3,
+          "reference": {
+            "entry_id": "entry-2",
+            "claim": "ready",
+            "assessment_id": "assessment-3",
+            "source_digest": "source-2-3",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:03Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 8,
+          "exposure_turn": 4,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-4",
+            "source_digest": "source-3-4",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:04Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 9,
+          "exposure_turn": 5,
+          "reference": {
+            "entry_id": "entry-4",
+            "claim": "ready",
+            "assessment_id": "assessment-5",
+            "source_digest": "source-4-5",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:05Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 10,
+          "exposure_turn": 6,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-6",
+            "source_digest": "source-5-6",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:06Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 11,
+          "exposure_turn": 7,
+          "reference": {
+            "entry_id": "entry-6",
+            "claim": "ready",
+            "assessment_id": "assessment-7",
+            "source_digest": "source-6-7",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:07Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 12,
+          "exposure_turn": 8,
+          "reference": {
+            "entry_id": "entry-7",
+            "claim": "ready",
+            "assessment_id": "assessment-8",
+            "source_digest": "source-7-8",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:08Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 14,
+          "exposure_turn": 10,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-10",
+            "source_digest": "source-1-10",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:10Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 16,
+          "exposure_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 16,
+          "exposure_turn": 12,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 24,
+          "exposure_turn": 20,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-20",
+            "source_digest": "source-3-20",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:20Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 28,
+          "exposure_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 28,
+          "exposure_turn": 24,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 34,
+          "exposure_turn": 30,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-30",
+            "source_digest": "source-5-30",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:30Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 40,
+          "exposure_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 40,
+          "exposure_turn": 36,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 44,
+          "exposure_turn": 40,
+          "reference": {
+            "entry_id": "entry-7",
+            "claim": "ready",
+            "assessment_id": "assessment-40",
+            "source_digest": "source-7-40",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:40Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 48,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 48,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 52,
+          "exposure_turn": 48,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 52,
+          "exposure_turn": 48,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 54,
+          "exposure_turn": 50,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-50",
+            "source_digest": "source-1-50",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:50Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 60,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 60,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 64,
+          "exposure_turn": 60,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-60",
+            "source_digest": "source-3-60",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:00Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 64,
+          "exposure_turn": 60,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 64,
+          "exposure_turn": 60,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 72,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 72,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 72,
+          "removed_turn": 1,
+          "count_before": 34180,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 72,
+          "removed_turn": 2,
+          "count_before": 33639,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 72,
+          "removed_turn": 3,
+          "count_before": 33098,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 73,
+          "removed_turn": 4,
+          "count_before": 32789,
+          "cap": 32768
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 74,
+          "exposure_turn": 70,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-70",
+            "source_digest": "source-5-70",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:10Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 76,
+          "exposure_turn": 72,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 76,
+          "exposure_turn": 72,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 84,
+          "exposure_turn": 80,
+          "reference": {
+            "entry_id": "entry-7",
+            "claim": "ready",
+            "assessment_id": "assessment-80",
+            "source_digest": "source-7-80",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:20Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 84,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 84,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 84,
+          "removed_turn": 5,
+          "count_before": 33878,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 84,
+          "removed_turn": 6,
+          "count_before": 33337,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 84,
+          "removed_turn": 7,
+          "count_before": 32796,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 87,
+          "removed_turn": 8,
+          "count_before": 32951,
+          "cap": 32768
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 88,
+          "exposure_turn": 84,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 88,
+          "exposure_turn": 84,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 90,
+          "removed_turn": 9,
+          "count_before": 33028,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 90,
+          "removed_turn": 10,
+          "count_before": 32798,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 93,
+          "removed_turn": 11,
+          "count_before": 32949,
+          "cap": 32768
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 94,
+          "exposure_turn": 90,
+          "reference": {
+            "entry_id": "entry-1",
+            "claim": "ready",
+            "assessment_id": "assessment-90",
+            "source_digest": "source-1-90",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:30Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 96,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 96,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 96,
+          "removed_turn": 12,
+          "count_before": 34690,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 96,
+          "removed_turn": 13,
+          "count_before": 33836,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 96,
+          "removed_turn": 14,
+          "count_before": 33604,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 96,
+          "removed_turn": 15,
+          "count_before": 33372,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 96,
+          "removed_turn": 16,
+          "count_before": 33140,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 96,
+          "removed_turn": 17,
+          "count_before": 32908,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 97,
+          "removed_turn": 18,
+          "count_before": 32908,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 98,
+          "removed_turn": 19,
+          "count_before": 32908,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 99,
+          "removed_turn": 20,
+          "count_before": 32908,
+          "cap": 32768
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 100,
+          "exposure_turn": 96,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 100,
+          "exposure_turn": 96,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 102,
+          "removed_turn": 21,
+          "count_before": 32991,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 103,
+          "removed_turn": 22,
+          "count_before": 32993,
+          "cap": 32768
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 104,
+          "exposure_turn": 100,
+          "reference": {
+            "entry_id": "entry-3",
+            "claim": "ready",
+            "assessment_id": "assessment-100",
+            "source_digest": "source-3-100",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:40Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 108,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 108,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 23,
+          "count_before": 35211,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 24,
+          "count_before": 34979,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 25,
+          "count_before": 34125,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 26,
+          "count_before": 33893,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 27,
+          "count_before": 33661,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 28,
+          "count_before": 33429,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 29,
+          "count_before": 33197,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 108,
+          "removed_turn": 30,
+          "count_before": 32965,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 31,
+          "count_before": 35591,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 32,
+          "count_before": 35359,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 33,
+          "count_before": 35127,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 34,
+          "count_before": 34895,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 35,
+          "count_before": 34663,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 36,
+          "count_before": 34431,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 37,
+          "count_before": 33577,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 38,
+          "count_before": 33345,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 39,
+          "count_before": 33113,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 110,
+          "removed_turn": 40,
+          "count_before": 32881,
+          "cap": 32768
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 112,
+          "exposure_turn": 108,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 112,
+          "exposure_turn": 108,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          }
+        },
+        {
+          "type": "packet_eviction",
+          "at_turn": 114,
+          "exposure_turn": 110,
+          "reference": {
+            "entry_id": "entry-5",
+            "claim": "ready",
+            "assessment_id": "assessment-110",
+            "source_digest": "source-5-110",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:01:50Z"
+          }
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 120,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            4096,
+            1024
+          ]
+        },
+        {
+          "type": "service_reload",
+          "at_turn": 120,
+          "reference": {
+            "entry_id": "entry-0",
+            "claim": "ready",
+            "assessment_id": "assessment-1",
+            "source_digest": "source-0-1",
+            "context_fingerprint": "context-fixed",
+            "method_registry_fingerprint": "methods-fixed",
+            "assessed_at": "2040-01-01T00:00:01Z"
+          },
+          "limits": [
+            16384,
+            1024
+          ]
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 41,
+          "count_before": 35879,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 42,
+          "count_before": 35647,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 43,
+          "count_before": 35415,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 44,
+          "count_before": 35183,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 45,
+          "count_before": 34951,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 46,
+          "count_before": 34719,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 47,
+          "count_before": 34487,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 48,
+          "count_before": 34255,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 49,
+          "count_before": 33401,
+          "cap": 32768
+        },
+        {
+          "type": "emergency_turn_eviction",
+          "at_turn": 120,
+          "removed_turn": 50,
+          "count_before": 33169,
+          "cap": 32768
+        }
+      ]
+    }
+  ]
+}
