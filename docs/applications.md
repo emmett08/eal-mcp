@@ -132,8 +132,9 @@ recorded; normal builds do not execute its upstream build script.
 
 The default operator exposure publishes eleven tools for description, source
 formatting/validation/planning, collection, reasoning, formal compilation,
-explanation, packets and grounded graphs. Registered exposure publishes only
-`eal_sources`, `eal_find_claims` and `eal_assess_known` for a configured allowlist:
+explanation, packets and grounded graphs. Registered exposure publishes
+`eal_sources`, `eal_find_claims`, `eal_assess_known` and `eal_get_known_packet`
+for a configured allowlist:
 
 ```sh
 eal-mcp --workspace ./workspace --registry ./workspace/tools.toml \
@@ -146,6 +147,14 @@ time or reuse policy. Public source summaries omit registered context and source
 text. Closed schemas, bounded admission and acquisition exclusion run before
 effects. Cancellation after blocking work starts retains its permit and lease
 until that work completes.
+
+`eal_get_known_packet` reads an existing assessment using `entry_id`,
+`assessment_id` and `claim`. It checks the exact registered revision and context
+and returns a bounded projection without collecting again. Assessment and packet
+tools accept optional byte and statement budgets through `packet_limits`. See
+[retrieval and presentation budgets](packets.md#registered-retrieval-and-presentation-budgets)
+for admission limits, historical semantics and model input guidance. Calls that
+omit the new options retain their existing response data.
 
 Strict integer fields reject integral floats such as `1.0`, preserving the
 source rejection outcome with the native diagnostic

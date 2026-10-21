@@ -1,7 +1,7 @@
 //! One registered claim: complete dependency planning, compatible reuse and durable assessment.
 use crate::{
-    catalogue::WorkspaceKnowledgeCatalogue, lease::AcquisitionLease, reuse::ObservationRebinder,
-    service::ReasoningService, store::utc_now,
+    catalogue::WorkspaceKnowledgeCatalogue, lease::AcquisitionLease, packets::PacketLimits,
+    reuse::ObservationRebinder, service::ReasoningService, store::utc_now,
 };
 use eal_core::{canonical, semantic::Program, validation};
 use serde_json::{Value, json};
@@ -31,6 +31,8 @@ pub struct RegisteredAssessmentOptions<'a> {
     pub context: Option<&'a Value>,
     pub now: Option<&'a str>,
     pub reuse: ReusePolicy,
+    /// Presentation limits only. Omission uses the existing packet contract.
+    pub packet_limits: Option<&'a PacketLimits>,
 }
 
 #[derive(Clone)]
@@ -77,6 +79,9 @@ impl RegisteredAssessmentHost {
         claim: &str,
         options: RegisteredAssessmentOptions<'_>,
     ) -> Result<Value, String> {
+        if let Some(limits) = options.packet_limits {
+            limits.validate()?;
+        }
         self.assess_with_lease(entry_id, claim, options, self.service.acquisition_lease()?)
     }
     /// An admitted caller retains the same descriptor through every acquisition, recheck and commit.
@@ -87,6 +92,8 @@ impl RegisteredAssessmentHost {
         options: RegisteredAssessmentOptions<'_>,
         lease: Arc<AcquisitionLease>,
     ) -> Result<Value, String> {
+        let packet_limits = options.packet_limits.cloned().unwrap_or_default();
+        packet_limits.validate()?;
         let now = options
             .now
             .map(str::to_owned)
@@ -197,7 +204,9 @@ impl RegisteredAssessmentHost {
         let assessment_id = assessment["assessment_id"]
             .as_str()
             .ok_or("Assessment has no durable identity")?;
-        let packet = self.service.packet(assessment_id, Some(claim))?;
+        let packet = self
+            .service
+            .packet_with_limits(assessment_id, Some(claim), packet_limits)?;
         Ok(
             json!({"schema":"EAL/registered-assessment/1","entry_id":entry_id,"claim":claim,
             "source_digest":selected.program.source_digest,"context_fingerprint":assessment["context_fingerprint"],
@@ -205,6 +214,52 @@ impl RegisteredAssessmentHost {
             "status":assessment["claims"][claim]["status"],"reused_count":reused.len(),"collected_count":fresh.len(),
             "packet":packet,"full_explanation":packet["full_explanation"]}),
         )
+    }
+
+    /// Read a bounded packet for a selected claim in an exact registered revision.
+    /// The caller enforces its entry allowlist. This operation neither refreshes
+    /// source files nor collects evidence, and retains the original assessment time.
+    pub fn retrieve_packet(
+        &self,
+        entry_id: &str,
+        assessment_id: &str,
+        claim: &str,
+        limits: PacketLimits,
+    ) -> Result<Value, String> {
+        limits.validate()?;
+        let assessment = self.service.explain(assessment_id, None)?;
+        let source_digest = assessment["source_digest"]
+            .as_str()
+            .ok_or("Stored assessment has no source identity")?;
+        let method = assessment["method_registry_fingerprint"]
+            .as_str()
+            .ok_or("Stored assessment has no method registry identity")?;
+        let revision = self
+            .catalogue
+            .get_revision(entry_id, source_digest, Some(method), false)?;
+        if !revision["claims"]
+            .as_array()
+            .is_some_and(|claims| claims.iter().any(|item| item == claim))
+        {
+            return Err("Claim is not selected in the registered source revision".into());
+        }
+        let context_fingerprint =
+            canonical::canonical_digest(&revision["context"], self.service.limits())?;
+        if assessment["context_fingerprint"] != context_fingerprint {
+            return Err("Stored assessment context differs from the registered context".into());
+        }
+        // The service also checks the exact current method output contract. Old
+        // registries require their original allowlists before they can be projected.
+        let packet = self
+            .service
+            .packet_with_limits(assessment_id, Some(claim), limits)?;
+        Ok(json!({
+            "schema": "EAL/registered-packet/1", "entry_id": entry_id, "claim": claim,
+            "assessment_id": assessment_id, "assessed_at": assessment["assessed_at"],
+            "status": assessment["claims"][claim]["status"], "source_digest": source_digest,
+            "context_fingerprint": context_fingerprint, "method_registry_fingerprint": method,
+            "packet": packet
+        }))
     }
     pub fn history(
         &self,

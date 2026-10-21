@@ -9,6 +9,12 @@ printf '%s\n' '{"operation":"grounded","arguments":["a","b"],"attacks":[["a","b"
 
 The default transport launches the installed sibling `eal-mcp` executable with explicit resolved settings. It removes every `EAL_MCP_*` variable from the child environment, so the child does not reload a configuration file or apply those variables again. Install `eal-mcp`, `eal-host`, `eal-command-supervisor`, and `eal-method-worker` together. No Python executable is involved.
 
+Registered clients can use operation `get_known_packet` with `entry_id`,
+`assessment_id` and `claim` to recover a stored packet. Operations
+`assess_known`, `get_known_packet` and `packet` also accept `packet_limits`
+with bounded integer `max_bytes` and `max_statement_bytes` fields. These are
+presentation limits, validated before connecting. See [packet retrieval](packets.md#registered-retrieval-and-presentation-budgets).
+
 `--url http://127.0.0.1:8000/mcp` connects to an existing Streamable HTTP server. Configuring `--transport http` derives the endpoint from the configured host, port, and path; a wildcard bind address requires an explicit `--url`. HTTP mode creates no local reasoning service or database. The host negotiates MCP `2025-11-25` and does not replay tool requests after an expired session or request interactive follow-up calls.
 
 `--timeout` defaults to 120 seconds. One deadline covers connection, initialization, discovery, schema validation, invocation, and session close. Timeout cancels the SDK connection and allows bounded cleanup. A configured timeout must be positive, finite, and representable by the platform clock. Exit status is 0 for success, 1 for a tool error, and 2 for invalid input, configuration, connection, deadline, or redaction failure. Each outcome produces one JSON response; `--help` prints usage instead.

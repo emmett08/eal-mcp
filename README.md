@@ -243,7 +243,10 @@ from the handwritten adapter, core and CLI.
 ## Compatibility and licence
 
 [`contracts/public-contracts.json`](contracts/public-contracts.json) freezes the
-current methods, MCP catalogues, CLI operations and schemas. The retained
+ported source methods, MCP catalogues, CLI operations and schemas. The native
+[packet retrieval and budget extensions](docs/packets.md#registered-retrieval-and-presentation-budgets)
+add one registered tool and optional presentation limits while preserving
+existing default response data. The retained
 `aspic-view/3` schema matches the visualiser at the pinned consumer revision.
 Rust export checks that schema and recomputes the complete formal result.
 The [native live bridge](docs/native-visualiser.md) retains that graph contract

@@ -179,9 +179,13 @@ process streams and full source; see [their projection contract](packets.md).
 Language discovery reports the pinned guide with current native identities.
 
 The official Rust `rmcp` SDK serves stdio and stateless Streamable HTTP. Its
-eleven-tool operator catalogue and three-tool registered-source catalogue are
+eleven-tool operator catalogue and four-tool registered-source catalogue are
 mutually exclusive. Registered exposure validates the configured entry allowlist
 at startup and accepts neither arbitrary source nor caller-selected context.
+The native `eal_get_known_packet` extension retrieves bounded historical packets
+through exact registered revision and context checks. Optional byte and statement
+budgets leave default packet contents unchanged. These additions are documented
+in the [packet contract](packets.md) separately from the frozen source catalogue.
 Closed input schemas, strict integer admission, bounded concurrency and a
 workspace acquisition lease precede operation effects. Once blocking work starts,
 it retains its permit and lease through completion after request cancellation.

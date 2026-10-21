@@ -25,7 +25,7 @@ TOKEN = "synthetic-installed-operator-token.ABC_123~"
 TOKEN_ENV = "EAL_SMOKE_OPERATOR_TOKEN"
 PROFILE = "all"
 OPERATOR_TOOLS = {"eal_describe", "eal_format", "eal_validate", "eal_plan", "eal_collect", "eal_collect_claim", "eal_reason", "eal_compile_aspic", "eal_explain", "eal_packet", "eal_grounded"}
-REGISTERED_TOOLS = {"eal_sources", "eal_find_claims", "eal_assess_known"}
+REGISTERED_TOOLS = {"eal_sources", "eal_find_claims", "eal_assess_known", "eal_get_known_packet"}
 SOURCE = '''language "EAL/3"
 environment lab {
  require site == "bench"
@@ -189,9 +189,17 @@ def main():
                     assert answer["is_error"] is False and answer["result"]["sources"][0]["entry_id"] == "demo"
                     answer, stdout, _ = host({"operation": "assess_known", "entry_id": "demo", "claim": "works"}, "--url", url, "--token-env", TOKEN_ENV)
                     assert answer["result"]["status"] == "supported" and answer["result"]["reused_count"] == 1
+                    assessment = answer["result"]
+                    answer, _, _ = host({"operation": "get_known_packet", "entry_id": "demo", "claim": "works",
+                        "assessment_id": assessment["assessment_id"], "packet_limits": {"max_bytes": 4096, "max_statement_bytes": 3}},
+                        "--url", url, "--token-env", TOKEN_ENV)
+                    packet = answer["result"]["packet"]
+                    assert answer["is_error"] is False and answer["result"]["assessed_at"] == assessment["assessed_at"]
+                    assert packet["claims"]["works"]["statement"] == "The" and packet["summary_complete"] is False
+                    assert len(json.dumps(packet, ensure_ascii=False, separators=(",", ":")).encode()) <= 4096
                     rejected, _, _ = host({"operation": "validate", "source": SOURCE}, "--url", url, "--token-env", TOKEN_ENV, code=2)
                     assert "does not offer eal_validate" in rejected["error"]
-                    checked.append("authenticated restricted HTTP inventory, source selection and reusable assessment; operator tool unavailable")
+                    checked.append("authenticated restricted HTTP inventory, reusable assessment and bounded stored-packet retrieval; operator tool unavailable")
                 else:
                     secret_source = SOURCE.replace("The supplied test passed at this bench.", TOKEN)
                     answer, stdout, _ = host({"operation": "format", "source": secret_source}, "--url", url, "--token-env", TOKEN_ENV)

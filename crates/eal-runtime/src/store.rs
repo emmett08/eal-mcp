@@ -106,7 +106,7 @@ impl RunStore {
             "The run-store initialisation lock",
         )?;
         let (key, key_file) = key::load(&path, parent)?;
-        let (_, database) = files::open_private(&path, true, true, None, "SQLite store file")?;
+        let database = files::create_sqlite_file(&path, "SQLite store file")?;
         let store = Self {
             path,
             parent,
@@ -143,13 +143,7 @@ impl RunStore {
         if key != self.key {
             return Err("The run-store binding key was modified".into());
         }
-        files::open_private(
-            &self.path,
-            false,
-            false,
-            Some(self.database),
-            "SQLite store file",
-        )?;
+        files::check_sqlite_file(&self.path, Some(self.database), "SQLite store file")?;
         files::check_sqlite_sidecars(&self.path)
     }
     fn connect(&self) -> Result<Connection, String> {

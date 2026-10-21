@@ -108,6 +108,10 @@ Collector envelopes obey the binding's output byte cap; the semantic
 The default database is `.eal/runs.sqlite3`. A store instance anchors the parent,
 database and 32-byte random key identities. It checks ownership, private mode,
 regular type, link count and no-follow policy around fresh SQLite connections.
+Database and sidecar validation uses filesystem metadata without opening extra
+descriptors. Existing database construction follows the same rule, preserving
+SQLite's process-level POSIX locks during concurrent reads and writes. Only
+creation of a previously absent database uses a separate file descriptor.
 The persistent initialisation lock serialises schema/key creation; atomic batch
 insertion preserves immutable IDs. Key installation fsyncs the file and directory.
 Replacement of a live instance's database or key fails. The private-store policy
