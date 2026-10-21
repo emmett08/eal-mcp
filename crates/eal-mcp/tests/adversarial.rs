@@ -1,4 +1,6 @@
 //! Independent configuration checks and Unix native-store MCP roundtrips.
+#[cfg(unix)]
+mod common;
 use eal_mcp::settings::ServerSettings;
 use std::{
     collections::BTreeMap,
@@ -677,7 +679,7 @@ argument support = [evidence observed] via measured => outcome
         let fixture = Fixture::new();
         let reference = reference();
         for (registered, prefix, count, error_count) in
-            [(false, "operator", 11, 6), (true, "registered", 3, 5)]
+            [(false, "operator", 11, 6), (true, "registered", 4, 5)]
         {
             let server = start(&fixture, registered).await;
             let peer = ClientConfig::default()
@@ -687,7 +689,11 @@ argument support = [evidence observed] via measured => outcome
                 .unwrap();
             let tools = serde_json::to_value(peer.list_all_tools().await.unwrap()).unwrap();
             assert_eq!(tools.as_array().unwrap().len(), count);
-            assert_eq!(tools, reference[format!("{prefix}_tools")]);
+            crate::common::assert_inventory_compatibility(
+                tools,
+                &reference[format!("{prefix}_tools")],
+                registered,
+            );
             let errors = reference[format!("{prefix}_errors")].as_array().unwrap();
             assert_eq!(errors.len(), error_count);
             for case in errors {
@@ -848,6 +854,148 @@ argument support = [evidence observed] via measured => outcome
             assert!(!result.to_string().contains("private-tool-observation"));
             assert!(!result.to_string().contains("private-operator-context"));
         }
+        peer.cancel().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn bounded_packet_retrieval_checks_allowlist_without_acquisition_or_refresh() {
+        let fixture = Fixture::new();
+        let server = start(&fixture, true).await;
+        let peer = ClientConfig::default()
+            .with_protocol_version(ProtocolVersion::V_2025_11_25)
+            .serve(transport(&server.url))
+            .await
+            .unwrap();
+        // All malformed budgets are rejected before even a registered assessment
+        // can create observations. Decimal/exponent integers must remain distinct.
+        for budget in [
+            json!({"max_bytes":4095}),
+            json!({"max_bytes":65537}),
+            json!({"max_bytes":4096.0}),
+            json!({"max_statement_bytes":1.0}),
+            json!({"max_statement_bytes":0}),
+            json!({"max_statement_bytes":4097}),
+            json!({"max_outputs":1}),
+            json!(null),
+            json!([]),
+        ] {
+            let rejected = peer
+                .call_tool(params(
+                    "eal_assess_known",
+                    &json!({
+                        "entry_id":"visible", "claim":"outcome", "packet_limits":budget
+                    }),
+                ))
+                .await
+                .unwrap();
+            assert_eq!(rejected.is_error, Some(true), "{budget}");
+        }
+        assert!(
+            fixture
+                .service
+                .store()
+                .list(Some("observation"), 100)
+                .unwrap()
+                .is_empty()
+        );
+        let assessed = peer
+            .call_tool(params(
+                "eal_assess_known",
+                &json!({
+                    "entry_id":"visible", "claim":"outcome", "packet_limits":{}
+                }),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(assessed.is_error, Some(false), "{assessed:?}");
+        let assessed = assessed.structured_content.unwrap();
+        let id = assessed["assessment_id"].as_str().unwrap();
+        let original_packet = fixture.service.packet(id, Some("outcome")).unwrap();
+        assert_eq!(assessed["packet"], original_packet);
+        let observations = fixture
+            .service
+            .store()
+            .list(Some("observation"), 100)
+            .unwrap();
+        let assessments = fixture
+            .service
+            .store()
+            .list(Some("assessment"), 100)
+            .unwrap();
+
+        // Read an identified historical record while the live file is invalid
+        // and another caller owns the acquisition lease.
+        fs::write(fixture.path.join("case.eal"), "invalid live source").unwrap();
+        let _lease = fixture.service.acquisition_lease().unwrap();
+        let request = json!({"entry_id":"visible", "assessment_id":id, "claim":"outcome"});
+        let retrieved = peer
+            .call_tool(params("eal_get_known_packet", &request))
+            .await
+            .unwrap();
+        assert_eq!(retrieved.is_error, Some(false), "{retrieved:?}");
+        let retrieved = retrieved.structured_content.unwrap();
+        assert_eq!(retrieved["schema"], "EAL/registered-packet/1");
+        assert_eq!(retrieved["packet"], original_packet);
+        assert_eq!(retrieved["assessed_at"], assessed["assessed_at"]);
+        assert!(!retrieved.to_string().contains("private-tool-observation"));
+        assert!(!retrieved.to_string().contains("private-operator-context"));
+        let mut compact_request = request.clone();
+        compact_request["packet_limits"] = json!({"max_bytes":4096,"max_statement_bytes":3});
+        let compact = peer
+            .call_tool(params("eal_get_known_packet", &compact_request))
+            .await
+            .unwrap();
+        assert_eq!(compact.is_error, Some(false), "{compact:?}");
+        let compact = compact.structured_content.unwrap();
+        assert!(serde_json::to_vec(&compact["packet"]).unwrap().len() <= 4096);
+        assert_eq!(compact["packet"]["claims"]["outcome"]["statement"], "The");
+        assert_eq!(
+            compact["packet"]["claims"]["outcome"]["statement_truncated"],
+            true
+        );
+        assert_eq!(compact["packet"]["summary_complete"], false);
+        for replacement in [json!({"entry_id":"hidden"}), json!({"claim":"other"})] {
+            let mut denied = request.clone();
+            for (key, value) in replacement.as_object().unwrap() {
+                denied[key] = value.clone();
+            }
+            let denied = peer
+                .call_tool(params("eal_get_known_packet", &denied))
+                .await
+                .unwrap();
+            assert_eq!(denied.is_error, Some(true), "{denied:?}");
+        }
+        // Exercise the text host's discovery and invocation route too.
+        let target = eal_mcp::client::create_http_target_with_client(
+            &server.url,
+            Some("TOKEN"),
+            &BTreeMap::from([("TOKEN".into(), TOKEN.into())]),
+            reqwest::Client::builder().no_proxy().build().unwrap(),
+        )
+        .unwrap();
+        let mut host_request = compact_request;
+        host_request["operation"] = json!("get_known_packet");
+        let via_host = eal_mcp::host::dispatch_request(&host_request.to_string(), target, 10.0)
+            .await
+            .unwrap();
+        assert_eq!(via_host["is_error"], false, "{via_host}");
+        assert_eq!(via_host["result"], compact);
+        assert_eq!(
+            fixture
+                .service
+                .store()
+                .list(Some("observation"), 100)
+                .unwrap(),
+            observations
+        );
+        assert_eq!(
+            fixture
+                .service
+                .store()
+                .list(Some("assessment"), 100)
+                .unwrap(),
+            assessments
+        );
         peer.cancel().await.unwrap();
     }
 }

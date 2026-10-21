@@ -89,6 +89,7 @@ pub fn run(options: Options) -> Result<Value, String> {
                     } else {
                         ReusePolicy::Compatible
                     },
+                    ..Default::default()
                 };
                 if options.command == "assess-known" {
                     knowledge.assess(argument, options.required("--claim")?, selected)

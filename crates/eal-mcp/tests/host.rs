@@ -465,3 +465,42 @@ async fn direct_client_deadline_values_fail_without_panicking_or_starting_a_chil
         assert!(error.contains("Host timeout"), "{timeout}: {error}");
     }
 }
+
+#[test]
+fn packet_retrieval_and_budgets_are_checked_before_connection() {
+    let (tool, args) = host::parse_request(r#"{"operation":"get_known_packet","entry_id":"demo","assessment_id":"stored","claim":"works","packet_limits":{"max_bytes":4096,"max_statement_bytes":128}}"#).unwrap();
+    assert_eq!(tool, "eal_get_known_packet");
+    assert_eq!(args["packet_limits"]["max_bytes"], 4096);
+    for operation in ["packet", "assess_known", "get_known_packet"] {
+        let mut request = match operation {
+            "packet" => json!({"operation":operation,"assessment_id":"stored"}),
+            "assess_known" => json!({"operation":operation,"entry_id":"demo","claim":"works"}),
+            _ => {
+                json!({"operation":operation,"entry_id":"demo","assessment_id":"stored","claim":"works"})
+            }
+        };
+        for budget in [
+            json!(null),
+            json!({"max_bytes":4096.0}),
+            json!({"max_bytes":65537}),
+            json!({"max_statement_bytes":0}),
+            json!({"max_claims":1}),
+        ] {
+            request["packet_limits"] = budget;
+            assert!(
+                host::parse_request(&request.to_string()).is_err(),
+                "{request}"
+            );
+        }
+        request["packet_limits"] = json!({});
+        assert!(host::parse_request(&request.to_string()).is_ok());
+    }
+    for text in [
+        r#"{"operation":"get_known_packet","entry_id":"demo","assessment_id":"stored","claim":null}"#,
+        r#"{"operation":"get_known_packet","entry_id":"","assessment_id":"stored","claim":"works"}"#,
+        r#"{"operation":"get_known_packet","entry_id":"demo","assessment_id":"","claim":"works"}"#,
+        r#"{"operation":"get_known_packet","entry_id":"demo","assessment_id":"stored","claim":"works","packet_limits":{"max_bytes":4.096e3}}"#,
+    ] {
+        assert!(host::parse_request(text).is_err(), "{text}");
+    }
+}

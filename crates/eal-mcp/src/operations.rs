@@ -1,6 +1,7 @@
 //! Immutable operation catalogue shared by SDK dispatch and the text host.
 use eal_runtime::{
     catalogue::{FindOptions, WorkspaceKnowledgeCatalogue},
+    packets::PacketLimits,
     registered_assessment::{RegisteredAssessmentHost, RegisteredAssessmentOptions},
     service::{FormalOptions, ReasoningService},
 };
@@ -81,7 +82,7 @@ pub const OPERATION_FIELDS: &[(&str, OperationFields)] = &[
         "packet",
         OperationFields {
             required: &["assessment_id"],
-            optional: &["claim"],
+            optional: &["claim", "packet_limits"],
         },
     ),
     (
@@ -102,7 +103,14 @@ pub const OPERATION_FIELDS: &[(&str, OperationFields)] = &[
         "assess_known",
         OperationFields {
             required: &["entry_id", "claim"],
-            optional: &[],
+            optional: &["packet_limits"],
+        },
+    ),
+    (
+        "get_known_packet",
+        OperationFields {
+            required: &["entry_id", "assessment_id", "claim"],
+            optional: &["packet_limits"],
         },
     ),
     (
@@ -203,6 +211,8 @@ impl Operations {
                 name.replace('\\', "\\\\").replace('\'', "\\'")
             ));
         }
+        // Projection admission precedes leases, catalogue lookup and acquisition.
+        let packet_limits = requested_packet_limits(arguments)?;
         let lease = is_acquisition_operation(name)
             .then(|| self.service.acquisition_lease())
             .transpose()?;
@@ -267,9 +277,11 @@ impl Operations {
             "eal_explain" => self
                 .service
                 .explain(string("assessment_id")?, optional("claim")?),
-            "eal_packet" => self
-                .service
-                .packet(string("assessment_id")?, optional("claim")?),
+            "eal_packet" => self.service.packet_with_limits(
+                string("assessment_id")?,
+                optional("claim")?,
+                packet_limits,
+            ),
             "eal_grounded" => eal_core::dialectic::solve_grounded(
                 &arguments["arguments"],
                 &arguments["attacks"],
@@ -325,8 +337,26 @@ impl Operations {
                     .assess_with_lease(
                         identifier,
                         string("claim")?,
-                        RegisteredAssessmentOptions::default(),
+                        RegisteredAssessmentOptions {
+                            packet_limits: Some(&packet_limits),
+                            ..Default::default()
+                        },
                         lease.ok_or("Missing acquisition lease")?,
+                    )
+            }
+            "eal_get_known_packet" => {
+                let identifier = string("entry_id")?;
+                if !self.selected.iter().any(|selected| selected == identifier) {
+                    return Err("Registered source is not exposed by this server".into());
+                }
+                self.host
+                    .as_ref()
+                    .ok_or("Missing registered assessment host")?
+                    .retrieve_packet(
+                        identifier,
+                        string("assessment_id")?,
+                        string("claim")?,
+                        packet_limits,
                     )
             }
             _ => Err(format!("Unknown tool: '{name}'")),
@@ -378,4 +408,44 @@ fn source_summary(entry: &Value) -> Value {
         result.insert(key.into(), entry[key].clone());
     }
     Value::Object(result)
+}
+
+/// MCP exposes byte and statement budgets only. Dependency, output and traversal
+/// ceilings retain the packet contract. The budget bounds packet JSON, not the
+/// surrounding registered result or MCP envelope.
+pub(crate) fn requested_packet_limits(arguments: &Value) -> Result<PacketLimits, String> {
+    let Some(value) = arguments.get("packet_limits") else {
+        return Ok(PacketLimits::default());
+    };
+    let object = value.as_object().ok_or("packet_limits must be an object")?;
+    if object
+        .keys()
+        .any(|key| !["max_bytes", "max_statement_bytes"].contains(&key.as_str()))
+    {
+        return Err("packet_limits accepts only max_bytes and max_statement_bytes".into());
+    }
+    for (key, value) in object {
+        if value
+            .as_number()
+            .is_some_and(|number| number.as_str().contains(['.', 'e', 'E']))
+        {
+            return Err(format!(
+                "Tool input requires a strict integer for packet_limits.{key}"
+            ));
+        }
+    }
+    let defaults = PacketLimits::default();
+    let limits = PacketLimits {
+        max_bytes: bounded_integer(value, "max_bytes", defaults.max_bytes, 4096, 65536)?,
+        max_statement_bytes: bounded_integer(
+            value,
+            "max_statement_bytes",
+            defaults.max_statement_bytes,
+            1,
+            4096,
+        )?,
+        ..defaults
+    };
+    limits.validate()?;
+    Ok(limits)
 }

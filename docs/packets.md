@@ -35,6 +35,75 @@ budget, a smaller navigation packet retains claim statuses and the explanation
 link, removes statements and records `details: "packet_byte_limit"`. If that
 packet also exceeds the budget, construction fails.
 
+## Registered retrieval and presentation budgets
+
+Registered MCP clients can retain `entry_id`, `assessment_id` and `claim` from
+`eal_assess_known` and later call `eal_get_known_packet` with those identifiers.
+The read returns an `EAL/registered-packet/1` envelope containing the bounded
+packet, its source, context and method identities, status and original
+`assessed_at`. This supports restoring assessment context after a host discards
+an earlier tool response. Conversation history and the decision to discard or
+reload context remain host responsibilities.
+
+`eal_assess_known`, `eal_get_known_packet` and the operator's `eal_packet` accept
+an optional `packet_limits` object:
+
+```json
+{
+  "max_bytes": 8192,
+  "max_statement_bytes": 512
+}
+```
+
+`max_bytes` accepts integers from 4,096 through 65,536 and
+`max_statement_bytes` accepts integers from 1 through 4,096. Omitted fields use
+the existing defaults of 16,384 and 1,024. Empty options preserve the default
+projection. Unknown fields and non-integer values are rejected before
+acquisition. The byte budget covers the compact JSON packet, with MCP framing
+and the surrounding registered envelope adding overhead. It measures UTF-8
+bytes rather than model tokens. Dependency counts and traversal limits remain
+as documented above.
+
+For example, a client can request an 8 KiB packet during assessment, then read
+the same stored result with a larger budget if `omitted.details` reports
+`packet_byte_limit`:
+
+```json
+{
+  "entry_id": "demo",
+  "assessment_id": "ASSESSMENT_ID_FROM_RESPONSE",
+  "claim": "works",
+  "packet_limits": {"max_bytes": 65536, "max_statement_bytes": 4096}
+}
+```
+
+Retrieval requires an exposed entry, a claim selected in the exact registered
+source and method revision, and a stored context fingerprint matching that
+entry's registered context. Historical source revisions remain retrievable
+without refreshing current files. The projecting runtime must still have the
+assessment's method registry, whose output declarations control disclosure.
+Retrieval performs no collection or reassessment, so observation ages and
+freshness classifications retain their meaning at the original assessment time.
+Use `eal_assess_known` when a current assessment is required.
+
+The existing `full_explanation` reference remains an operator capability.
+Registered clients use `eal_get_known_packet` to expand projected details within
+the documented limits. Larger byte and statement budgets can recover details
+omitted by those budgets. Count and traversal ceilings continue to apply, and
+`summary_complete` describes the existing projection contract.
+Raw observations, arbitrary method fields and unrelated claims remain outside
+the registered response. An incomplete packet requires the consumer to qualify
+its answer or obtain further authorised evidence.
+
+The embedded API provides `ReasoningService::packet_with_limits`,
+`RegisteredAssessmentHost::retrieve_packet` and
+`RegisteredAssessmentOptions::packet_limits`. The caller of the registered host
+enforces its own entry allowlist. Existing default projection fixtures remain
+unchanged. The new tool and optional budget fields extend the native MCP
+catalogue beyond the frozen source catalogue.
+
+## Model input
+
 An optional collection must match the assessment's collection ID, source and
 canonical context fingerprint. Each projected observation must have the assessed
 evidence's run ID. Age uses the original `collected_at`, including for reused
@@ -62,6 +131,11 @@ of prose, or independently re-run method computations. The service obtains the
 assessment and collection from its durable store; that host boundary remains
 authoritative. The context builder relies on the packet builder and configured
 registry for method-output admission.
+
+`ModelContextAdapter::prepare` returns an inspection envelope with `assessment`,
+`context` and `messages`. Pass its `messages` array to the text model. Sending the
+whole envelope repeats the context in multiple representations. Consumers can
+retain assessment references separately for later retrieval.
 
 Normal Rust tests replay 66 frozen source cases without Python: 39 exact packet
 and context projections and 27 rejection cases. Native tests additionally cover

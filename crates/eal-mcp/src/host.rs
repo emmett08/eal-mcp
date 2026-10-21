@@ -76,8 +76,15 @@ pub fn parse_request(text: &str) -> Result<(String, Value), String> {
             return Err(format!("{key} must be a string"));
         }
     }
-    if operation == "assess_known" && arguments["entry_id"].as_str() == Some("") {
-        return Err("assess_known requires a non-empty registered entry ID".into());
+    if ["assess_known", "get_known_packet"].contains(&operation.as_str())
+        && arguments["entry_id"].as_str() == Some("")
+    {
+        return Err(format!(
+            "{operation} requires a non-empty registered entry ID"
+        ));
+    }
+    if operation == "get_known_packet" && arguments["assessment_id"].as_str() == Some("") {
+        return Err("get_known_packet requires a non-empty assessment ID".into());
     }
     for key in [
         "claim",
@@ -95,7 +102,7 @@ pub fn parse_request(text: &str) -> Result<(String, Value), String> {
             return Err(format!("{key} must be a string or null"));
         }
     }
-    if ["plan", "collect_claim", "assess_known"].contains(&operation.as_str())
+    if ["plan", "collect_claim", "assess_known", "get_known_packet"].contains(&operation.as_str())
         && arguments["claim"].as_str().is_none_or(str::is_empty)
     {
         return Err(format!("{operation} requires a non-empty claim identifier"));
@@ -143,7 +150,9 @@ pub fn parse_request(text: &str) -> Result<(String, Value), String> {
     }) {
         return Err("attacks must be a list of [attacker, target] string pairs".into());
     }
-    Ok((format!("eal_{operation}"), Value::Object(arguments)))
+    let arguments = Value::Object(arguments);
+    crate::operations::requested_packet_limits(&arguments)?;
+    Ok((format!("eal_{operation}"), arguments))
 }
 fn is_integer(value: &Value) -> bool {
     value

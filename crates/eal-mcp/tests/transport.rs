@@ -1,5 +1,6 @@
 #![cfg(unix)]
 //! Actual SDK sessions over byte streams and TCP, using the pinned framework oracle.
+mod common;
 use eal_core::{ExecutionLimits, methods::default_registry};
 use eal_mcp::{
     auth::HttpPolicy,
@@ -144,9 +145,10 @@ async fn sdk_byte_stream_roundtrip_preserves_inventory_and_actual_framework_erro
         let tools = client.list_tools(None).await.unwrap().tools;
         let fixture = reference();
         let exposure = if registered { "registered" } else { "operator" };
-        assert_eq!(
+        common::assert_inventory_compatibility(
             serde_json::to_value(tools).unwrap(),
-            fixture[format!("{exposure}_tools")]
+            &fixture[format!("{exposure}_tools")],
+            registered,
         );
         for case in fixture[format!("{exposure}_errors")].as_array().unwrap() {
             let result = client

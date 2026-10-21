@@ -91,6 +91,11 @@ pub(crate) fn strict_parameters(name: &str, arguments: &Value) -> Result<(), Str
             return Err(format!("Tool input requires a strict integer for {key}"));
         }
     }
+    // Nested projection budgets also reject integral floats. This check runs
+    // before dispatch can acquire an acquisition lease.
+    if arguments.get("packet_limits").is_some() {
+        crate::operations::requested_packet_limits(arguments)?;
+    }
     Ok(())
 }
 

@@ -363,6 +363,25 @@
               }
             ],
             "default": null
+          },
+          "packet_limits": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Limits for compact UTF-8 packet JSON only; response wrappers are additional. Dependency and traversal ceilings remain unchanged.",
+            "properties": {
+              "max_bytes": {
+                "type": "integer",
+                "minimum": 4096,
+                "maximum": 65536,
+                "default": 16384
+              },
+              "max_statement_bytes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4096,
+                "default": 1024
+              }
+            }
           }
         },
         "required": [
@@ -507,6 +526,25 @@
           },
           "entry_id": {
             "type": "string"
+          },
+          "packet_limits": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Limits for compact UTF-8 packet JSON only; response wrappers are additional. Dependency and traversal ceilings remain unchanged.",
+            "properties": {
+              "max_bytes": {
+                "type": "integer",
+                "minimum": 4096,
+                "maximum": 65536,
+                "default": 16384
+              },
+              "max_statement_bytes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4096,
+                "default": 1024
+              }
+            }
           }
         },
         "required": [
@@ -521,6 +559,57 @@
         "type": "object"
       },
       "title": "Eal Assess Known"
+    },
+    {
+      "name": "eal_get_known_packet",
+      "title": "Eal Get Known Packet",
+      "description": "Retrieve a bounded packet for a stored assessment of an allowed registered claim without collecting evidence or reassessing. Use the entry_id, assessment_id and claim returned by eal_assess_known. Original assessment and observation times remain historical.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "entry_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "assessment_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "claim": {
+            "type": "string",
+            "minLength": 1
+          },
+          "packet_limits": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Limits for compact UTF-8 packet JSON only; response wrappers are additional. Dependency and traversal ceilings remain unchanged.",
+            "properties": {
+              "max_bytes": {
+                "type": "integer",
+                "minimum": 4096,
+                "maximum": 65536,
+                "default": 16384
+              },
+              "max_statement_bytes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4096,
+                "default": 1024
+              }
+            }
+          }
+        },
+        "required": [
+          "entry_id",
+          "assessment_id",
+          "claim"
+        ]
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
     }
   ]
 }

@@ -116,6 +116,22 @@ impl ReasoningService {
     }
 
     pub fn packet(&self, assessment_id: &str, claim: Option<&str>) -> Result<Value, String> {
+        self.packet_with_limits(
+            assessment_id,
+            claim,
+            crate::packets::PacketLimits::default(),
+        )
+    }
+
+    /// Project the immutable assessment using caller-selected presentation limits.
+    /// These limits never change evaluation or the retained observations.
+    pub fn packet_with_limits(
+        &self,
+        assessment_id: &str,
+        claim: Option<&str>,
+        limits: crate::packets::PacketLimits,
+    ) -> Result<Value, String> {
+        limits.validate()?;
         let assessment = self.explain(assessment_id, None)?;
         if assessment["method_registry_fingerprint"] != self.methods.fingerprint() {
             return Err(
@@ -131,11 +147,11 @@ impl ReasoningService {
             None => None,
         };
         let claims = claim.map(|claim| vec![claim.to_owned()]);
-        crate::packets::AssessmentPacketBuilder::new(
-            crate::packets::PacketLimits::default(),
-            Some(self.methods.clone()),
-        )?
-        .build(&assessment, claims.as_deref(), collection.as_ref())
+        crate::packets::AssessmentPacketBuilder::new(limits, Some(self.methods.clone()))?.build(
+            &assessment,
+            claims.as_deref(),
+            collection.as_ref(),
+        )
     }
 
     /// Bounded source-only imports remain inside the selected workspace.
