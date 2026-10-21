@@ -32,6 +32,11 @@ See the [implementation status](docs/port-status.md) and frozen
 [source inventory](contracts/source-lock.json). Companion browser integration and
 installed acceptance checks are described in the native visualiser guide.
 
+The separate [EAL long-session experiment](experiments/eal-context-001/README.md)
+contains the proposed evaluation, reproducible planning simulations and machinery
+diagnostics. Its [execution report](experiments/eal-context-001/results.md)
+distinguishes those measurements from the unrun model-session pilot.
+
 ## Build and use
 
 Install Rust through rustup. `rust-toolchain.toml` selects Rust `1.90.0`,

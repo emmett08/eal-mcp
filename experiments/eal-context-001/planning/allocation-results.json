@@ -1,0 +1,3810 @@
+{
+  "status": "prospective_assumed_nuisance_calculation_not_empirical_evidence",
+  "seed": 20261021,
+  "replications_per_cell": 6000,
+  "numpy": "2.3.5",
+  "scipy": "1.17.0",
+  "one_sided_alpha_per_component": 0.05,
+  "principal_claim": "all four component tests pass (intersection-union)",
+  "token_estimand": "E(total_tokens_treatment)/E(total_tokens_baseline)",
+  "token_boundary": 0.9,
+  "quality_margin_percentage_points": 2,
+  "assumptions": [
+    "Independent scenarios; paired differences are averages over prespecified repeats and scored probes.",
+    "No missing telemetry, partial sessions, differential retries or scoring errors in these simulations.",
+    "Uniform bounded quality differences and lognormal costs are planning families, not fitted evidence.",
+    "Unstratified paired t at scenario level; a blocked/stratified production estimator requires corresponding resimulation.",
+    "Parameter uncertainty remains unestimated until an independent pilot. This cannot establish main-study readiness."
+  ],
+  "analytic_quality_conservative_allocation": [
+    {
+      "sd": 0.05,
+      "normal_approx_n": 82,
+      "balanced_multiple_24": 96,
+      "two_arm_sessions_with_two_repeats": 384,
+      "three_arm_sessions_with_two_repeats": 576
+    },
+    {
+      "sd": 0.1,
+      "normal_approx_n": 325,
+      "balanced_multiple_24": 336,
+      "two_arm_sessions_with_two_repeats": 1344,
+      "three_arm_sessions_with_two_repeats": 2016
+    },
+    {
+      "sd": 0.15,
+      "normal_approx_n": 731,
+      "balanced_multiple_24": 744,
+      "two_arm_sessions_with_two_repeats": 2976,
+      "three_arm_sessions_with_two_repeats": 4464
+    }
+  ],
+  "repeat_allocation_comparison": [
+    {
+      "n": 96,
+      "repeats": 2,
+      "two_arm_sessions": 384,
+      "quality_difference_se": 0.010000000000000002,
+      "quality_marginal_power_approx": 0.6387600313123352,
+      "quality_95_half_width_approx": 0.019600000000000003
+    },
+    {
+      "n": 192,
+      "repeats": 1,
+      "two_arm_sessions": 384,
+      "quality_difference_se": 0.008164965809277261,
+      "quality_marginal_power_approx": 0.7894851526869222,
+      "quality_95_half_width_approx": 0.016003332986183432
+    },
+    {
+      "n": 128,
+      "repeats": 3,
+      "two_arm_sessions": 768,
+      "quality_difference_se": 0.00816496580927726,
+      "quality_marginal_power_approx": 0.7894851526869223,
+      "quality_95_half_width_approx": 0.01600333298618343
+    },
+    {
+      "n": 192,
+      "repeats": 2,
+      "two_arm_sessions": 768,
+      "quality_difference_se": 0.007071067811865476,
+      "quality_marginal_power_approx": 0.8817090317783469,
+      "quality_95_half_width_approx": 0.013859292911256333
+    },
+    {
+      "n": 384,
+      "repeats": 1,
+      "two_arm_sessions": 768,
+      "quality_difference_se": 0.005773502691896258,
+      "quality_marginal_power_approx": 0.9655631977150569,
+      "quality_95_half_width_approx": 0.011316065276116666
+    }
+  ],
+  "simulation_results": [
+    {
+      "independent_scenarios": 96,
+      "sigma_paired_quality": 0.05,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.0,
+      "latent_token_quality_correlation": 0.0,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.9988333333333334,
+          "mcse": 0.000440701250954192,
+          "wilson_95": [
+            0.9975935810827968,
+            0.9994347450408915
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9898333333333333,
+          "mcse": 0.0012950743579395706,
+          "wilson_95": [
+            0.9869631527371815,
+            0.9920766903892869
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9898333333333333,
+          "mcse": 0.0012950743579395706,
+          "wilson_95": [
+            0.9869631527371815,
+            0.9920766903892869
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9885,
+          "mcse": 0.001376453776920966,
+          "wilson_95": [
+            0.9854724533033206,
+            0.9909024293791153
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.9673333333333334,
+        "mcse": 0.0022949057916595585,
+        "wilson_95": [
+          0.9625278930561382,
+          0.9715407425772805
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9513333333333334,
+          "mcse": 0.0027778355549546783,
+          "wilson_95": [
+            0.9455941839871418,
+            0.9564949263178859
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9503333333333334,
+          "mcse": 0.002804754561124403,
+          "wilson_95": [
+            0.9445421873321858,
+            0.9555482026398177
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9486666666666667,
+          "mcse": 0.0028489244234219994,
+          "wilson_95": [
+            0.9427902151648773,
+            0.9539689742520852
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9495,
+          "mcse": 0.0028269462322442567,
+          "wilson_95": [
+            0.9436659930853131,
+            0.9547587966091697
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 96,
+      "sigma_paired_quality": 0.05,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.9996666666666667,
+          "mcse": 0.00023566297341124872,
+          "wilson_95": [
+            0.9987853431841667,
+            0.999908583217042
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9876666666666667,
+          "mcse": 0.0014248521690700758,
+          "wilson_95": [
+            0.9845454929703026,
+            0.9901637894346129
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9885,
+          "mcse": 0.001376453776920966,
+          "wilson_95": [
+            0.9854724533033206,
+            0.9909024293791153
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9873333333333333,
+          "mcse": 0.001443734868447243,
+          "wilson_95": [
+            0.9841756246936353,
+            0.989867417600272
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.9685,
+        "mcse": 0.0022549113064597457,
+        "wilson_95": [
+          0.9637719497031756,
+          0.9726285263187715
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9515,
+          "mcse": 0.0027733178084501362,
+          "wilson_95": [
+            0.9457695776884428,
+            0.956652652672089
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9518333333333333,
+          "mcse": 0.002764255140445882,
+          "wilson_95": [
+            0.9461204180768471,
+            0.9569680523946927
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9465,
+          "mcse": 0.002905103268388234,
+          "wilson_95": [
+            0.9405150736537248,
+            0.9519135550416847
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9518333333333333,
+          "mcse": 0.002764255140445882,
+          "wilson_95": [
+            0.9461204180768471,
+            0.9569680523946927
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 192,
+      "sigma_paired_quality": 0.05,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.0,
+      "latent_token_quality_correlation": 0.0,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 1.0,
+        "mcse": 0.0,
+        "wilson_95": [
+          0.9993601665122168,
+          1.0
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9523333333333334,
+          "mcse": 0.0027505925287579867,
+          "wilson_95": [
+            0.9466468124300235,
+            0.9574410182080287
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9446666666666667,
+          "mcse": 0.0029515971821923678,
+          "wilson_95": [
+            0.9385919865892141,
+            0.9501723214956508
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9528333333333333,
+          "mcse": 0.0027368464888816303,
+          "wilson_95": [
+            0.947173369438369,
+            0.9579138213661953
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9465,
+          "mcse": 0.002905103268388234,
+          "wilson_95": [
+            0.9405150736537248,
+            0.9519135550416847
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 192,
+      "sigma_paired_quality": 0.05,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 1.0,
+        "mcse": 0.0,
+        "wilson_95": [
+          0.9993601665122168,
+          1.0
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9473333333333334,
+          "mcse": 0.002883657656775762,
+          "wilson_95": [
+            0.9413898128026534,
+            0.9527044161702765
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9555,
+          "mcse": 0.0026620715617728984,
+          "wilson_95": [
+            0.9499845248704415,
+            0.9604325868221881
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9495,
+          "mcse": 0.0028269462322442567,
+          "wilson_95": [
+            0.9436659930853131,
+            0.9547587966091697
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9531666666666667,
+          "mcse": 0.0027276354907447516,
+          "wilson_95": [
+            0.9475244990173742,
+            0.9582289318981984
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.05,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.0,
+      "latent_token_quality_correlation": 0.0,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 1.0,
+        "mcse": 0.0,
+        "wilson_95": [
+          0.9993601665122168,
+          1.0
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9485,
+          "mcse": 0.0028532948790243647,
+          "wilson_95": [
+            0.9426151086944982,
+            0.9538109606669604
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.948,
+          "mcse": 0.002866356572375462,
+          "wilson_95": [
+            0.9420898861659314,
+            0.9533368230290148
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9486666666666667,
+          "mcse": 0.0028489244234219994,
+          "wilson_95": [
+            0.9427902151648773,
+            0.9539689742520852
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9448333333333333,
+          "mcse": 0.002947408623281237,
+          "wilson_95": [
+            0.9387667382389178,
+            0.950330689901451
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.05,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 1.0,
+        "mcse": 0.0,
+        "wilson_95": [
+          0.9993601665122168,
+          1.0
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.95,
+          "mcse": 0.00281365716935569,
+          "wilson_95": [
+            0.9441916590480348,
+            0.9552324908129601
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.945,
+          "mcse": 0.002943212530552289,
+          "wilson_95": [
+            0.9389415045868775,
+            0.9504890436089953
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9456666666666667,
+          "mcse": 0.002926352172421672,
+          "wilson_95": [
+            0.9396407182236174,
+            0.9511223101942717
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9485,
+          "mcse": 0.0028532948790243647,
+          "wilson_95": [
+            0.9426151086944982,
+            0.9538109606669604
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.05,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.0,
+      "latent_token_quality_correlation": 0.0,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 1.0,
+        "mcse": 0.0,
+        "wilson_95": [
+          0.9993601665122168,
+          1.0
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9498333333333333,
+          "mcse": 0.0028180954627260307,
+          "wilson_95": [
+            0.9440164202780624,
+            0.9550746095274286
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9501666666666667,
+          "mcse": 0.00280921021588578,
+          "wilson_95": [
+            0.9443669147060569,
+            0.9553903552104424
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9526666666666667,
+          "mcse": 0.002741437849283015,
+          "wilson_95": [
+            0.9469978322125944,
+            0.9577562385364659
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9483333333333334,
+          "mcse": 0.002857657030454092,
+          "wilson_95": [
+            0.9424400184203268,
+            0.9536529308856276
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.05,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 1.0,
+        "mcse": 0.0,
+        "wilson_95": [
+          0.9993601665122168,
+          1.0
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9543333333333334,
+          "mcse": 0.0026950949959207438,
+          "wilson_95": [
+            0.9487540412680767,
+            0.9593312300360243
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.954,
+          "mcse": 0.002704440792474482,
+          "wilson_95": [
+            0.9484026489158652,
+            0.9590163822772275
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9516666666666667,
+          "mcse": 0.002768791018423692,
+          "wilson_95": [
+            0.9459449890229017,
+            0.956810361393134
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9501666666666667,
+          "mcse": 0.00280921021588578,
+          "wilson_95": [
+            0.9443669147060569,
+            0.9553903552104424
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 96,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.0,
+      "latent_token_quality_correlation": 0.0,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.9995,
+          "mcse": 0.0002886029567877944,
+          "wilson_95": [
+            0.9985308657086192,
+            0.9998299406370854
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.6175,
+          "mcse": 0.006274203136654088,
+          "wilson_95": [
+            0.6051313122156593,
+            0.6297183269147116
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.6171666666666666,
+          "mcse": 0.00627524199031695,
+          "wilson_95": [
+            0.6047961580361647,
+            0.629387240983198
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.6121666666666666,
+          "mcse": 0.006290450949506574,
+          "wilson_95": [
+            0.5997695773251506,
+            0.62442022002909
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.236,
+        "mcse": 0.005481848836539244,
+        "wilson_95": [
+          0.22542679940530297,
+          0.24691103267624642
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9501666666666667,
+          "mcse": 0.00280921021588578,
+          "wilson_95": [
+            0.9443669147060569,
+            0.9553903552104424
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9486666666666667,
+          "mcse": 0.0028489244234219994,
+          "wilson_95": [
+            0.9427902151648773,
+            0.9539689742520852
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9545,
+          "mcse": 0.0026904073421448035,
+          "wilson_95": [
+            0.9489297662060152,
+            0.9594886251535899
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9556666666666667,
+          "mcse": 0.002657313458140536,
+          "wilson_95": [
+            0.9501603871196203,
+            0.9605898446285133
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 96,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.999,
+          "mcse": 0.0004080441152620635,
+          "wilson_95": [
+            0.9978198332012758,
+            0.9995416129779167
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.6068333333333333,
+          "mcse": 0.006305905154283152,
+          "wilson_95": [
+            0.5944093963062126,
+            0.6191205592718977
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.6191666666666666,
+          "mcse": 0.006268961976217375,
+          "wilson_95": [
+            0.6068071749266174,
+            0.6313736647587943
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.6145,
+          "mcse": 0.006283440538431155,
+          "wilson_95": [
+            0.60211514444403,
+            0.6267383336872676
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.3545,
+        "mcse": 0.006175620751525037,
+        "wilson_95": [
+          0.34249261628305167,
+          0.3666935752618931
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9476666666666667,
+          "mcse": 0.0028750233493415774,
+          "wilson_95": [
+            0.9417398178181602,
+            0.953020651265778
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9485,
+          "mcse": 0.0028532948790243647,
+          "wilson_95": [
+            0.9426151086944982,
+            0.9538109606669604
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.953,
+          "mcse": 0.002732245718574132,
+          "wilson_95": [
+            0.9473489250091296,
+            0.9580713858509387
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9523333333333334,
+          "mcse": 0.0027505925287579867,
+          "wilson_95": [
+            0.9466468124300235,
+            0.9574410182080287
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 192,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.0,
+      "latent_token_quality_correlation": 0.0,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.8685,
+          "mcse": 0.004362868895577771,
+          "wilson_95": [
+            0.8597126405362105,
+            0.8768158021832932
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.8756666666666667,
+          "mcse": 0.0042597839451384446,
+          "wilson_95": [
+            0.8670764904881959,
+            0.8837761146179831
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.8681666666666666,
+          "mcse": 0.004367556631106909,
+          "wilson_95": [
+            0.8593703449870822,
+            0.8764918576214134
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.6546666666666666,
+        "mcse": 0.006138379566604179,
+        "wilson_95": [
+          0.6425401452905823,
+          0.6665952662171966
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9548333333333333,
+          "mcse": 0.00268100226559922,
+          "wilson_95": [
+            0.9492812741065982,
+            0.9598033573640149
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9476666666666667,
+          "mcse": 0.0028750233493415774,
+          "wilson_95": [
+            0.9417398178181602,
+            0.953020651265778
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9521666666666667,
+          "mcse": 0.002755155941005745,
+          "wilson_95": [
+            0.9464713296922141,
+            0.9572833808903339
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9513333333333334,
+          "mcse": 0.0027778355549546783,
+          "wilson_95": [
+            0.9455941839871418,
+            0.9564949263178859
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 192,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.8721666666666666,
+          "mcse": 0.004310683863422412,
+          "wilson_95": [
+            0.8634791040707803,
+            0.880377979869813
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.8718333333333333,
+          "mcse": 0.004315475489874054,
+          "wilson_95": [
+            0.8631366053312034,
+            0.8800542384983819
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.874,
+          "mcse": 0.004284156859873363,
+          "wilson_95": [
+            0.8653631855944577,
+            0.8821582189566806
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.729,
+        "mcse": 0.00573816172654623,
+        "wilson_95": [
+          0.7176095316412545,
+          0.7400974246213408
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9453333333333334,
+          "mcse": 0.0029347976143231807,
+          "wilson_95": [
+            0.9392910816290839,
+            0.9508057066777972
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9488333333333333,
+          "mcse": 0.002844545625370565,
+          "wilson_95": [
+            0.9429653379058729,
+            0.9541269715665937
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9493333333333334,
+          "mcse": 0.002831358789096251,
+          "wilson_95": [
+            0.9434908045056756,
+            0.9546008651333033
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9518333333333333,
+          "mcse": 0.002764255140445882,
+          "wilson_95": [
+            0.9461204180768471,
+            0.9569680523946927
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.0,
+      "latent_token_quality_correlation": 0.0,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9881666666666666,
+          "mcse": 0.0013960244479446855,
+          "wilson_95": [
+            0.9851012633287635,
+            0.9906073792426642
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9878333333333333,
+          "mcse": 0.0014153114432807644,
+          "wilson_95": [
+            0.9847306181211654,
+            0.9903117843392543
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9878333333333333,
+          "mcse": 0.0014153114432807644,
+          "wilson_95": [
+            0.9847306181211654,
+            0.9903117843392543
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.964,
+        "mcse": 0.0024049948024891872,
+        "wilson_95": [
+          0.9589815793003318,
+          0.9684246552230054
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9513333333333334,
+          "mcse": 0.0027778355549546783,
+          "wilson_95": [
+            0.9455941839871418,
+            0.9564949263178859
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9488333333333333,
+          "mcse": 0.002844545625370565,
+          "wilson_95": [
+            0.9429653379058729,
+            0.9541269715665937
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.95,
+          "mcse": 0.00281365716935569,
+          "wilson_95": [
+            0.9441916590480348,
+            0.9552324908129601
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9486666666666667,
+          "mcse": 0.0028489244234219994,
+          "wilson_95": [
+            0.9427902151648773,
+            0.9539689742520852
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9878333333333333,
+          "mcse": 0.0014153114432807644,
+          "wilson_95": [
+            0.9847306181211654,
+            0.9903117843392543
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9873333333333333,
+          "mcse": 0.001443734868447243,
+          "wilson_95": [
+            0.9841756246936353,
+            0.989867417600272
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9873333333333333,
+          "mcse": 0.001443734868447243,
+          "wilson_95": [
+            0.9841756246936353,
+            0.989867417600272
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.9678333333333333,
+        "mcse": 0.002277863480772506,
+        "wilson_95": [
+          0.963060869233117,
+          0.9720071265668139
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9523333333333334,
+          "mcse": 0.0027505925287579867,
+          "wilson_95": [
+            0.9466468124300235,
+            0.9574410182080287
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9485,
+          "mcse": 0.0028532948790243647,
+          "wilson_95": [
+            0.9426151086944982,
+            0.9538109606669604
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9478333333333333,
+          "mcse": 0.0028706940379042947,
+          "wilson_95": [
+            0.9419148440398277,
+            0.9531787450996143
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9506666666666667,
+          "mcse": 0.0027958169812404734,
+          "wilson_95": [
+            0.9448927838123246,
+            0.9558638462706869
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.0,
+      "latent_token_quality_correlation": 0.0,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 1.0,
+        "mcse": 0.0,
+        "wilson_95": [
+          0.9993601665122168,
+          1.0
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9475,
+          "mcse": 0.002879344543468183,
+          "wilson_95": [
+            0.9415648074294185,
+            0.9528625415990155
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9466666666666667,
+          "mcse": 0.002900830021703239,
+          "wilson_95": [
+            0.9406899905156519,
+            0.9520717582352617
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9493333333333334,
+          "mcse": 0.002831358789096251,
+          "wilson_95": [
+            0.9434908045056756,
+            0.9546008651333033
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9535,
+          "mcse": 0.0027183864699486713,
+          "wilson_95": [
+            0.9478757027203891,
+            0.9585439683061915
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9995,
+          "mcse": 0.0002886029567877944,
+          "wilson_95": [
+            0.9985308657086192,
+            0.9998299406370854
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9998333333333334,
+          "mcse": 0.00016665277719901667,
+          "wilson_95": [
+            0.9990564678217333,
+            0.9999705786349795
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.9993333333333333,
+        "mcse": 0.00033322220369753767,
+        "wilson_95": [
+          0.9982869695189036,
+          0.9997407167712968
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.948,
+          "mcse": 0.002866356572375462,
+          "wilson_95": [
+            0.9420898861659314,
+            0.9533368230290148
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9476666666666667,
+          "mcse": 0.0028750233493415774,
+          "wilson_95": [
+            0.9417398178181602,
+            0.953020651265778
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.953,
+          "mcse": 0.002732245718574132,
+          "wilson_95": [
+            0.9473489250091296,
+            0.9580713858509387
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9475,
+          "mcse": 0.002879344543468183,
+          "wilson_95": [
+            0.9415648074294185,
+            0.9528625415990155
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 96,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.0,
+      "latent_token_quality_correlation": 0.0,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.9996666666666667,
+          "mcse": 0.00023566297341124872,
+          "wilson_95": [
+            0.9987853431841667,
+            0.999908583217042
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.35183333333333333,
+          "mcse": 0.006165044456299415,
+          "wilson_95": [
+            0.3398483644797949,
+            0.36400790617708473
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.3645,
+          "mcse": 0.006213422969668168,
+          "wilson_95": [
+            0.3524122000928417,
+            0.3767611947823475
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.3536666666666667,
+          "mcse": 0.00617233823273314,
+          "wilson_95": [
+            0.3416662433978026,
+            0.3658543478696219
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.043666666666666666,
+        "mcse": 0.0026381776819390844,
+        "wilson_95": [
+          0.03878132558458782,
+          0.049135962445262214
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9531666666666667,
+          "mcse": 0.0027276354907447516,
+          "wilson_95": [
+            0.9475244990173742,
+            0.9582289318981984
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9475,
+          "mcse": 0.002879344543468183,
+          "wilson_95": [
+            0.9415648074294185,
+            0.9528625415990155
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9531666666666667,
+          "mcse": 0.0027276354907447516,
+          "wilson_95": [
+            0.9475244990173742,
+            0.9582289318981984
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9533333333333334,
+          "mcse": 0.002723015757357054,
+          "wilson_95": [
+            0.9477000915564151,
+            0.9583864594146616
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 96,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.9996666666666667,
+          "mcse": 0.00023566297341124872,
+          "wilson_95": [
+            0.9987853431841667,
+            0.999908583217042
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.35633333333333334,
+          "mcse": 0.0061827702648689885,
+          "wilson_95": [
+            0.3443107776549539,
+            0.3685397345005357
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.3531666666666667,
+          "mcse": 0.006170358879652277,
+          "wilson_95": [
+            0.3411704389359981,
+            0.3653507921649142
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.3606666666666667,
+          "mcse": 0.00619927713826677,
+          "wilson_95": [
+            0.3486090174453393,
+            0.3729026161532562
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.132,
+        "mcse": 0.004369897023958345,
+        "wilson_95": [
+          0.123670121455964,
+          0.14080079599104436
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9495,
+          "mcse": 0.0028269462322442567,
+          "wilson_95": [
+            0.9436659930853131,
+            0.9547587966091697
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9451666666666667,
+          "mcse": 0.002939008871736889,
+          "wilson_95": [
+            0.9391162856958551,
+            0.9506473825555218
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9501666666666667,
+          "mcse": 0.00280921021588578,
+          "wilson_95": [
+            0.9443669147060569,
+            0.9553903552104424
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9446666666666667,
+          "mcse": 0.0029515971821923678,
+          "wilson_95": [
+            0.9385919865892141,
+            0.9501723214956508
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 192,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.0,
+      "latent_token_quality_correlation": 0.0,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.5751666666666667,
+          "mcse": 0.006381613853122921,
+          "wilson_95": [
+            0.562614748780448,
+            0.5876223962518887
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.5745,
+          "mcse": 0.006382916653066997,
+          "wilson_95": [
+            0.5619459576974437,
+            0.5869587071128766
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.5753333333333334,
+          "mcse": 0.006381286297825448,
+          "wilson_95": [
+            0.5627819501839729,
+            0.5877883149038677
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.18166666666666667,
+        "mcse": 0.004977681670699204,
+        "wilson_95": [
+          0.1721152652302035,
+          0.19162542875701835
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9506666666666667,
+          "mcse": 0.0027958169812404734,
+          "wilson_95": [
+            0.9448927838123246,
+            0.9558638462706869
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.948,
+          "mcse": 0.002866356572375462,
+          "wilson_95": [
+            0.9420898861659314,
+            0.9533368230290148
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9521666666666667,
+          "mcse": 0.002755155941005745,
+          "wilson_95": [
+            0.9464713296922141,
+            0.9572833808903339
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9503333333333334,
+          "mcse": 0.002804754561124403,
+          "wilson_95": [
+            0.9445421873321858,
+            0.9555482026398177
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 192,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.5851666666666666,
+          "mcse": 0.006360642510639012,
+          "wilson_95": [
+            0.5726494137310983,
+            0.5975749346314824
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.5763333333333334,
+          "mcse": 0.006379305372612056,
+          "wilson_95": [
+            0.5637851891376677,
+            0.5887837962831974
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.5803333333333334,
+          "mcse": 0.0063711139208612955,
+          "wilson_95": [
+            0.5677986692186484,
+            0.5927651975343146
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.32366666666666666,
+        "mcse": 0.006040233929735331,
+        "wilson_95": [
+          0.3119440998890597,
+          0.33561488138763174
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.951,
+          "mcse": 0.002786844093235215,
+          "wilson_95": [
+            0.945243449142342,
+            0.9561794210516774
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9555,
+          "mcse": 0.0026620715617728984,
+          "wilson_95": [
+            0.9499845248704415,
+            0.9604325868221881
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9453333333333334,
+          "mcse": 0.0029347976143231807,
+          "wilson_95": [
+            0.9392910816290839,
+            0.9508057066777972
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9505,
+          "mcse": 0.0028002901635366287,
+          "wilson_95": [
+            0.9447174770071435,
+            0.9557060330203638
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.0,
+      "latent_token_quality_correlation": 0.0,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.8336666666666667,
+          "mcse": 0.0048073997745759186,
+          "wilson_95": [
+            0.8240314408820985,
+            0.8428749102370542
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.8308333333333333,
+          "mcse": 0.004839926059276036,
+          "wilson_95": [
+            0.8211362473443817,
+            0.8401070628312017
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.8255,
+          "mcse": 0.004899825677171247,
+          "wilson_95": [
+            0.8156890664141396,
+            0.8348944019853135
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.577,
+        "mcse": 0.006377969896448242,
+        "wilson_95": [
+          0.5644540442019864,
+          0.5894474214408948
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9471666666666667,
+          "mcse": 0.0028879627254699285,
+          "wilson_95": [
+            0.9412148338674704,
+            0.9525462750499556
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.947,
+          "mcse": 0.0028922597854734063,
+          "wilson_95": [
+            0.9410398705540223,
+            0.9523881183078994
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9495,
+          "mcse": 0.0028269462322442567,
+          "wilson_95": [
+            0.9436659930853131,
+            0.9547587966091697
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9476666666666667,
+          "mcse": 0.0028750233493415774,
+          "wilson_95": [
+            0.9417398178181602,
+            0.953020651265778
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.844,
+          "mcse": 0.0046844423360737405,
+          "wilson_95": [
+            0.8345988580393138,
+            0.8529609365210913
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.8363333333333334,
+          "mcse": 0.004776328591587351,
+          "wilson_95": [
+            0.8267572254386124,
+            0.8454790465686055
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.8271666666666667,
+          "mcse": 0.004881290338667673,
+          "wilson_95": [
+            0.8173909518133126,
+            0.8365237171411813
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.6581666666666667,
+        "mcse": 0.006123497170130202,
+        "wilson_95": [
+          0.6460670458325753,
+          0.6700638868407892
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9501666666666667,
+          "mcse": 0.00280921021588578,
+          "wilson_95": [
+            0.9443669147060569,
+            0.9553903552104424
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9531666666666667,
+          "mcse": 0.0027276354907447516,
+          "wilson_95": [
+            0.9475244990173742,
+            0.9582289318981984
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9548333333333333,
+          "mcse": 0.00268100226559922,
+          "wilson_95": [
+            0.9492812741065982,
+            0.9598033573640149
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9526666666666667,
+          "mcse": 0.002741437849283015,
+          "wilson_95": [
+            0.9469978322125944,
+            0.9577562385364659
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.0,
+      "latent_token_quality_correlation": 0.0,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9835,
+          "mcse": 0.0016445744130321356,
+          "wilson_95": [
+            0.9799535490400301,
+            0.9864277319772837
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9798333333333333,
+          "mcse": 0.0018147530696223395,
+          "wilson_95": [
+            0.97595737759053,
+            0.983095262205694
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9791666666666666,
+          "mcse": 0.001843877506576634,
+          "wilson_95": [
+            0.9752343172001872,
+            0.9824858423740206
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.944,
+        "mcse": 0.0029682767166601355,
+        "wilson_95": [
+          0.9378931257339602,
+          0.9495387021288881
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9553333333333334,
+          "mcse": 0.0026668194400682474,
+          "wilson_95": [
+            0.9498086825499198,
+            0.9602753090872057
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9518333333333333,
+          "mcse": 0.002764255140445882,
+          "wilson_95": [
+            0.9461204180768471,
+            0.9569680523946927
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9518333333333333,
+          "mcse": 0.002764255140445882,
+          "wilson_95": [
+            0.9461204180768471,
+            0.9569680523946927
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9498333333333333,
+          "mcse": 0.0028180954627260307,
+          "wilson_95": [
+            0.9440164202780624,
+            0.9550746095274286
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9803333333333333,
+          "mcse": 0.0017925721226257044,
+          "wilson_95": [
+            0.9765003266639606,
+            0.9835516732987756
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9791666666666666,
+          "mcse": 0.001843877506576634,
+          "wilson_95": [
+            0.9752343172001872,
+            0.9824858423740206
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9803333333333333,
+          "mcse": 0.0017925721226257044,
+          "wilson_95": [
+            0.9765003266639606,
+            0.9835516732987756
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.9491666666666667,
+        "mcse": 0.002835762847264545,
+        "wilson_95": [
+          0.9433156325003513,
+          0.9544429170831235
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9515,
+          "mcse": 0.0027733178084501362,
+          "wilson_95": [
+            0.9457695776884428,
+            0.956652652672089
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9481666666666667,
+          "mcse": 0.0028620109156817473,
+          "wilson_95": [
+            0.9422649442685479,
+            0.9534948849819026
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.948,
+          "mcse": 0.002866356572375462,
+          "wilson_95": [
+            0.9420898861659314,
+            0.9533368230290148
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.949,
+          "mcse": 0.0028401584462842927,
+          "wilson_95": [
+            0.9431404769924929,
+            0.9542849525354777
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "useful-benefit"
+    },
+    {
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.9,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.057166666666666664,
+          "mcse": 0.0029971830910842734,
+          "wilson_95": [
+            0.05157068356087842,
+            0.06332932896480148
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9863333333333333,
+          "mcse": 0.0014988822996313473,
+          "wilson_95": [
+            0.9830689064103254,
+            0.9889754155505573
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.989,
+          "mcse": 0.0013465387728048043,
+          "wilson_95": [
+            0.9860303110216384,
+            0.9913439318273096
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9865,
+          "mcse": 0.0014898405955000667,
+          "wilson_95": [
+            0.9832530716690074,
+            0.9891243703473797
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.050666666666666665,
+        "mcse": 0.0028313587890962514,
+        "wilson_95": [
+          0.04539913486669664,
+          0.05650919549432444
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9491666666666667,
+          "mcse": 0.002835762847264545,
+          "wilson_95": [
+            0.9433156325003513,
+            0.9544429170831235
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9466666666666667,
+          "mcse": 0.002900830021703239,
+          "wilson_95": [
+            0.9406899905156519,
+            0.9520717582352617
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9451666666666667,
+          "mcse": 0.002939008871736889,
+          "wilson_95": [
+            0.9391162856958551,
+            0.9506473825555218
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9498333333333333,
+          "mcse": 0.0028180954627260307,
+          "wilson_95": [
+            0.9440164202780624,
+            0.9550746095274286
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "token-boundary"
+    },
+    {
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        -0.02,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.0515,
+          "mcse": 0.002853294879024365,
+          "wilson_95": [
+            0.046189039333039576,
+            0.05738489130550186
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9876666666666667,
+          "mcse": 0.0014248521690700758,
+          "wilson_95": [
+            0.9845454929703026,
+            0.9901637894346129
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9878333333333333,
+          "mcse": 0.0014153114432807644,
+          "wilson_95": [
+            0.9847306181211654,
+            0.9903117843392543
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.0515,
+        "mcse": 0.002853294879024365,
+        "wilson_95": [
+          0.046189039333039576,
+          0.05738489130550186
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9496666666666667,
+          "mcse": 0.0028225251368496525,
+          "wilson_95": [
+            0.943841198316739,
+            0.954916711433248
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9445,
+          "mcse": 0.0029557782393136328,
+          "wilson_95": [
+            0.9384172495754715,
+            0.9500139384538893
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9463333333333334,
+          "mcse": 0.00290936864730579,
+          "wilson_95": [
+            0.940340172139512,
+            0.9517553365003936
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9503333333333334,
+          "mcse": 0.002804754561124403,
+          "wilson_95": [
+            0.9445421873321858,
+            0.9555482026398177
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "correctness-boundary"
+    },
+    {
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        -0.02,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9898333333333333,
+          "mcse": 0.0012950743579395706,
+          "wilson_95": [
+            0.9869631527371815,
+            0.9920766903892869
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.05483333333333333,
+          "mcse": 0.00293900887173689,
+          "wilson_95": [
+            0.049352617444478074,
+            0.060883714304144805
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9878333333333333,
+          "mcse": 0.0014153114432807644,
+          "wilson_95": [
+            0.9847306181211654,
+            0.9903117843392543
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.05483333333333333,
+        "mcse": 0.00293900887173689,
+        "wilson_95": [
+          0.049352617444478074,
+          0.060883714304144805
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9501666666666667,
+          "mcse": 0.00280921021588578,
+          "wilson_95": [
+            0.9443669147060569,
+            0.9553903552104424
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9518333333333333,
+          "mcse": 0.002764255140445882,
+          "wilson_95": [
+            0.9461204180768471,
+            0.9569680523946927
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9501666666666667,
+          "mcse": 0.00280921021588578,
+          "wilson_95": [
+            0.9443669147060569,
+            0.9553903552104424
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9513333333333334,
+          "mcse": 0.0027778355549546783,
+          "wilson_95": [
+            0.9455941839871418,
+            0.9564949263178859
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "objection-boundary"
+    },
+    {
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        -0.02
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9896666666666667,
+          "mcse": 0.0013055366428890158,
+          "wilson_95": [
+            0.9867762599049007,
+            0.9919304631660636
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9871666666666666,
+          "mcse": 0.0014530794248129796,
+          "wilson_95": [
+            0.9839908766661759,
+            0.9897190455722272
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.051333333333333335,
+          "mcse": 0.0028489244234219994,
+          "wilson_95": [
+            0.04603102574791475,
+            0.057209784835122623
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.051333333333333335,
+        "mcse": 0.0028489244234219994,
+        "wilson_95": [
+          0.04603102574791475,
+          0.057209784835122623
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9441666666666667,
+          "mcse": 0.0029641179751100266,
+          "wilson_95": [
+            0.9380678192089944,
+            0.9496971287093583
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.95,
+          "mcse": 0.00281365716935569,
+          "wilson_95": [
+            0.9441916590480348,
+            0.9552324908129601
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9498333333333333,
+          "mcse": 0.0028180954627260307,
+          "wilson_95": [
+            0.9440164202780624,
+            0.9550746095274286
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9501666666666667,
+          "mcse": 0.00280921021588578,
+          "wilson_95": [
+            0.9443669147060569,
+            0.9553903552104424
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "qualification-boundary"
+    },
+    {
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.9,
+      "quality_means": [
+        -0.02,
+        -0.02,
+        -0.02
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.05516666666666667,
+          "mcse": 0.002947408623281236,
+          "wilson_95": [
+            0.04966931009854887,
+            0.06123326176108217
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.050666666666666665,
+          "mcse": 0.0028313587890962514,
+          "wilson_95": [
+            0.04539913486669664,
+            0.05650919549432444
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.050833333333333335,
+          "mcse": 0.0028357628472645466,
+          "wilson_95": [
+            0.04555708291687649,
+            0.05668436749964867
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.048666666666666664,
+          "mcse": 0.002777835554954679,
+          "wilson_95": [
+            0.043505073682114,
+            0.0544058160128582
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.0,
+        "mcse": 0.0,
+        "wilson_95": [
+          0.0,
+          0.0006398334877831174
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9493333333333334,
+          "mcse": 0.002831358789096251,
+          "wilson_95": [
+            0.9434908045056756,
+            0.9546008651333033
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9493333333333334,
+          "mcse": 0.002831358789096251,
+          "wilson_95": [
+            0.9434908045056756,
+            0.9546008651333033
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9546666666666667,
+          "mcse": 0.0026857097827272846,
+          "wilson_95": [
+            0.9491055104518166,
+            0.9596460009632924
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9503333333333334,
+          "mcse": 0.002804754561124403,
+          "wilson_95": [
+            0.9445421873321858,
+            0.9555482026398177
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "all-boundaries"
+    },
+    {
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 1.05,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.0,
+            0.0006398334877831174
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.989,
+          "mcse": 0.0013465387728048043,
+          "wilson_95": [
+            0.9860303110216384,
+            0.9913439318273096
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9878333333333333,
+          "mcse": 0.0014153114432807644,
+          "wilson_95": [
+            0.9847306181211654,
+            0.9903117843392543
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9871666666666666,
+          "mcse": 0.0014530794248129796,
+          "wilson_95": [
+            0.9839908766661759,
+            0.9897190455722272
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.0,
+        "mcse": 0.0,
+        "wilson_95": [
+          0.0,
+          0.0006398334877831174
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9495,
+          "mcse": 0.0028269462322442567,
+          "wilson_95": [
+            0.9436659930853131,
+            0.9547587966091697
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9473333333333334,
+          "mcse": 0.002883657656775762,
+          "wilson_95": [
+            0.9413898128026534,
+            0.9527044161702765
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.945,
+          "mcse": 0.002943212530552289,
+          "wilson_95": [
+            0.9389415045868775,
+            0.9504890436089953
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.946,
+          "mcse": 0.0029178759397890802,
+          "wilson_95": [
+            0.939990414885971,
+            0.9514388536429264
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "token-harm"
+    },
+    {
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        -0.04,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.0,
+            0.0006398334877831174
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.988,
+          "mcse": 0.001405702671264447,
+          "wilson_95": [
+            0.9849158740194208,
+            0.9904596484965027
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9871666666666666,
+          "mcse": 0.0014530794248129796,
+          "wilson_95": [
+            0.9839908766661759,
+            0.9897190455722272
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.0,
+        "mcse": 0.0,
+        "wilson_95": [
+          0.0,
+          0.0006398334877831174
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9508333333333333,
+          "mcse": 0.00279133497200281,
+          "wilson_95": [
+            0.9450681078298031,
+            0.9560216423087122
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9483333333333334,
+          "mcse": 0.002857657030454092,
+          "wilson_95": [
+            0.9424400184203268,
+            0.9536529308856276
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9495,
+          "mcse": 0.0028269462322442567,
+          "wilson_95": [
+            0.9436659930853131,
+            0.9547587966091697
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9468333333333333,
+          "mcse": 0.0028965488724291143,
+          "wilson_95": [
+            0.9408649227930055,
+            0.9522299460134123
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "correctness-harm"
+    },
+    {
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.9,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.052833333333333336,
+          "mcse": 0.00288796272546993,
+          "wilson_95": [
+            0.04745372495004441,
+            0.05878516613252961
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9801666666666666,
+          "mcse": 0.0017999987139913117,
+          "wilson_95": [
+            0.9763192798608288,
+            0.9833996000464033
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9768333333333333,
+          "mcse": 0.0019420767330455915,
+          "wilson_95": [
+            0.9727108454754381,
+            0.9803456333217127
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9806666666666667,
+          "mcse": 0.0017776180483798881,
+          "wilson_95": [
+            0.9768626155699186,
+            0.9838556245038258
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.04566666666666667,
+        "mcse": 0.002695094995920744,
+        "wilson_95": [
+          0.0406687699639757,
+          0.05124595873192321
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.949,
+          "mcse": 0.0028401584462842927,
+          "wilson_95": [
+            0.9431404769924929,
+            0.9542849525354777
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9496666666666667,
+          "mcse": 0.0028225251368496525,
+          "wilson_95": [
+            0.943841198316739,
+            0.954916711433248
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.95,
+          "mcse": 0.00281365716935569,
+          "wilson_95": [
+            0.9441916590480348,
+            0.9552324908129601
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9465,
+          "mcse": 0.002905103268388234,
+          "wilson_95": [
+            0.9405150736537248,
+            0.9519135550416847
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "token-boundary"
+    },
+    {
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        -0.02,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.05433333333333333,
+          "mcse": 0.0029263521724216712,
+          "wilson_95": [
+            0.048877689805728146,
+            0.06035928177638252
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.981,
+          "mcse": 0.0017625265955440227,
+          "wilson_95": [
+            0.9772251703585044,
+            0.984159309826248
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9801666666666666,
+          "mcse": 0.0017999987139913117,
+          "wilson_95": [
+            0.9763192798608288,
+            0.9833996000464033
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.05433333333333333,
+        "mcse": 0.0029263521724216712,
+        "wilson_95": [
+          0.048877689805728146,
+          0.06035928177638252
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.95,
+          "mcse": 0.00281365716935569,
+          "wilson_95": [
+            0.9441916590480348,
+            0.9552324908129601
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9471666666666667,
+          "mcse": 0.0028879627254699285,
+          "wilson_95": [
+            0.9412148338674704,
+            0.9525462750499556
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9483333333333334,
+          "mcse": 0.002857657030454092,
+          "wilson_95": [
+            0.9424400184203268,
+            0.9536529308856276
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9505,
+          "mcse": 0.0028002901635366287,
+          "wilson_95": [
+            0.9447174770071435,
+            0.9557060330203638
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "correctness-boundary"
+    },
+    {
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        -0.02,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9785,
+          "mcse": 0.0018725094570299667,
+          "wilson_95": [
+            0.9745122108108321,
+            0.9818754685413594
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.0545,
+          "mcse": 0.0029305787255534815,
+          "wilson_95": [
+            0.04903598408788886,
+            0.06053410754972587
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9786666666666667,
+          "mcse": 0.001865396393183953,
+          "wilson_95": [
+            0.9746926503673106,
+            0.982028149040385
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.0545,
+        "mcse": 0.0029305787255534815,
+        "wilson_95": [
+          0.04903598408788886,
+          0.06053410754972587
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9436666666666667,
+          "mcse": 0.002976572102516834,
+          "wilson_95": [
+            0.9375437818979168,
+            0.9492218058539236
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9491666666666667,
+          "mcse": 0.002835762847264545,
+          "wilson_95": [
+            0.9433156325003513,
+            0.9544429170831235
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9475,
+          "mcse": 0.002879344543468183,
+          "wilson_95": [
+            0.9415648074294185,
+            0.9528625415990155
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9525,
+          "mcse": 0.0027460198469785317,
+          "wilson_95": [
+            0.9468223132401121,
+            0.957598637453444
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "objection-boundary"
+    },
+    {
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        0.0,
+        0.0,
+        -0.02
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9801666666666666,
+          "mcse": 0.0017999987139913117,
+          "wilson_95": [
+            0.9763192798608288,
+            0.9833996000464033
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.982,
+          "mcse": 0.0017163915637173244,
+          "wilson_95": [
+            0.9783144998561211,
+            0.9850687006616559
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.05,
+          "mcse": 0.0028136571693556886,
+          "wilson_95": [
+            0.04476750918703973,
+            0.05580834095196506
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.05,
+        "mcse": 0.0028136571693556886,
+        "wilson_95": [
+          0.04476750918703973,
+          0.05580834095196506
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9478333333333333,
+          "mcse": 0.0028706940379042947,
+          "wilson_95": [
+            0.9419148440398277,
+            0.9531787450996143
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9501666666666667,
+          "mcse": 0.00280921021588578,
+          "wilson_95": [
+            0.9443669147060569,
+            0.9553903552104424
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9498333333333333,
+          "mcse": 0.0028180954627260307,
+          "wilson_95": [
+            0.9440164202780624,
+            0.9550746095274286
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9483333333333334,
+          "mcse": 0.002857657030454092,
+          "wilson_95": [
+            0.9424400184203268,
+            0.9536529308856276
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "qualification-boundary"
+    },
+    {
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.9,
+      "quality_means": [
+        -0.02,
+        -0.02,
+        -0.02
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.06166666666666667,
+          "mcse": 0.0031054760474815263,
+          "wilson_95": [
+            0.05585599313987957,
+            0.06803826088441028
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.04766666666666667,
+          "mcse": 0.0027505925287579875,
+          "wilson_95": [
+            0.04255898179197121,
+            0.053353187569976576
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.051833333333333335,
+          "mcse": 0.002862010915681749,
+          "wilson_95": [
+            0.046505115018097384,
+            0.0577350557314522
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.050666666666666665,
+          "mcse": 0.0028313587890962514,
+          "wilson_95": [
+            0.04539913486669664,
+            0.05650919549432444
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.0,
+        "mcse": 0.0,
+        "wilson_95": [
+          0.0,
+          0.0006398334877831174
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9481666666666667,
+          "mcse": 0.0028620109156817473,
+          "wilson_95": [
+            0.9422649442685479,
+            0.9534948849819026
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9468333333333333,
+          "mcse": 0.0028965488724291143,
+          "wilson_95": [
+            0.9408649227930055,
+            0.9522299460134123
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.947,
+          "mcse": 0.0028922597854734063,
+          "wilson_95": [
+            0.9410398705540223,
+            0.9523881183078994
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9485,
+          "mcse": 0.0028532948790243647,
+          "wilson_95": [
+            0.9426151086944982,
+            0.9538109606669604
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "all-boundaries"
+    },
+    {
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 1.05,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.0,
+            0.0006398334877831174
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9801666666666666,
+          "mcse": 0.0017999987139913117,
+          "wilson_95": [
+            0.9763192798608288,
+            0.9833996000464033
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9765,
+          "mcse": 0.001955664848587302,
+          "wilson_95": [
+            0.9723512032235073,
+            0.9800390354626354
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.983,
+          "mcse": 0.0016688818612072783,
+          "wilson_95": [
+            0.9794064874276411,
+            0.9859754334231603
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.0,
+        "mcse": 0.0,
+        "wilson_95": [
+          0.0,
+          0.0006398334877831174
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.948,
+          "mcse": 0.002866356572375462,
+          "wilson_95": [
+            0.9420898861659314,
+            0.9533368230290148
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.954,
+          "mcse": 0.002704440792474482,
+          "wilson_95": [
+            0.9484026489158652,
+            0.9590163822772275
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9476666666666667,
+          "mcse": 0.0028750233493415774,
+          "wilson_95": [
+            0.9417398178181602,
+            0.953020651265778
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9543333333333334,
+          "mcse": 0.0026950949959207438,
+          "wilson_95": [
+            0.9487540412680767,
+            0.9593312300360243
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "token-harm"
+    },
+    {
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.15,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        -0.04,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.0,
+            0.0006398334877831174
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.981,
+          "mcse": 0.0017625265955440227,
+          "wilson_95": [
+            0.9772251703585044,
+            0.984159309826248
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9761666666666666,
+          "mcse": 0.001969149797736559,
+          "wilson_95": [
+            0.9719917610765731,
+            0.9797322374985613
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.0,
+        "mcse": 0.0,
+        "wilson_95": [
+          0.0,
+          0.0006398334877831174
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9478333333333333,
+          "mcse": 0.0028706940379042947,
+          "wilson_95": [
+            0.9419148440398277,
+            0.9531787450996143
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9476666666666667,
+          "mcse": 0.0028750233493415774,
+          "wilson_95": [
+            0.9417398178181602,
+            0.953020651265778
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9523333333333334,
+          "mcse": 0.0027505925287579867,
+          "wilson_95": [
+            0.9466468124300235,
+            0.9574410182080287
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9476666666666667,
+          "mcse": 0.0028750233493415774,
+          "wilson_95": [
+            0.9417398178181602,
+            0.953020651265778
+          ],
+          "replications": 6000
+        }
+      },
+      "scenario_kind": "correctness-harm"
+    }
+  ]
+}

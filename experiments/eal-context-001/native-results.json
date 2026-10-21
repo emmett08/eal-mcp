@@ -1,0 +1,268 @@
+{
+  "status": "native_machinery_diagnostic_only",
+  "protocol": "EAL-CONTEXT-001",
+  "harness_sha256": "ec419350e83a6234a1a0d62eb058256e54212e767324d23449566b6835b1f96c",
+  "invocation": [
+    "python",
+    "experiments/eal-context-001/native_probe.py",
+    "--candidate-root",
+    "/workspace/scratch/e874d8fe9740/eal-mcp",
+    "--reference-root",
+    "/workspace/scratch/ad46a1f488a4/eal-context-reference",
+    "--output",
+    "experiments/eal-context-001/native-results.json"
+  ],
+  "reference_sha": "de3a99dfb1003f43f75d7bfe18007179ecb4f4aa",
+  "candidate_sha": "71661ea05225157961fe32b355db62dac42e3bba",
+  "binary_sha256": {
+    "reference": {
+      "eal": "9f7537e37485791f915a40fbc7f59a3dbcf2d83e1c9d4c033bebca77a392196a",
+      "eal-host": "15c792fb921f614e3e9f1676e33a0e53b176b69adbbab1a27e04859dfef4f416",
+      "eal-mcp": "e12149e045301139ea08f1a0b749881ba841106ded97217e2025731a7ab61401",
+      "eal-command-supervisor": "15b7f31bd5c9d2599bc94789070f8d4cc3221d5bbed3a10f2bcf43b1b7e2fa3d",
+      "eal-method-worker": "8175a88fe2cb3d1b631e2b3fe9682f9e2a5017f4d12c0997dae26cc3ef235afb"
+    },
+    "candidate": {
+      "eal": "3ef7c6885f39031e405554017cf1a62fd26a0f2fb01c19b4e5c9fd9090394aad",
+      "eal-host": "c16b29a8dceb10433db82c83c94a77b4de6852bb1ada41e1b34e9b6a412daba1",
+      "eal-mcp": "ab11c56a371b6a6263d46edc75c78a66f4de41327a62f0c2b4fad00546aaf54d",
+      "eal-command-supervisor": "57008188863f88d89c75b2faebc628595bc643013f3c8065b2f6764015b85be7",
+      "eal-method-worker": "d310402a824ab5d4746617a0b959ab4f87071826ae6d69ffd6f9f4d5829ab8ec"
+    }
+  },
+  "started_at_utc": "2026-10-21T08:07:29.747197+00:00",
+  "python": "3.12.14",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "model_sessions": 0,
+  "provider_usage": null,
+  "provider_usage_reason": "No language model or provider endpoint is invoked by this diagnostic.",
+  "limitations": [
+    "These hand-constructed fixtures calibrate native packet machinery only.",
+    "They do not implement or estimate the 24-scenario long-session model pilot.",
+    "Default parity normalises assessment, collection and observation IDs only.",
+    "The old executable is used only for packet compatibility, not a timed workflow comparison."
+  ],
+  "checks": {
+    "simple_default_reference_parity": true,
+    "simple_retrieval_no_records_added": true,
+    "source_edit_creates_new_assessment": true,
+    "historical_retrieval_preserves_original_revision_and_time": true,
+    "registered_allowlist_rejection": true,
+    "native_model_context_messages_available": true,
+    "raw_observation_secret_excluded": true,
+    "byte_pressure_default_reference_parity": true,
+    "byte_pressure_retrieval_no_records_added": true,
+    "byte_pressure_4096_reports_omission": true,
+    "byte_pressure_65536_recovers_statements": true,
+    "count_pressure_default_reference_parity": true,
+    "count_pressure_retrieval_no_records_added": true,
+    "count_pressure_remains_incomplete_at_65536": true
+  },
+  "fixtures": {
+    "simple": {
+      "source_sha256": "403fa7b0c8adb874f62b70509113f9adf72b44c86e6beeae82f8bf7607e5a594",
+      "normalised_default_packet_sha256": "fbb07a98a3d164dd3deedc46eff0dca103fba7a34674d5c1b8f66d410aecb555",
+      "retrieval_ladder": [
+        {
+          "max_bytes": 4096,
+          "max_statement_bytes": 1024,
+          "packet_utf8_bytes": 1464,
+          "registered_envelope_utf8_bytes": 1926,
+          "host_inspection_envelope_utf8_bytes": 4166,
+          "packet_sha256": "4a03b4ba80d9842d81ad8bb8c73718b597f99d064f225268522e66961ba1c7bb",
+          "summary_complete": true,
+          "omitted": {},
+          "claims": 1,
+          "premise_claims": 0,
+          "arguments": 1
+        },
+        {
+          "max_bytes": 16384,
+          "max_statement_bytes": 1024,
+          "packet_utf8_bytes": 1464,
+          "registered_envelope_utf8_bytes": 1926,
+          "host_inspection_envelope_utf8_bytes": 4166,
+          "packet_sha256": "4a03b4ba80d9842d81ad8bb8c73718b597f99d064f225268522e66961ba1c7bb",
+          "summary_complete": true,
+          "omitted": {},
+          "claims": 1,
+          "premise_claims": 0,
+          "arguments": 1
+        },
+        {
+          "max_bytes": 65536,
+          "max_statement_bytes": 4096,
+          "packet_utf8_bytes": 1464,
+          "registered_envelope_utf8_bytes": 1926,
+          "host_inspection_envelope_utf8_bytes": 4166,
+          "packet_sha256": "4a03b4ba80d9842d81ad8bb8c73718b597f99d064f225268522e66961ba1c7bb",
+          "summary_complete": true,
+          "omitted": {},
+          "claims": 1,
+          "premise_claims": 0,
+          "arguments": 1
+        }
+      ],
+      "records_before_retrieval": {
+        "assessment": 1,
+        "collection": 1,
+        "observation": 1
+      },
+      "records_after_retrieval": {
+        "assessment": 1,
+        "collection": 1,
+        "observation": 1
+      },
+      "historical_retrieval_after_edit": {
+        "max_bytes": 16384,
+        "max_statement_bytes": 1024,
+        "packet_utf8_bytes": 1464,
+        "registered_envelope_utf8_bytes": 1926,
+        "host_inspection_envelope_utf8_bytes": 4166,
+        "packet_sha256": "4a03b4ba80d9842d81ad8bb8c73718b597f99d064f225268522e66961ba1c7bb",
+        "summary_complete": true,
+        "omitted": {},
+        "claims": 1,
+        "premise_claims": 0,
+        "arguments": 1
+      },
+      "unexposed_entry_rejection": {
+        "operation": "get_known_packet",
+        "protocol_version": "2025-11-25",
+        "is_error": true,
+        "result": null,
+        "content": [
+          {
+            "type": "text",
+            "text": "Error calling tool 'eal_get_known_packet': Registered source is not exposed by this server"
+          }
+        ]
+      },
+      "model_context_messages_sha256": "bd8513125d3f8080ffb96d8c7782bda80402d67c3b8344d828a0b626d278bf4e"
+    },
+    "byte_pressure": {
+      "source_sha256": "71dc57399db7b38ebc949f4da81009250961d9a83fe94e9c4bd59d37f63d478c",
+      "normalised_default_packet_sha256": "3b1d1cf286f9f1eafdf0d5dfa30168b9a25949972c7b17db0ff28f6109b751fd",
+      "retrieval_ladder": [
+        {
+          "max_bytes": 4096,
+          "max_statement_bytes": 1024,
+          "packet_utf8_bytes": 678,
+          "registered_envelope_utf8_bytes": 1140,
+          "host_inspection_envelope_utf8_bytes": 2506,
+          "packet_sha256": "699a8e04370bd6dff166b244e4ab3f3c38d564ad4cd33dd17960ed2c1a03d0b6",
+          "summary_complete": false,
+          "omitted": {
+            "details": "packet_byte_limit"
+          },
+          "claims": 1,
+          "premise_claims": 0,
+          "arguments": 0
+        },
+        {
+          "max_bytes": 16384,
+          "max_statement_bytes": 1024,
+          "packet_utf8_bytes": 9600,
+          "registered_envelope_utf8_bytes": 10062,
+          "host_inspection_envelope_utf8_bytes": 20716,
+          "packet_sha256": "8c93ccf06be115c00fc80425aa2785db575adf1f35b5f83ac270cd7c1f89b805",
+          "summary_complete": false,
+          "omitted": {
+            "claim_statement_bytes": 4296
+          },
+          "claims": 1,
+          "premise_claims": 6,
+          "arguments": 7
+        },
+        {
+          "max_bytes": 65536,
+          "max_statement_bytes": 4096,
+          "packet_utf8_bytes": 13705,
+          "registered_envelope_utf8_bytes": 14167,
+          "host_inspection_envelope_utf8_bytes": 28912,
+          "packet_sha256": "61a8cac6d8dba6f7eb7c38270cd6ba083edeeec79eac344ff014fd4e08ebaa5a",
+          "summary_complete": true,
+          "omitted": {},
+          "claims": 1,
+          "premise_claims": 6,
+          "arguments": 7
+        }
+      ],
+      "records_before_retrieval": {
+        "assessment": 1,
+        "collection": 1,
+        "observation": 1
+      },
+      "records_after_retrieval": {
+        "assessment": 1,
+        "collection": 1,
+        "observation": 1
+      }
+    },
+    "count_pressure": {
+      "source_sha256": "0a89490cd406fd1bf66f7f63dfffc2c3482f82b339e17f1d953493e110f879b9",
+      "normalised_default_packet_sha256": "95301a877bd7d7e1db85253b72171144011a4abd57ffb9a00fb7b3d257950aea",
+      "retrieval_ladder": [
+        {
+          "max_bytes": 4096,
+          "max_statement_bytes": 1024,
+          "packet_utf8_bytes": 678,
+          "registered_envelope_utf8_bytes": 1140,
+          "host_inspection_envelope_utf8_bytes": 2506,
+          "packet_sha256": "94076528a147e12fb0cbe55b5d213790b08030459b5af7a545c28b66a308e11d",
+          "summary_complete": false,
+          "omitted": {
+            "details": "packet_byte_limit"
+          },
+          "claims": 1,
+          "premise_claims": 0,
+          "arguments": 0
+        },
+        {
+          "max_bytes": 16384,
+          "max_statement_bytes": 1024,
+          "packet_utf8_bytes": 6683,
+          "registered_envelope_utf8_bytes": 7145,
+          "host_inspection_envelope_utf8_bytes": 15388,
+          "packet_sha256": "591c9fe5db3b4dfae8dc81e3f73f639c9aa4c0853c43390433e89677b53630eb",
+          "summary_complete": false,
+          "omitted": {
+            "arguments": 16
+          },
+          "claims": 1,
+          "premise_claims": 0,
+          "arguments": 24
+        },
+        {
+          "max_bytes": 65536,
+          "max_statement_bytes": 4096,
+          "packet_utf8_bytes": 6683,
+          "registered_envelope_utf8_bytes": 7145,
+          "host_inspection_envelope_utf8_bytes": 15388,
+          "packet_sha256": "591c9fe5db3b4dfae8dc81e3f73f639c9aa4c0853c43390433e89677b53630eb",
+          "summary_complete": false,
+          "omitted": {
+            "arguments": 16
+          },
+          "claims": 1,
+          "premise_claims": 0,
+          "arguments": 24
+        }
+      ],
+      "records_before_retrieval": {
+        "assessment": 1,
+        "collection": 1,
+        "observation": 1
+      },
+      "records_after_retrieval": {
+        "assessment": 1,
+        "collection": 1,
+        "observation": 1
+      }
+    }
+  },
+  "checks_passed": 14,
+  "checks_failed": 0,
+  "finished_at_utc": "2026-10-21T08:07:42.140223+00:00",
+  "elapsed_seconds": 12.393028984
+}
