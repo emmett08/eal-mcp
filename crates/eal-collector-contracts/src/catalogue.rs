@@ -47,6 +47,28 @@ pub struct CollectorDescriptor {
     pub constraints: Vec<InputConstraint>,
 }
 impl CollectorDescriptor {
+    /// Unconditionally required top-level input fields and literal command parameters.
+    /// Conditional schema requirements still apply when validating the complete input.
+    pub fn required_parameters(&self) -> Result<Vec<String>, String> {
+        self.validate()?;
+        let mut required = self
+            .command
+            .parameter_names()?
+            .into_iter()
+            .collect::<BTreeSet<_>>();
+        if let Some(fields) = self.input_schema.get("required").and_then(Value::as_array) {
+            for field in fields {
+                let name = field
+                    .as_str()
+                    .ok_or("Invalid required collector parameter")?;
+                if !self.parameters.iter().any(|p| p == name) {
+                    return Err("Required collector parameter is undeclared".into());
+                }
+                required.insert(name.into());
+            }
+        }
+        Ok(required.into_iter().collect())
+    }
     pub fn validate(&self) -> Result<(), String> {
         if crate::CollectorId::parse(self.id.clone()).is_err()
             || self.version.is_empty()

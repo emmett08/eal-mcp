@@ -91,6 +91,11 @@ use an explicit cluster inventory. The [catalogue deployment
 example](examples/catalog-sync-operator/README.md) explains configuration and the
 claim boundaries.
 
+Catalogue version 3 adds OpenAPI-backed operation discovery, Datadog telemetry,
+Prometheus-compatible metrics, Loki searches, exact-attempt GitHub CI results
+and pinned report imports. See [API and delivery evidence](docs/api-collectors.md)
+for operator configuration, supported OpenAPI versions and measurement limits.
+
 The command supervisor enforces deadlines and output limits and owns process-group
 cleanup. Collectors execute with their configured host permissions. Select
 `inherit_env` explicitly and pin collector dependencies when their byte identity

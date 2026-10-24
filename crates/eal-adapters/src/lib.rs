@@ -3,6 +3,7 @@
 pub mod command;
 pub mod files;
 pub mod generic;
+pub mod http;
 pub mod profiles;
 pub mod retained;
 pub mod scoped;

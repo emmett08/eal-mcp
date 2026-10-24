@@ -22,7 +22,7 @@ async fn run(arguments: Vec<String>) -> Result<(), String> {
         let version = match arguments.as_slice() {
             [_] => "1",
             [_, flag, version] if flag == "--catalogue-version" => version,
-            _ => return Err("describe accepts only --catalogue-version 1|2".into()),
+            _ => return Err("describe accepts only --catalogue-version 1|2|3".into()),
         };
         let catalogue = eal_collectors::catalogue::native_version(version)?;
         let bytes = serde_json::to_vec_pretty(catalogue)
@@ -30,6 +30,19 @@ async fn run(arguments: Vec<String>) -> Result<(), String> {
         std::io::stdout()
             .write_all(&bytes)
             .map_err(|_| "Cannot write collector catalogue")?;
+        return Ok(());
+    }
+    if arguments.first().map(String::as_str) == Some("describe-api") {
+        let config = eal_collectors::Config::parse(arguments.into_iter().skip(1).collect())?;
+        let eal_collectors::config::ProviderConfig::Api(selected) = config.selected() else {
+            return Err("describe-api requires an API provider".into());
+        };
+        let catalogue = eal_collectors::api::describe(selected)?;
+        let bytes =
+            serde_json::to_vec_pretty(&catalogue).map_err(|_| "Cannot encode API catalogue")?;
+        std::io::stdout()
+            .write_all(&bytes)
+            .map_err(|_| "Cannot write API catalogue")?;
         return Ok(());
     }
     let config = eal_collectors::Config::parse(arguments)?;

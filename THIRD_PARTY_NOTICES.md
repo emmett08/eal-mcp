@@ -24,6 +24,13 @@ the resolved dependency versions, and Cargo package metadata identifies their
 licences. Binary distribution packaging must retain the applicable dependency
 notices.
 
+## JUnit XML reader
+
+The optional native report collector uses `quick-xml` version `0.42.0`.
+Its MIT notice is retained in
+[quick-xml-MIT.txt](contracts/licenses/quick-xml-MIT.txt).
+Copyright (c) 2016 Johann Tuffe.
+
 ## CPython numerical algorithms
 
 The native statistical methods adapt the inverse-normal approximation from

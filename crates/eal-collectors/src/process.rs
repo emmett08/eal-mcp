@@ -1,18 +1,14 @@
 //! Deadline and byte ownership for fixed read-only external commands.
 use eal_process::process::{CommandRequest, Supervisor};
 use std::{collections::BTreeMap, time::Instant};
-
 pub(crate) fn run(
     config: &crate::Config,
     arguments: Vec<String>,
     started: Instant,
 ) -> Result<Vec<u8>, String> {
-    let remaining = config
-        .limits()
-        .timeout()
-        .checked_sub(started.elapsed())
-        .filter(|v| !v.is_zero())
-        .ok_or("Collector deadline exhausted")?;
+    run_with_environment(config, arguments, started, &environment(config)?)
+}
+pub(crate) fn environment(config: &crate::Config) -> Result<BTreeMap<String, String>, String> {
     let mut environment = BTreeMap::new();
     let command = config
         .selected()
@@ -28,6 +24,25 @@ pub(crate) fn run(
             );
         }
     }
+    Ok(environment)
+}
+
+pub(crate) fn run_with_environment(
+    config: &crate::Config,
+    arguments: Vec<String>,
+    started: Instant,
+    environment: &BTreeMap<String, String>,
+) -> Result<Vec<u8>, String> {
+    let remaining = config
+        .limits()
+        .timeout()
+        .checked_sub(started.elapsed())
+        .filter(|v| !v.is_zero())
+        .ok_or("Collector deadline exhausted")?;
+    let command = config
+        .selected()
+        .command()
+        .ok_or("The selected provider does not execute commands")?;
     let mut argv = vec![
         command
             .executable
@@ -40,7 +55,7 @@ pub(crate) fn run(
         .run(
             CommandRequest {
                 argv,
-                environment,
+                environment: environment.clone(),
                 cwd: std::env::current_dir().map_err(|_| "Cannot resolve collector workspace")?,
                 input: Vec::new(),
                 timeout: remaining,

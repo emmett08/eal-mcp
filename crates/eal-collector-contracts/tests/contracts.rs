@@ -102,3 +102,21 @@ fn published_schemas_accept_current_models_and_reject_unknown_fields() {
     invalid.tool = String::new();
     assert!(invalid.validate().is_err());
 }
+#[test]
+fn required_planning_parameters_preserve_optional_inputs_and_fixed_command_requirements() {
+    let descriptor:eal_collector_contracts::CollectorDescriptor=serde_json::from_value(serde_json::json!({
+        "id":"api.fixture","version":"2","purpose":"Read a scoped API operation","parameters":["body","query","scope"],
+        "input_schema":{"type":"object","additionalProperties":false,"required":["body"],"properties":{"body":{"type":"object"},"query":{"type":"object"}}},
+        "result_schema":{"type":"object"},"command":{"argv":["{operator.executable}","--scope","{scope}"],"inherit_env":[],"timeout_seconds":5,"max_output_bytes":4096,"parallel_safe":true},
+        "acquisition_predicate":"collected == true"
+    })).unwrap();
+    assert_eq!(descriptor.required_parameters().unwrap(), ["body", "scope"]);
+    descriptor
+        .validate_input(&serde_json::json!({"body":{}}))
+        .unwrap();
+    assert!(
+        descriptor
+            .validate_input(&serde_json::json!({"body":{},"query":null}))
+            .is_err()
+    );
+}
