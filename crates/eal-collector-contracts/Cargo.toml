@@ -8,12 +8,11 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-serde.workspace = true
-serde_json.workspace = true
-toml.workspace = true
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = { version = "1.0.145", features = ["arbitrary_precision", "raw_value"] }
+toml = "0.9.8"
+jsonschema = { version = "0.46.0", default-features = false, features = ["arbitrary-precision"] }
 
-[dev-dependencies]
-jsonschema.workspace = true
 
 [lints]
 workspace = true

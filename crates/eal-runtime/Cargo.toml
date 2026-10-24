@@ -16,7 +16,9 @@ name = "eal-method-worker"
 path = "src/bin/method_worker.rs"
 
 [dependencies]
+eal-process.workspace = true
 eal-core.workspace = true
+eal-collector-contracts.workspace = true
 eal-aspic.workspace = true
 serde.workspace = true
 serde_json.workspace = true

@@ -17,7 +17,10 @@ pub(crate) struct Inventory {
     pub clusters: Vec<Cluster>,
 }
 pub(crate) fn read(config: &crate::Config) -> Result<(Inventory, String), String> {
-    let path = config.path("--inventory")?;
+    let path = config
+        .selected()
+        .inventory()
+        .ok_or("The selected provider does not use an inventory")?;
     // Resolve operator-selected parent aliases while leaving the leaf untouched
     // so the runtime reader can reject a symlink or special file before reading.
     let name = path
@@ -29,17 +32,18 @@ pub(crate) fn read(config: &crate::Config) -> Result<(Inventory, String), String
         .canonicalize()
         .map_err(|_| "Cannot resolve cluster inventory parent")?;
     let path = parent.join(name);
-    let bytes = eal_runtime::acquisition::read_regular(
-        &path,
-        1_048_576,
-        "Inventory must be a bounded regular file",
-    )
-    .map_err(|_| "Cannot read the bounded regular no-follow cluster inventory")?;
+    let bytes =
+        eal_adapters::files::read(&path, 1_048_576, "Inventory must be a bounded regular file")
+            .map_err(|_| "Cannot read the bounded regular no-follow cluster inventory")?;
     if bytes.len() > 1_048_576 {
         return Err("Cluster inventory exceeds 1 MiB".into());
     }
-    let value = eal_runtime::acquisition::strict_json(
-        std::str::from_utf8(&bytes).map_err(|_| "Inventory requires UTF-8")?,
+    let value = eal_collector_contracts::strict_json(
+        &bytes,
+        eal_collector_contracts::JsonLimits {
+            max_bytes: 1_048_576,
+            ..eal_collector_contracts::JsonLimits::default()
+        },
     )
     .map_err(|_| "Inventory must be strict JSON")?;
     let inventory: Inventory =

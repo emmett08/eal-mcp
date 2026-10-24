@@ -1,63 +1,50 @@
-//! Exact acquisition requests with bounded provider-specific inputs.
-use eal_collector_contracts::AcquisitionRequest;
-use serde::Deserialize;
-use serde_json::{Value, json};
+//! Native object-input profile over the authoritative acquisition request model.
+use eal_collector_contracts::{AcquisitionRequest, JsonLimits};
+use serde::{Deserialize, Serialize};
+use std::ops::{Deref, DerefMut};
 
-#[derive(Clone, Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct Request {
-    pub evidence_id: String,
-    pub environment: String,
-    pub tool: String,
-    pub tool_version: String,
-    pub input: Value,
-    pub context: Value,
-}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(transparent)]
+pub struct Request(AcquisitionRequest);
 impl Request {
     pub fn parse(bytes: &[u8]) -> Result<Self, String> {
-        let text = std::str::from_utf8(bytes).map_err(|_| "Request must be UTF-8")?;
-        let value = eal_runtime::acquisition::strict_json(text)
-            .map_err(|_| "Request must be strict JSON")?;
-        let result: AcquisitionRequest =
-            serde_json::from_value(value).map_err(|_| "Invalid EAL acquisition request fields")?;
-        result.validate()?;
+        let request = Self(AcquisitionRequest::parse(
+            bytes,
+            JsonLimits {
+                max_bytes: 1_048_576,
+                ..JsonLimits::default()
+            },
+        )?);
+        request.validate_native()?;
+        Ok(request)
+    }
+    pub(crate) fn validate_native(&self) -> Result<(), String> {
+        self.0.validate()?;
         if [
-            &result.evidence_id,
-            &result.environment,
-            &result.tool,
-            &result.tool_version,
+            &self.evidence_id,
+            &self.environment,
+            &self.tool,
+            &self.tool_version,
         ]
         .iter()
-        .any(|value| value.len() > 1024)
+        .any(|s| s.len() > 1024)
         {
             return Err("Native request identity must be bounded".into());
         }
-        if !result.input.is_object() {
+        if !self.input.is_object() {
             return Err("Native collector input must be a JSON object".into());
         }
-        Ok(Self {
-            evidence_id: result.evidence_id,
-            environment: result.environment,
-            tool: result.tool,
-            tool_version: result.tool_version,
-            input: result.input,
-            context: result.context,
-        })
-    }
-    pub fn acquisition(&self) -> Value {
-        json!({"tool":self.tool,"tool_version":self.tool_version,"input":self.input,"context":self.context})
-    }
-    pub(crate) fn fields(&self, expected: &[&str]) -> Result<(), String> {
-        let object = self.input.as_object().ok_or("Input must be an object")?;
-        if object.len() != expected.len() || expected.iter().any(|key| !object.contains_key(*key)) {
-            return Err("Input fields differ from the selected collector contract".into());
-        }
         Ok(())
     }
-    pub(crate) fn matches(&self, key: &str, expected: &str) -> Result<(), String> {
-        if self.input[key].as_str() != Some(expected) {
-            return Err("Source input differs from the operator-selected resource".into());
-        }
-        Ok(())
+}
+impl Deref for Request {
+    type Target = AcquisitionRequest;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl DerefMut for Request {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }

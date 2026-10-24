@@ -165,7 +165,7 @@ async fn sdk_byte_stream_roundtrip_preserves_inventory_and_actual_framework_erro
                     .as_text()
                     .unwrap()
                     .text
-                    .contains("{'$serde_json::private::Number': '1'}")
+                    .contains("EAL_OPERATION_INTEGER")
             );
         }
         if !registered {

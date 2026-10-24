@@ -41,9 +41,8 @@ impl ObservationRebinder {
         canonical::canonical_digest(context, &program.limits)?;
         let context = evaluation::environment_context(&evidence.environment, context)?;
         let acquisition = acquisition_request(program, evidence_id, &context)?;
-        let request = json!({"evidence_id":evidence_id,"environment":evidence.environment,
-            "tool":acquisition["tool"],"tool_version":acquisition["tool_version"],
-            "input":acquisition["input"],"context":acquisition["context"]});
+        let request =
+            crate::collection::full_request(evidence_id, &evidence.environment, &acquisition);
         let mut expected = json!({
             "evidence_id":evidence_id,"tool":acquisition["tool"],"tool_version":acquisition["tool_version"],
             "evidence_kind":evidence.kind,"environment":evidence.environment,

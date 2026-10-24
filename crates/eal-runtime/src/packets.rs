@@ -10,6 +10,8 @@ pub(crate) mod shape;
 use shape::{bounded, digest, identifier, ids, mapping, record_identifier, scalar, state};
 
 pub const PACKET_SCHEMA: &str = "EAL/assessment-packet/2";
+/// Version 3 adds mandatory qualification for computationally incomplete results.
+pub const INCOMPLETE_PACKET_SCHEMA: &str = "EAL/assessment-packet/3";
 const CLAIM_STATES: &[&str] = &["supported", "contested", "unsupported", "out_of_scope"];
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -102,9 +104,26 @@ impl AssessmentPacketBuilder {
         if let Some(collection) = collection {
             shape::preflight(collection)?;
         }
-        if !assessment.is_object() || assessment["valid"] != true || assessment["complete"] == false
+        if !assessment.is_object() || assessment["valid"] != true {
+            return Err("A packet requires a valid assessment".into());
+        }
+        let complete = match assessment.get("complete") {
+            None => true,
+            Some(Value::Bool(complete)) => *complete,
+            Some(_) => return Err("Assessment completeness must be a boolean".into()),
+        };
+        if complete
+            && assessment
+                .get("arguments")
+                .and_then(Value::as_object)
+                .is_some_and(|arguments| {
+                    arguments.values().any(|argument| {
+                        argument["reasoning_result"]["status"]
+                            == eal_core::methods::MethodResultStatus::Incomplete.as_str()
+                    })
+                })
         {
-            return Err("A packet requires a valid, completed assessment".into());
+            return Err("Assessment completeness contradicts an incomplete method result".into());
         }
         let assessment_id = assessment["assessment_id"]
             .as_str()
@@ -149,13 +168,16 @@ impl AssessmentPacketBuilder {
         {
             return Err("Collection identifier must be bounded".into());
         }
-        let mut packet = json!({"schema": PACKET_SCHEMA, "assessment_id": assessment_id,
+        let mut packet = json!({"schema": if complete {PACKET_SCHEMA} else {INCOMPLETE_PACKET_SCHEMA}, "assessment_id": assessment_id,
             "collection_id": collection_id, "source_digest": digest(&assessment["source_digest"]),
             "context_fingerprint": digest(&assessment["context_fingerprint"]),
             "method_registry_fingerprint": digest(&assessment["method_registry_fingerprint"]),
             "claims": {}, "premise_claims": {}, "arguments": {}, "assumptions": {}, "objections": {}, "evidence": {},
             "omitted": {}, "summary_complete": true,
             "full_explanation": {"operation": "explain", "assessment_id": assessment_id, "detail": "full"}});
+        if !complete {
+            packet["complete"] = json!(false);
+        }
         let mut omitted = Map::new();
         if claims.is_none() && entries.len() > selected.len() {
             add(&mut omitted, "claims", entries.len() - selected.len());
@@ -197,6 +219,9 @@ impl AssessmentPacketBuilder {
                 "related_arguments": prefix(related, self.limits.max_arguments),
                 "active_objections": prefix(active, self.limits.max_objections),
                 "undecided_objections": prefix(undecided, self.limits.max_objections)});
+            if !complete {
+                claim["assessment_complete"] = json!(false);
+            }
             claim
                 .as_object_mut()
                 .expect("constructed object")
@@ -425,7 +450,7 @@ impl AssessmentPacketBuilder {
         packet["summary_complete"] = json!(omitted.is_empty());
         packet["omitted"] = Value::Object(omitted);
         if shape::size(&packet)? > self.limits.max_bytes {
-            let claims = packet["claims"].as_object().expect("constructed map").iter().map(|(name, item)| (name.clone(), json!({"status": item["status"], "statement": null, "prose_verified": false}))).collect();
+            let claims = packet["claims"].as_object().expect("constructed map").iter().map(|(name, item)| (name.clone(), if complete { json!({"status": item["status"], "statement": null, "prose_verified": false}) } else { json!({"status": item["status"], "statement": null, "prose_verified": false, "assessment_complete": false}) })).collect();
             let mut fallback = Map::new();
             for key in [
                 "schema",
@@ -437,6 +462,9 @@ impl AssessmentPacketBuilder {
                 "full_explanation",
             ] {
                 fallback.insert(key.into(), packet[key].take());
+            }
+            if !complete {
+                fallback.insert("complete".into(), json!(false));
             }
             fallback.insert("claims".into(), Value::Object(claims));
             fallback.insert("summary_complete".into(), json!(false));

@@ -5,6 +5,7 @@ use crate::{
     scheduler::CollectionScheduler,
     service::{ReasoningService, ServiceConfig},
 };
+pub use eal_collector_contracts::{TomlDocumentKind, toml_diagnostic};
 use eal_core::{ExecutionLimits, methods};
 use serde::Deserialize;
 use std::{
@@ -47,6 +48,11 @@ pub fn sibling_executable(name: &str) -> Result<PathBuf, String> {
         .join(format!("{name}{}", std::env::consts::EXE_SUFFIX)))
 }
 
+/// Installed supervisor selection shared by runtime and coordination frontends.
+pub fn supervisor_in(directory: &Path) -> PathBuf {
+    eal_process::companion_in(directory)
+}
+
 pub fn load_limits(path: Option<&Path>) -> Result<ExecutionLimits, String> {
     #[derive(Deserialize)]
     #[serde(deny_unknown_fields)]
@@ -63,7 +69,8 @@ pub fn load_limits(path: Option<&Path>) -> Result<ExecutionLimits, String> {
         return Err("Limits configuration exceeds 16 KiB".into());
     }
     let text = std::str::from_utf8(&bytes).map_err(|e| e.to_string())?;
-    let document: Document = toml::from_str(text).map_err(|e| e.to_string())?;
+    let document: Document = toml::from_str(text)
+        .map_err(|error| toml_diagnostic(TomlDocumentKind::Limits, text, &error))?;
     document.limits.validate()?;
     Ok(document.limits)
 }
@@ -98,7 +105,11 @@ pub fn build_service_with_limits(
     let supervisor = Supervisor::new(
         options
             .supervisor
-            .unwrap_or(sibling_executable("eal-command-supervisor")?)
+            .unwrap_or(supervisor_in(
+                sibling_executable("eal-process-supervisor")?
+                    .parent()
+                    .ok_or("Cannot locate supervisor directory")?,
+            ))
             .canonicalize()
             .map_err(|e| format!("Cannot resolve supervisor executable: {e}"))?,
     );

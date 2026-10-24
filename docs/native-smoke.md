@@ -24,12 +24,13 @@ workspace. Reports state the original observation time and installed prefix.
 
 ## Preservation contract
 
-Application acceptance checks all nine groups across
+Application acceptance checks all ten groups across
 CLI validation and discovery, durable collection and reuse, model-context
 projection, SDK stdio, authenticated HTTP and restricted historical packet
 retrieval. HTTP controls check missing and incorrect bearer credentials, foreign
-Origin and foreign Host. The bearer-redaction check covers the complete returned
-host envelope.
+Origin and foreign Host. The bearer check rejects an entire credential-bearing
+semantic response and preserves clean results unchanged. Installed operation
+contract checks compare every advertised operation through text and SDK calls.
 
 Coordination acceptance executes four complete software-worker runs, two through
 the JSON mailbox and two through the native persistent MCP mailbox. It checks
@@ -64,3 +65,12 @@ These are deterministic software acceptance checks against synthetic observation
 They exercise local command, transport, persistence and recovery mechanisms.
 External provider identity and model-quality studies retain separate evidence
 requirements.
+
+Smoke file admission runs before executable discovery or process execution.
+Cached view JSON has a 64 MiB allowance and the pinned consumer source has a
+4 MiB allowance. Both require regular files and reject leaf aliases. Parent
+aliases resolve to a selected canonical parent. Their loaders share the
+runtime's bounded, non-blocking regular-file reader on POSIX hosts. The tests
+cover FIFOs, ordinary aliases, exact allowances and sparse oversized files.
+These checks bound allocation and special-file admission rather than every
+possible filesystem stall.

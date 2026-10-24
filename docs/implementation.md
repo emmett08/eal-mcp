@@ -10,6 +10,8 @@ have separate owners.
 | `eal-parser` | Generated recognition, tokens, syntax trees and diagnostics | Bounded source, token count, nesting and syntax nodes |
 | `eal-core` | Composition, validation, typed expressions, authored assessment, planning and formatting | Supplied observations, explicit context and assessment time |
 | `eal-aspic` | Finite argument construction, preferences, defeats, extensions, queries and checked graph export | Explicit finite budgets with typed incomplete results |
+| `eal-process` | Bounded subprocess protocol, client and independent companion | Exact argv, explicit environment and retained ownership capability |
+| `eal-adapters` | Optional transport, retained artifact and specialised source/trace acquisition | Operator scope and shared collector contracts |
 | `eal-runtime` | Acquisition, private storage, reuse, catalogues, packets and supervised methods | Trusted operator configuration and POSIX process/filesystem facilities |
 | `eal-mcp` | Operator and registered catalogues, stdio, Streamable HTTP and the text host | Closed schemas, admission limits and configured authentication |
 | `eal-coordination` | Task pinning, role gateways, first responses, effect reservations, delivery and mailbox serving | Trusted workers and one authoritative local ledger |

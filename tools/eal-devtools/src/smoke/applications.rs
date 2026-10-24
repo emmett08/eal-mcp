@@ -36,6 +36,7 @@ pub fn run(options: &Options) -> Result<Value> {
             "eal",
             "eal-mcp",
             "eal-host",
+            "eal-process-supervisor",
             "eal-command-supervisor",
             "eal-method-worker",
         ],
@@ -269,6 +270,7 @@ pub fn run(options: &Options) -> Result<Value> {
                 "HTTP authentication/origin/host policy failed",
             )?;
         }
+        super::operation_contracts::check(&h, &runtime, &client, &url, restricted, &reused)?;
         let host_args = ["--url", url.as_str(), "--token-env", TOKEN_ENV];
         if restricted {
             let answer = h.host(&json!({"operation":"sources"}), &host_args, 0)?;
@@ -315,23 +317,23 @@ pub fn run(options: &Options) -> Result<Value> {
             let answer = h.host(
                 &json!({"operation":"format","source":source}),
                 &host_args,
-                0,
+                2,
             )?;
             ensure(
-                answer["is_error"] == false
-                    && answer["protocol_version"] == "2025-11-25"
+                answer["is_error"] == true
+                    && answer.get("result").is_none()
                     && !answer.to_string().contains(TOKEN)
-                    && answer["result"]["source"]
+                    && answer["error"]
                         .as_str()
-                        .is_some_and(|s| s.contains("[redacted]")),
-                "HTTP bearer redaction failed",
+                        .is_some_and(|error| error.contains("EAL_HOST_CREDENTIAL_LEAK")),
+                "HTTP host failed to reject bearer leakage without changing semantic data",
             )?;
             let answer=h.host(&json!({"operation":"reason","source":SOURCE,"context":{"site":"bench"},"collection_id":reused["collection_id"],"now":h.now}),&host_args,0)?;
             ensure(
                 answer["result"]["claims"]["works"]["status"] == "supported",
                 "Full HTTP reasoning failed",
             )?;
-            checks.push("authenticated full HTTP inventory and reasoning; host redacts bearer from structured and encoded content");
+            checks.push("authenticated full HTTP inventory and reasoning; host rejects bearer leakage in semantic content");
         }
         checks.push(if restricted {
             "restricted HTTP rejects missing/wrong bearer, foreign Origin, foreign Host"
@@ -340,15 +342,16 @@ pub fn run(options: &Options) -> Result<Value> {
         });
         server.finish()?;
     }
+    checks.push("all fifteen operations through installed text and MCP entry points with valid, missing, unknown, wrong-type, null, empty-identifier and oversized requests");
     checks
         .push("all installed native children ran with PATH empty; HTTP servers emitted no stdout");
     ensure(
-        checks.len() == 9,
+        checks.len() == 10,
         "Application acceptance group count changed",
     )?;
     h.finish(json!({"check_groups":checks.len(),"checks":checks}))
 }
-async fn post(
+pub(super) async fn post(
     client: &reqwest::Client,
     url: &str,
     payload: &Value,

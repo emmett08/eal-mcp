@@ -239,8 +239,14 @@ impl Workspace {
         }
         match name {
             Some(name) => {
-                let document: Document = toml::from_str(&self.read(name, 16 * 1024)?)
-                    .map_err(|error| error.to_string())?;
+                let source = self.read(name, 16 * 1024)?;
+                let document: Document = toml::from_str(&source).map_err(|error| {
+                    eal_runtime::bootstrap::toml_diagnostic(
+                        eal_runtime::bootstrap::TomlDocumentKind::Limits,
+                        &source,
+                        &error,
+                    )
+                })?;
                 Ok(document.limits)
             }
             None => Ok(ExecutionLimits::default()),

@@ -295,7 +295,7 @@ impl Run<'_> {
         let response = json!({"message":{"schema":"EAL/MAS-coordination/3","kind":"disposition","message_id":"unknown-assessment-handoff","task_id":self.task["task_id"],"task_digest":unknown["task_digest"],"sender":"assessor","recipient":"reviewer","reply_to":request["message_id"],"attempt":0,"finding_id":unknown["finding_id"],"code":"effect_outcome_unknown","outcome":"incomplete"},"consumed_message_ids":[request["message_id"]]});
         let response_path = self.h.root.join("unknown-assessor.json");
         write_json(&response_path, &response)?;
-        let raw = std::fs::read(&response_path).map_err(|e| e.to_string())?;
+        let raw = super::read_bytes(&response_path, 64 * 1024 * 1024)?;
         let retained = self.command(
             "record",
             &dir,
@@ -396,6 +396,7 @@ pub fn run(options: &Options) -> Result<Value> {
             "eal-mcp",
             "eal-mas-server",
             "mas-protocol-codec",
+            "eal-process-supervisor",
             "eal-command-supervisor",
             "eal-method-worker",
         ],

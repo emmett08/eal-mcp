@@ -1,19 +1,20 @@
-//! Operator-owned selectors and resource allowances for collector processes.
-use std::{collections::BTreeMap, path::PathBuf, time::Duration};
+//! Validated provider-specific operator selections and shared resource allowances.
+mod cli;
+use std::{collections::BTreeSet, path::PathBuf, time::Duration};
 
-pub const HELP: &str = "eal-collector describe\n\
+pub const HELP: &str = "eal-collector describe [--catalogue-version 1|2]\n\
 eal-collector kubernetes|github|tempo [OPTIONS]\n\
-Shared --timeout-seconds 30 --max-bytes 1048576\n\
+Shared --contract-version 1|2 --timeout-seconds 30 --max-bytes 1048576\n\
 Commands --executable ABSOLUTE --supervisor ABSOLUTE [--inherit-env NAME ...]\n\
-Kubernetes --inventory ABSOLUTE --resource applications.argoproj.io --kind Application --namespace NAME --name NAME\n\
+Kubernetes --inventory ABSOLUTE --resource RESOURCE --kind KIND --name NAME\n\
+           [--scope namespaced --namespace NAME | --scope cluster]\n\
 GitHub --repository OWNER/REPO --commit EXACT_40_HEX_SHA\n\
-Tempo --inventory ABSOLUTE --url https://HOST/api/search --kind Application --name NAME\n\
+Tempo --inventory ABSOLUTE --url https://HOST/api/search --kind KIND --name NAME\n\
       [--cluster-attribute resource.k8s.cluster.name] [--kind-attribute span.dpe.rollout_kind]\n\
       [--name-attribute span.dpe.rollout_name] [--token-env NAME] [--tenant-env NAME]\n\
       [--max-window-seconds 86400] [--limit 20]\n\
-Input is one EAL JSON request. Tempo input requires integer start_unix and end_unix.\n\
-Kubernetes input is {resource,namespace,name}; GitHub input is {repository,commit}.\n\
-All source parameters must match operator selectors. Credentials are read only from named environment variables.";
+Version 1 is the compatibility default. Version 2 explicitly describes Kubernetes scope.\n\
+Credentials are read only from operator-named environment variables.";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Provider {
@@ -30,191 +31,271 @@ impl Provider {
         }
     }
 }
-
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ContractVersion {
+    V1,
+    V2,
+}
+impl ContractVersion {
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::V1 => "1",
+            Self::V2 => "2",
+        }
+    }
+}
+#[derive(Clone, Debug)]
+pub struct CollectorLimits {
+    timeout: Duration,
+    max_bytes: usize,
+}
+impl CollectorLimits {
+    pub fn new(timeout: Duration, max_bytes: usize) -> Result<Self, String> {
+        if timeout < Duration::from_secs(1)
+            || timeout > Duration::from_secs(3600)
+            || !(256..=16_777_216).contains(&max_bytes)
+        {
+            return Err("Invalid collector process allowances".into());
+        }
+        Ok(Self { timeout, max_bytes })
+    }
+    pub fn timeout(&self) -> Duration {
+        self.timeout
+    }
+    pub fn max_bytes(&self) -> usize {
+        self.max_bytes
+    }
+}
+impl Default for CollectorLimits {
+    fn default() -> Self {
+        Self {
+            timeout: Duration::from_secs(30),
+            max_bytes: 1_048_576,
+        }
+    }
+}
+#[derive(Clone, Debug)]
+pub struct CommandConfig {
+    pub executable: PathBuf,
+    pub supervisor: PathBuf,
+    pub inherit_env: Vec<String>,
+}
+impl CommandConfig {
+    fn validate(&self) -> Result<(), String> {
+        absolute(&self.executable)?;
+        absolute(&self.supervisor)?;
+        if self.inherit_env.len() > 64
+            || self.inherit_env.iter().any(|n| !environment_name(n))
+            || self.inherit_env.iter().collect::<BTreeSet<_>>().len() != self.inherit_env.len()
+        {
+            return Err("Invalid or repeated command environment name".into());
+        }
+        Ok(())
+    }
+}
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ResourceScope {
+    Namespaced(String),
+    Cluster,
+}
+#[derive(Clone, Debug)]
+pub struct KubernetesConfig {
+    pub command: CommandConfig,
+    pub inventory: PathBuf,
+    pub resource: String,
+    pub kind: String,
+    pub name: String,
+    pub scope: ResourceScope,
+}
+impl KubernetesConfig {
+    fn validate(&self) -> Result<(), String> {
+        self.command.validate()?;
+        absolute(&self.inventory)?;
+        for s in [&self.resource, &self.kind, &self.name] {
+            selector(s)?;
+        }
+        if let ResourceScope::Namespaced(namespace) = &self.scope {
+            selector(namespace)?;
+        }
+        Ok(())
+    }
+}
+#[derive(Clone, Debug)]
+pub struct GithubConfig {
+    pub command: CommandConfig,
+    pub repository: String,
+    pub commit: String,
+}
+impl GithubConfig {
+    fn validate(&self) -> Result<(), String> {
+        self.command.validate()?;
+        if self.repository.split('/').count() != 2
+            || self
+                .repository
+                .split('/')
+                .any(|s| selector(s).is_err() || s == "." || s == "..")
+        {
+            return Err("Repository must be OWNER/REPO".into());
+        }
+        if self.commit.len() != 40 || !self.commit.bytes().all(|b| b.is_ascii_hexdigit()) {
+            return Err("GitHub requires an exact 40-character commit SHA".into());
+        }
+        Ok(())
+    }
+}
+#[derive(Clone, Debug)]
+pub struct TempoConfig {
+    pub inventory: PathBuf,
+    pub url: url::Url,
+    pub kind: String,
+    pub name: String,
+    pub cluster_attribute: String,
+    pub kind_attribute: String,
+    pub name_attribute: String,
+    pub token_env: Option<String>,
+    pub tenant_env: Option<String>,
+    pub max_window: Duration,
+    pub limit: usize,
+}
+impl TempoConfig {
+    fn validate(&self) -> Result<(), String> {
+        absolute(&self.inventory)?;
+        selector(&self.kind)?;
+        selector(&self.name)?;
+        if !["https", "http"].contains(&self.url.scheme())
+            || self.url.host_str().is_none()
+            || !self.url.username().is_empty()
+            || self.url.password().is_some()
+            || self.url.query().is_some()
+            || self.url.fragment().is_some()
+        {
+            return Err("Tempo URL requires an HTTP origin and literal search path without credentials or query".into());
+        }
+        if self.url.scheme() == "http"
+            && !self.url.host_str().is_some_and(|h| {
+                h == "localhost"
+                    || h.parse::<std::net::IpAddr>()
+                        .is_ok_and(|ip| ip.is_loopback())
+            })
+        {
+            return Err("Plain HTTP Tempo is permitted only on loopback".into());
+        }
+        for a in [
+            &self.cluster_attribute,
+            &self.kind_attribute,
+            &self.name_attribute,
+        ] {
+            attribute(a)?;
+        }
+        if [&self.token_env, &self.tenant_env]
+            .into_iter()
+            .flatten()
+            .any(|n| !environment_name(n))
+        {
+            return Err("Invalid credential environment name".into());
+        }
+        if self.max_window < Duration::from_secs(1)
+            || self.max_window > Duration::from_secs(2_592_000)
+            || !(1..=1000).contains(&self.limit)
+        {
+            return Err("Invalid Tempo query allowances".into());
+        }
+        Ok(())
+    }
+}
+#[derive(Clone, Debug)]
+pub enum ProviderConfig {
+    Kubernetes(KubernetesConfig),
+    Github(GithubConfig),
+    Tempo(TempoConfig),
+}
+impl ProviderConfig {
+    pub fn provider(&self) -> Provider {
+        match self {
+            Self::Kubernetes(_) => Provider::Kubernetes,
+            Self::Github(_) => Provider::Github,
+            Self::Tempo(_) => Provider::Tempo,
+        }
+    }
+    fn validate(&self) -> Result<(), String> {
+        match self {
+            Self::Kubernetes(c) => c.validate(),
+            Self::Github(c) => c.validate(),
+            Self::Tempo(c) => c.validate(),
+        }
+    }
+    pub fn command(&self) -> Option<&CommandConfig> {
+        match self {
+            Self::Kubernetes(c) => Some(&c.command),
+            Self::Github(c) => Some(&c.command),
+            Self::Tempo(_) => None,
+        }
+    }
+    pub fn inventory(&self) -> Option<&std::path::Path> {
+        match self {
+            Self::Kubernetes(c) => Some(&c.inventory),
+            Self::Tempo(c) => Some(&c.inventory),
+            Self::Github(_) => None,
+        }
+    }
+}
+/// Immutable admitted configuration. Programmatic records pass the same invariants as CLI input.
 #[derive(Clone, Debug)]
 pub struct Config {
-    pub provider: Provider,
-    pub options: BTreeMap<String, String>,
-    pub inherit_env: Vec<String>,
-    pub timeout: Duration,
-    pub max_bytes: usize,
+    selected: ProviderConfig,
+    limits: CollectorLimits,
+    version: ContractVersion,
 }
 impl Config {
+    pub fn new(
+        selected: ProviderConfig,
+        limits: CollectorLimits,
+        version: ContractVersion,
+    ) -> Result<Self, String> {
+        selected.validate()?;
+        if version == ContractVersion::V1
+            && matches!(
+                &selected,
+                ProviderConfig::Kubernetes(KubernetesConfig {
+                    scope: ResourceScope::Cluster,
+                    ..
+                })
+            )
+        {
+            return Err("Kubernetes contract 1 requires an explicit namespace".into());
+        }
+        Ok(Self {
+            selected,
+            limits,
+            version,
+        })
+    }
+    pub fn provider(&self) -> Provider {
+        self.selected.provider()
+    }
+    pub fn selected(&self) -> &ProviderConfig {
+        &self.selected
+    }
+    pub fn limits(&self) -> &CollectorLimits {
+        &self.limits
+    }
+    pub fn version(&self) -> ContractVersion {
+        self.version
+    }
+    pub fn with_limits(&self, limits: CollectorLimits) -> Self {
+        Self {
+            limits,
+            ..self.clone()
+        }
+    }
     pub fn parse(arguments: Vec<String>) -> Result<Self, String> {
-        let mut args = arguments.into_iter();
-        let provider = match args.next().as_deref() {
-            Some("kubernetes") => Provider::Kubernetes,
-            Some("github") => Provider::Github,
-            Some("tempo") => Provider::Tempo,
-            _ => return Err("Select kubernetes, github or tempo".into()),
-        };
-        let mut options = BTreeMap::new();
-        let mut inherit_env = Vec::new();
-        while let Some(key) = args.next() {
-            let value = args
-                .next()
-                .ok_or("Every operator option requires a value")?;
-            if key == "--inherit-env" {
-                if !environment_name(&value) || inherit_env.contains(&value) {
-                    return Err("Invalid or repeated environment name".into());
-                }
-                inherit_env.push(value);
-            } else if options.insert(key, value).is_some() {
-                return Err("Repeated operator option".into());
-            }
-        }
-        let timeout = number(options.get("--timeout-seconds"), 30, 1, 3600)?;
-        let max_bytes = number(options.get("--max-bytes"), 1_048_576, 256, 16_777_216)? as usize;
-        let config = Self {
-            provider,
-            options,
-            inherit_env,
-            timeout: Duration::from_secs(timeout),
-            max_bytes,
-        };
-        config.validate()?;
-        Ok(config)
+        cli::parse(arguments)
     }
-    pub fn get(&self, name: &str) -> Result<&str, String> {
-        self.options
-            .get(name)
-            .map(String::as_str)
-            .filter(|s| !s.is_empty() && s.len() <= 8192)
-            .ok_or_else(|| format!("Required operator option {name} is missing or oversized"))
-    }
-    pub fn optional<'a>(&'a self, name: &str, default: &'a str) -> &'a str {
-        self.options
-            .get(name)
-            .map(String::as_str)
-            .unwrap_or(default)
-    }
-    pub fn path(&self, name: &str) -> Result<PathBuf, String> {
-        let path = PathBuf::from(self.get(name)?);
-        if !path.is_absolute() {
-            return Err(format!("Operator option {name} requires an absolute path"));
-        }
-        Ok(path)
-    }
-    pub fn validate(&self) -> Result<(), String> {
-        if self.timeout < Duration::from_secs(1)
-            || self.timeout > Duration::from_secs(3600)
-            || !(256..=16_777_216).contains(&self.max_bytes)
-            || self.inherit_env.iter().any(|name| !environment_name(name))
-            || self
-                .inherit_env
-                .iter()
-                .collect::<std::collections::BTreeSet<_>>()
-                .len()
-                != self.inherit_env.len()
-        {
-            return Err("Invalid collector process allowances or environment selection".into());
-        }
-        let shared = ["--timeout-seconds", "--max-bytes"];
-        let selected: &[&str] = match self.provider {
-            Provider::Kubernetes => &[
-                "--executable",
-                "--supervisor",
-                "--inventory",
-                "--resource",
-                "--kind",
-                "--namespace",
-                "--name",
-            ],
-            Provider::Github => &["--executable", "--supervisor", "--repository", "--commit"],
-            Provider::Tempo => &[
-                "--inventory",
-                "--url",
-                "--kind",
-                "--name",
-                "--cluster-attribute",
-                "--kind-attribute",
-                "--name-attribute",
-                "--token-env",
-                "--tenant-env",
-                "--max-window-seconds",
-                "--limit",
-            ],
-        };
-        if self
-            .options
-            .keys()
-            .any(|k| !shared.contains(&k.as_str()) && !selected.contains(&k.as_str()))
-        {
-            return Err("Unknown operator option for the selected collector".into());
-        }
-        if self.provider != Provider::Tempo {
-            self.path("--executable")?;
-            self.path("--supervisor")?;
-        }
-        if self.provider != Provider::Github {
-            self.path("--inventory")?;
-            for key in ["--kind", "--name"] {
-                selector(self.get(key)?)?;
-            }
-        }
-        match self.provider {
-            Provider::Kubernetes => {
-                for key in ["--resource", "--namespace"] {
-                    selector(self.get(key)?)?;
-                }
-            }
-            Provider::Github => {
-                let repository = self.get("--repository")?;
-                if repository.split('/').count() != 2
-                    || repository
-                        .split('/')
-                        .any(|s| selector(s).is_err() || s == "." || s == "..")
-                {
-                    return Err("Repository must be OWNER/REPO".into());
-                }
-                let commit = self.get("--commit")?;
-                if commit.len() != 40 || !commit.bytes().all(|c| c.is_ascii_hexdigit()) {
-                    return Err("GitHub requires an exact 40-character commit SHA".into());
-                }
-            }
-            Provider::Tempo => {
-                let url = url::Url::parse(self.get("--url")?).map_err(|_| "Invalid Tempo URL")?;
-                if !["https", "http"].contains(&url.scheme())
-                    || url.host_str().is_none()
-                    || !url.username().is_empty()
-                    || url.password().is_some()
-                    || url.query().is_some()
-                    || url.fragment().is_some()
-                {
-                    return Err("Tempo URL requires an HTTP origin and literal search path without credentials or query".into());
-                }
-                if url.scheme() == "http"
-                    && !url.host_str().is_some_and(|h| {
-                        h == "localhost"
-                            || h.parse::<std::net::IpAddr>()
-                                .is_ok_and(|ip| ip.is_loopback())
-                    })
-                {
-                    return Err("Plain HTTP Tempo is permitted only on loopback".into());
-                }
-                for (key, default) in [
-                    ("--cluster-attribute", "resource.k8s.cluster.name"),
-                    ("--kind-attribute", "span.dpe.rollout_kind"),
-                    ("--name-attribute", "span.dpe.rollout_name"),
-                ] {
-                    attribute(self.optional(key, default))?;
-                }
-                for key in ["--token-env", "--tenant-env"] {
-                    if let Some(value) = self.options.get(key)
-                        && !environment_name(value)
-                    {
-                        return Err("Invalid credential environment name".into());
-                    }
-                }
-                number(
-                    self.options.get("--max-window-seconds"),
-                    86400,
-                    1,
-                    2_592_000,
-                )?;
-                number(self.options.get("--limit"), 20, 1, 1000)?;
-            }
-        }
+}
+fn absolute(path: &std::path::Path) -> Result<(), String> {
+    if !path.is_absolute() || path.as_os_str().len() > 8192 {
+        Err("Operator path requires a bounded absolute path".into())
+    } else {
         Ok(())
     }
 }
@@ -226,9 +307,10 @@ pub(crate) fn selector(value: &str) -> Result<(), String> {
             .bytes()
             .all(|c| c.is_ascii_alphanumeric() || b"._-".contains(&c))
     {
-        return Err("Invalid fixed resource selector".into());
+        Err("Invalid fixed resource selector".into())
+    } else {
+        Ok(())
     }
-    Ok(())
 }
 pub(crate) fn attribute(value: &str) -> Result<(), String> {
     if !(value.starts_with("span.") || value.starts_with("resource."))
@@ -237,31 +319,16 @@ pub(crate) fn attribute(value: &str) -> Result<(), String> {
             .bytes()
             .all(|c| c.is_ascii_alphanumeric() || b"._".contains(&c))
     {
-        return Err("TraceQL attributes require a scoped dotted identifier".into());
+        Err("TraceQL attributes require a scoped dotted identifier".into())
+    } else {
+        Ok(())
     }
-    Ok(())
-}
-pub(crate) fn number(
-    value: Option<&String>,
-    default: u64,
-    min: u64,
-    max: u64,
-) -> Result<u64, String> {
-    let value = match value {
-        Some(v) => v
-            .parse()
-            .map_err(|_| "Invalid integer operator allowance")?,
-        None => default,
-    };
-    if !(min..=max).contains(&value) {
-        return Err("Operator allowance is outside its supported range".into());
-    }
-    Ok(value)
 }
 pub(crate) fn environment_name(value: &str) -> bool {
     let mut bytes = value.bytes();
-    bytes
-        .next()
-        .is_some_and(|c| c.is_ascii_alphabetic() || c == b'_')
+    value.len() <= 1024
+        && bytes
+            .next()
+            .is_some_and(|c| c.is_ascii_alphabetic() || c == b'_')
         && bytes.all(|c| c.is_ascii_alphanumeric() || c == b'_')
 }

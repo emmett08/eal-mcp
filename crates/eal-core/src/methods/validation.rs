@@ -95,7 +95,7 @@ pub fn probability(value: &Value, label: &str) -> Result<f64, String> {
 }
 
 pub fn result(ok: bool, reason: &str, details: Value) -> Value {
-    json!({"status":if ok{"supported"}else{"unsupported"},"reasons":[reason],"details":details})
+    json!({"status":if ok{super::MethodResultStatus::Supported}else{super::MethodResultStatus::Unsupported},"reasons":[reason],"details":details})
 }
 
 pub fn check_json(value: &Value) -> Result<(), String> {

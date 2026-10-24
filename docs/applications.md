@@ -14,13 +14,15 @@ prefix:
 ```sh
 cargo build --release --workspace --locked
 
+cargo install --path crates/eal-process --locked
 cargo install --path crates/eal-runtime --locked
 cargo install --path crates/eal-cli --locked
 cargo install --path crates/eal-mcp --locked
 cargo install --path crates/eal-coordination --locked
 ```
 
-The runtime package installs `eal-command-supervisor` and `eal-method-worker`;
+The process package installs `eal-process-supervisor`.
+The runtime package installs its `eal-command-supervisor` compatibility alias and `eal-method-worker`;
 the CLI package installs `eal`, `eal-aspic-solve` and the development drivers.
 The MCP package installs `eal-mcp` and `eal-host`; coordination installs
 `eal-coordinate`, `eal-mas-server` and `mas-protocol-codec`. Runtime commands resolve their companion
@@ -152,8 +154,17 @@ Strict integer fields reject integral floats such as `1.0` with the diagnostic
 `Tool input requires a strict integer for FIELD`. HTTP paths are literal: braces
 are rejected instead of selecting framework route parameters. Host, Origin and
 bearer policy is checked before SDK dispatch. For configuration precedence,
-authentication, deadlines, HTTP redaction and the one-request `eal-host` client,
+authentication, deadlines, credential-safe semantic responses and the one-request `eal-host` client,
 see [text host and HTTP policy](text-host.md).
 
 Native tests exercise registered reuse, MCP transport admission, cancellation and
 packet retrieval. [Coordination](coordination.md) adds durable role-scoped task execution.
+
+Server TOML configuration has a 1 MiB file allowance. An operator-selected
+configuration alias resolves once to its canonical regular-file target before
+bounded reading. The `eal-syntax` source-file path uses the same regular-file
+boundary with its existing 1 MiB source allowance. Its explicitly selected
+source aliases retain canonical-target semantics. Standard input remains a
+separate bounded stream. FIFO file arguments are rejected without waiting for
+a writer. Filesystem identity checks do not establish immutable contents during
+an in-place concurrent write.

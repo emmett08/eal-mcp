@@ -48,12 +48,12 @@ pub struct CollectorDescriptor {
 }
 impl CollectorDescriptor {
     pub fn validate(&self) -> Result<(), String> {
-        if !crate::identifier(&self.id)
+        if crate::CollectorId::parse(self.id.clone()).is_err()
             || self.version.is_empty()
-            || self.version.len() > 1024
+            || self.version.chars().count() > 1024
             || self.version.chars().any(char::is_control)
             || self.purpose.trim().is_empty()
-            || self.purpose.len() > 8192
+            || self.purpose.chars().count() > 8192
             || self.parameters.len() > 256
             || self
                 .parameters
@@ -61,7 +61,7 @@ impl CollectorDescriptor {
                 .any(|v| !crate::identifier(v) || v.starts_with("operator."))
             || self.parameters.iter().collect::<BTreeSet<_>>().len() != self.parameters.len()
             || self.acquisition_predicate.trim().is_empty()
-            || self.acquisition_predicate.len() > 8192
+            || self.acquisition_predicate.chars().count() > 8192
             || self.acquisition_predicate.chars().any(char::is_control)
         {
             return Err("Invalid collector descriptor identity or parameters".into());
@@ -80,6 +80,8 @@ impl CollectorDescriptor {
                 "Collector schemas require explicit object inputs drawn from parameters".into(),
             );
         }
+        crate::schema::validate_schema(&self.input_schema)?;
+        crate::schema::validate_schema(&self.result_schema)?;
         self.command.validate(&self.parameters)?;
         for constraint in &self.constraints {
             match constraint {
@@ -102,6 +104,25 @@ impl CollectorDescriptor {
             }
         }
         Ok(())
+    }
+    /// Produce explicitly prospective configuration without granting execution.
+    pub fn prepare_binding(
+        &self,
+        parameters: &BTreeMap<String, String>,
+        unresolved: &[String],
+    ) -> Result<CommandBinding, String> {
+        self.validate_for(crate::AuthoringProfile::RuntimeExportable)?;
+        if parameters
+            .keys()
+            .any(|name| !self.parameters.contains(name))
+            || unresolved
+                .iter()
+                .any(|name| !self.parameters.contains(name) || parameters.contains_key(name))
+            || unresolved.iter().collect::<BTreeSet<_>>().len() != unresolved.len()
+        {
+            return Err("EAL_PREPARATION_PARAMETER: unknown collector parameter".into());
+        }
+        self.command.prepare(&self.version, parameters, unresolved)
     }
     /// Bind reviewed suggestions and separately supplied operator selections.
     /// This produces configuration only and performs no acquisition.

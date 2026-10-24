@@ -76,31 +76,8 @@ pub(crate) fn validate(arguments: &Value, validator: &Validator) -> Result<(), S
     Ok(())
 }
 
-/// The source SDK runs strict parameter checking after JSON Schema. Its integer
-/// parameters reject integral binary64 values, which JSON Schema calls integers.
-pub(crate) fn strict_parameters(name: &str, arguments: &Value) -> Result<(), String> {
-    let fields: &[&str] = match name {
-        "eal_sources" => &["limit", "offset"],
-        "eal_find_claims" => &["limit"],
-        _ => &[],
-    };
-    for key in fields {
-        if let Some(Value::Number(number)) = arguments.get(*key)
-            && number.as_str().contains(['.', 'e', 'E'])
-        {
-            return Err(format!("Tool input requires a strict integer for {key}"));
-        }
-    }
-    // Nested projection budgets also reject integral floats. This check runs
-    // before dispatch can acquire an acquisition lease.
-    if arguments.get("packet_limits").is_some() {
-        crate::operations::requested_packet_limits(arguments)?;
-    }
-    Ok(())
-}
-
 /// Bound direct typed callers before recursive schema/library processing.
-fn bounded_json(value: &Value) -> Result<(), String> {
+pub(crate) fn bounded_json(value: &Value) -> Result<(), String> {
     let mut pending = vec![(value, 0usize)];
     let mut nodes = 0usize;
     let mut bytes = 0usize;

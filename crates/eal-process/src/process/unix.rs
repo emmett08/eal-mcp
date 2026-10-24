@@ -1,5 +1,4 @@
 //! Application-side ownership, deadline and bounded result transfer.
-use std::os::fd::AsFd;
 use std::os::unix::process::CommandExt;
 use std::path::Path;
 use std::process::{Child, ChildStdin, Command, Stdio};
@@ -7,11 +6,12 @@ use std::time::{Duration, Instant};
 
 use rustix::event::{PollFd, PollFlags};
 
+use super::Retention;
 use super::{
     CancellationToken, CommandRequest, ProcessError, ProcessOutcome, StartupHandshake,
+    StreamLimits,
     protocol::{self, Configuration, MAX_CONFIG_BYTES, MAX_STATUS_BYTES},
 };
-use crate::lease::AcquisitionLease;
 
 struct Owner {
     child: Option<Child>,
@@ -39,12 +39,16 @@ impl Drop for Owner {
 pub(super) fn run(
     executable: &Path,
     request: CommandRequest,
-    lease: Option<&AcquisitionLease>,
+    lease: Option<&dyn Retention>,
     cancellation: &CancellationToken,
     handshake: Option<StartupHandshake>,
+    stream_limits: Option<StreamLimits>,
 ) -> Result<ProcessOutcome, ProcessError> {
     let started = protocol::monotonic_nanos();
     validate(&request, handshake.as_ref())?;
+    if let Some(limits) = stream_limits {
+        limits.validate(request.max_output_bytes)?;
+    }
     let initial_timeout = handshake
         .as_ref()
         .map(|ready| ready.startup_timeout)
@@ -63,6 +67,8 @@ pub(super) fn run(
         input_length: request.input.len(),
         execution_timeout: request.timeout,
         max_output_bytes: request.max_output_bytes,
+        protocol_version: stream_limits.map(|_| 2),
+        stream_limits,
         handshake,
     };
     let encoded = serde_json::to_vec(&configuration)
@@ -76,7 +82,7 @@ pub(super) fn run(
     prefix.extend_from_slice(&(encoded.len() as u64).to_be_bytes());
     prefix.extend_from_slice(&encoded);
     let inherited = match lease {
-        Some(lease) => Stdio::from(lease.as_fd().try_clone_to_owned()?),
+        Some(lease) => lease.duplicate_for_supervisor()?,
         None => Stdio::null(),
     };
     let child = Command::new(executable)
@@ -113,6 +119,7 @@ pub(super) fn run(
             ProcessError::Invalid("Command output budget exceeds protocol resources".into())
         })?;
     let mut bytes = Vec::new();
+    let mut announced_streams_checked = stream_limits.is_none();
     let mut prefix_offset = 0usize;
     let mut input_offset = 0usize;
     let mut eof = false;
@@ -173,6 +180,12 @@ pub(super) fn run(
                             }
                             awaiting_ready = false;
                         }
+                        if !announced_streams_checked && !awaiting_ready {
+                            announced_streams_checked = protocol::check_stream_limits(
+                                &bytes,
+                                stream_limits.expect("limits selected"),
+                            )?;
+                        }
                     }
                     Err(rustix::io::Errno::AGAIN) => break,
                     Err(rustix::io::Errno::INTR) => continue,
@@ -214,7 +227,7 @@ pub(super) fn run(
             break;
         }
     }
-    let mut outcome = protocol::decode(&bytes, request.max_output_bytes)?;
+    let mut outcome = protocol::decode(&bytes, request.max_output_bytes, stream_limits)?;
     outcome.supervisor_pid = Some(supervisor_pid);
     Ok(outcome)
 }

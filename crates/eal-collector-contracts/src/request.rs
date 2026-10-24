@@ -16,6 +16,17 @@ pub struct AcquisitionRequest {
     pub context: Value,
 }
 impl AcquisitionRequest {
+    pub fn parse(bytes: &[u8], limits: crate::JsonLimits) -> Result<Self, String> {
+        let value = crate::strict_json(bytes, limits)?;
+        let request: Self = serde_json::from_value(value)
+            .map_err(|_| "EAL_REQUEST_FIELDS: invalid acquisition request fields")?;
+        request.validate()?;
+        Ok(request)
+    }
+    pub fn to_value(&self) -> Value {
+        serde_json::json!(self)
+    }
+
     pub fn validate(&self) -> Result<(), String> {
         for value in [
             &self.evidence_id,

@@ -187,7 +187,7 @@ fn assess(
                 json!({}),
             ),
             Err(super::MethodError::Incomplete(error)) => {
-                json!({"status":"incomplete","reasons":[format!("Method execution incomplete: {error}")],"details":{}})
+                json!({"status":super::MethodResultStatus::Incomplete,"reasons":[format!("Method execution incomplete: {error}")],"details":{}})
             }
         };
         output["method_contract"] = contract.describe();

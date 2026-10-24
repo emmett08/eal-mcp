@@ -3,11 +3,11 @@ mod applications;
 mod consumer;
 mod coordination;
 pub mod harness;
+mod operation_contracts;
 mod process;
 
 use serde_json::{Value, json};
 use std::collections::BTreeSet;
-use std::io::Read;
 use std::path::{Path, PathBuf};
 
 pub type Result<T> = std::result::Result<T, String>;
@@ -18,18 +18,40 @@ pub fn ensure(condition: bool, message: impl Into<String>) -> Result<()> {
         Err(message.into())
     }
 }
-pub fn read_json(path: &Path) -> Result<Value> {
-    let file = std::fs::File::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
-    ensure(
-        file.metadata().map_err(|e| e.to_string())?.is_file(),
-        "Smoke JSON input requires a regular file",
-    )?;
-    let mut bytes = Vec::new();
-    file.take(64 * 1024 * 1024 + 1)
-        .read_to_end(&mut bytes)
+pub(super) fn read_bytes(path: &Path, maximum: usize) -> Result<Vec<u8>> {
+    let absolute = std::path::absolute(path).map_err(|e| e.to_string())?;
+    let name = absolute
+        .file_name()
+        .ok_or("Smoke input requires a file name")?;
+    let parent = absolute
+        .parent()
+        .ok_or("Smoke input requires a parent")?
+        .canonicalize()
         .map_err(|e| e.to_string())?;
-    ensure(bytes.len() <= 64 * 1024 * 1024, "JSON input exceeds 64 MiB")?;
-    parse_json(&bytes, 64 * 1024 * 1024)
+    let selected = parent.join(name);
+    let metadata = std::fs::symlink_metadata(&selected).map_err(|e| e.to_string())?;
+    ensure(
+        metadata.is_file(),
+        "Smoke input requires a regular file without a leaf alias",
+    )?;
+    ensure(
+        metadata.len() <= maximum as u64,
+        "Smoke input exceeds its byte allowance",
+    )?;
+    let bytes = eal_runtime::acquisition::read_regular(
+        &selected,
+        maximum,
+        "Smoke input requires a regular file",
+    )
+    .map_err(|error| error.message)?;
+    ensure(
+        bytes.len() <= maximum,
+        "Smoke input exceeds its byte allowance",
+    )?;
+    Ok(bytes)
+}
+pub fn read_json(path: &Path) -> Result<Value> {
+    parse_json(&read_bytes(path, 64 * 1024 * 1024)?, 64 * 1024 * 1024)
 }
 pub fn parse_json(bytes: &[u8], maximum: usize) -> Result<Value> {
     ensure(

@@ -19,10 +19,12 @@ async fn main() {
 
 async fn run(arguments: Vec<String>) -> Result<(), String> {
     if arguments.first().map(String::as_str) == Some("describe") {
-        if arguments.len() != 1 {
-            return Err("describe takes no options and reads no acquisition request".into());
-        }
-        let catalogue = eal_collectors::catalogue::native();
+        let version = match arguments.as_slice() {
+            [_] => "1",
+            [_, flag, version] if flag == "--catalogue-version" => version,
+            _ => return Err("describe accepts only --catalogue-version 1|2".into()),
+        };
+        let catalogue = eal_collectors::catalogue::native_version(version)?;
         let bytes = serde_json::to_vec_pretty(catalogue)
             .map_err(|_| "Collector catalogue encoding failed")?;
         std::io::stdout()

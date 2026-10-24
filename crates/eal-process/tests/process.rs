@@ -1,6 +1,6 @@
 #![cfg(unix)]
 //! Real process-group execution, not mocked command responses.
-use eal_runtime::process::{
+use eal_process::process::{
     CancellationToken, CommandRequest, ExecutionError, StartupHandshake, Supervisor,
 };
 use std::collections::BTreeMap;
@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use std::time::{Duration, Instant};
 
 fn supervisor() -> Supervisor {
-    Supervisor::new(PathBuf::from(env!("CARGO_BIN_EXE_eal-command-supervisor")))
+    Supervisor::new(PathBuf::from(env!("CARGO_BIN_EXE_eal-process-supervisor")))
 }
 fn request(argv: &[&str]) -> CommandRequest {
     CommandRequest {
@@ -194,4 +194,127 @@ fn supervisor_identity_is_observed_by_the_owner_and_reaped_before_return() {
         ),
         Err(rustix::io::Errno::SRCH)
     );
+}
+
+#[test]
+fn missing_or_incompatible_companion_never_executes_the_requested_command() {
+    let directory =
+        std::env::temp_dir().join(format!("eal-process-no-fallback-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).unwrap();
+    let marker = directory.join("executed");
+    let command = request(&["/bin/sh", "-c", &format!("touch '{}'", marker.display())]);
+    assert!(
+        Supervisor::new(directory.join("absent"))
+            .run(command.clone(), None)
+            .is_err()
+    );
+    assert!(
+        Supervisor::new("/bin/true".into())
+            .run(command, None)
+            .is_err()
+    );
+    assert!(!marker.exists());
+    std::fs::remove_dir_all(directory).unwrap();
+}
+
+#[test]
+fn retained_capability_survives_its_original_handle_until_the_tree_stops() {
+    use std::{
+        fs::File,
+        process::Stdio,
+        sync::{Mutex, mpsc},
+    };
+    struct Lease {
+        file: Mutex<Option<File>>,
+        ready: mpsc::Sender<()>,
+    }
+    impl eal_process::Retention for Lease {
+        fn duplicate_for_supervisor(&self) -> std::io::Result<Stdio> {
+            let original = self.file.lock().unwrap().take().unwrap();
+            let copy = original.try_clone()?;
+            drop(original);
+            self.ready.send(()).unwrap();
+            Ok(Stdio::from(copy))
+        }
+    }
+    let (reader, writer) = rustix::pipe::pipe_with(rustix::pipe::PipeFlags::CLOEXEC).unwrap();
+    let flags = rustix::fs::fcntl_getfl(&reader).unwrap();
+    rustix::fs::fcntl_setfl(&reader, flags | rustix::fs::OFlags::NONBLOCK).unwrap();
+    let (ready, started) = mpsc::channel();
+    let lease = Lease {
+        file: Mutex::new(Some(File::from(writer))),
+        ready,
+    };
+    let thread = std::thread::spawn(move || {
+        supervisor()
+            .run(
+                request(&["/bin/sh", "-c", "sleep 0.2 & wait"]),
+                Some(&lease),
+            )
+            .unwrap()
+    });
+    started.recv_timeout(Duration::from_secs(1)).unwrap();
+    let mut byte = [0u8; 1];
+    assert_eq!(
+        rustix::io::read(&reader, &mut byte),
+        Err(rustix::io::Errno::AGAIN)
+    );
+    let result = thread.join().unwrap();
+    assert_eq!(result.returncode, 0);
+    assert_eq!(rustix::io::read(&reader, &mut byte).unwrap(), 0);
+}
+
+#[test]
+fn independent_stream_limits_stop_each_stream_before_capture_exceeds_its_budget() {
+    use eal_process::StreamLimits;
+    let limits = StreamLimits {
+        max_stdout_bytes: 8,
+        max_stderr_bytes: 4,
+    };
+    for (script, expected_stdout, expected_stderr, failed) in [
+        ("printf 12345678;printf 1234 >&2", 8, 4, false),
+        ("printf 123456789", 8, 0, true),
+        ("printf 12345 >&2", 0, 4, true),
+    ] {
+        let mut command = request(&["/bin/sh", "-c", script]);
+        command.max_output_bytes = 12;
+        let result = supervisor()
+            .run_with_stream_limits(command, None, limits)
+            .unwrap();
+        assert_eq!(result.stdout.len(), expected_stdout);
+        assert_eq!(result.stderr.len(), expected_stderr);
+        assert_eq!(
+            result.execution_error,
+            failed.then_some(ExecutionError::OutputLimit)
+        );
+    }
+    let mut command = request(&["/bin/sh", "-c", "printf x >&2"]);
+    command.max_output_bytes = 8;
+    let result = supervisor()
+        .run_with_stream_limits(
+            command,
+            None,
+            StreamLimits {
+                max_stdout_bytes: 8,
+                max_stderr_bytes: 0,
+            },
+        )
+        .unwrap();
+    assert!(result.stderr.is_empty());
+    assert_eq!(result.execution_error, Some(ExecutionError::OutputLimit));
+}
+
+#[test]
+fn independent_limits_reject_invalid_allowances_before_spawning() {
+    use eal_process::StreamLimits;
+    let command = request(&["/bin/sleep", "30"]);
+    let result = supervisor().run_with_stream_limits(
+        command,
+        None,
+        StreamLimits {
+            max_stdout_bytes: usize::MAX,
+            max_stderr_bytes: 1,
+        },
+    );
+    assert!(matches!(result, Err(eal_process::ProcessError::Invalid(_))));
 }

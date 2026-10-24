@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EAL operator-owned environment sensitivity version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "forward"
+  ],
+  "properties": {
+    "schema": {
+      "const": "eal.operator-environment/1"
+    },
+    "forward": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+      }
+    },
+    "public": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+      }
+    }
+  }
+}

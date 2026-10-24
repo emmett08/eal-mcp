@@ -13,8 +13,8 @@ path = "src/main.rs"
 
 [dependencies]
 eal-collector-contracts.workspace = true
-eal-core.workspace = true
-eal-runtime.workspace = true
+eal-process.workspace = true
+eal-adapters.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 chrono = { workspace = true, features = ["clock"] }
@@ -25,6 +25,8 @@ url.workspace = true
 rustix.workspace = true
 
 [dev-dependencies]
+eal-core.workspace = true
+eal-runtime.workspace = true
 jsonschema.workspace = true
 uuid.workspace = true
 

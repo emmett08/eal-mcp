@@ -429,6 +429,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d0881ea181b1df73ff77ffaaf9c7544ecc11e82fba9b5f27b262a3c73a332555"
 
 [[package]]
+name = "eal-adapters"
+version = "0.1.0"
+dependencies = [
+ "eal-collector-contracts",
+ "eal-process",
+ "reqwest",
+ "rustix",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tokio",
+]
+
+[[package]]
 name = "eal-aspic"
 version = "0.1.0"
 dependencies = [
@@ -471,8 +485,10 @@ name = "eal-collectors"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "eal-adapters",
  "eal-collector-contracts",
  "eal-core",
+ "eal-process",
  "eal-runtime",
  "jsonschema",
  "reqwest",
@@ -579,12 +595,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "eal-process"
+version = "0.1.0"
+dependencies = [
+ "rustix",
+ "serde",
+ "serde_json",
+ "sha2",
+ "signal-hook",
+]
+
+[[package]]
 name = "eal-runtime"
 version = "0.1.0"
 dependencies = [
  "chrono",
  "eal-aspic",
+ "eal-collector-contracts",
  "eal-core",
+ "eal-process",
  "getrandom 0.4.3",
  "hmac",
  "indexmap",
