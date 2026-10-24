@@ -1,7 +1,11 @@
 //! An exact read-only GitHub commit observation through an operator-owned gh.
 use serde_json::{Value, json};
 
-pub(crate) fn collect(config: &crate::Config, request: &crate::Request) -> Result<Value, String> {
+pub(crate) fn collect(
+    config: &crate::Config,
+    request: &crate::Request,
+    started: std::time::Instant,
+) -> Result<Value, String> {
     request.fields(&["repository", "commit"])?;
     let repository = config.get("--repository")?;
     let commit = config.get("--commit")?;
@@ -17,7 +21,7 @@ pub(crate) fn collect(config: &crate::Config, request: &crate::Request) -> Resul
             "GET".into(),
             format!("repos/{repository}/commits/{commit}"),
         ],
-        std::time::Instant::now(),
+        started,
     )?;
     let response = crate::process::object(&output)?;
     let sha = response["sha"]

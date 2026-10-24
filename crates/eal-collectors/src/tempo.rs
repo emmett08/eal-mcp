@@ -6,6 +6,7 @@ use std::time::Instant;
 pub(crate) async fn collect(
     config: &crate::Config,
     request: &crate::Request,
+    started: Instant,
 ) -> Result<Value, String> {
     request.fields(&["start_unix", "end_unix"])?;
     let start = request.input["start_unix"]
@@ -34,7 +35,6 @@ pub(crate) async fn collect(
         .map_err(|_| "Cannot construct Tempo HTTP client")?;
     let token = credential(config, "--token-env")?;
     let tenant = credential(config, "--tenant-env")?;
-    let started = Instant::now();
     let mut clusters = Vec::new();
     let mut all_matched = true;
     let mut spent = 0usize;

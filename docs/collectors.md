@@ -190,6 +190,12 @@ commit/tree identity or time-scoped existential trace matches. Provider-specific
 selection stays in its own module. Selection dispatch contains no provider
 algorithm. Frozen evaluator, storage and MCP contracts remain unchanged.
 
+Inventory reads use the runtime's bounded regular-file reader. FIFO and device
+paths fail before reading. Parent aliases are resolved while the final file is
+opened without following symlinks. One aggregate deadline starts before provider
+validation and inventory loading and supplies each subsequent external request.
+The outer runtime supervisor remains the process containment boundary.
+
 Local tests exercise real supervised fake commands and loopback HTTP responses.
 They cover exact arguments, environment restriction, mismatched selectors,
 inventory duplication, positive/empty observations, nonzero exits, malformed

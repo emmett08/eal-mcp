@@ -111,3 +111,9 @@ calculations separately from production verification. Synthetic rehearsals and
 assumed-nuisance simulations retain those labels. Live production-cluster
 coverage, Tempo availability, provider receipts and model-quality effects
 require identified measurements from their actual operating environments.
+
+The `eal-runtime` development command uses the same bootstrap as `eal` and MCP.
+Bundled method workers receive an empty environment on every entry point.
+Unrelated ambient variables therefore neither reach pure algorithms nor alter
+their execution identity. The development command retains its bounded,
+workspace-relative limits input and its existing command syntax.
