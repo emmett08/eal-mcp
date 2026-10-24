@@ -53,7 +53,9 @@ jobs:
       # Cache hits never replace verification: Cargo rechecks changed inputs.
       - name: Check lints
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
-      - name: Test without a reference interpreter
+      - name: Build native companions required by integration tests
+        run: cargo build --workspace --bins --locked
+      - name: Test the Rust workspace
         run: cargo test --workspace --locked
       - name: Build standalone commands and native companions
         run: cargo build --release --workspace --locked

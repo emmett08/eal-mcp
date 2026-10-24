@@ -8,6 +8,82 @@ cargo install --path crates/eal-collectors --locked
 eal-collector --help
 ```
 
+## Register your own collector
+
+Users can register any executable that implements the EAL collector contract.
+The Kubernetes, GitHub and Tempo providers are bundled conveniences. A custom
+collector runs through the generic `command` binding and requires no EAL rebuild.
+
+Add its name, version and fixed executable arguments to operator-owned
+`tools.toml`.
+
+```toml
+[tools.custom_status]
+kind = "command"
+version = "1"
+argv = ["/absolute/path/custom-status", "--read-only"]
+timeout_seconds = 30
+max_output_bytes = 1048576
+inherit_env = []
+parallel_safe = false
+```
+
+Declare the same tool name and version in the EAL source. Its evidence selects
+the tool and supplies the request input.
+
+```eal
+language "EAL/3"
+environment production {
+  require stage == "production"
+}
+tool custom_status {
+  version "1"
+}
+evidence service_status {
+  tool custom_status
+  kind service_health
+  environment production
+  max_age 60
+  input {"service":"example"}
+  require healthy == true
+}
+```
+
+With context `{"stage":"production"}`, the executable receives this JSON
+request on stdin.
+
+```json
+{"evidence_id":"service_status","environment":"production","tool":"custom_status","tool_version":"1","input":{"service":"example"},"context":{"stage":"production"}}
+```
+
+Write one strict JSON observation to stdout. The `value` field is mandatory.
+
+```json
+{"value":{"healthy":true}}
+```
+
+The optional envelope fields are `observed_at`, `context`, `request` and
+`details`. Supplied `context` must match the requested scoped context. Supplied
+`request` must match the acquisition object containing `tool`, `tool_version`,
+`input` and `context`. Include the original `observed_at` for earlier or cached
+measurements. Return a successful measured negative in `value`, such as
+`{"healthy":false}`. Report acquisition failure with a nonzero exit status.
+Keep diagnostics on stderr so stdout contains only the observation.
+
+Pass this registry through `--registry tools.toml` to the CLI or MCP server.
+Attach the evidence to an argument and use `eal_collect`, `eal_collect_claim` or
+registered `eal_assess_known` through the existing MCP interface. Registering a
+collector means adding its operator binding. The separate `eal register`
+command registers an EAL source and its selected claims in the source catalogue.
+
+For an existing report, a `json_file` binding can import an observation instead.
+File envelopes also require `observed_at`, `context` and `request` to preserve
+measurement age and identity. See [trusted collector configuration and runtime
+bounds](runtime.md#trusted-collectors) for environment selection, dependency pins,
+output limits and reuse.
+
+## Bundled collectors
+
 The operator fixes executable paths, endpoint, inventory and resource selectors
 in `tools.toml`. An EAL source supplies the corresponding bounded input. A
 selector mismatch fails before external execution. The wrapper reads one strict
