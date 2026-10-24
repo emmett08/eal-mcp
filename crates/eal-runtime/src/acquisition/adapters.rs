@@ -71,7 +71,7 @@ fn command(
                 timeout: Duration::from_secs_f64(binding.timeout_seconds),
                 max_output_bytes: binding.max_output_bytes,
             },
-            lease,
+            lease.map(|lease| lease as &dyn eal_process::Retention),
         )
         .map_err(|error| match error {
             ProcessError::Io(error) => AcquisitionError::from(error),

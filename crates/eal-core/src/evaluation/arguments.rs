@@ -79,7 +79,7 @@ impl SourceState<'_> {
             let argument = self.program.arguments[&argument_name].clone();
             let method = &self.program.reasoning[&argument.reasoning];
             let mut reasons = vec![];
-            let mut computation = json!({"status":"not_run","method":method.method,"reasons":["Required sources are unavailable or out of scope"],"details":{}});
+            let mut computation = json!({"status":methods::MethodResultStatus::NotRun,"method":method.method,"reasons":["Required sources are unavailable or out of scope"],"details":{}});
             let dependencies = json!({"evidence":argument.evidence,"assumptions":argument.assumptions,"premises":argument.premises,"reasoning":argument.reasoning});
             let mut premise_entries = vec![];
             for premise in &argument.premises {

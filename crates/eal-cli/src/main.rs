@@ -34,16 +34,31 @@ fn run() -> Result<(), (u8, String)> {
     if !matches!(command, "recognise" | "parse" | "format") {
         return Err((2, USAGE.into()));
     }
-    let reader: Box<dyn Read> = if arguments[1] == "-" {
-        Box::new(io::stdin())
-    } else {
-        Box::new(std::fs::File::open(&arguments[1]).map_err(|error| (2, error.to_string()))?)
-    };
     let mut bytes = Vec::new();
-    reader
-        .take(MAX_SOURCE_BYTES + 1)
-        .read_to_end(&mut bytes)
-        .map_err(|error| (2, error.to_string()))?;
+    if arguments[1] == "-" {
+        io::stdin()
+            .take(MAX_SOURCE_BYTES + 1)
+            .read_to_end(&mut bytes)
+            .map_err(|error| (2, error.to_string()))?;
+    } else {
+        // Resolve an operator-selected source alias once, then retain that target.
+        let path = std::path::Path::new(&arguments[1])
+            .canonicalize()
+            .map_err(|error| (2, error.to_string()))?;
+        if std::fs::metadata(&path)
+            .map_err(|error| (2, error.to_string()))?
+            .len()
+            > MAX_SOURCE_BYTES
+        {
+            return Err((1, "source exceeds the 1 MiB input limit".into()));
+        }
+        bytes = eal_runtime::acquisition::read_regular(
+            &path,
+            MAX_SOURCE_BYTES as usize,
+            "Source must be a regular file",
+        )
+        .map_err(|error| (2, error.message))?;
+    }
     if bytes.len() as u64 > MAX_SOURCE_BYTES {
         return Err((1, "source exceeds the 1 MiB input limit".into()));
     }

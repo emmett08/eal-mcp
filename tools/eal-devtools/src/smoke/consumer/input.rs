@@ -5,8 +5,7 @@ use sha1::Sha1;
 use sha2::Digest;
 use std::{
     collections::BTreeSet,
-    fs::{self, File},
-    io::Read,
+    fs,
     path::{Path, PathBuf},
 };
 #[derive(Default)]
@@ -81,18 +80,7 @@ impl Drop for Temporary {
 }
 
 pub(super) fn read_bytes(path: &Path, maximum: usize) -> Result<Vec<u8>> {
-    let file = File::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
-    if !file.metadata().map_err(|e| e.to_string())?.is_file() {
-        return Err(format!("Expected a regular file: {}", path.display()));
-    }
-    let mut bytes = Vec::new();
-    file.take(maximum as u64 + 1)
-        .read_to_end(&mut bytes)
-        .map_err(|e| e.to_string())?;
-    if bytes.len() > maximum {
-        return Err(format!("{} exceeds {maximum} bytes", path.display()));
-    }
-    Ok(bytes)
+    crate::smoke::read_bytes(path, maximum)
 }
 pub(super) fn parse_json(bytes: &[u8], maximum: usize) -> Result<Value> {
     let text = std::str::from_utf8(bytes).map_err(|e| e.to_string())?;

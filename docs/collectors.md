@@ -8,6 +8,7 @@ Authoring clients can read versioned capability descriptions through
 for the input schemas and operator-owned command templates.
 
 ```sh
+cargo install --path crates/eal-process --locked
 cargo install --path crates/eal-collectors --locked
 eal-collector --help
 ```
@@ -205,3 +206,52 @@ They cover exact arguments, environment restriction, mismatched selectors,
 inventory duplication, positive/empty observations, nonzero exits, malformed
 payloads, deadlines, matching envelopes and bounded TraceQL construction. Live
 cluster and Tempo credentials are required for environment acceptance.
+
+## Native contract versions and resource scope
+
+`eal-collector describe` preserves the published version 1 catalogue. Select the
+revised contracts with `eal-collector describe --catalogue-version 2`. The emitted
+commands include `--contract-version 2`, and requests must declare tool version
+`2`. Version 1 descriptors and their namespaced input/generation requirement
+remain supported until `eal-collectors` 1.0. New consumers should select version 2.
+The wire catalogue itself remains `eal.collector-catalogue/1`.
+
+Version 2 offers separate `kubernetes` and `kubernetes_cluster` descriptors.
+Namespaced input contains `resource`, `scope="namespaced"`, `namespace` and `name`.
+Cluster-scoped input contains `resource`, `scope="cluster"` and `name`.
+The operator command selects the same scope with `--scope`. Missing namespace
+never grants cluster scope. All-namespaces listing is outside these named-resource
+contracts. Both variants check name, kind, API group, UID and resource version.
+Generation is optional in version 2, and absent generation remains absent.
+A supplied generation must be a nonnegative signed 64-bit integer.
+
+Configurations become immutable after admission. `Config::new` validates typed
+`ProviderConfig` records and `CollectorLimits` using the same invariants as CLI
+parsing. Raw option maps are local to CLI conversion. Consumers replacing the
+previous mutable `Config` fields should construct a provider record and submit it
+through `Config::new`. `with_limits` accepts only an admitted `CollectorLimits`.
+The legacy Tempo `--inherit-env` flag remains accepted until 1.0 and has no
+command effect because that provider uses HTTP. Its credentials continue to use
+`--token-env` and `--tenant-env`.
+
+## Observation timing
+
+Envelope `details.acquisition_interval` records acquisition start and completion,
+an oldest-observation bound and whether wall time moved backwards. The envelope
+`observed_at` uses the earliest sampled acquisition time, so a slow sequential
+fleet read cannot make the first observation appear as recent as the last read.
+Version 2 Kubernetes and Tempo results also retain an acquisition interval for
+each cluster, including successful measured absence or an empty search.
+These intervals describe when the response was acquired. Tempo's query window
+and trace event times retain their separate meanings.
+
+Fleet readings are sequential acquisitions. They do not establish a simultaneous
+fleet state. Partial acquisition failure returns an error and emits no successful
+aggregate observation. Reuse retains the original `observed_at` and intervals.
+Historical observations without intervals retain their recorded timestamp and
+unknown timing detail. Monotonic `Instant` deadlines remain independent of wall
+clock metadata. A backwards wall clock is reported and the oldest bound remains
+conservative, rather than silently rejuvenating an observation.
+
+The optional collector package depends on the narrow process and adapter packages.
+It does not require the EAL runtime, language parser or database for collection.

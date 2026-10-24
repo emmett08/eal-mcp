@@ -1,0 +1,77 @@
+[
+  {
+    "name": "dotted-identifier",
+    "registry": "[tools.\"lab.calibration\"]\nkind=\"command\"\nversion=\"1\"\nargv=[\"/usr/bin/lab-reader\"]\n",
+    "accepted": true
+  },
+  {
+    "name": "hyphenated-identifier",
+    "registry": "[tools.\"lab-calibration\"]\nkind=\"command\"\nversion=\"1\"\nargv=[\"/usr/bin/lab-reader\"]\n",
+    "accepted": true
+  },
+  {
+    "name": "duplicate-environment",
+    "registry": "[tools.\"lab.calibration\"]\nkind=\"command\"\nversion=\"1\"\nargv=[\"/usr/bin/lab-reader\"]\ninherit_env=[\"LAB_TOKEN\",\"LAB_TOKEN\"]\n",
+    "accepted": false
+  },
+  {
+    "name": "distinct-environment",
+    "registry": "[tools.\"lab.calibration\"]\nkind=\"command\"\nversion=\"1\"\nargv=[\"/usr/bin/lab-reader\"]\ninherit_env=[\"LAB_TOKEN\",\"LAB_MODE\"]\n",
+    "accepted": true
+  },
+  {
+    "name": "invalid-environment",
+    "registry": "[tools.\"lab.calibration\"]\nkind=\"command\"\nversion=\"1\"\nargv=[\"/usr/bin/lab-reader\"]\ninherit_env=[\"LAB.TOKEN\"]\n",
+    "accepted": false
+  },
+  {
+    "name": "zero-timeout",
+    "registry": "[tools.\"lab.calibration\"]\nkind=\"command\"\nversion=\"1\"\nargv=[\"/usr/bin/lab-reader\"]\ntimeout_seconds=0\n",
+    "accepted": false
+  },
+  {
+    "name": "fractional-timeout",
+    "registry": "[tools.\"lab.calibration\"]\nkind=\"command\"\nversion=\"1\"\nargv=[\"/usr/bin/lab-reader\"]\ntimeout_seconds=0.25\n",
+    "accepted": true
+  },
+  {
+    "name": "nonfinite-timeout",
+    "registry": "[tools.\"lab.calibration\"]\nkind=\"command\"\nversion=\"1\"\nargv=[\"/usr/bin/lab-reader\"]\ntimeout_seconds=nan\n",
+    "accepted": false
+  },
+  {
+    "name": "zero-output",
+    "registry": "[tools.\"lab.calibration\"]\nkind=\"command\"\nversion=\"1\"\nargv=[\"/usr/bin/lab-reader\"]\nmax_output_bytes=0\n",
+    "accepted": false
+  },
+  {
+    "name": "fractional-output",
+    "registry": "[tools.\"lab.calibration\"]\nkind=\"command\"\nversion=\"1\"\nargv=[\"/usr/bin/lab-reader\"]\nmax_output_bytes=1.5\n",
+    "accepted": false
+  },
+  {
+    "name": "unresolved-operator",
+    "registry": "[tools.\"lab.calibration\"]\nkind=\"command\"\nversion=\"1\"\nargv=[\"/REPLACE_EXECUTABLE\"]\n",
+    "accepted": false
+  },
+  {
+    "name": "unknown-field",
+    "registry": "[tools.\"lab.calibration\"]\nkind=\"command\"\nversion=\"1\"\nargv=[\"/usr/bin/lab-reader\"]\nunrecognised=\"ignored\"\n",
+    "accepted": false
+  },
+  {
+    "name": "retained-file",
+    "registry": "[tools.measurement]\nkind=\"json_file\"\nversion=\"1\"\npath=\"measurement.json\"\n",
+    "accepted": true
+  },
+  {
+    "name": "file-environment",
+    "registry": "[tools.measurement]\nkind=\"json_file\"\nversion=\"1\"\npath=\"measurement.json\"\ninherit_env=[]\n",
+    "accepted": false
+  },
+  {
+    "name": "empty-file-path",
+    "registry": "[tools.measurement]\nkind=\"json_file\"\nversion=\"1\"\npath=\"\"\n",
+    "accepted": false
+  }
+]

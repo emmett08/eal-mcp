@@ -162,6 +162,17 @@ fn configuration(
             "Invalid command supervisor configuration".into(),
         ));
     }
+    match (configuration.protocol_version, configuration.stream_limits) {
+        (None, None) => {}
+        (Some(2), Some(limits)) => limits
+            .validate(configuration.max_output_bytes)
+            .map_err(|_| ExecutionError::Supervisor("Invalid independent stream limits".into()))?,
+        _ => {
+            return Err(ExecutionError::Supervisor(
+                "Unsupported supervisor request protocol version".into(),
+            ));
+        }
+    }
     if let Some(handshake) = &configuration.handshake {
         let line = &handshake.expected_first_stdout_line;
         if line.is_empty()
@@ -233,7 +244,13 @@ fn execute(
             Err(error) => {
                 failure = Some(ExecutionError::Spawn(error.to_string()));
                 let bytes = error.to_string().into_bytes();
-                stderr.extend_from_slice(&bytes[..bytes.len().min(configuration.max_output_bytes)]);
+                stderr.extend_from_slice(
+                    &bytes[..bytes.len().min(configuration.max_output_bytes).min(
+                        configuration
+                            .stream_limits
+                            .map_or(usize::MAX, |limits| limits.max_stderr_bytes),
+                    )],
+                );
             }
             Ok(mut child) => {
                 let Some(group) = Pid::from_raw(child.id() as i32) else {
@@ -359,6 +376,7 @@ fn execute(
                                         &mut stdout,
                                         &mut stderr,
                                         configuration.max_output_bytes,
+                                        configuration.stream_limits,
                                         &mut failure,
                                     );
                                     if is_stdout
@@ -453,6 +471,7 @@ fn execute(
                                             &mut stdout,
                                             &mut stderr,
                                             configuration.max_output_bytes,
+                                            configuration.stream_limits,
                                             &mut failure,
                                         );
                                         if index == 0
@@ -503,12 +522,22 @@ fn capture(
     stdout: &mut Vec<u8>,
     stderr: &mut Vec<u8>,
     limit: usize,
+    stream_limits: Option<crate::process::StreamLimits>,
     failure: &mut Option<ExecutionError>,
 ) {
     let remaining = limit
         .saturating_sub(stdout.len())
         .saturating_sub(stderr.len());
     let target = if is_stdout { stdout } else { stderr };
+    let stream_remaining = stream_limits.map_or(remaining, |limits| {
+        let limit = if is_stdout {
+            limits.max_stdout_bytes
+        } else {
+            limits.max_stderr_bytes
+        };
+        limit.saturating_sub(target.len())
+    });
+    let remaining = remaining.min(stream_remaining);
     target.extend_from_slice(&bytes[..bytes.len().min(remaining)]);
     if bytes.len() > remaining && failure.is_none() {
         *failure = Some(ExecutionError::OutputLimit);

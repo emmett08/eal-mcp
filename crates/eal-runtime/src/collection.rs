@@ -379,10 +379,24 @@ impl EvidenceRuntime {
 fn quoted(name: &str, program: &Program) -> Result<String, String> {
     eal_core::expressions::diagnostic_repr(&json!(name), &program.limits)
 }
-fn full_request(name: &str, environment: &str, acquisition: &Value) -> Value {
-    json!({"evidence_id":name,"environment":environment,"tool":acquisition["tool"],
-        "tool_version":acquisition["tool_version"],"input":acquisition["input"],"context":acquisition["context"]})
+pub(crate) fn full_request(name: &str, environment: &str, acquisition: &Value) -> Value {
+    eal_collector_contracts::AcquisitionRequest {
+        evidence_id: name.into(),
+        environment: environment.into(),
+        tool: acquisition["tool"]
+            .as_str()
+            .expect("validated acquisition tool")
+            .into(),
+        tool_version: acquisition["tool_version"]
+            .as_str()
+            .expect("validated acquisition version")
+            .into(),
+        input: acquisition["input"].clone(),
+        context: acquisition["context"].clone(),
+    }
+    .to_value()
 }
+
 pub fn store_observation(
     store: &RunStore,
     record: &mut Value,

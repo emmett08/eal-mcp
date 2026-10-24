@@ -142,26 +142,7 @@ impl ServerSettings {
         if !["stdio", "http"].contains(&self.transport.as_str()) {
             return Err("transport must be stdio or http".into());
         }
-        if !["operator", "registered"].contains(&self.exposure.as_str()) {
-            return Err("exposure must be operator or registered".into());
-        }
-        if self.known_entries.len() > 128
-            || self
-                .known_entries
-                .iter()
-                .any(|s| s.is_empty() || s.trim() != s)
-            || self.known_entries.iter().collect::<BTreeSet<_>>().len() != self.known_entries.len()
-        {
-            return Err(
-                "known_entries must contain up to 128 unique non-empty registered IDs".into(),
-            );
-        }
-        if self.exposure == "registered" && self.known_entries.is_empty() {
-            return Err("registered exposure requires at least one known entry".into());
-        }
-        if self.exposure == "operator" && !self.known_entries.is_empty() {
-            return Err("operator exposure conflicts with known entries".into());
-        }
+        crate::operations::Exposure::resolve(Some(&self.exposure), &self.known_entries)?;
         if self.port == 0 {
             return Err("port must be an integer from 1 through 65535".into());
         }
@@ -260,10 +241,34 @@ fn string_list(value: &Value, name: &str) -> Result<Vec<String>, String> {
         .collect()
 }
 fn config(path: &Path) -> Result<BTreeMap<String, Value>, String> {
-    let source = std::fs::read_to_string(path)
-        .map_err(|e| format!("Cannot read server configuration {}: {e}", path.display()))?;
-    let root: toml::Value =
-        toml::from_str(&source).map_err(|e| format!("Cannot read server configuration: {e}"))?;
+    const MAX_CONFIG_BYTES: usize = 1_048_576;
+    let selected = path
+        .canonicalize()
+        .map_err(|_| "Cannot resolve server configuration")?;
+    if std::fs::metadata(&selected)
+        .map_err(|_| "Cannot inspect server configuration")?
+        .len()
+        > MAX_CONFIG_BYTES as u64
+    {
+        return Err("Server configuration exceeds 1 MiB".into());
+    }
+    let bytes = eal_runtime::acquisition::read_regular(
+        &selected,
+        MAX_CONFIG_BYTES,
+        "Server configuration requires a regular file",
+    )
+    .map_err(|_| "Cannot read server configuration as an identified regular file")?;
+    if bytes.len() > MAX_CONFIG_BYTES {
+        return Err("Server configuration exceeds 1 MiB".into());
+    }
+    let source = String::from_utf8(bytes).map_err(|_| "Server configuration must be UTF-8")?;
+    let root: toml::Value = toml::from_str(&source).map_err(|error| {
+        eal_runtime::bootstrap::toml_diagnostic(
+            eal_runtime::bootstrap::TomlDocumentKind::ServerConfiguration,
+            &source,
+            &error,
+        )
+    })?;
     fn table<'a>(
         v: &'a toml::Value,
         name: &str,

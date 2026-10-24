@@ -1,0 +1,22 @@
+[package]
+name = "eal-process"
+description = "Bounded subprocess execution and independent process-tree supervision"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "eal-process-supervisor"
+path = "src/bin/supervisor.rs"
+
+[dependencies]
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = { version = "1.0.145", features = ["arbitrary_precision", "raw_value"] }
+sha2 = "0.10.9"
+rustix = { version = "1.1.2", features = ["process", "fs", "pipe", "event", "time", "thread"] }
+signal-hook = "0.3.18"
+
+[lints]
+workspace = true

@@ -276,10 +276,14 @@ impl rmcp::ServerHandler for RemoteServer {
             values.insert(self.token.clone(), json!("first"));
             values.insert("[redacted]".into(), json!("second"));
             Value::Object(values)
+        } else if matches!(self.mode, 4 | 6) {
+            json!({"status":"supported","measurement":42})
+        } else if self.mode == 5 {
+            json!({"status":"supported"})
         } else {
             json!({"remote":self.token})
         };
-        Ok(if self.mode == 1 {
+        Ok(if matches!(self.mode, 1 | 6) {
             rmcp::model::CallToolResult::structured_error(value)
         } else {
             rmcp::model::CallToolResult::structured(value)
@@ -288,20 +292,21 @@ impl rmcp::ServerHandler for RemoteServer {
     }
 }
 #[tokio::test]
-async fn actual_host_binary_checks_discovered_schema_redacts_results_and_preserves_exit_codes() {
+async fn actual_host_binary_checks_discovered_schema_rejects_semantic_leakage_and_preserves_results()
+ {
     use rmcp::transport::streamable_http_server::{
         StreamableHttpServerConfig, StreamableHttpService, session::never::NeverSessionManager,
     };
     use std::{process::Stdio, sync::Arc, time::Duration};
     use tokio::io::AsyncWriteExt;
-    for mode in 0..4 {
+    for mode in 0..7 {
         let directory = Directory::new();
         let workspace = directory.0.join("must-not-be-created");
         let calls = Arc::new(AtomicUsize::new(0));
-        let token = if mode == 3 {
-            "Credential"
-        } else {
-            "synthetic-host-token"
+        let token = match mode {
+            3 => "Credential",
+            5 => "supported",
+            _ => "synthetic-host-token",
         };
         let server = RemoteServer {
             calls: Arc::clone(&calls),
@@ -366,18 +371,21 @@ async fn actual_host_binary_checks_discovered_schema_redacts_results_and_preserv
         assert_eq!(
             output.status.code(),
             Some(match mode {
-                0 => 0,
-                1 => 1,
+                4 => 0,
+                6 => 1,
                 _ => 2,
             }),
             "mode {mode}: {stdout}; stderr {}",
             String::from_utf8_lossy(&output.stderr)
         );
         assert_eq!(calls.load(Ordering::SeqCst), usize::from(mode != 2));
-        if mode < 2 {
-            assert_eq!(result["result"]["remote"], "[redacted]");
+        if matches!(mode, 4 | 6) {
+            assert_eq!(
+                result["result"],
+                json!({"status":"supported","measurement":42})
+            );
             assert_eq!(result["protocol_version"], "2025-11-25");
-            assert_eq!(result["is_error"], mode == 1);
+            assert_eq!(result["is_error"], mode == 6);
         } else if mode == 2 {
             assert!(
                 result["error"]
@@ -386,11 +394,13 @@ async fn actual_host_binary_checks_discovered_schema_redacts_results_and_preserv
                     .contains("Discovered input schema rejected request")
             );
         } else {
+            assert!(result["is_error"].as_bool().unwrap());
+            assert!(result.get("result").is_none());
             assert!(
                 result["error"]
                     .as_str()
                     .unwrap()
-                    .contains("merge distinct JSON object keys")
+                    .contains("EAL_HOST_CREDENTIAL_LEAK")
             );
         }
         cancel.cancel();
@@ -484,12 +494,121 @@ fn native_requests_urls_and_redaction_have_explicit_boundaries() {
         assert!(client::validate_http_url(url).is_err(), "{url}");
     }
     let redacted = redaction::sanitise_response(
-        &json!({"text":"before TOKEN after","nested":["TOKEN"]}),
+        &json!({"is_error":true,"error":"before TOKEN after"}),
         Some("TOKEN"),
     )
     .unwrap();
     assert_eq!(
         redacted,
-        json!({"text":"before [redacted] after","nested":["[redacted]"]})
+        json!({"is_error":true,"error":"before [redacted] after"})
     );
+}
+
+#[test]
+fn semantic_credentials_fail_without_rewriting_states_evidence_keys_or_numbers() {
+    let unchanged = json!({"operation":"reason","protocol_version":"2025-11-25","is_error":false,"result":{"status":"supported","value":42},"content":[]});
+    assert_eq!(
+        redaction::sanitise_response(&unchanged, Some("unrelated-credential")).unwrap(),
+        unchanged
+    );
+    for (token, result) in [
+        ("supported", json!({"status":"supported"})),
+        ("secret", json!({"evidence":{"measurement":"secret"}})),
+        ("secret", json!({"nested":[{"secret":"measurement"}]})),
+        ("42", json!({"measurement":42})),
+        ("true", json!({"measurement":true})),
+        ("null", json!({"measurement":null})),
+        (
+            "secret",
+            json!({"measurement":"{\"value\":\"\\u0073ecret\"}"}),
+        ),
+        ("secret", json!({"measurement":"\"\\u0073ecret\""})),
+    ] {
+        let response = json!({"operation":"reason","protocol_version":"2025-11-25","is_error":false,"result":result,"content":[]});
+        assert!(
+            redaction::sanitise_response(&response, Some(token)).is_err(),
+            "{response}"
+        );
+    }
+    let protocol_collision = json!({"operation":"reason","protocol_version":"2025-11-25","is_error":false,"result":{},"content":[]});
+    assert!(redaction::sanitise_response(&protocol_collision, Some("reason")).is_err());
+    let encoded = json!({"is_error":true,"error":"{\"diagnostic\":\"\\u0073ecret\"}"});
+    let diagnostic = redaction::sanitise_response(&encoded, Some("secret")).unwrap();
+    assert_eq!(diagnostic, json!({"is_error":true,"error":"[redacted]"}));
+}
+
+#[test]
+fn server_configuration_uses_a_capped_regular_file_before_parsing() {
+    let directory = Directory::new();
+    let config = directory.0.join("server.toml");
+    let parse = |path: &std::path::Path| {
+        settings::parse_server_settings(
+            &strings(&["--config", path.to_str().unwrap()]),
+            &BTreeMap::new(),
+            &directory.0,
+        )
+    };
+    let mut source = vec![b' '; 1_048_576];
+    source[0] = b'\n';
+    std::fs::write(&config, &source).unwrap();
+    assert!(parse(&config).is_ok());
+    std::fs::File::create(&config)
+        .unwrap()
+        .set_len(1_048_577)
+        .unwrap();
+    assert!(parse(&config).unwrap_err().contains("exceeds 1 MiB"));
+    std::fs::write(&config, [0xff]).unwrap();
+    assert!(parse(&config).unwrap_err().contains("UTF-8"));
+    assert!(parse(&directory.0).is_err());
+    assert!(parse(&directory.0.join("missing")).is_err());
+}
+
+#[cfg(unix)]
+#[test]
+fn server_configuration_fifo_and_fifo_alias_are_rejected_before_open_blocks() {
+    let directory = Directory::new();
+    let fifo = directory.0.join("server.fifo");
+    assert!(
+        std::process::Command::new("mkfifo")
+            .arg(&fifo)
+            .status()
+            .unwrap()
+            .success()
+    );
+    let alias = directory.0.join("server-alias");
+    std::os::unix::fs::symlink(&fifo, &alias).unwrap();
+    for path in [fifo, alias] {
+        let (send, receive) = std::sync::mpsc::sync_channel(1);
+        let cwd = directory.0.clone();
+        std::thread::spawn(move || {
+            let result = settings::parse_server_settings(
+                &strings(&["--config", path.to_str().unwrap()]),
+                &BTreeMap::new(),
+                &cwd,
+            );
+            let _ = send.send(result);
+        });
+        assert!(
+            receive
+                .recv_timeout(std::time::Duration::from_secs(2))
+                .expect("Config FIFO must reject without a writer")
+                .is_err()
+        );
+    }
+}
+
+#[test]
+fn ordinary_prose_with_json_punctuation_retains_its_exact_meaning() {
+    let response = json!({"operation":"reason","protocol_version":"2025-11-25","is_error":false,
+        "result":{"[Results]":"[Results] calibration passed","{draft}":"{draft} status","quotation":"\"quoted prose remains incomplete"},"content":[]});
+    assert_eq!(
+        redaction::sanitise_response(&response, Some("unrelated-bearer-credential")).unwrap(),
+        response
+    );
+    let diagnostic = json!({"is_error":true,"error":"[Results] calibration unavailable"});
+    assert_eq!(
+        redaction::sanitise_response(&diagnostic, Some("unrelated-bearer-credential")).unwrap(),
+        diagnostic
+    );
+    assert!(redaction::sanitise_response(&response, Some("calibration")).is_err());
 }

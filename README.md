@@ -21,6 +21,7 @@ and [evidence collectors](docs/collectors.md).
 
 ```sh
 cargo build --release --workspace --locked
+cargo install --path crates/eal-process --locked
 cargo install --path crates/eal-runtime --locked
 cargo install --path crates/eal-cli --locked
 cargo install --path crates/eal-mcp --locked
@@ -35,7 +36,8 @@ facilities. Windows private-store ACL verification is unimplemented.
 | Package | Commands |
 | --- | --- |
 | `eal-cli` | `eal`, `eal-syntax`, `eal-core`, `eal-runtime`, `eal-aspic-solve` |
-| `eal-runtime` | `eal-command-supervisor`, `eal-method-worker` |
+| `eal-process` | `eal-process-supervisor` |
+| `eal-runtime` | `eal-command-supervisor` compatibility alias and `eal-method-worker` |
 | `eal-mcp` | `eal-mcp`, `eal-host` |
 | `eal-coordination` | `eal-coordinate`, `eal-mas-server`, `mas-protocol-codec` |
 | `eal-collectors` | `eal-collector` |

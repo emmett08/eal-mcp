@@ -14,7 +14,7 @@ async fn collect(config: &Config, request: &Request) -> Result<Value, String> {
     let descriptor = eal_collectors::catalogue::native()
         .collectors
         .iter()
-        .find(|descriptor| descriptor.id == config.provider.name())
+        .find(|descriptor| descriptor.id == config.provider().name())
         .unwrap();
     jsonschema::validator_for(&descriptor.result_schema)
         .unwrap()
@@ -77,7 +77,7 @@ fn supervisor() -> PathBuf {
         .join("eal-command-supervisor");
     assert!(
         path.is_file(),
-        "Build eal-runtime binaries before focused collector tests"
+        "Build eal-process binaries before focused collector tests"
     );
     path
 }
@@ -191,7 +191,13 @@ async fn measured_resource_absence_differs_from_failed_acquisition() {
     }
     let failed = workspace.script("/bin/sleep 10");
     let mut configured = kube(&inventory, &failed, &supervisor);
-    configured.timeout = std::time::Duration::from_secs(1);
+    configured = configured.with_limits(
+        eal_collectors::config::CollectorLimits::new(
+            std::time::Duration::from_secs(1),
+            configured.limits().max_bytes(),
+        )
+        .unwrap(),
+    );
     assert!(
         collect(&configured, &kube_request())
             .await
@@ -256,10 +262,17 @@ async fn github_checks_exact_commit_identity_and_uses_get_only() {
         )
     );
     let wrong = workspace.script("printf '%s' '{\"sha\":\"wrong\"}'");
-    let mut configured = configured.clone();
-    configured
-        .options
-        .insert("--executable".into(), wrong.to_string_lossy().into_owned());
+    let eal_collectors::config::ProviderConfig::Github(mut github) = configured.selected().clone()
+    else {
+        panic!("GitHub configuration expected");
+    };
+    github.command.executable = wrong;
+    let configured = Config::new(
+        eal_collectors::config::ProviderConfig::Github(github),
+        configured.limits().clone(),
+        configured.version(),
+    )
+    .unwrap();
     assert!(collect(&configured, &requested).await.is_err());
 }
 
@@ -452,7 +465,9 @@ async fn inventory_symlinks_and_aggregate_response_overflow_are_rejected() {
         {"id":"prod-b","context":"context-b","tempo_cluster":"telemetry-b"}
     ]));
     let mut selected = kube(&inventory, &script, &supervisor());
-    selected.max_bytes = 512;
+    selected = selected.with_limits(
+        eal_collectors::config::CollectorLimits::new(selected.limits().timeout(), 512).unwrap(),
+    );
     assert!(
         collect(&selected, &kube_request())
             .await
@@ -467,7 +482,9 @@ async fn tempo_http_body_has_a_hard_byte_limit() {
     let inventory = workspace.inventory(cluster());
     let (url, server) = http(json!({"traces":[], "oversized":"x".repeat(1024)}), 200);
     let mut selected = tempo(&inventory, &url);
-    selected.max_bytes = 256;
+    selected = selected.with_limits(
+        eal_collectors::config::CollectorLimits::new(selected.limits().timeout(), 256).unwrap(),
+    );
     assert!(
         collect(&selected, &window())
             .await
@@ -513,10 +530,10 @@ fn fifo_inventory_is_rejected_before_a_blocking_read_for_both_inventory_provider
                     "--namespace",
                     "argocd",
                 ]);
-            kube_request().input
+            kube_request().input.clone()
         } else {
             command.args(["--url", "http://127.0.0.1:1/api/search"]);
-            window().input
+            window().input.clone()
         };
         let mut child = command
             .stdin(Stdio::piped())
@@ -558,4 +575,283 @@ fn fifo_inventory_is_rejected_before_a_blocking_read_for_both_inventory_provider
         );
         assert!(!marker.exists());
     }
+}
+
+fn version_two(config: Config) -> Config {
+    Config::new(
+        config.selected().clone(),
+        config.limits().clone(),
+        eal_collectors::config::ContractVersion::V2,
+    )
+    .unwrap()
+}
+fn request_two(input: Value) -> Request {
+    let mut requested = request(input);
+    requested.tool_version = "2".into();
+    requested
+}
+#[cfg(unix)]
+#[tokio::test]
+async fn version_two_preserves_absent_generation_and_explicit_cluster_scope() {
+    use eal_collectors::config::{ProviderConfig, ResourceScope};
+    let workspace = Workspace::new();
+    let inventory = workspace.inventory(cluster());
+    let supervisor = supervisor();
+    let config_map = json!({"apiVersion":"v1","kind":"ConfigMap","metadata":{"name":"settings","namespace":"default","uid":"config-uid","resourceVersion":"45"}});
+    let script = workspace.script(&format!("printf '%s' '{}'", config_map));
+    let configured = config(
+        "kubernetes",
+        &[
+            ("--inventory", inventory.to_str().unwrap()),
+            ("--executable", script.to_str().unwrap()),
+            ("--supervisor", supervisor.to_str().unwrap()),
+            ("--resource", "configmaps"),
+            ("--kind", "ConfigMap"),
+            ("--namespace", "default"),
+            ("--name", "settings"),
+            ("--contract-version", "2"),
+        ],
+    );
+    let requested = request_two(
+        json!({"resource":"configmaps","scope":"namespaced","namespace":"default","name":"settings"}),
+    );
+    let result = eal_collectors::collect(&configured, &requested)
+        .await
+        .unwrap();
+    assert!(
+        result["value"]["clusters"][0]["resource"]["metadata"]
+            .get("generation")
+            .is_none()
+    );
+    assert!(result["value"]["clusters"][0]["acquisition_interval"].is_object());
+    validate_v2_result("kubernetes", &result);
+    let legacy = Config::new(
+        configured.selected().clone(),
+        configured.limits().clone(),
+        eal_collectors::config::ContractVersion::V1,
+    )
+    .unwrap();
+    assert!(
+        eal_collectors::collect(
+            &legacy,
+            &request(json!({"resource":"configmaps","namespace":"default","name":"settings"}))
+        )
+        .await
+        .is_err()
+    );
+    let namespace = json!({"apiVersion":"v1","kind":"Namespace","metadata":{"name":"production","uid":"namespace-uid","resourceVersion":"81"}});
+    let args = workspace.0.join("cluster-args");
+    let script = workspace.script(&format!(
+        "printf '%s\\n' \"$@\" > '{}'; printf '%s' '{}'",
+        args.display(),
+        namespace
+    ));
+    let ProviderConfig::Kubernetes(mut selected) = configured.selected().clone() else {
+        panic!("Kubernetes expected");
+    };
+    selected.resource = "namespaces".into();
+    selected.kind = "Namespace".into();
+    selected.name = "production".into();
+    selected.scope = ResourceScope::Cluster;
+    selected.command.executable = script;
+    let configured = Config::new(
+        ProviderConfig::Kubernetes(selected),
+        configured.limits().clone(),
+        configured.version(),
+    )
+    .unwrap();
+    let requested =
+        request_two(json!({"resource":"namespaces","scope":"cluster","name":"production"}));
+    let result = eal_collectors::collect(&configured, &requested)
+        .await
+        .unwrap();
+    assert!(
+        result["value"]["clusters"][0]["resource"]["metadata"]
+            .get("namespace")
+            .is_none()
+    );
+    validate_v2_result("kubernetes_cluster", &result);
+    assert!(
+        !std::fs::read_to_string(args)
+            .unwrap()
+            .contains("--namespace")
+    );
+    assert!(eal_collectors::collect(&configured,&request_two(json!({"resource":"namespaces","scope":"cluster","namespace":"default","name":"production"}))).await.is_err());
+}
+#[cfg(unix)]
+#[tokio::test]
+async fn version_two_rejects_wrong_identity_and_malformed_optional_metadata() {
+    let workspace = Workspace::new();
+    let inventory = workspace.inventory(cluster());
+    let supervisor = supervisor();
+    let original = resource();
+    for (pointer, replacement) in [
+        ("/metadata/name", json!("wrong")),
+        ("/metadata/namespace", json!("wrong")),
+        ("/kind", json!("Wrong")),
+        ("/apiVersion", json!("wrong.io/v1")),
+        ("/metadata/uid", json!("")),
+        ("/metadata/resourceVersion", json!(null)),
+        ("/metadata/generation", json!(null)),
+        ("/metadata/generation", json!(-1)),
+        ("/metadata/generation", json!(1.5)),
+        ("/metadata/generation", json!("7")),
+    ] {
+        let mut object = original.clone();
+        *object.pointer_mut(pointer).unwrap() = replacement;
+        let script = workspace.script(&format!("printf '%s' '{}'", object));
+        assert!(eal_collectors::collect(&version_two(kube(&inventory,&script,&supervisor)),&request_two(json!({"resource":"applications.argoproj.io","scope":"namespaced","namespace":"argocd","name":"catalog-sync-operator"}))).await.is_err(),"{pointer}");
+    }
+}
+struct Clock(std::sync::Mutex<std::collections::VecDeque<chrono::DateTime<chrono::Utc>>>);
+impl Clock {
+    fn new(seconds: &[i64]) -> Self {
+        Self(std::sync::Mutex::new(
+            seconds
+                .iter()
+                .map(|s| chrono::DateTime::from_timestamp(*s, 0).unwrap())
+                .collect(),
+        ))
+    }
+}
+impl eal_collectors::ObservationClock for Clock {
+    fn now(&self) -> chrono::DateTime<chrono::Utc> {
+        self.0
+            .lock()
+            .unwrap()
+            .pop_front()
+            .expect("clock has all expected sampling points")
+    }
+}
+#[cfg(unix)]
+#[tokio::test]
+async fn fleet_age_is_conservative_and_wall_clock_regression_remains_visible() {
+    let workspace = Workspace::new();
+    let inventory=workspace.inventory(json!([{"id":"a","context":"a","tempo_cluster":"a"},{"id":"b","context":"b","tempo_cluster":"b"}]));
+    let script = workspace.script(&format!("printf '%s' '{}'", resource()));
+    let configured = version_two(kube(&inventory, &script, &supervisor()));
+    let requested = request_two(
+        json!({"resource":"applications.argoproj.io","scope":"namespaced","namespace":"argocd","name":"catalog-sync-operator"}),
+    );
+    for (samples, oldest, regressed) in [
+        ([100, 110, 120, 130, 140, 150], 100, false),
+        ([100, 110, 90, 130, 140, 150], 90, true),
+    ] {
+        let result =
+            eal_collectors::collect_with_clock(&configured, &requested, &Clock::new(&samples))
+                .await
+                .unwrap();
+        let observed =
+            chrono::DateTime::parse_from_rfc3339(result["observed_at"].as_str().unwrap())
+                .unwrap()
+                .timestamp();
+        assert_eq!(observed, oldest);
+        assert_eq!(
+            result["details"]["acquisition_interval"]["wall_clock_regressed"],
+            regressed
+        );
+        assert_eq!(
+            result["details"]["acquisition_interval"]["snapshot_semantics"],
+            "sequential_acquisition"
+        );
+        let items = result["value"]["clusters"].as_array().unwrap();
+        assert_eq!(items.len(), 2);
+        assert_ne!(
+            items[0]["acquisition_interval"]["observed_at"],
+            items[1]["acquisition_interval"]["observed_at"]
+        );
+        let admitted = eal_runtime::acquisition::validate_envelope(
+            &serde_json::to_vec(&result).unwrap(),
+            false,
+            &requested.context,
+            &requested.acquisition(),
+        )
+        .unwrap();
+        assert_eq!(admitted["observed_at"], result["observed_at"]);
+    }
+}
+#[tokio::test]
+async fn future_tempo_window_and_contract_version_mismatch_fail_before_transport() {
+    let workspace = Workspace::new();
+    let inventory = workspace.inventory(cluster());
+    let selected = version_two(tempo(&inventory, "http://127.0.0.1:1/api/search"));
+    let error = eal_collectors::collect_with_clock(
+        &selected,
+        &request_two(json!({"start_unix":100,"end_unix":200})),
+        &Clock::new(&[100, 100]),
+    )
+    .await
+    .unwrap_err();
+    assert!(error.contains("window"));
+    assert!(
+        eal_collectors::collect(&selected, &window())
+            .await
+            .unwrap_err()
+            .contains("version")
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn a_later_fleet_failure_emits_no_successful_partial_aggregate() {
+    let workspace = Workspace::new();
+    let inventory=workspace.inventory(json!([{"id":"a","context":"a","tempo_cluster":"a"},{"id":"b","context":"b","tempo_cluster":"b"}]));
+    let script = workspace.script(&format!(
+        "case \"$*\" in *'--context b'*) exit 23 ;; esac\nprintf '%s' '{}'",
+        resource()
+    ));
+    let mut child = Command::new(env!("CARGO_BIN_EXE_eal-collector"))
+        .args([
+            "kubernetes",
+            "--contract-version",
+            "2",
+            "--inventory",
+            inventory.to_str().unwrap(),
+            "--executable",
+            script.to_str().unwrap(),
+            "--supervisor",
+            supervisor().to_str().unwrap(),
+            "--resource",
+            "applications.argoproj.io",
+            "--kind",
+            "Application",
+            "--scope",
+            "namespaced",
+            "--namespace",
+            "argocd",
+            "--name",
+            "catalog-sync-operator",
+        ])
+        .env_clear()
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    let request = request_two(
+        json!({"resource":"applications.argoproj.io","scope":"namespaced","namespace":"argocd","name":"catalog-sync-operator"}),
+    );
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(&serde_json::to_vec(&request).unwrap())
+        .unwrap();
+    let output = child.wait_with_output().unwrap();
+    assert_eq!(output.status.code(), Some(2));
+    assert!(output.stdout.is_empty());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("status 23"));
+}
+
+fn validate_v2_result(id: &str, envelope: &Value) {
+    let descriptor = eal_collectors::catalogue::native_version("2")
+        .unwrap()
+        .collectors
+        .iter()
+        .find(|d| d.id == id)
+        .unwrap();
+    jsonschema::validator_for(&descriptor.result_schema)
+        .unwrap()
+        .validate(&envelope["value"])
+        .unwrap();
 }

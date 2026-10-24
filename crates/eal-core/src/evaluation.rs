@@ -183,13 +183,9 @@ fn evaluate_owned(
     }
     assess_local_declarations(program, instant, &mut result)?;
     let sources = arguments::assess_source_claims(program, records, &mut result, registry)?;
-    result["complete"] = json!(
-        !result["arguments"]
-            .as_object()
-            .unwrap()
-            .values()
-            .any(|v| v["reasoning_result"]["status"] == "incomplete")
-    );
+    result["complete"] = json!(!result["arguments"].as_object().unwrap().values().any(
+        |v| v["reasoning_result"]["status"] == methods::MethodResultStatus::Incomplete.as_str()
+    ));
     let composed = graph::construct(program, &mut result, &sources).and_then(|graph| {
         let grounded = crate::dialectic::solve_composed(
             &graph.nodes,

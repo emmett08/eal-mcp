@@ -1,0 +1,936 @@
+[
+  {
+    "name": "omitted-constraints-default",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": true,
+    "schema_accepted": true,
+    "profile_accepted": true,
+    "scope": "schema-and-semantic"
+  },
+  {
+    "name": "dotted-hyphenated-id",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration-v2",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": true,
+    "schema_accepted": true,
+    "profile_accepted": true,
+    "scope": "schema-and-semantic"
+  },
+  {
+    "name": "unicode-version",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": true,
+    "schema_accepted": true,
+    "profile_accepted": true,
+    "scope": "schema-and-semantic"
+  },
+  {
+    "name": "unknown-root-field",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ],
+      "unexpected": true
+    },
+    "wire_accepted": false,
+    "schema_accepted": false,
+    "profile_accepted": false,
+    "scope": "schema-and-semantic"
+  },
+  {
+    "name": "version-control",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "v1\ncredential",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": false,
+    "schema_accepted": false,
+    "profile_accepted": false,
+    "scope": "schema-and-semantic"
+  },
+  {
+    "name": "whitespace-purpose",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": " \t\n",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": false,
+    "schema_accepted": false,
+    "profile_accepted": false,
+    "scope": "schema-and-semantic"
+  },
+  {
+    "name": "unicode-whitespace-purpose",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": "  ",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": false,
+    "schema_accepted": false,
+    "profile_accepted": false,
+    "scope": "schema-and-semantic"
+  },
+  {
+    "name": "duplicate-environment",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN",
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": false,
+    "schema_accepted": false,
+    "profile_accepted": false,
+    "scope": "schema-and-semantic"
+  },
+  {
+    "name": "invalid-environment",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB.TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": false,
+    "schema_accepted": false,
+    "profile_accepted": false,
+    "scope": "schema-and-semantic"
+  },
+  {
+    "name": "partial-placeholder",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "instrument",
+              "--channel={channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": false,
+    "schema_accepted": false,
+    "profile_accepted": false,
+    "scope": "schema-and-semantic"
+  },
+  {
+    "name": "parameter-executable",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": false,
+    "schema_accepted": false,
+    "profile_accepted": false,
+    "scope": "schema-and-semantic"
+  },
+  {
+    "name": "unknown-parameter-semantic",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "instrument",
+              "{missing}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": false,
+    "schema_accepted": true,
+    "profile_accepted": false,
+    "scope": "semantic-only-template-membership"
+  },
+  {
+    "name": "duplicate-id-semantic",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        },
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": false,
+    "schema_accepted": true,
+    "profile_accepted": false,
+    "scope": "semantic-only-id-uniqueness"
+  },
+  {
+    "name": "reserved-profile-id",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "custom",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": true,
+    "schema_accepted": true,
+    "profile_accepted": false,
+    "scope": "profile-only-reserved-id"
+  },
+  {
+    "name": "wire-65-environment-names",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_0",
+              "LAB_1",
+              "LAB_2",
+              "LAB_3",
+              "LAB_4",
+              "LAB_5",
+              "LAB_6",
+              "LAB_7",
+              "LAB_8",
+              "LAB_9",
+              "LAB_10",
+              "LAB_11",
+              "LAB_12",
+              "LAB_13",
+              "LAB_14",
+              "LAB_15",
+              "LAB_16",
+              "LAB_17",
+              "LAB_18",
+              "LAB_19",
+              "LAB_20",
+              "LAB_21",
+              "LAB_22",
+              "LAB_23",
+              "LAB_24",
+              "LAB_25",
+              "LAB_26",
+              "LAB_27",
+              "LAB_28",
+              "LAB_29",
+              "LAB_30",
+              "LAB_31",
+              "LAB_32",
+              "LAB_33",
+              "LAB_34",
+              "LAB_35",
+              "LAB_36",
+              "LAB_37",
+              "LAB_38",
+              "LAB_39",
+              "LAB_40",
+              "LAB_41",
+              "LAB_42",
+              "LAB_43",
+              "LAB_44",
+              "LAB_45",
+              "LAB_46",
+              "LAB_47",
+              "LAB_48",
+              "LAB_49",
+              "LAB_50",
+              "LAB_51",
+              "LAB_52",
+              "LAB_53",
+              "LAB_54",
+              "LAB_55",
+              "LAB_56",
+              "LAB_57",
+              "LAB_58",
+              "LAB_59",
+              "LAB_60",
+              "LAB_61",
+              "LAB_62",
+              "LAB_63",
+              "LAB_64"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true"
+        }
+      ]
+    },
+    "wire_accepted": true,
+    "schema_accepted": true,
+    "profile_accepted": false,
+    "scope": "profile-only-environment-allowance"
+  },
+  {
+    "name": "compound-profile-predicate",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "collected == true and healthy == true"
+        }
+      ]
+    },
+    "wire_accepted": true,
+    "schema_accepted": true,
+    "profile_accepted": false,
+    "scope": "profile-only-scalar-predicate"
+  },
+  {
+    "name": "whitespace-acquisition-predicate",
+    "catalogue": {
+      "schema": "eal.collector-catalogue/1",
+      "acquisition_contract": "eal.acquisition/1",
+      "collectors": [
+        {
+          "id": "lab.calibration",
+          "version": "1",
+          "purpose": "Measure calibration error.",
+          "parameters": [
+            "channel"
+          ],
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "channel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "channel"
+            ]
+          },
+          "result_schema": {
+            "type": "object"
+          },
+          "command": {
+            "argv": [
+              "{operator.instrument}",
+              "{channel}"
+            ],
+            "inherit_env": [
+              "LAB_TOKEN"
+            ],
+            "timeout_seconds": 30,
+            "max_output_bytes": 4096,
+            "parallel_safe": false
+          },
+          "acquisition_predicate": "   "
+        }
+      ]
+    },
+    "wire_accepted": false,
+    "schema_accepted": false,
+    "profile_accepted": false,
+    "scope": "schema-and-semantic"
+  }
+]

@@ -6,6 +6,35 @@ use std::sync::{Arc, OnceLock};
 
 use super::schema::validate_schema;
 
+/// Closed method-result states shared by evaluation and transport projections.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum MethodResultStatus {
+    Supported,
+    Unsupported,
+    NotRun,
+    Incomplete,
+}
+impl MethodResultStatus {
+    pub fn parse(value: &str) -> Option<Self> {
+        match value {
+            "supported" => Some(Self::Supported),
+            "unsupported" => Some(Self::Unsupported),
+            "not_run" => Some(Self::NotRun),
+            "incomplete" => Some(Self::Incomplete),
+            _ => None,
+        }
+    }
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Supported => "supported",
+            Self::Unsupported => "unsupported",
+            Self::NotRun => "not_run",
+            Self::Incomplete => "incomplete",
+        }
+    }
+}
+
 /// Failure of a pure native computation; exhaustion is distinct from a negative result.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum MethodError {

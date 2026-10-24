@@ -1,7 +1,6 @@
 use super::{AcquisitionError, MAX_PINNED_FILE_BYTES, files};
 use eal_core::{ExecutionLimits, canonical};
 use hmac::{Hmac, Mac};
-use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{
@@ -9,37 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum ToolKind {
-    Command,
-    JsonFile,
-}
-impl ToolKind {
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::Command => "command",
-            Self::JsonFile => "json_file",
-        }
-    }
-}
-impl PartialEq<str> for ToolKind {
-    fn eq(&self, other: &str) -> bool {
-        self.as_str() == other
-    }
-}
-impl PartialEq<&str> for ToolKind {
-    fn eq(&self, other: &&str) -> bool {
-        self.as_str() == *other
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct PinnedFile {
-    pub path: String,
-    pub sha256: String,
-}
+pub use eal_collector_contracts::{PinnedFile, ToolKind};
 
 #[derive(Clone)]
 pub struct ToolBinding {

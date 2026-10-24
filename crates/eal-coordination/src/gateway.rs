@@ -89,12 +89,17 @@ impl McpGateway {
         let directory = executable
             .parent()
             .ok_or("Native EAL MCP executable has no runtime directory")?;
-        for (name, configured) in [
-            ("eal-command-supervisor", &options.host_paths.supervisor),
-            ("eal-method-worker", &options.host_paths.method_worker),
+        for (sibling, configured) in [
+            (
+                eal_runtime::bootstrap::supervisor_in(directory),
+                &options.host_paths.supervisor,
+            ),
+            (
+                directory.join(format!("eal-method-worker{}", std::env::consts::EXE_SUFFIX)),
+                &options.host_paths.method_worker,
+            ),
         ] {
-            let sibling = directory
-                .join(format!("{name}{}", std::env::consts::EXE_SUFFIX))
+            let sibling = sibling
                 .canonicalize()
                 .map_err(|_| "Gateway companions must be installed beside eal-mcp")?;
             if configured

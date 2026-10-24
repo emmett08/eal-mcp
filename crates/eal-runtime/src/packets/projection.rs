@@ -3,7 +3,11 @@ use super::shape::{
 };
 use super::{AssessmentPacketBuilder, CLAIM_STATES, prefix};
 use chrono::{DateTime, Utc};
-use eal_core::{canonical::canonical_digest, methods::default_registry, validation::parse_time};
+use eal_core::{
+    canonical::canonical_digest,
+    methods::{MethodResultStatus, default_registry},
+    validation::parse_time,
+};
 use serde_json::{Map, Value, json};
 use std::collections::BTreeSet;
 
@@ -17,7 +21,7 @@ impl AssessmentPacketBuilder {
         let method = bounded(computation.get("method"));
         let mut result = json!({"status": state(item.get("status"), CLAIM_STATES)?,
             "conclusion": identifier(item.get("conclusion").unwrap_or(&Value::Null))?,
-            "method_result": {"status": state(computation.get("status"), &["supported", "unsupported", "not_run"])?, "method": method}});
+            "method_result": {"status": MethodResultStatus::parse(computation.get("status").and_then(Value::as_str).unwrap_or("")).ok_or("Assessment packet contains an unknown method result status")?, "method": method}});
         let projected = result["method_result"]
             .as_object_mut()
             .expect("constructed object");

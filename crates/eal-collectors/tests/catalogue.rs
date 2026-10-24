@@ -71,7 +71,7 @@ fn native_descriptors_bind_to_current_cli_registry_and_eal_predicates() {
         ]);
         let binding = descriptor.binding(&parameters, &selected).unwrap();
         let config = Config::parse(binding.argv.iter().skip(1).cloned().collect()).unwrap();
-        assert_eq!(config.provider.name(), descriptor.id);
+        assert_eq!(config.provider().name(), descriptor.id);
         let registry = CommandRegistry {
             tools: BTreeMap::from([("reading_tool".into(), binding)]),
         };
@@ -231,4 +231,91 @@ fn a_custom_laboratory_catalogue_preserves_typed_input_and_measured_negatives() 
     assert_eq!(observed["value"]["calibrated"], false);
     assert_eq!(observed["value"]["reading"], 1.25);
     std::fs::remove_dir_all(workspace).unwrap();
+}
+
+#[test]
+fn explicit_native_v2_selection_advertises_and_binds_both_resource_scopes() {
+    let output = Command::new(env!("CARGO_BIN_EXE_eal-collector"))
+        .args(["describe", "--catalogue-version", "2"])
+        .env_clear()
+        .stdin(Stdio::null())
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let advertised: Value = serde_json::from_slice(&output.stdout).unwrap();
+    let expected: Value = serde_json::from_str(catalogue::NATIVE_V2_JSON).unwrap();
+    assert_eq!(advertised, expected);
+    let native = catalogue::native_version("2").unwrap();
+    native.validate().unwrap();
+    assert!(catalogue::native_version("999").is_err());
+    assert_eq!(catalogue::native().collectors[0].version, "1");
+    for descriptor in &native.collectors {
+        assert_eq!(descriptor.version, "2");
+        let scope = if descriptor.id == "kubernetes_cluster" {
+            "cluster"
+        } else {
+            "namespaced"
+        };
+        let mut parameters = BTreeMap::from([
+            ("inventory".into(), "/operator/inventory.json".into()),
+            ("resource".into(), "configmaps".into()),
+            ("kind".into(), "ConfigMap".into()),
+            ("namespace".into(), "default".into()),
+            ("name".into(), "settings".into()),
+            ("scope".into(), scope.into()),
+            ("repository".into(), "owner/repo".into()),
+            ("commit".into(), "a".repeat(40)),
+            ("url".into(), "https://tempo.example/api/search".into()),
+            (
+                "cluster_attribute".into(),
+                "resource.k8s.cluster.name".into(),
+            ),
+            ("start_unix".into(), "1".into()),
+            ("end_unix".into(), "2".into()),
+        ]);
+        parameters.retain(|key, _| descriptor.parameters.contains(key));
+        let binding = descriptor
+            .binding(
+                &parameters,
+                &BTreeMap::from([
+                    ("executable".into(), "/operator/tool".into()),
+                    ("supervisor".into(), "/operator/supervisor".into()),
+                ]),
+            )
+            .unwrap();
+        let config = Config::parse(binding.argv.iter().skip(1).cloned().collect()).unwrap();
+        assert_eq!(config.version().name(), "2");
+        let mut input = json!({});
+        for (key, property) in descriptor.input_schema["properties"].as_object().unwrap() {
+            input[key] = if property["type"] == "integer" {
+                json!(parameters[key].parse::<u64>().unwrap())
+            } else {
+                json!(parameters[key])
+            };
+        }
+        let schema = jsonschema::validator_for(&descriptor.input_schema).unwrap();
+        schema.validate(&input).unwrap();
+        if descriptor.id == "kubernetes_cluster" {
+            let mut widened = input.clone();
+            widened["namespace"] = json!("default");
+            assert!(!schema.is_valid(&widened));
+        }
+        if descriptor.id == "kubernetes" {
+            let mut widened = input.clone();
+            widened["scope"] = json!("cluster");
+            assert!(!schema.is_valid(&widened));
+        }
+        ToolRegistry::from_toml(
+            &CommandRegistry {
+                tools: BTreeMap::from([("observed".into(), binding)]),
+            }
+            .to_toml()
+            .unwrap(),
+        )
+        .unwrap();
+    }
 }

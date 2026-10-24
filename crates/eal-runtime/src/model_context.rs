@@ -19,6 +19,7 @@ impl ModelContextBuilder {
             .get("packet")
             .and_then(Value::as_object)
             .ok_or("Model context requires a checked assessment packet")?;
+        let incomplete = packet_incomplete(packet)?;
         let mut result = Map::new();
         for (input, output) in [
             ("assessed_at", "assessed_at"),
@@ -61,6 +62,9 @@ impl ModelContextBuilder {
         {
             return Err("Packet claim status differs from the registered assessment".into());
         }
+        if incomplete {
+            result.insert("complete".into(), json!(false));
+        }
         for key in [
             "claims",
             "premise_claims",
@@ -83,6 +87,39 @@ impl ModelContextBuilder {
                 _ => check_group(key, value)?,
             }
             result.insert(key.into(), value.clone());
+        }
+        for claim in result["claims"]
+            .as_object()
+            .ok_or("Packet claims must be a mapping")?
+            .values()
+        {
+            if incomplete && claim.get("assessment_complete") != Some(&Value::Bool(false)) {
+                return Err(
+                    "Incomplete packet requires a qualification on every selected claim".into(),
+                );
+            }
+            if !incomplete && claim.get("assessment_complete").is_some() {
+                return Err(
+                    "Assessment completeness qualification requires packet version 3".into(),
+                );
+            }
+        }
+        if !incomplete
+            && result["arguments"].as_object().is_some_and(|arguments| {
+                arguments.values().any(|argument| {
+                    argument["method_result"]["status"]
+                        == eal_core::methods::MethodResultStatus::Incomplete.as_str()
+                })
+            })
+        {
+            return Err("Incomplete method result requires packet version 3".into());
+        }
+        if incomplete
+            && result["claims"]
+                .get(assessment["claim"].as_str().unwrap_or(""))
+                .is_none()
+        {
+            return Err("Incomplete packet must retain the selected claim qualification".into());
         }
         if result["summary_complete"] == true
             && result["omitted"].as_object().is_some_and(|v| !v.is_empty())
@@ -143,6 +180,32 @@ impl ModelContextBuilder {
     }
 }
 
+fn packet_incomplete(packet: &Map<String, Value>) -> Result<bool, String> {
+    let schema = match packet.get("schema") {
+        None => None,
+        Some(Value::String(schema)) => Some(schema.as_str()),
+        Some(_) => return Err("Unsupported assessment packet schema".into()),
+    };
+    match schema {
+        None | Some(crate::packets::PACKET_SCHEMA) => {
+            if packet
+                .get("complete")
+                .is_some_and(|value| value != &Value::Bool(true))
+            {
+                return Err("Incomplete assessment requires packet version 3".into());
+            }
+            Ok(false)
+        }
+        Some(crate::packets::INCOMPLETE_PACKET_SCHEMA) => {
+            if packet.get("complete") != Some(&Value::Bool(false)) {
+                return Err("Packet version 3 requires explicit incomplete qualification".into());
+            }
+            Ok(true)
+        }
+        Some(_) => Err("Unsupported assessment packet schema".into()),
+    }
+}
+
 fn check_group(kind: &str, value: &Value) -> Result<(), String> {
     let entries = value
         .as_object()
@@ -153,6 +216,7 @@ fn check_group(kind: &str, value: &Value) -> Result<(), String> {
     let keys: &[&str] = match kind {
         "claims" => &[
             "status",
+            "assessment_complete",
             "statement",
             "prose_verified",
             "statement_truncated",
@@ -209,6 +273,7 @@ fn check_group(kind: &str, value: &Value) -> Result<(), String> {
                     "evidence" => ["available", "unavailable"].contains(&s),
                     _ => ["supported", "contested", "unsupported", "out_of_scope"].contains(&s),
                 }),
+                "assessment_complete" => value == &Value::Bool(false),
                 "statement" => value.is_null() || value.as_str().is_some_and(|s| s.len() <= 4096),
                 "prose_verified" | "statement_truncated" => value.is_boolean(),
                 "grounded_label" | "target_kind" => {
@@ -290,7 +355,7 @@ fn check_group(kind: &str, value: &Value) -> Result<(), String> {
                 let valid = match key.as_str() {
                     "status" => value
                         .as_str()
-                        .is_some_and(|s| ["supported", "unsupported", "not_run"].contains(&s)),
+                        .is_some_and(|s| eal_core::methods::MethodResultStatus::parse(s).is_some()),
                     "method" => value.is_null() || bounded(Some(value)).is_some(),
                     "evidence_id" => identifier(value).is_ok(),
                     "input_digest" | "bound_observation_digest" => digest(value).is_some(),

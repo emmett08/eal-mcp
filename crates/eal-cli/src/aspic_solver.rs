@@ -131,8 +131,13 @@ fn load_limits(path: Option<&Path>) -> Result<ExecutionLimits, Failure> {
         ));
     }
     let text = std::str::from_utf8(&bytes).map_err(|error| Failure::Invalid(error.to_string()))?;
-    let document: Document =
-        toml::from_str(text).map_err(|error| Failure::Invalid(error.to_string()))?;
+    let document: Document = toml::from_str(text).map_err(|error| {
+        Failure::Invalid(eal_runtime::bootstrap::toml_diagnostic(
+            eal_runtime::bootstrap::TomlDocumentKind::Limits,
+            text,
+            &error,
+        ))
+    })?;
     document.limits.validate().map_err(Failure::Invalid)?;
     Ok(document.limits)
 }

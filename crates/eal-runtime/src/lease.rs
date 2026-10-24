@@ -82,3 +82,9 @@ impl std::os::windows::io::AsHandle for AcquisitionLease {
         std::os::windows::io::AsHandle::as_handle(&self.file)
     }
 }
+
+impl eal_process::Retention for AcquisitionLease {
+    fn duplicate_for_supervisor(&self) -> std::io::Result<std::process::Stdio> {
+        Ok(std::process::Stdio::from(self.file.try_clone()?))
+    }
+}

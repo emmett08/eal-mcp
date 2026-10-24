@@ -4,7 +4,6 @@ use crate::{
     operations::Operations,
 };
 use eal_runtime::service::ReasoningService;
-use jsonschema::Validator;
 use rmcp::{
     RoleServer, ServerHandler,
     model::{
@@ -15,7 +14,7 @@ use rmcp::{
     service::RequestContext,
 };
 use serde_json::Value;
-use std::{borrow::Cow, collections::BTreeMap, sync::Arc};
+use std::{borrow::Cow, sync::Arc};
 use tokio_util::sync::CancellationToken;
 
 pub const INSTRUCTIONS: &str = "Validate explicit engineering arguments, collect configured observations, reason over their declared scope, and explain results. Support is relative to declared inference rationales, not a proof of prose truth.";
@@ -39,7 +38,6 @@ impl Default for ServerOptions {
 #[derive(Clone)]
 pub struct Server {
     operations: Arc<Operations>,
-    validators: Arc<BTreeMap<String, Validator>>,
     admission: Admission,
 }
 impl Server {
@@ -51,19 +49,8 @@ impl Server {
             options.known_entries,
             options.exposure.as_deref(),
         )?);
-        let validators = operations
-            .tools
-            .iter()
-            .map(|tool| {
-                Ok((
-                    tool.name.to_string(),
-                    guard::compile_schema(&Value::Object((*tool.input_schema).clone()))?,
-                ))
-            })
-            .collect::<Result<BTreeMap<_, _>, String>>()?;
         Ok(Self {
             operations,
-            validators: Arc::new(validators),
             admission,
         })
     }
@@ -80,20 +67,14 @@ impl Server {
         arguments: Value,
         cancellation: CancellationToken,
     ) -> Result<Value, String> {
-        let Some(validator) = self.validators.get(name) else {
-            guard::discard(arguments);
-            let name = eal_core::expressions::diagnostic_repr(
-                &Value::String(name.into()),
-                &eal_core::ExecutionLimits::default(),
-            )?;
-            return Err(format!("Unknown tool: {name}"));
+        let request = match self.operations.decode(name, &arguments) {
+            Ok(request) => request,
+            Err(error) => {
+                guard::discard(arguments);
+                return Err(error);
+            }
         };
-        if let Err(error) = guard::validate(&arguments, validator) {
-            guard::discard(arguments);
-            return Err(error);
-        }
         let permit = self.admission.acquire(&cancellation).await?;
-        guard::strict_parameters(name, &arguments)?;
         if cancellation.is_cancelled() {
             return Err("Tool request cancelled before execution".into());
         }
@@ -102,7 +83,7 @@ impl Server {
         tokio::task::spawn_blocking(move || {
             let _permit = permit;
             operations
-                .dispatch(&name, &arguments)
+                .dispatch(request)
                 .map_err(|error| format!("Error calling tool '{name}': {error}"))
         })
         .await

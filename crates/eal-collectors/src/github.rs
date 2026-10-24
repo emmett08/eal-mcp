@@ -3,12 +3,13 @@ use serde_json::{Value, json};
 
 pub(crate) fn collect(
     config: &crate::Config,
+    selected: &crate::config::GithubConfig,
     request: &crate::Request,
     started: std::time::Instant,
 ) -> Result<Value, String> {
     request.fields(&["repository", "commit"])?;
-    let repository = config.get("--repository")?;
-    let commit = config.get("--commit")?;
+    let repository = selected.repository.as_str();
+    let commit = selected.commit.as_str();
     request.matches("repository", repository)?;
     request.matches("commit", commit)?;
     let output = crate::process::run(

@@ -20,12 +20,14 @@ For the complete application installation, install all three packages into the
 same prefix:
 
 ```sh
+cargo install --path crates/eal-process --locked
 cargo install --path crates/eal-runtime --locked
 cargo install --path crates/eal-cli --locked
 cargo install --path crates/eal-mcp --locked
 ```
 
-The development driver finds `eal-command-supervisor` and `eal-method-worker`
+The development driver preserves the `eal-command-supervisor` installed alias until EAL 0.2 and uses `eal-process-supervisor` when that alias is absent.
+It finds the supervisor and `eal-method-worker`
 beside its own executable. Operator options `--supervisor` and `--method-worker`
 can supply other executable paths, resolved before their identities are captured.
 The companions are version-coupled to this

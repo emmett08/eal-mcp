@@ -5,7 +5,7 @@ use crate::{
 };
 use serde_json::{Value, json};
 use std::{
-    collections::{BTreeMap, BTreeSet},
+    collections::BTreeMap,
     io::{Read, Write},
     net::IpAddr,
     path::PathBuf,
@@ -30,134 +30,12 @@ pub fn parse_request(text: &str) -> Result<(String, Value), String> {
         .remove("operation")
         .and_then(|v| v.as_str().map(str::to_owned));
     let operation = operation
-        .filter(|s| {
-            crate::operations::OPERATION_FIELDS
-                .iter()
-                .any(|(name, _)| s == name)
-        })
-        .ok_or_else(|| {
-            format!(
-                "operation must be {}",
-                crate::operations::OPERATION_FIELDS
-                    .iter()
-                    .map(|(name, _)| *name)
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            )
-        })?;
-    let fields = crate::operations::operation_fields(&operation).unwrap();
-    let missing = fields
-        .required
-        .iter()
-        .filter(|key| !arguments.contains_key(**key))
-        .copied()
-        .collect::<BTreeSet<_>>();
-    if !missing.is_empty() {
-        return Err(format!(
-            "Missing request fields: {}",
-            missing.into_iter().collect::<Vec<_>>().join(", ")
-        ));
-    }
-    let unknown = arguments
-        .keys()
-        .filter(|key| {
-            !fields.required.contains(&key.as_str()) && !fields.optional.contains(&key.as_str())
-        })
-        .map(String::as_str)
-        .collect::<BTreeSet<_>>();
-    if !unknown.is_empty() {
-        return Err(format!(
-            "Unknown request fields: {}",
-            unknown.into_iter().collect::<Vec<_>>().join(", ")
-        ));
-    }
-    for key in ["source", "assessment_id", "entry_id"] {
-        if arguments.get(key).is_some_and(|v| !v.is_string()) {
-            return Err(format!("{key} must be a string"));
-        }
-    }
-    if ["assess_known", "get_known_packet"].contains(&operation.as_str())
-        && arguments["entry_id"].as_str() == Some("")
-    {
-        return Err(format!(
-            "{operation} requires a non-empty registered entry ID"
-        ));
-    }
-    if operation == "get_known_packet" && arguments["assessment_id"].as_str() == Some("") {
-        return Err("get_known_packet requires a non-empty assessment ID".into());
-    }
-    for key in [
-        "claim",
-        "collection_id",
-        "now",
-        "semantics",
-        "query_mode",
-        "preference",
-        "query",
-    ] {
-        if arguments
-            .get(key)
-            .is_some_and(|v| !v.is_null() && !v.is_string())
-        {
-            return Err(format!("{key} must be a string or null"));
-        }
-    }
-    if ["plan", "collect_claim", "assess_known", "get_known_packet"].contains(&operation.as_str())
-        && arguments["claim"].as_str().is_none_or(str::is_empty)
-    {
-        return Err(format!("{operation} requires a non-empty claim identifier"));
-    }
-    if operation == "compile_aspic" {
-        if arguments["goal"]
-            .as_str()
-            .is_none_or(|s| s.trim().is_empty())
-        {
-            return Err("compile_aspic requires a non-empty goal string".into());
-        }
-        if arguments["collection_id"]
-            .as_str()
-            .is_none_or(str::is_empty)
-        {
-            return Err("compile_aspic requires a non-empty collection_id string".into());
-        }
-    }
-    for key in ["limit", "offset"] {
-        if arguments.get(key).is_some_and(|v| !is_integer(v)) {
-            return Err(format!("{key} must be an integer"));
-        }
-    }
-    if arguments.get("context").is_some_and(|v| !v.is_object()) {
-        return Err("context must be an object".into());
-    }
-    for key in ["evidence_ids", "arguments"] {
-        if let Some(value) = arguments
-            .get(key)
-            .filter(|v| !v.is_null() || fields.required.contains(&key))
-            && value
-                .as_array()
-                .is_none_or(|values| values.iter().any(|v| !v.is_string()))
-        {
-            return Err(format!("{key} must be a list of strings"));
-        }
-    }
-    if arguments.get("attacks").is_some_and(|v| {
-        v.as_array().is_none_or(|edges| {
-            edges.iter().any(|edge| {
-                edge.as_array()
-                    .is_none_or(|e| e.len() != 2 || e.iter().any(|v| !v.is_string()))
-            })
-        })
-    }) {
-        return Err("attacks must be a list of [attacker, target] string pairs".into());
-    }
+        .filter(|name| !name.starts_with("eal_"))
+        .and_then(|name| crate::operations::Operation::parse(&name))
+        .ok_or("Unknown EAL operation [EAL_OPERATION_UNKNOWN]")?;
     let arguments = Value::Object(arguments);
-    crate::operations::requested_packet_limits(&arguments)?;
-    Ok((format!("eal_{operation}"), arguments))
-}
-fn is_integer(value: &Value) -> bool {
-    value
-        .as_number()
-        .is_some_and(|n| !n.to_string().contains(['.', 'e', 'E']))
+    crate::operations::OperationRequest::decode(operation.name(), &arguments)?;
+    Ok((operation.tool_name(), arguments))
 }
 pub async fn dispatch_request(
     text: &str,

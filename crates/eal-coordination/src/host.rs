@@ -28,7 +28,7 @@ impl HostPaths {
         Self {
             eal_mcp: executable("eal-mcp"),
             eal_coordinate: executable("eal-coordinate"),
-            supervisor: executable("eal-command-supervisor"),
+            supervisor: eal_runtime::bootstrap::supervisor_in(directory),
             method_worker: executable("eal-method-worker"),
         }
     }

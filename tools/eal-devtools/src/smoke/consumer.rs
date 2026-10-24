@@ -53,6 +53,9 @@ console.log(JSON.stringify({graph_views:cases.length,rejected_controls:rejected}
 /// Check current native exports against the selected downstream consumer.
 pub fn run(args: &[String]) -> Result<Value> {
     let options = Options::parse(args)?;
+    // File admission precedes executable discovery and process side effects.
+    let cached_views = options.views.as_ref().map(|path| load(path)).transpose()?;
+    let graph = checked_consumer(&options.consumer)?;
     let root = options
         .root
         .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../.."));
@@ -61,7 +64,7 @@ pub fn run(args: &[String]) -> Result<Value> {
         binary
             .parent()
             .expect("absolute executable")
-            .join("eal-command-supervisor")
+            .join("eal-process-supervisor")
     }))?;
     let node = executable(options.node.as_deref().unwrap_or(Path::new("node")))?;
     let temporary = Temporary::new()?;
@@ -84,10 +87,9 @@ pub fn run(args: &[String]) -> Result<Value> {
     {
         return Err(format!("Node >=24 is required, found {version}"));
     }
-    let graph = checked_consumer(&options.consumer)?;
     let (explicit, compiled) = corpus::cases();
-    let views = match options.views.as_ref() {
-        Some(path) => load(path)?
+    let views = match cached_views {
+        Some(value) => value
             .as_array()
             .ok_or("Cached views must be an array")?
             .clone(),

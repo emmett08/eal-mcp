@@ -68,3 +68,65 @@ require a new catalogue schema version. A collector's measurement contract uses
 its own descriptor version and declared EAL tool version. Compatible documentation
 or package changes preserve those versions. Reformatting EAL source still changes
 source identity and requires observations bound to the resulting source.
+
+## Authoritative admission and operator classification
+
+`Catalogue::validate` checks the published wire format and compiles local-only
+schemas. `validate_for(AuthoringProfile::RuntimeExportable)` adds the named
+`eal.runtime-exportable/1` profile. That profile permits up to 64 distinct inherited
+environment names and one scalar comparison as the acquisition predicate. The
+published catalogue format retains its 256-name prospective allowance. A valid
+wire catalogue can therefore require a profile that this authoring client does
+not support. Dotted and hyphenated collector identifiers remain valid.
+
+`RegistryDocument::from_toml` is the authoritative executable registry loader.
+Both runtime loading and producer-side checks call its direct invariants.
+`CommandRegistry::to_toml` admits executable bindings. `PreparedCommandRegistry`
+serialises prospective configuration containing explicit unresolved selections.
+The runtime rejects unresolved `/REPLACE_*`, `REPLACE_*` and `{operator.*}` tokens
+before execution. Resolving these requires operator choices rather than model
+inference. Missing or incompatible supervisor companions remain errors.
+
+Malformed registry diagnostics report `EAL_REGISTRY_SYNTAX` with numeric line and
+byte-column locations. They exclude source excerpts, token values and parser
+Display text. Other registry admission errors use stable application-owned codes.
+The independent `registry-corpus.json` shipped with the contract crate exercises
+accepted and rejected bindings through both shared and actual runtime admission.
+
+Sensitivity declarations use the separate operator-owned
+`eal.operator-environment/1` document. Its `forward` field lists permitted names.
+Its optional `public` field explicitly identifies ordinary configuration among
+those names. Omitted names remain sensitive. Duplicate names, unforwarded public
+names and credential-like public names are rejected. Bearer credentials remain
+sensitive independently of this document. Catalogues and model-generated plans
+cannot supply these classifications. Values never belong in the declaration.
+
+## Numeric and schema interpretation
+
+Strict JSON admission has two explicit numeric profiles behind one duplicate,
+Unicode and resource-checking parser. `strict_json` selects the runtime's
+established binary64 interpretation for decimal and exponent tokens. Integers
+remain arbitrary precision. `strict_json_exact` preserves the arbitrary-precision
+`serde_json` number representation for authoring, persisted export identities and
+semantic host responses. That includes decimal precision, exponent spelling and
+signed-zero behaviour admitted by that representation. Generic optional adapters
+select the exact profile. Runtime acquisition retains its binary64 boundary.
+Both reject non-JSON `NaN` and infinity tokens. An exponent outside binary64's
+range is rejected by the binary64 profile and retained by the exact profile as a
+finite symbolic JSON number. Byte, nesting and node allowances apply to both.
+
+The catalogue schema permits omitted `constraints`, matching their established
+empty default. Version and predicate controls and whitespace-only purposes are
+rejected by both the schema and the owner. Free Unicode string lengths use JSON
+Schema's scalar-value `maxLength` meaning. Input byte ceilings remain separate
+operational budgets. ASCII identifier and environment-name limits retain their
+existing meaning.
+
+The shipped `catalogue-corpus.json` records independent wire, structural-schema
+and runtime-exportable-profile outcomes. Schema-expressible cases must agree.
+Cross-field collector-ID uniqueness and template-parameter membership remain
+semantic checks in the shared owner. Reserved legacy IDs, the 64-name execution
+allowance and scalar predicates belong to the named runtime-exportable profile.
+The corpus labels those distinctions explicitly. A structural JSON Schema check
+alone therefore cannot replace shared semantic/profile admission. Downstream
+compatibility checks can run the same cases without reproducing those rules.

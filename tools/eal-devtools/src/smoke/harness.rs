@@ -91,7 +91,7 @@ impl Harness {
             ("NO_PROXY".into(), "*".into()),
             (TOKEN_ENV.into(), TOKEN.into()),
         ]);
-        let supervisor = Supervisor::new(prefix.join("eal-command-supervisor"));
+        let supervisor = Supervisor::new(prefix.join("eal-process-supervisor"));
         Ok(Self {
             prefix,
             root,

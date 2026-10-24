@@ -1,12 +1,17 @@
 //! Bounded per-cluster existential TraceQL searches with explicit time scope.
-use crate::config::number;
+use crate::{
+    config::{ContractVersion, TempoConfig},
+    timing::Timeline,
+};
 use serde_json::{Value, json};
 use std::time::Instant;
 
 pub(crate) async fn collect(
     config: &crate::Config,
+    selected: &TempoConfig,
     request: &crate::Request,
     started: Instant,
+    timeline: &mut Timeline<'_>,
 ) -> Result<Value, String> {
     request.fields(&["start_unix", "end_unix"])?;
     let start = request.input["start_unix"]
@@ -15,37 +20,35 @@ pub(crate) async fn collect(
     let end = request.input["end_unix"]
         .as_u64()
         .ok_or("Tempo end_unix requires a positive integer")?;
-    let max_window = number(
-        config.options.get("--max-window-seconds"),
-        86400,
-        1,
-        2_592_000,
-    )?;
-    let now = chrono::Utc::now().timestamp() as u64;
+    let max_window = selected.max_window.as_secs();
+    let now = u64::try_from(timeline.mark().timestamp())
+        .map_err(|_| "Wall clock precedes the Unix epoch")?;
     if start == 0 || end <= start || end - start > max_window || end > now.saturating_add(60) {
         return Err("Tempo window is invalid or exceeds the operator allowance".into());
     }
-    let limit = number(config.options.get("--limit"), 20, 1, 1000)?;
+    let limit = selected.limit;
     let (inventory, digest) = crate::inventory::read(config)?;
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::none())
         .no_proxy()
-        .timeout(config.timeout)
+        .timeout(config.limits().timeout())
         .build()
         .map_err(|_| "Cannot construct Tempo HTTP client")?;
-    let token = credential(config, "--token-env")?;
-    let tenant = credential(config, "--tenant-env")?;
+    let token = credential(selected.token_env.as_deref())?;
+    let tenant = credential(selected.tenant_env.as_deref())?;
     let mut clusters = Vec::new();
     let mut all_matched = true;
     let mut spent = 0usize;
     for cluster in &inventory.clusters {
-        let q = query(config, &cluster.tempo_cluster)?;
+        let item_start = timeline.mark();
+        let q = query(selected, &cluster.tempo_cluster)?;
         let remaining = config
-            .timeout
+            .limits()
+            .timeout()
             .checked_sub(started.elapsed())
             .filter(|v| !v.is_zero())
             .ok_or("Collector deadline exhausted")?;
-        let mut url = url::Url::parse(config.get("--url")?).map_err(|_| "Invalid Tempo URL")?;
+        let mut url = selected.url.clone();
         url.query_pairs_mut().extend_pairs([
             ("q", q.clone()),
             ("start", start.to_string()),
@@ -74,7 +77,7 @@ pub(crate) async fn collect(
         }
         if response
             .content_length()
-            .is_some_and(|n| n > config.max_bytes as u64)
+            .is_some_and(|n| n > config.limits().max_bytes() as u64)
         {
             return Err("Tempo response exceeds its byte allowance".into());
         }
@@ -84,13 +87,13 @@ pub(crate) async fn collect(
             .await
             .map_err(|_| "Tempo response transfer failed")?
         {
-            if chunk.len() > config.max_bytes.saturating_sub(bytes.len()) {
+            if chunk.len() > config.limits().max_bytes().saturating_sub(bytes.len()) {
                 return Err("Tempo response exceeds its byte allowance".into());
             }
             bytes.extend_from_slice(&chunk);
         }
         spent = spent.saturating_add(bytes.len());
-        if spent > config.max_bytes {
+        if spent > config.limits().max_bytes() {
             return Err("Tempo responses exceed the aggregate byte allowance".into());
         }
         let value = crate::process::object(&bytes)?;
@@ -107,7 +110,7 @@ pub(crate) async fn collect(
         let traces = value["traces"]
             .as_array()
             .ok_or("Tempo response lacks an explicit traces array")?;
-        if traces.len() > limit as usize {
+        if traces.len() > limit {
             return Err("Tempo returned more traces than the requested allowance".into());
         }
         for trace in traces {
@@ -129,14 +132,19 @@ pub(crate) async fn collect(
             (Some(_), Some(_)) => return Err("Tempo returned inconsistent job counts".into()),
             _ => None,
         };
-        clusters.push(json!({"cluster":cluster.id,"tempo_cluster":cluster.tempo_cluster,"query":q,"matched":matched,"result_limit_reached":traces.len()==limit as usize,"reported_partial":partial,"search_exhaustive":false,"traces":traces,"metrics":value.get("metrics")}));
+        let interval = timeline.interval(item_start);
+        let mut item = json!({"cluster":cluster.id,"tempo_cluster":cluster.tempo_cluster,"query":q,"matched":matched,"result_limit_reached":traces.len()==limit,"reported_partial":partial,"search_exhaustive":false,"traces":traces,"metrics":value.get("metrics")});
+        if config.version() == ContractVersion::V2 {
+            item["acquisition_interval"] = interval;
+        }
+        clusters.push(item);
     }
     Ok(
         json!({"inventory_revision":inventory.revision,"inventory_sha256":digest,"cluster_count":inventory.clusters.len(),"start_unix":start,"end_unix":end,"limit":limit,"all_matched":all_matched,"search_exhaustive":false,"negative_inference":"unavailable","clusters":clusters}),
     )
 }
-fn credential(config: &crate::Config, key: &str) -> Result<Option<String>, String> {
-    match config.options.get(key) {
+fn credential(name: Option<&str>) -> Result<Option<String>, String> {
+    match name {
         None => Ok(None),
         Some(name) => {
             let value =
@@ -148,17 +156,16 @@ fn credential(config: &crate::Config, key: &str) -> Result<Option<String>, Strin
         }
     }
 }
-pub(crate) fn query(config: &crate::Config, cluster: &str) -> Result<String, String> {
-    let quoted = |value: &str| {
-        serde_json::to_string(value).map_err(|_| "Cannot encode TraceQL literal".to_string())
-    };
+pub(crate) fn query(selected: &TempoConfig, cluster: &str) -> Result<String, String> {
+    let quoted =
+        |v: &str| serde_json::to_string(v).map_err(|_| "Cannot encode TraceQL literal".to_string());
     Ok(format!(
         "{{ {} = {} && {} = {} && {} = {} }}",
-        config.optional("--kind-attribute", "span.dpe.rollout_kind"),
-        quoted(config.get("--kind")?)?,
-        config.optional("--name-attribute", "span.dpe.rollout_name"),
-        quoted(config.get("--name")?)?,
-        config.optional("--cluster-attribute", "resource.k8s.cluster.name"),
+        selected.kind_attribute,
+        quoted(&selected.kind)?,
+        selected.name_attribute,
+        quoted(&selected.name)?,
+        selected.cluster_attribute,
         quoted(cluster)?
     ))
 }

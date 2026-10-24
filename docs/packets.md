@@ -1,13 +1,25 @@
 # Assessment packets and model context
 
-`eal-runtime::packets::AssessmentPacketBuilder` projects a completed, valid
-assessment into `EAL/assessment-packet/2`. The packet identifies its stored
+`eal-runtime::packets::AssessmentPacketBuilder` projects a valid assessment.
+Completed assessments retain `EAL/assessment-packet/2`.
+Computationally incomplete assessments use `EAL/assessment-packet/3`. The packet identifies its stored
 assessment and retains a link to the full explanation. Selected claims retain
 their final status, authored statement, explicit prose verification flag, typed
 result comparison, support and challenge references. Premise claims, alternative
 arguments, assumptions, objections, reasoning backing and evidence are followed
 within the projection's traversal bounds. Formal support does not establish that
 an authored statement correctly describes the formal proposition.
+
+An incomplete packet records `complete=false` and qualifies every selected claim
+with `assessment_complete=false`.
+Both fields survive the byte-budget navigation fallback.
+The model-context builder preserves the incomplete result and checks both
+qualifications, the packet version and the method-result state.
+Unknown versions and contradictory qualifications fail admission.
+The required claim field makes the reviewed older consumer's closed claim-field
+admission reject packet/3 even when fallback omits method details.
+`summary_complete` continues to describe projection omissions and does not assert
+that method execution completed.
 
 Method results retain status, bounded identities, provenance digests, checked
 scalar outputs, binding qualifications and predicate outcomes. Output paths come

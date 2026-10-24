@@ -16,7 +16,7 @@ context, assessment time, reuse policy or server configuration.
 
 ## Installation and trusted configuration
 
-Install `eal-runtime`, `eal-cli`, `eal-mcp` and `eal-coordination` into the same
+Install `eal-process`, `eal-runtime`, `eal-cli`, `eal-mcp` and `eal-coordination` into the same
 prefix; see the [build instructions](../README.md#build-and-use). Production
 companions are resolved beside the current executable, without a `PATH`
 fallback. Library callers can supply explicit `HostPaths` to the `_with_host`
