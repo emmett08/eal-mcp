@@ -8,6 +8,7 @@ pub(crate) fn checks(
     selected: &GithubChecksConfig,
     request: &crate::Request,
     started: Instant,
+    environment: &std::collections::BTreeMap<String, String>,
 ) -> Result<Value, String> {
     request.fields(&["repository", "commit"])?;
     let source = &selected.github;
@@ -21,6 +22,7 @@ pub(crate) fn checks(
     for page in 1..=selected.max_pages {
         let output = read(
             config,
+            environment,
             format!(
                 "repos/{}/commits/{}/check-runs?per_page=100&page={page}&filter=all",
                 source.repository, source.commit
@@ -70,6 +72,7 @@ pub(crate) fn workflow(
     selected: &GithubWorkflowConfig,
     request: &crate::Request,
     started: Instant,
+    environment: &std::collections::BTreeMap<String, String>,
 ) -> Result<Value, String> {
     request.fields(&["repository", "commit", "run_id", "attempt"])?;
     let source = &selected.github;
@@ -82,6 +85,7 @@ pub(crate) fn workflow(
     }
     let output = read(
         config,
+        environment,
         format!(
             "repos/{}/actions/runs/{}/attempts/{}",
             source.repository, selected.run_id, selected.attempt
@@ -113,8 +117,13 @@ fn revision(run: &Value, commit: &str) -> Result<(), String> {
     }
     Ok(())
 }
-fn read(config: &crate::Config, path: String, started: Instant) -> Result<Vec<u8>, String> {
-    crate::process::run(
+fn read(
+    config: &crate::Config,
+    environment: &std::collections::BTreeMap<String, String>,
+    path: String,
+    started: Instant,
+) -> Result<Vec<u8>, String> {
+    crate::process::run_with_environment(
         config,
         vec![
             "api".into(),
@@ -125,5 +134,6 @@ fn read(config: &crate::Config, path: String, started: Instant) -> Result<Vec<u8
             path,
         ],
         started,
+        environment,
     )
 }

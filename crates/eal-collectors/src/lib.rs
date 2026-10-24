@@ -58,14 +58,24 @@ pub async fn collect_with_clock(
         ProviderConfig::Github(selected) => {
             (github::collect(config, selected, request, started)?, None)
         }
-        ProviderConfig::GithubChecks(selected) => (
-            github_delivery::checks(config, selected, request, started)?,
-            None,
-        ),
-        ProviderConfig::GithubWorkflow(selected) => (
-            github_delivery::workflow(config, selected, request, started)?,
-            None,
-        ),
+        ProviderConfig::GithubChecks(selected) => {
+            let environment = process::environment(config)?;
+            let guard =
+                eal_adapters::http::CredentialGuard::captured(environment.values().cloned());
+            (
+                github_delivery::checks(config, selected, request, started, &environment)?,
+                Some(Guard::Captured(guard)),
+            )
+        }
+        ProviderConfig::GithubWorkflow(selected) => {
+            let environment = process::environment(config)?;
+            let guard =
+                eal_adapters::http::CredentialGuard::captured(environment.values().cloned());
+            (
+                github_delivery::workflow(config, selected, request, started, &environment)?,
+                Some(Guard::Captured(guard)),
+            )
+        }
         ProviderConfig::Tempo(selected) => {
             let collected =
                 tempo::collect(config, selected, request, started, &mut timeline).await?;
@@ -73,7 +83,10 @@ pub async fn collect_with_clock(
         }
         ProviderConfig::Api(selected) => {
             let collected = api::collect(config, selected, request, started, &mut timeline).await?;
-            (collected.value, Some(Guard::Http(collected.credentials)))
+            (
+                collected.value,
+                Some(Guard::Captured(collected.credentials)),
+            )
         }
     };
     if started.elapsed() >= config.limits().timeout() {
@@ -110,13 +123,13 @@ pub async fn collect_with_clock(
 
 enum Guard {
     Tempo(tempo::Credentials),
-    Http(eal_adapters::http::CredentialGuard),
+    Captured(eal_adapters::http::CredentialGuard),
 }
 impl Guard {
     fn inspect(&self, value: &Value) -> Result<(), String> {
         match self {
             Self::Tempo(guard) => guard.inspect(value),
-            Self::Http(guard) => guard.inspect(value).map_err(|e| e.to_string()),
+            Self::Captured(guard) => guard.inspect(value).map_err(|e| e.to_string()),
         }
     }
 }

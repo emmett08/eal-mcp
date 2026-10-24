@@ -249,13 +249,23 @@ pub struct CredentialGuard {
     secrets: Vec<String>,
 }
 impl CredentialGuard {
+    /// Capture the operator-selected environment used by a supervised command.
+    pub fn captured(values: impl IntoIterator<Item = String>) -> Self {
+        Self {
+            secrets: values
+                .into_iter()
+                .filter(|value| !value.is_empty())
+                .collect(),
+        }
+    }
+
     pub fn inspect(&self, value: &Value) -> Result<(), Error> {
         let secrets = self.secrets.iter().map(String::as_str).collect::<Vec<_>>();
         if contains_sensitive_json(value, &secrets, SensitiveJsonLimits::default())
-            .map_err(|_| invalid("HTTP observation failed credential inspection"))?
+            .map_err(|_| invalid("Observation failed credential inspection"))?
         {
             return Err(invalid(
-                "HTTP observation contains configured credential material",
+                "Observation contains configured sensitive material",
             ));
         }
         Ok(())

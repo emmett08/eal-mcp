@@ -20,7 +20,12 @@ pub(super) struct Operation {
     responses: BTreeMap<String, Value>,
 }
 impl Operation {
-    pub fn load(path: &Path, digest: &str, operation_id: &str) -> Result<Self, String> {
+    pub fn load(
+        path: &Path,
+        digest: &str,
+        operation_id: &str,
+        base_path: Option<&str>,
+    ) -> Result<Self, String> {
         let spec = eal_adapters::parse_json(&pinned(path, digest)?)
             .map_err(|_| "OpenAPI specification requires bounded strict JSON")?;
         if spec["openapi"]
@@ -65,6 +70,46 @@ impl Operation {
         }
         let (path, verb, item, operation) =
             selected.ok_or("Selected OpenAPI operationId is unavailable")?;
+        let servers = operation
+            .get("servers")
+            .or_else(|| item.get("servers"))
+            .or_else(|| spec.get("servers"));
+        if base_path.is_none()
+            && let Some(servers) = servers
+        {
+            for server in servers
+                .as_array()
+                .ok_or("OpenAPI servers require an array")?
+            {
+                let server = server["url"]
+                    .as_str()
+                    .ok_or("OpenAPI server requires a URL")?;
+                if server != "/"
+                    && reqwest::Url::parse(server).map_or(true, |url| url.path() != "/")
+                {
+                    return Err(
+                        "OpenAPI server base paths require an explicit operator base_path".into(),
+                    );
+                }
+            }
+        }
+        let prefix = base_path.unwrap_or("");
+        if !prefix.is_empty()
+            && (!prefix.starts_with('/')
+                || prefix.ends_with('/')
+                || prefix.len() > 4096
+                || prefix.contains(['?', '#', '\\', '{', '}'])
+                || prefix.chars().any(char::is_control)
+                || prefix
+                    .split('/')
+                    .skip(1)
+                    .any(|segment| segment.is_empty() || matches!(segment, "." | "..")))
+        {
+            return Err(
+                "OpenAPI base_path requires literal absolute segments without a trailing slash"
+                    .into(),
+            );
+        }
         if !path.starts_with('/') || path.starts_with("//") || path.contains(['?', '#', '\\']) {
             return Err("Invalid OpenAPI operation path".into());
         }
@@ -197,7 +242,7 @@ impl Operation {
         Ok(Self {
             operation_id: operation_id.into(),
             specification_sha256: digest.into(),
-            path,
+            path: format!("{prefix}{path}"),
             method: if verb == "get" {
                 Method::GET
             } else {

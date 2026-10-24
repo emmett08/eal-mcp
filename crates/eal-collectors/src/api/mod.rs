@@ -68,14 +68,20 @@ pub(crate) async fn collect(
     .map_err(|e| e.to_string())?;
     let mut value = match &settings.source {
         ApiSource::Openapi {
+            base_path,
             specification,
             specification_sha256,
             operation_id,
             ..
         } => {
-            openapi::Operation::load(specification, specification_sha256, operation_id)?
-                .collect(&mut client, &request.input)
-                .await?
+            openapi::Operation::load(
+                specification,
+                specification_sha256,
+                operation_id,
+                base_path.as_deref(),
+            )?
+            .collect(&mut client, &request.input)
+            .await?
         }
         _ => telemetry::collect(&settings, &request.input, &mut client, timeline).await?,
     };

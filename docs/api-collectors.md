@@ -156,6 +156,12 @@ successful HTTP status. It retains the original response under `observation`.
 The operator's `read_only` declaration supplies the operation authority.
 Interface descriptions alone cannot establish the behaviour of the remote server.
 
+For a service behind a base path, select `source.base_path` explicitly, for
+example `"/v1"`. A description declaring a non-root server path requires this
+operator choice. The value prefixes operation paths and grants no new origin.
+Root-mounted services can use an explicit empty string. This prevents a declared
+server base path from silently disappearing when the destination is overridden.
+
 ## GitHub delivery observations
 
 `github_checks` uses the existing supervised `gh` selection with a fixed
@@ -172,6 +178,9 @@ The request includes matching integer `run_id` and `attempt` fields.
 The returned repository, commit, run and attempt must match before an observation
 is emitted. Pending and failed results remain successful adverse observations.
 CI evidence and deployed artefact correspondence require their respective links.
+Both CI collectors capture the selected command environment once for the whole
+acquisition. Forwarded values are treated as sensitive and inspected in the final
+envelope, including encoded JSON text. Credentials remain outside retained results.
 
 ## Reports
 

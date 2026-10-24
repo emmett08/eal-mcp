@@ -517,3 +517,32 @@ fn openapi_nullable_uses_the_selected_schema_dialect() {
         );
     }
 }
+
+#[tokio::test]
+async fn openapi_server_base_paths_require_an_explicit_operator_selection() {
+    let (origin, handle) = server(200, json!({"healthy":false}).to_string());
+    let mut fixture = openapi_fixture(&origin);
+    let mut spec = specification();
+    spec["servers"] = json!([{"url":"https://documented.example/v1"}]);
+    let hash = write(&fixture.directory.join("openapi.json"), &spec);
+    fixture.update(|v| v["source"]["specification_sha256"] = json!(hash));
+    assert!(
+        eal_collectors::api::describe(&fixture.selected())
+            .unwrap_err()
+            .contains("base_path")
+    );
+    fixture.update(|v| v["source"]["base_path"] = json!("/gateway"));
+    let result = eal_collectors::collect(
+        &fixture.config(),
+        &request(json!({"path":{"service":"api"}})),
+    )
+    .await
+    .unwrap();
+    assert_eq!(result["value"]["observation"]["healthy"], false);
+    assert!(
+        handle
+            .join()
+            .unwrap()
+            .starts_with("GET /gateway/status/api ")
+    );
+}

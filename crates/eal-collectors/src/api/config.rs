@@ -93,6 +93,8 @@ pub enum ApiSource {
         id: String,
     },
     Openapi {
+        #[serde(default)]
+        base_path: Option<String>,
         specification: PathBuf,
         specification_sha256: String,
         operation_id: String,
@@ -180,6 +182,7 @@ impl ApiSettings {
                 Err("Invalid SLO identity".into())
             }
             ApiSource::Openapi {
+                base_path,
                 specification,
                 specification_sha256,
                 operation_id,
@@ -195,8 +198,13 @@ impl ApiSettings {
                     );
                 }
                 crate::config::absolute(specification)?;
-                super::openapi::Operation::load(specification, specification_sha256, operation_id)
-                    .map(|_| ())
+                super::openapi::Operation::load(
+                    specification,
+                    specification_sha256,
+                    operation_id,
+                    base_path.as_deref(),
+                )
+                .map(|_| ())
             }
             _ => Ok(()),
         }

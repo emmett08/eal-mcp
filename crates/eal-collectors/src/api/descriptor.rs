@@ -19,13 +19,18 @@ pub(super) fn selected(
             descriptor.input_schema["properties"]["id"]["const"] = json!(id)
         }
         ApiSource::Openapi {
+            base_path,
             specification,
             specification_sha256,
             operation_id,
             ..
         } => {
-            let operation =
-                super::openapi::Operation::load(specification, specification_sha256, operation_id)?;
+            let operation = super::openapi::Operation::load(
+                specification,
+                specification_sha256,
+                operation_id,
+                base_path.as_deref(),
+            )?;
             descriptor.id = operation.collector_id();
             descriptor.purpose = format!(
                 "Acquire the operator-approved OpenAPI operation {operation_id}. Response conformance and collection remain separate from claim sufficiency."
