@@ -36,13 +36,18 @@ pub async fn collect_with_clock(
         );
     }
     let mut timeline = timing::Timeline::new(clock);
-    let value = match config.selected() {
-        ProviderConfig::Kubernetes(selected) => {
-            kubernetes::collect(config, selected, request, started, &mut timeline)?
+    let (value, credentials) = match config.selected() {
+        ProviderConfig::Kubernetes(selected) => (
+            kubernetes::collect(config, selected, request, started, &mut timeline)?,
+            None,
+        ),
+        ProviderConfig::Github(selected) => {
+            (github::collect(config, selected, request, started)?, None)
         }
-        ProviderConfig::Github(selected) => github::collect(config, selected, request, started)?,
         ProviderConfig::Tempo(selected) => {
-            tempo::collect(config, selected, request, started, &mut timeline).await?
+            let collected =
+                tempo::collect(config, selected, request, started, &mut timeline).await?;
+            (collected.value, Some(collected.credentials))
         }
     };
     if started.elapsed() >= config.limits().timeout() {
@@ -67,6 +72,12 @@ pub async fn collect_with_clock(
         > config.limits().max_bytes()
     {
         return Err("Observation exceeds the configured aggregate output allowance".into());
+    }
+    if let Some(credentials) = credentials {
+        credentials.inspect(&envelope)?;
+    }
+    if started.elapsed() >= config.limits().timeout() {
+        return Err("Collector deadline exhausted".into());
     }
     Ok(envelope)
 }

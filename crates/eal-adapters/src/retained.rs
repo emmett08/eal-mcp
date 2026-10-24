@@ -134,11 +134,22 @@ pub fn timestamp(value: &str) -> Result<(String, String), Error> {
     Ok((value[..19].into(), format!("{fraction:0<9}")))
 }
 
+/// Resolve relative artifact paths beneath one canonical operator-selected base.
+/// Absolute artifact pins are independent grants and do not consult `base`.
 pub fn import_artifacts(artifacts: &[Artifact], base: &Path) -> Result<(Value, String), Error> {
     if artifacts.is_empty() || artifacts.len() > MAX_ARTIFACTS {
         return Err(invalid(
             "each evidence need requires 1 to 16 retained artifacts",
         ));
+    }
+    let canonical_base = artifacts
+        .iter()
+        .any(|artifact| artifact.path.is_relative())
+        .then(|| base.canonicalize())
+        .transpose()?;
+    let base = canonical_base.as_deref().unwrap_or(base);
+    if canonical_base.is_some() && !base.is_dir() {
+        return Err(invalid("retained artifact base requires a directory"));
     }
     let mut values = Vec::new();
     let mut paths = BTreeSet::new();

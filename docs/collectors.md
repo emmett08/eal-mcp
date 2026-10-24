@@ -152,6 +152,8 @@ It URL-encodes `q`, `start`, `end` and `limit`. A single spanset combines the
 operator's rollout kind/name with the inventory's cluster attribute mapping.
 Attribute names follow the scoped identifiers documented in
 [TraceQL construction](https://grafana.com/docs/tempo/latest/traceql/construct-traceql-queries/).
+Each admitted `span.` or `resource.` attribute has nonempty dotted components.
+An empty component fails configuration admission before an HTTP request.
 The admitted window is at most 24 hours by default. Operators can choose up to
 30 days. The result limit is 1–1000 per cluster.
 
@@ -186,6 +188,18 @@ output metadata. HTTPS is required for remote endpoints. Plain HTTP is admitted
 for loopback integration tests and local query frontends. Redirects and proxy
 discovery are disabled. An operator-selected endpoint remains a trusted evidence
 source. These wrappers retain observations under that trust assumption.
+
+Known credential inspection uses the shared bounded JSON inspector. It covers
+values and keys containing successfully decoded JSON text, including repeated
+encoding and Unicode escapes. Matching numeric, boolean and null values also
+fail acquisition. Ambiguous encoded JSON and inspection exhaustion return a fixed
+error and no observation.
+The same captured credentials guard the final observation envelope, including
+generated query metadata and supplied request/context fields. Credential values
+are never re-read or included in that envelope. Each inspection allows a combined
+depth of 128, 100,000 values/keys and 128 MiB of aggregate scan/decode input.
+Unrelated JSON-like prose remains unchanged. The inspector detects known values
+and does not establish the absence of arbitrary transformed exfiltration.
 
 ## Preservation and verification
 
@@ -233,6 +247,9 @@ through `Config::new`. `with_limits` accepts only an admitted `CollectorLimits`.
 The legacy Tempo `--inherit-env` flag remains accepted until 1.0 and has no
 command effect because that provider uses HTTP. Its credentials continue to use
 `--token-env` and `--tenant-env`.
+Operator executable, supervisor and inventory paths require bounded absolute
+UTF-8 paths. Programmatic admission rejects non-UTF-8 paths before their use,
+and command execution preserves the selected executable spelling exactly.
 
 ## Observation timing
 

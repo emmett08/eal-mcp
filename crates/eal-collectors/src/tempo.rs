@@ -1,4 +1,8 @@
 //! Bounded per-cluster existential TraceQL searches with explicit time scope.
+mod credentials;
+
+pub(crate) use credentials::Credentials;
+
 use crate::{
     config::{ContractVersion, TempoConfig},
     timing::Timeline,
@@ -6,13 +10,19 @@ use crate::{
 use serde_json::{Value, json};
 use std::time::Instant;
 
+/// Captured credentials remain separate from the semantic value until output inspection.
+pub(crate) struct Collected {
+    pub(crate) value: Value,
+    pub(crate) credentials: Credentials,
+}
+
 pub(crate) async fn collect(
     config: &crate::Config,
     selected: &TempoConfig,
     request: &crate::Request,
     started: Instant,
     timeline: &mut Timeline<'_>,
-) -> Result<Value, String> {
+) -> Result<Collected, String> {
     request.fields(&["start_unix", "end_unix"])?;
     let start = request.input["start_unix"]
         .as_u64()
@@ -34,8 +44,7 @@ pub(crate) async fn collect(
         .timeout(config.limits().timeout())
         .build()
         .map_err(|_| "Cannot construct Tempo HTTP client")?;
-    let token = credential(selected.token_env.as_deref())?;
-    let tenant = credential(selected.tenant_env.as_deref())?;
+    let credentials = Credentials::load(selected)?;
     let mut clusters = Vec::new();
     let mut all_matched = true;
     let mut spent = 0usize;
@@ -59,10 +68,10 @@ pub(crate) async fn collect(
             .get(url)
             .header("Accept", "application/json")
             .timeout(remaining);
-        if let Some(token) = &token {
+        if let Some(token) = credentials.token() {
             call = call.bearer_auth(token);
         }
-        if let Some(tenant) = &tenant {
+        if let Some(tenant) = credentials.tenant() {
             call = call.header("X-Scope-OrgID", tenant);
         }
         let mut response = call
@@ -97,13 +106,7 @@ pub(crate) async fn collect(
             return Err("Tempo responses exceed the aggregate byte allowance".into());
         }
         let value = crate::process::object(&bytes)?;
-        if [token.as_deref(), tenant.as_deref()]
-            .into_iter()
-            .flatten()
-            .any(|secret| contains_credential(&value, secret))
-        {
-            return Err("Tempo response contains configured credential material".into());
-        }
+        credentials.inspect(&value)?;
         if value.get("error").is_some() || value.get("errors").is_some() {
             return Err("Tempo response reports a search error".into());
         }
@@ -139,22 +142,10 @@ pub(crate) async fn collect(
         }
         clusters.push(item);
     }
-    Ok(
-        json!({"inventory_revision":inventory.revision,"inventory_sha256":digest,"cluster_count":inventory.clusters.len(),"start_unix":start,"end_unix":end,"limit":limit,"all_matched":all_matched,"search_exhaustive":false,"negative_inference":"unavailable","clusters":clusters}),
-    )
-}
-fn credential(name: Option<&str>) -> Result<Option<String>, String> {
-    match name {
-        None => Ok(None),
-        Some(name) => {
-            let value =
-                std::env::var(name).map_err(|_| "Configured Tempo credential is unavailable")?;
-            if value.is_empty() || value.len() > 8192 || value.chars().any(char::is_control) {
-                return Err("Configured Tempo credential is malformed".into());
-            }
-            Ok(Some(value))
-        }
-    }
+    Ok(Collected {
+        value: json!({"inventory_revision":inventory.revision,"inventory_sha256":digest,"cluster_count":inventory.clusters.len(),"start_unix":start,"end_unix":end,"limit":limit,"all_matched":all_matched,"search_exhaustive":false,"negative_inference":"unavailable","clusters":clusters}),
+        credentials,
+    })
 }
 pub(crate) fn query(selected: &TempoConfig, cluster: &str) -> Result<String, String> {
     let quoted =
@@ -168,15 +159,4 @@ pub(crate) fn query(selected: &TempoConfig, cluster: &str) -> Result<String, Str
         selected.cluster_attribute,
         quoted(cluster)?
     ))
-}
-
-fn contains_credential(value: &Value, secret: &str) -> bool {
-    match value {
-        Value::String(text) => text.contains(secret),
-        Value::Array(items) => items.iter().any(|item| contains_credential(item, secret)),
-        Value::Object(fields) => fields
-            .iter()
-            .any(|(key, value)| key.contains(secret) || contains_credential(value, secret)),
-        _ => false,
-    }
 }

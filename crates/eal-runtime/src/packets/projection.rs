@@ -160,19 +160,23 @@ impl AssessmentPacketBuilder {
         };
         let known: BTreeSet<_> = issues
             .iter()
-            .filter_map(Value::as_str)
-            .filter(|s| {
-                [
-                    "out_of_scope",
-                    "missing_observation",
-                    "invalid_observation",
-                    "tool_error",
-                    "stale_observation",
-                    "predicate_not_met",
-                ]
-                .contains(s)
+            .map(|value| {
+                value
+                    .as_str()
+                    .filter(|s| {
+                        [
+                            "out_of_scope",
+                            "missing_observation",
+                            "invalid_observation",
+                            "tool_error",
+                            "stale_observation",
+                            "predicate_not_met",
+                        ]
+                        .contains(s)
+                    })
+                    .ok_or("Evidence availability issues contain an unknown value")
             })
-            .collect();
+            .collect::<Result<_, _>>()?;
         let shown: Vec<_> = known
             .into_iter()
             .take(self.limits.max_availability_issues)

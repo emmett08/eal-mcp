@@ -7,6 +7,7 @@ mod json;
 mod profile;
 mod request;
 mod schema;
+mod sensitive_json;
 mod toml_diagnostic;
 
 pub use binding::{
@@ -23,6 +24,7 @@ pub use json::{
 };
 pub use profile::{AuthoringProfile, checked_predicate};
 pub use request::{ACQUISITION_CONTRACT, AcquisitionRequest, ObservationEnvelope};
+pub use sensitive_json::{SensitiveJsonError, SensitiveJsonLimits, contains_sensitive_json};
 pub use toml_diagnostic::{TomlDocumentKind, toml_diagnostic};
 
 pub fn identifier(value: &str) -> bool {

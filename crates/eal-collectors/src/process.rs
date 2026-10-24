@@ -28,7 +28,13 @@ pub(crate) fn run(
             );
         }
     }
-    let mut argv = vec![command.executable.clone().to_string_lossy().into_owned()];
+    let mut argv = vec![
+        command
+            .executable
+            .to_str()
+            .ok_or("Configured executable path must contain UTF-8")?
+            .to_owned(),
+    ];
     argv.extend(arguments);
     let result = Supervisor::new(command.supervisor.clone())
         .run(
