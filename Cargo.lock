@@ -568,6 +568,7 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "eal-aspic",
+ "eal-collector-contracts",
  "eal-core",
  "eal-runtime",
  "http",

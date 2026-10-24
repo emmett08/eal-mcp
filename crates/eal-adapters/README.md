@@ -16,6 +16,12 @@ Arbitrary instrument or laboratory tools use the general operator-controlled reg
 The `scoped` module is an explicitly selected compatibility profile for Kubernetes and Grafana reads.
 It does not infer an infrastructure requirement for other arguments.
 
+Retained artifact import resolves an operator-selected base directory once when
+any artifact path is relative. Relative bases and directory aliases identify the
+same canonical directory. Relative artifacts remain beneath that directory and
+cannot use parent traversal or leaf symbolic links. Absolute pinned paths are
+independent operator grants and do not require an otherwise unused base to exist.
+
 Trace inspection identifies candidate spans with matching attributes on the same span.
 `inspect_trace_with_keys` accepts operator-selected attribute keys.
 The DPE rollout selector is a specialised compatibility preset.

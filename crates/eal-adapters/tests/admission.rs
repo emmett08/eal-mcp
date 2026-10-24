@@ -74,6 +74,76 @@ fn retained_artifacts_keep_the_oldest_observation_and_check_pins() {
     assert!(retained::import_artifacts(&records, &directory.0).is_err());
 }
 
+fn artifact(path: PathBuf, bytes: &[u8]) -> retained::Artifact {
+    retained::Artifact {
+        path,
+        sha256: format!("{:x}", Sha256::digest(bytes)),
+        observed_at: "2024-01-02T00:00:00Z".into(),
+        source: "meter".into(),
+    }
+}
+
+#[test]
+fn retained_artifacts_accept_relative_bases_and_keep_absolute_grants_independent() {
+    // Avoid changing the process-wide current directory in parallel tests.
+    let directory = Directory(PathBuf::from(format!(
+        "eal-adapters-relative-{}-{}",
+        std::process::id(),
+        NEXT.fetch_add(1, Ordering::Relaxed)
+    )));
+    std::fs::create_dir(&directory.0).unwrap();
+    let bytes = b"{\"voltage\":2}";
+    std::fs::write(directory.0.join("sample.json"), bytes).unwrap();
+    let records = [artifact("sample.json".into(), bytes)];
+    let (value, _) = retained::import_artifacts(&records, &directory.0).unwrap();
+    assert_eq!(value["artifacts"][0]["path"], "sample.json");
+    assert_eq!(value["artifacts"][0]["observation"]["voltage"], 2);
+    assert!(
+        retained::import_artifacts(
+            &[artifact(directory.0.join("sample.json"), bytes)],
+            std::path::Path::new(".")
+        )
+        .is_ok()
+    );
+
+    let absolute = directory.0.canonicalize().unwrap().join("sample.json");
+    let unused_base = directory.0.join("not-created");
+    let (value, _) =
+        retained::import_artifacts(&[artifact(absolute.clone(), bytes)], &unused_base).unwrap();
+    assert_eq!(value["artifacts"][0]["path"], absolute.to_str().unwrap());
+    assert!(retained::import_artifacts(&records, &unused_base).is_err());
+    assert!(retained::import_artifacts(&records, &absolute).is_err());
+    assert!(
+        retained::import_artifacts(&[artifact("../sample.json".into(), bytes)], &directory.0)
+            .is_err()
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn retained_artifacts_accept_directory_aliases_but_reject_relative_and_leaf_escape() {
+    use std::os::unix::fs::symlink;
+
+    let directory = Directory::new();
+    let outside = Directory::new();
+    let bytes = b"{\"voltage\":2}";
+    std::fs::write(directory.0.join("sample.json"), bytes).unwrap();
+    std::fs::write(outside.0.join("sample.json"), bytes).unwrap();
+    let alias = outside.0.join("inputs");
+    symlink(&directory.0, &alias).unwrap();
+    let (value, _) =
+        retained::import_artifacts(&[artifact("sample.json".into(), bytes)], &alias).unwrap();
+    assert_eq!(value["artifacts"][0]["observation"]["voltage"], 2);
+
+    symlink(&outside.0, directory.0.join("escape")).unwrap();
+    assert!(
+        retained::import_artifacts(&[artifact("escape/sample.json".into(), bytes)], &alias)
+            .is_err()
+    );
+    symlink(outside.0.join("sample.json"), directory.0.join("leaf.json")).unwrap();
+    assert!(retained::import_artifacts(&[artifact("leaf.json".into(), bytes)], &alias).is_err());
+}
+
 #[test]
 fn retained_review_preserves_false_and_exact_request_identity() {
     let request:AcquisitionRequest=serde_json::from_value(json!({"evidence_id":"lab","environment":"bench","tool":"lab.review","tool_version":"1","input":{"run":"A"},"context":{"scope":"B"}})).unwrap();

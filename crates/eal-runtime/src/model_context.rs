@@ -147,6 +147,11 @@ impl ModelContextBuilder {
                 }
             }
         }
+        // The omission counter is packet-wide, so a missing qualification
+        // cannot be attributed to one particular unavailable evidence entry.
+        let availability_issues_omitted = result["omitted"]["availability_issues"]
+            .as_u64()
+            .is_some_and(|count| count > 0);
         for evidence in result["evidence"]
             .as_object_mut()
             .ok_or("Packet evidence must be a mapping")?
@@ -169,7 +174,9 @@ impl ModelContextBuilder {
                 .collect::<BTreeSet<_>>();
             let requirements = if evidence.get("status") == Some(&json!("available")) {
                 "met"
-            } else if issues == BTreeSet::from(["predicate_not_met"]) {
+            } else if !availability_issues_omitted
+                && issues == BTreeSet::from(["predicate_not_met"])
+            {
                 "not_met"
             } else {
                 "unresolved"

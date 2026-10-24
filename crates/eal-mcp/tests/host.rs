@@ -523,6 +523,7 @@ fn semantic_credentials_fail_without_rewriting_states_evidence_keys_or_numbers()
             json!({"measurement":"{\"value\":\"\\u0073ecret\"}"}),
         ),
         ("secret", json!({"measurement":"\"\\u0073ecret\""})),
+        ("secret", json!({"{\"\\u0073ecret\":true}":"public"})),
     ] {
         let response = json!({"operation":"reason","protocol_version":"2025-11-25","is_error":false,"result":result,"content":[]});
         assert!(
@@ -535,6 +536,12 @@ fn semantic_credentials_fail_without_rewriting_states_evidence_keys_or_numbers()
     let encoded = json!({"is_error":true,"error":"{\"diagnostic\":\"\\u0073ecret\"}"});
     let diagnostic = redaction::sanitise_response(&encoded, Some("secret")).unwrap();
     assert_eq!(diagnostic, json!({"is_error":true,"error":"[redacted]"}));
+    let ambiguous = json!({"operation":"reason","protocol_version":"2025-11-25","is_error":false,"result":{"evidence":"{\"value\":\"public\",\"value\":\"\\u0073ecret\"}"},"content":[]});
+    assert!(
+        redaction::sanitise_response(&ambiguous, Some("secret"))
+            .unwrap_err()
+            .contains("EAL_HOST_CREDENTIAL_INSPECTION")
+    );
 }
 
 #[test]

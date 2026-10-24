@@ -167,3 +167,87 @@ fn scope_requires_explicit_selection_and_never_widens_from_missing_namespace() {
     explicit.extend(["--namespace".into(), "default".into()]);
     assert!(Config::parse(explicit).is_err());
 }
+
+#[test]
+fn tempo_attributes_require_nonempty_scoped_components() {
+    for invalid in [
+        "span.",
+        "resource.",
+        "span..name",
+        "resource.service.",
+        "resource..name",
+        "service.name",
+    ] {
+        for field in 0..3 {
+            let mut selected = tempo();
+            match field {
+                0 => selected.cluster_attribute = invalid.into(),
+                1 => selected.kind_attribute = invalid.into(),
+                _ => selected.name_attribute = invalid.into(),
+            }
+            assert!(
+                admit(ProviderConfig::Tempo(selected))
+                    .unwrap_err()
+                    .contains("scoped dotted identifier")
+            );
+        }
+    }
+    for valid in [
+        "span.name",
+        "resource.service.name",
+        "span.dpe_rollout.name",
+    ] {
+        let mut selected = tempo();
+        selected.cluster_attribute = valid.into();
+        selected.kind_attribute = valid.into();
+        selected.name_attribute = valid.into();
+        assert!(admit(ProviderConfig::Tempo(selected)).is_ok());
+    }
+}
+
+#[cfg(unix)]
+#[test]
+fn non_utf8_operator_paths_are_rejected_without_replacement() {
+    use std::{ffi::OsString, os::unix::ffi::OsStringExt};
+
+    let non_utf8 = PathBuf::from(OsString::from_vec(b"/operator/\xff-tool".to_vec()));
+    for field in 0..2 {
+        let mut selected = github();
+        match field {
+            0 => selected.command.executable = non_utf8.clone(),
+            _ => selected.command.supervisor = non_utf8.clone(),
+        }
+        assert!(
+            admit(ProviderConfig::Github(selected))
+                .unwrap_err()
+                .contains("UTF-8")
+        );
+    }
+    let selected = KubernetesConfig {
+        command: command(),
+        inventory: non_utf8.clone(),
+        resource: "nodes".into(),
+        kind: "Node".into(),
+        name: "worker".into(),
+        scope: ResourceScope::Cluster,
+    };
+    assert!(
+        admit(ProviderConfig::Kubernetes(selected))
+            .unwrap_err()
+            .contains("UTF-8")
+    );
+    let mut selected = tempo();
+    selected.inventory = non_utf8;
+    assert!(
+        admit(ProviderConfig::Tempo(selected))
+            .unwrap_err()
+            .contains("UTF-8")
+    );
+
+    // The actual Unicode replacement character is a valid, distinct selection.
+    let path = PathBuf::from("/operator/\u{fffd}-tool");
+    let mut selected = github();
+    selected.command.executable = path.clone();
+    let admitted = admit(ProviderConfig::Github(selected)).unwrap();
+    assert_eq!(admitted.selected().command().unwrap().executable, path);
+}

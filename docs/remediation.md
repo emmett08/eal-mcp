@@ -1,9 +1,29 @@
 # EngArg and EAL remediation
 
 The [cross-repository ledger](https://github.com/emmett08/engarg/blob/main/docs/REMEDIATION.md) maps all 21 review findings to their implementation owners and regression sources.
-Final combined acceptance and tested commit identities are pending the release audit.
-The starting EAL revision is `7bd9948ed242b1173b8331a5c4cee4a158a42722`.
-That base identity provides no acceptance evidence for the changes.
+The paired pull requests record combined acceptance and exact tested commit identities.
+The original programme started at `7bd9948ed242b1173b8331a5c4cee4a158a42722`.
+The boundary follow-up starts at the merged programme revision `b48a48d`.
+These base identities provide no acceptance evidence for later changes.
+
+## Boundary follow-up
+
+Adversarial checks after the original programme found the following gaps.
+The scope below identifies the implemented corrections and their regression sources.
+Release acceptance remains bound to the tested revisions recorded on the paired pull requests.
+
+| Boundary | Correction and owner | Regression source |
+| --- | --- | --- |
+| Known credentials inside encoded JSON | The pure contracts package owns one bounded immutable inspector. Host and Tempo consumers inspect decoded strings, keys and scalar spellings. Duplicate-key ambiguity and exhausted inspection budgets fail safely | Contracts `sensitive_json` tests, MCP `tests/host.rs`, native `tests/collectors.rs` and paired EngArg host tests |
+| Credentials in generated collector metadata | Tempo retains one captured credential set through final observation-envelope inspection. Successful semantic values are never replaced | Native CLI tests include generated metadata, query fields and request/context collisions |
+| Omitted evidence qualifications | Packet projection rejects unknown issues. Positive packet-wide availability omissions keep unavailable evidence unresolved | Runtime `tests/packets.rs` and `tests/model_context.rs` |
+| Reusable retained-artifact bases | The adapter canonicalises a relative-artifact base once and preserves independent absolute grants. Traversal, escape and leaf-alias checks remain active | Adapter `tests/admission.rs` |
+| Native configuration before effects | Typed admission rejects empty scoped attribute components and non-UTF-8 operator paths. Executable conversion preserves the exact admitted path | Collector `tests/configuration.rs` and installed CLI cases in `tests/collectors.rs` |
+
+Sensitive JSON inspection was extracted into the narrow contract package because three consumers require the same policy.
+Tempo credential lifetime is a private record separate from its semantic value.
+Configuration and artifact-base checks remain with their existing admission owners.
+The follow-up changes no public observation or packet schema and preserves the manual workflow trigger.
 
 EAL's pure collector contract owns request, envelope, identifier and direct binding invariants.
 The narrow `eal-process` package owns bounded process execution.
@@ -53,6 +73,16 @@ Current consumers check packet version and qualifier consistency explicitly.
 The regression starts with actual bounded native-method exhaustion and checks the assessment, packet, model context, malformed states and fallback.
 This review found no additional finite-state input that currently bypasses its admission owner.
 That judgement is scoped to the inspected boundaries and does not assert that every remaining string field requires an enum.
+
+The follow-up packet audit found that omitted availability qualifications could
+turn a stale negative observation into a definite unmet predicate in model context.
+Packet projection now rejects unknown or non-string availability issues.
+Model context retains `unresolved` for unavailable evidence whenever the
+packet-wide availability-issue omission count is positive.
+Available evidence and complete pure predicate failures retain `met` and
+`not_met` respectively. This changes no packet fields or versions.
+Regression cases exercise the public packet-builder-to-model-context path and
+the conservative treatment of other unavailable entries in the same packet.
 
 Release acceptance requires Rust 1.90 formatting, workspace Clippy with warnings denied, workspace tests and debug/release binary builds.
 Installed application and coordination smoke checks use the actual companions.

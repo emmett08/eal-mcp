@@ -16,6 +16,7 @@ name = "eal-host"
 path = "src/bin/host.rs"
 
 [dependencies]
+eal-collector-contracts.workspace = true
 eal-core.workspace = true
 eal-aspic.workspace = true
 eal-runtime.workspace = true

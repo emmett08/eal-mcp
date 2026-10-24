@@ -82,3 +82,28 @@ fn negative_predicate_is_distinct_from_missing_or_stale_measurement() {
     );
     assert_eq!(context["evidence"]["missing"]["requirements"], "unresolved");
 }
+
+#[test]
+fn packet_wide_issue_omissions_preserve_uncertainty_for_all_unavailable_evidence() {
+    for (omitted, expected) in [
+        (json!({}), "not_met"),
+        (json!({"availability_issues":0}), "not_met"),
+        (json!({"availability_issues":1}), "unresolved"),
+    ] {
+        let mut assessment = registered();
+        assessment["packet"]["summary_complete"] = json!(false);
+        assessment["packet"]["omitted"] = omitted.clone();
+        assessment["packet"]["evidence"]["other_negative"] =
+            json!({"status":"unavailable","availability_issues":["predicate_not_met"]});
+        assessment["packet"]["evidence"]["pass"] =
+            json!({"status":"available","availability_issues":[]});
+        let context = ModelContextBuilder::new().build(&assessment).unwrap();
+        for id in ["trial", "other_negative"] {
+            assert_eq!(
+                context["evidence"][id]["requirements"], expected,
+                "{id}: {omitted}"
+            );
+        }
+        assert_eq!(context["evidence"]["pass"]["requirements"], "met");
+    }
+}

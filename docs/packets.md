@@ -128,7 +128,15 @@ unavailability, staleness and failed acquisition retain separate meanings.
 packet. It preserves statements, scalar method results, qualifications and
 omissions, replaces claim observation references with evidence IDs, and removes
 opaque observation IDs. Evidence requirements are `met` for available evidence,
-`not_met` when the sole issue is `predicate_not_met`, and `unresolved` otherwise.
+`not_met` when the sole issue is `predicate_not_met` and no availability issues
+were omitted, and `unresolved` otherwise. Unknown or non-string availability
+issues fail packet admission instead of disappearing during projection.
+An availability-issue omission counter applies to the whole packet.
+When it is positive, every unavailable entry remains `unresolved` because the
+packet cannot identify which entries lost qualifications. This conservative
+projection can withhold a definite negative for another unavailable entry.
+Available evidence remains `met`, and complete pure predicate failures remain
+`not_met`.
 An unsupported claim does not establish its opposite; a negative measurement is
 different from a missing measurement. `CONTEXT_INSTRUCTION` states these rules
 for the model adapter.

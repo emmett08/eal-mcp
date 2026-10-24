@@ -5,7 +5,7 @@ use std::{
     io::{Read, Write},
     net::TcpListener,
     path::{Path, PathBuf},
-    process::{Command, Stdio},
+    process::{Command, Output, Stdio},
     thread,
 };
 
@@ -397,13 +397,36 @@ fn binary_failure_has_no_success_envelope() {
 
 #[test]
 fn tempo_credentials_never_reach_success_or_error_output() {
+    let secret = "synthetic-bearer.ABC_123";
+    let nested = r#"{"note":"\u0073ynthetic-bearer.ABC_123"}"#;
+    for (secret, material) in [
+        (secret, json!(secret)),
+        (secret, json!(nested)),
+        (secret, json!(r#"{"\u0073ynthetic-bearer.ABC_123":true}"#)),
+        (
+            secret,
+            json!(r#"{"note":"public","note":"\u0073ynthetic-bearer.ABC_123"}"#),
+        ),
+        (secret, json!(serde_json::to_string(nested).unwrap())),
+        ("8675309", json!(8675309)),
+        ("false", json!(false)),
+        ("null", Value::Null),
+    ] {
+        let (result, received) = tempo_cli(
+            json!({"traces":[{"traceID":"01234567890123456789012345678901","rootServiceName":material}]}),
+            secret,
+        );
+        assert!(received.contains(secret));
+        assert_eq!(result.status.code(), Some(2));
+        assert!(result.stdout.is_empty());
+        assert!(!String::from_utf8_lossy(&result.stderr).contains(secret));
+    }
+}
+
+fn tempo_cli(body: Value, secret: &str) -> (Output, String) {
     let workspace = Workspace::new();
     let inventory = workspace.inventory(cluster());
-    let secret = "synthetic-bearer.ABC_123";
-    let (url, server) = http(
-        json!({"traces":[{"traceID":"01234567890123456789012345678901","rootServiceName":secret}]}),
-        200,
-    );
+    let (url, server) = http(body, 200);
     let mut process = Command::new(env!("CARGO_BIN_EXE_eal-collector"))
         .args([
             "tempo",
@@ -440,10 +463,71 @@ fn tempo_credentials_never_reach_success_or_error_output() {
         .unwrap();
     let result = process.wait_with_output().unwrap();
     let received = server.join().unwrap();
-    assert!(received.contains(secret));
-    assert_eq!(result.status.code(), Some(2));
-    assert!(result.stdout.is_empty());
-    assert!(!String::from_utf8_lossy(&result.stderr).contains(secret));
+    (result, received)
+}
+
+#[test]
+fn tempo_credential_inspection_preserves_unrelated_json_like_prose() {
+    let body = json!({"traces":[{"traceID":"01234567890123456789012345678901","rootServiceName":"[Results] calibration passed"}]});
+    let (result, _) = tempo_cli(body.clone(), "synthetic-bearer.ABC_123");
+    assert!(result.status.success());
+    let envelope: Value = serde_json::from_slice(&result.stdout).unwrap();
+    assert_eq!(envelope["value"]["clusters"][0]["traces"], body["traces"]);
+}
+
+#[test]
+fn tempo_credentials_cannot_collide_with_generated_semantic_metadata() {
+    for secret in ["false", "Application", "reader", "production"] {
+        let (result, _) = tempo_cli(json!({"traces":[]}), secret);
+        assert_eq!(result.status.code(), Some(2));
+        assert!(result.stdout.is_empty());
+        assert!(!String::from_utf8_lossy(&result.stderr).contains(secret));
+    }
+}
+
+#[test]
+fn invalid_tempo_attribute_components_fail_before_http_transport() {
+    let workspace = Workspace::new();
+    let inventory = workspace.inventory(cluster());
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    listener.set_nonblocking(true).unwrap();
+    let url = format!("http://{}/api/search", listener.local_addr().unwrap());
+    let input = workspace.0.join("request.json");
+    std::fs::write(&input, serde_json::to_vec(&window()).unwrap()).unwrap();
+    for option in [
+        "--cluster-attribute",
+        "--kind-attribute",
+        "--name-attribute",
+    ] {
+        for attribute in ["span.", "resource.", "span..name", "resource.service."] {
+            let result = Command::new(env!("CARGO_BIN_EXE_eal-collector"))
+                .args([
+                    "tempo",
+                    "--inventory",
+                    inventory.to_str().unwrap(),
+                    "--url",
+                    &url,
+                    "--kind",
+                    "Application",
+                    "--name",
+                    "catalog-sync-operator",
+                    "--timeout-seconds",
+                    "1",
+                    option,
+                    attribute,
+                ])
+                .env_clear()
+                .stdin(std::fs::File::open(&input).unwrap())
+                .output()
+                .unwrap();
+            assert_eq!(result.status.code(), Some(2));
+            assert!(result.stdout.is_empty());
+            assert!(String::from_utf8_lossy(&result.stderr).contains("scoped dotted identifier"));
+            assert!(
+                matches!(listener.accept(), Err(error) if error.kind() == std::io::ErrorKind::WouldBlock)
+            );
+        }
+    }
 }
 
 #[cfg(unix)]

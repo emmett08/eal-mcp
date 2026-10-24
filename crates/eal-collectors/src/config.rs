@@ -293,8 +293,8 @@ impl Config {
     }
 }
 fn absolute(path: &std::path::Path) -> Result<(), String> {
-    if !path.is_absolute() || path.as_os_str().len() > 8192 {
-        Err("Operator path requires a bounded absolute path".into())
+    if !path.is_absolute() || path.as_os_str().len() > 8192 || path.to_str().is_none() {
+        Err("Operator path requires a bounded absolute UTF-8 path".into())
     } else {
         Ok(())
     }
@@ -313,8 +313,11 @@ pub(crate) fn selector(value: &str) -> Result<(), String> {
     }
 }
 pub(crate) fn attribute(value: &str) -> Result<(), String> {
-    if !(value.starts_with("span.") || value.starts_with("resource."))
-        || value.len() > 253
+    let path = value
+        .strip_prefix("span.")
+        .or_else(|| value.strip_prefix("resource."));
+    if value.len() > 253
+        || path.is_none_or(|path| path.split('.').any(str::is_empty))
         || !value
             .bytes()
             .all(|c| c.is_ascii_alphanumeric() || b"._".contains(&c))

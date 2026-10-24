@@ -84,6 +84,89 @@ fn extension_outputs_require_installed_contract_and_dynamic_maps_stay_private() 
 }
 
 #[test]
+fn truncated_availability_qualifications_cannot_establish_a_definite_negative() {
+    use eal_runtime::model_context::ModelContextBuilder;
+    let mut assessment = assessment();
+    assessment["evidence"]["trial"] = json!({
+        "status":"unavailable",
+        "availability_issues":["predicate_not_met","stale_observation"]
+    });
+    let builder = AssessmentPacketBuilder::new(
+        PacketLimits {
+            max_availability_issues: 1,
+            ..Default::default()
+        },
+        None,
+    )
+    .unwrap();
+    let packet = builder.build(&assessment, None, None).unwrap();
+    assert_eq!(
+        packet["evidence"]["trial"]["availability_issues"],
+        json!(["predicate_not_met"])
+    );
+    assert_eq!(packet["omitted"]["availability_issues"], 1);
+    assert_eq!(packet["summary_complete"], false);
+    let registered = json!({
+        "assessment_id":"stored", "assessed_at":"2026-10-24T12:00:00Z",
+        "claim":"pressure", "status":"contested", "packet":packet
+    });
+    let context = ModelContextBuilder::new().build(&registered).unwrap();
+    assert_eq!(context["evidence"]["trial"]["requirements"], "unresolved");
+    assert_eq!(context["omitted"]["availability_issues"], 1);
+}
+
+#[test]
+fn complete_availability_reasons_preserve_measured_and_unresolved_outcomes() {
+    use eal_runtime::model_context::ModelContextBuilder;
+    for (status, issues, expected) in [
+        ("available", json!([]), "met"),
+        ("unavailable", json!(["predicate_not_met"]), "not_met"),
+        ("unavailable", json!([]), "unresolved"),
+        (
+            "unavailable",
+            json!(["predicate_not_met", "tool_error"]),
+            "unresolved",
+        ),
+    ] {
+        let mut assessment = assessment();
+        assessment["evidence"]["trial"] = json!({"status":status,"availability_issues":issues});
+        let packet = AssessmentPacketBuilder::default()
+            .build(&assessment, None, None)
+            .unwrap();
+        assert_eq!(packet["omitted"], json!({}));
+        assert_eq!(packet["summary_complete"], true);
+        let context = ModelContextBuilder::new()
+            .build(&json!({
+                "assessment_id":"stored", "assessed_at":"2026-10-24T12:00:00Z",
+                "claim":"pressure", "status":"contested", "packet":packet
+            }))
+            .unwrap();
+        assert_eq!(context["evidence"]["trial"]["requirements"], expected);
+    }
+}
+
+#[test]
+fn unknown_availability_reasons_fail_instead_of_disappearing_in_projection() {
+    for issue in [
+        json!("newer_qualification"),
+        json!(false),
+        json!(null),
+        json!(17),
+        json!({"raw":"private"}),
+    ] {
+        let mut assessment = assessment();
+        assessment["evidence"]["trial"] = json!({
+            "status":"unavailable", "availability_issues":["predicate_not_met",issue]
+        });
+        let error = AssessmentPacketBuilder::default()
+            .build(&assessment, None, None)
+            .unwrap_err();
+        assert!(error.contains("unknown value"));
+        assert!(!error.contains("private"));
+    }
+}
+
+#[test]
 fn exhausted_native_assessment_preserves_incomplete_through_packet_context_and_fallback() {
     use eal_core::{
         ExecutionLimits, canonical, composition, evaluation,
