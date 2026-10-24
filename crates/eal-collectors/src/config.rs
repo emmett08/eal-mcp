@@ -1,7 +1,8 @@
 //! Operator-owned selectors and resource allowances for collector processes.
 use std::{collections::BTreeMap, path::PathBuf, time::Duration};
 
-pub const HELP: &str = "eal-collector kubernetes|github|tempo [OPTIONS]\n\
+pub const HELP: &str = "eal-collector describe\n\
+eal-collector kubernetes|github|tempo [OPTIONS]\n\
 Shared --timeout-seconds 30 --max-bytes 1048576\n\
 Commands --executable ABSOLUTE --supervisor ABSOLUTE [--inherit-env NAME ...]\n\
 Kubernetes --inventory ABSOLUTE --resource applications.argoproj.io --kind Application --namespace NAME --name NAME\n\

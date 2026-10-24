@@ -18,6 +18,18 @@ async fn main() {
 }
 
 async fn run(arguments: Vec<String>) -> Result<(), String> {
+    if arguments.first().map(String::as_str) == Some("describe") {
+        if arguments.len() != 1 {
+            return Err("describe takes no options and reads no acquisition request".into());
+        }
+        let catalogue = eal_collectors::catalogue::native();
+        let bytes = serde_json::to_vec_pretty(catalogue)
+            .map_err(|_| "Collector catalogue encoding failed")?;
+        std::io::stdout()
+            .write_all(&bytes)
+            .map_err(|_| "Cannot write collector catalogue")?;
+        return Ok(());
+    }
     let config = eal_collectors::Config::parse(arguments)?;
     let mut input = Vec::new();
     std::io::stdin()

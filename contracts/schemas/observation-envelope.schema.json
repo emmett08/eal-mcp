@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EAL observation envelope version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "value"
+  ],
+  "properties": {
+    "value": {},
+    "observed_at": {
+      "type": "string"
+    },
+    "context": {
+      "type": "object"
+    },
+    "request": {
+      "type": "object"
+    },
+    "details": {}
+  }
+}

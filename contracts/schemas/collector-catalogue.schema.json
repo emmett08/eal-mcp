@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EAL collector catalogue version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "acquisition_contract",
+    "collectors"
+  ],
+  "properties": {
+    "schema": {
+      "const": "eal.collector-catalogue/1"
+    },
+    "acquisition_contract": {
+      "const": "eal.acquisition/1"
+    },
+    "collectors": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "$ref": "#/$defs/collector"
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_.-]*$",
+      "maxLength": 1024
+    },
+    "collector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "purpose",
+        "parameters",
+        "input_schema",
+        "result_schema",
+        "command",
+        "acquisition_predicate",
+        "constraints"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "parameters": {
+          "type": "array",
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "type",
+            "properties",
+            "additionalProperties"
+          ],
+          "properties": {
+            "type": {
+              "const": "object"
+            },
+            "properties": {
+              "type": "object"
+            },
+            "additionalProperties": {
+              "const": false
+            }
+          }
+        },
+        "result_schema": {
+          "type": "object"
+        },
+        "command": {
+          "$ref": "#/$defs/command"
+        },
+        "acquisition_predicate": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/constraint"
+          }
+        }
+      }
+    },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "argv",
+        "inherit_env",
+        "timeout_seconds",
+        "max_output_bytes",
+        "parallel_safe"
+      ],
+      "properties": {
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          }
+        },
+        "inherit_env": {
+          "type": "array",
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+          }
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        },
+        "max_output_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16777216
+        },
+        "parallel_safe": {
+          "type": "boolean"
+        }
+      }
+    },
+    "constraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "start",
+        "end",
+        "max_seconds"
+      ],
+      "properties": {
+        "kind": {
+          "const": "ordered_window"
+        },
+        "start": {
+          "$ref": "#/$defs/identifier"
+        },
+        "end": {
+          "$ref": "#/$defs/identifier"
+        },
+        "max_seconds": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  }
+}

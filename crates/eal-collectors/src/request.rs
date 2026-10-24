@@ -1,4 +1,5 @@
 //! Exact acquisition requests with bounded provider-specific inputs.
+use eal_collector_contracts::AcquisitionRequest;
 use serde::Deserialize;
 use serde_json::{Value, json};
 
@@ -17,22 +18,31 @@ impl Request {
         let text = std::str::from_utf8(bytes).map_err(|_| "Request must be UTF-8")?;
         let value = eal_runtime::acquisition::strict_json(text)
             .map_err(|_| "Request must be strict JSON")?;
-        let result: Self =
+        let result: AcquisitionRequest =
             serde_json::from_value(value).map_err(|_| "Invalid EAL acquisition request fields")?;
-        for value in [
+        result.validate()?;
+        if [
             &result.evidence_id,
             &result.environment,
             &result.tool,
             &result.tool_version,
-        ] {
-            if value.is_empty() || value.len() > 1024 {
-                return Err("Request identity must be nonempty and bounded".into());
-            }
+        ]
+        .iter()
+        .any(|value| value.len() > 1024)
+        {
+            return Err("Native request identity must be bounded".into());
         }
-        if !result.context.is_object() || !result.input.is_object() {
-            return Err("Request context and input must be JSON objects".into());
+        if !result.input.is_object() {
+            return Err("Native collector input must be a JSON object".into());
         }
-        Ok(result)
+        Ok(Self {
+            evidence_id: result.evidence_id,
+            environment: result.environment,
+            tool: result.tool,
+            tool_version: result.tool_version,
+            input: result.input,
+            context: result.context,
+        })
     }
     pub fn acquisition(&self) -> Value {
         json!({"tool":self.tool,"tool_version":self.tool_version,"input":self.input,"context":self.context})
