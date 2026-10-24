@@ -117,13 +117,13 @@ insertion preserves immutable IDs. Key installation fsyncs the file and director
 Replacement of a live instance's database or key fails. The private-store policy
 currently requires POSIX; Windows ACL verification is not implemented.
 
-The source's `EAL/2` HMAC domain remains frozen for observation-record/1.
+The observation-record/1 HMAC domain is `EAL/2`, independent of the source language version.
 Binding and exact effective collector environment identities use the private
 store key. Runtime metadata records keyed environment identity without copying
 the environment or key bytes. Trusted collector output is retained as its declared
 observed value.
 Stored payloads have a separate fixed 64 MiB defensive envelope with depth 128;
-collection admission retains the source's 32 MiB aggregate limit and independent
+collection admission enforces a 32 MiB aggregate limit and independent
 per-observation budgets.
 
 `ObservationRebinder` selects acquisition-compatible successful records from the
@@ -136,12 +136,8 @@ the complete claim closure, chooses compatible observations individually,
 collects missing observations and atomically stores its rebinding batch. See
 [registered assessment boundaries](applications.md).
 
-The retained runtime references contain 119 acquisition witnesses and 38
-collection-identity/reuse cases from the unmodified pinned Python source. Malformed
-JSON preserves failure categories while native parser wording can differ.
-Stored-original comparison deliberately uses typed canonical equality, refusing
-metadata substitutions such as integer `1` for float `1.0` that Python object
-equality can accept. Registry TOML also has a native 1 MiB admission ceiling.
+Stored-original comparison uses typed canonical equality. Integer `1` and float
+`1.0` have distinct identities. Registry TOML has a 1 MiB admission ceiling.
 
 ## Process ownership and method extensions
 
@@ -158,7 +154,7 @@ unlocking the shared open-file description. A process group provides cleanup for
 cooperating descendants; this adapter is not a sandbox for code that creates a
 new session or otherwise escapes the group.
 
-The original eight built-in assessors remain pure in-process functions. Runtime
+The eight built-in assessors are pure in-process functions. Runtime
 registries bind optional engineering, ASPIC and custom methods to supervised
 workers, with startup and execution deadlines, combined-output bounds and POSIX
 CPU/address-space limits. Native workers charge CPU allowance from current process
@@ -167,8 +163,7 @@ startup allowance. The immutable executor identity includes the worker executabl
 hash, operator configuration and protocol/implementation identity. Hash checks
 detect changes; they do not attest the dynamic loader or unpinned dependencies.
 
-The library's `WorkerCommand` and `MethodExecutor::register_command` replace
-Python's `package.module:function` factories. They register an explicit trusted
+The library's `WorkerCommand` and `MethodExecutor::register_command` register an explicit trusted
 argv, environment, working directory and typed method contract. The bundled
 worker first applies resource limits, then execs that command. External code must
 implement `eal-method-worker/1`, emit the exact ready frame, read one strict request

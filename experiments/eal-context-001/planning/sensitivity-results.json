@@ -1,487 +1,526 @@
-[
-  {
-    "independent_scenarios": 96,
-    "sigma_paired_quality": 0.05,
-    "arithmetic_token_ratio": 0.85,
-    "quality_means": [
-      0.0,
-      0.0,
-      0.0
-    ],
-    "latent_quality_correlation": 0.5,
-    "latent_token_quality_correlation": 0.3,
-    "component_pass": {
-      "tokens": {
-        "estimate": 0.8186666666666667,
-        "mcse": 0.004974125644364638,
-        "wilson_95": [
-          0.8087146527733448,
-          0.8282108933504414
-        ],
-        "replications": 6000
-      },
-      "correctness": {
-        "estimate": 0.9903333333333333,
-        "mcse": 0.0012631456911366338,
-        "wilson_95": [
-          0.9875248680464647,
-          0.9925143352465159
-        ],
-        "replications": 6000
-      },
-      "objections": {
-        "estimate": 0.9865,
-        "mcse": 0.0014898405955000667,
-        "wilson_95": [
-          0.9832530716690074,
-          0.9891243703473797
-        ],
-        "replications": 6000
-      },
-      "qualifications": {
-        "estimate": 0.9896666666666667,
-        "mcse": 0.0013055366428890158,
-        "wilson_95": [
-          0.9867762599049007,
-          0.9919304631660636
-        ],
-        "replications": 6000
-      }
-    },
-    "joint_success": {
-      "estimate": 0.7911666666666667,
-      "mcse": 0.005247570425479811,
-      "wilson_95": [
-        0.7806969226712779,
-        0.8012638142943365
-      ],
-      "replications": 6000
-    },
-    "two_sided_95_coverage": {
-      "token_contrast": {
-        "estimate": 0.9543333333333334,
-        "mcse": 0.0026950949959207438,
-        "wilson_95": [
-          0.9487540412680767,
-          0.9593312300360243
-        ],
-        "replications": 6000
-      },
-      "correctness": {
-        "estimate": 0.952,
-        "mcse": 0.0027597101297056554,
-        "wilson_95": [
-          0.9462958649373462,
-          0.9571257255896978
-        ],
-        "replications": 6000
-      },
-      "objections": {
-        "estimate": 0.947,
-        "mcse": 0.0028922597854734063,
-        "wilson_95": [
-          0.9410398705540223,
-          0.9523881183078994
-        ],
-        "replications": 6000
-      },
-      "qualifications": {
-        "estimate": 0.9511666666666667,
-        "mcse": 0.002782344301989746,
-        "wilson_95": [
-          0.9454188078334005,
-          0.9563371824161233
-        ],
-        "replications": 6000
-      }
-    }
+{
+  "status": "prospective_assumed_nuisance_calculation_not_empirical_evidence",
+  "schema": "EAL/context-planning/1",
+  "implementation": "eal-context-experiment/native-planning/1",
+  "mode": "sensitivity",
+  "seed": 20261021,
+  "replications_per_cell": 6000,
+  "random_generator": "xoshiro256**/splitmix64-seed/box-muller-52bit-midpoint/1",
+  "random_stream_reproducibility": "Exact replay requires the recorded seed and implementation with the same floating-point platform.",
+  "numerical_profile": {
+    "arithmetic": "IEEE-754 binary64 with platform elementary functions",
+    "normal_cdf": "convergent central series, tails clamped beyond absolute z of 8",
+    "normal_cdf_omitted_tail_bound": 6.23e-16,
+    "student_quantiles": "Lanczos log-gamma, incomplete-beta continued fraction and 100-step bisection",
+    "sample_variance": "Welford accumulation with n-1 denominator"
   },
-  {
-    "independent_scenarios": 384,
-    "sigma_paired_quality": 0.1,
-    "arithmetic_token_ratio": 0.88,
-    "quality_means": [
-      0.0,
-      0.0,
-      0.0
-    ],
-    "latent_quality_correlation": 0.5,
-    "latent_token_quality_correlation": 0.3,
-    "component_pass": {
-      "tokens": {
-        "estimate": 0.6355,
-        "mcse": 0.006213422969668168,
+  "one_sided_alpha_per_component": 0.05,
+  "principal_claim": "all four component tests pass (intersection-union)",
+  "token_estimand": "E(total_tokens_treatment)/E(total_tokens_baseline)",
+  "token_boundary": 0.9,
+  "quality_margin_percentage_points": 2,
+  "assumptions": [
+    "Independent scenarios. Paired differences are averages over prespecified repeats and scored probes.",
+    "The simulations assume complete telemetry and complete sessions with accurate scores and the prespecified retry policy.",
+    "Uniform bounded quality differences and lognormal costs are assumed planning families.",
+    "The estimator is an unstratified paired t at scenario level. A changed estimator requires a corresponding simulation.",
+    "Parameter uncertainty requires an independent pilot before main-study readiness can be assessed."
+  ],
+  "simulation_results": [
+    {
+      "scenario_kind": "boundary-sensitivity",
+      "seed": 20361021,
+      "independent_scenarios": 96,
+      "sigma_paired_quality": 0.05,
+      "arithmetic_token_ratio": 0.85,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.8066666666666666,
+          "mcse": 0.005098293105794585,
+          "wilson_95": [
+            0.7964792505546437,
+            0.8164616515728492
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9903333333333333,
+          "mcse": 0.0012631456911366338,
+          "wilson_95": [
+            0.9875248680464647,
+            0.9925143352465159
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9871666666666666,
+          "mcse": 0.0014530794248129796,
+          "wilson_95": [
+            0.9839908766661759,
+            0.9897190455722272
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9876666666666667,
+          "mcse": 0.0014248521690700758,
+          "wilson_95": [
+            0.9845454929703026,
+            0.9901637894346129
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.7785,
+        "mcse": 0.005360935086344546,
         "wilson_95": [
-          0.6232388052176525,
-          0.6475877999071582
+          0.7678164172815509,
+          0.7888271954657537
         ],
         "replications": 6000
       },
-      "correctness": {
-        "estimate": 0.9886666666666667,
-        "mcse": 0.001366558261283242,
-        "wilson_95": [
-          0.9856582597777963,
-          0.9910497429601437
-        ],
-        "replications": 6000
-      },
-      "objections": {
-        "estimate": 0.988,
-        "mcse": 0.001405702671264447,
-        "wilson_95": [
-          0.9849158740194208,
-          0.9904596484965027
-        ],
-        "replications": 6000
-      },
-      "qualifications": {
-        "estimate": 0.9881666666666666,
-        "mcse": 0.0013960244479446855,
-        "wilson_95": [
-          0.9851012633287635,
-          0.9906073792426642
-        ],
-        "replications": 6000
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9511666666666667,
+          "mcse": 0.002782344301989746,
+          "wilson_95": [
+            0.9454188078334005,
+            0.9563371824161233
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9513333333333334,
+          "mcse": 0.0027778355549546783,
+          "wilson_95": [
+            0.9455941839871418,
+            0.9564949263178859
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9495,
+          "mcse": 0.0028269462322442567,
+          "wilson_95": [
+            0.9436659930853131,
+            0.9547587966091697
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9488333333333333,
+          "mcse": 0.002844545625370565,
+          "wilson_95": [
+            0.9429653379058729,
+            0.9541269715665937
+          ],
+          "replications": 6000
+        }
       }
     },
-    "joint_success": {
-      "estimate": 0.6106666666666667,
-      "mcse": 0.0062948774000358,
-      "wilson_95": [
-        0.598261869861805,
-        0.622929846992899
+    {
+      "scenario_kind": "boundary-sensitivity",
+      "seed": 20361022,
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.88,
+      "quality_means": [
+        0.0,
+        0.0,
+        0.0
       ],
-      "replications": 6000
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 0.6316666666666667,
+          "mcse": 0.006227143391219991,
+          "wilson_95": [
+            0.6193810595130658,
+            0.6437837843351515
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9926666666666667,
+          "mcse": 0.0011014804851922045,
+          "wilson_95": [
+            0.9901703711996217,
+            0.9945325128704159
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9926666666666667,
+          "mcse": 0.0011014804851922045,
+          "wilson_95": [
+            0.9901703711996217,
+            0.9945325128704159
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9855,
+          "mcse": 0.0015432514377119475,
+          "wilson_95": [
+            0.9821496968357869,
+            0.9882290248475757
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.6105,
+        "mcse": 0.006295365358738125,
+        "wilson_95": [
+          0.5980943543860313,
+          0.6227642424131687
+        ],
+        "replications": 6000
+      },
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9521666666666667,
+          "mcse": 0.002755155941005745,
+          "wilson_95": [
+            0.9464713296922141,
+            0.9572833808903339
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9545,
+          "mcse": 0.0026904073421448035,
+          "wilson_95": [
+            0.9489297662060152,
+            0.9594886251535899
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9521666666666667,
+          "mcse": 0.002755155941005745,
+          "wilson_95": [
+            0.9464713296922141,
+            0.9572833808903339
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9476666666666667,
+          "mcse": 0.0028750233493415774,
+          "wilson_95": [
+            0.9417398178181602,
+            0.953020651265778
+          ],
+          "replications": 6000
+        }
+      }
     },
-    "two_sided_95_coverage": {
-      "token_contrast": {
-        "estimate": 0.9543333333333334,
-        "mcse": 0.0026950949959207438,
+    {
+      "scenario_kind": "boundary-sensitivity",
+      "seed": 20361023,
+      "independent_scenarios": 384,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        -0.01,
+        -0.01,
+        -0.01
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.6231666666666666,
+          "mcse": 0.0062560633551542386,
+          "wilson_95": [
+            0.6108298716617422,
+            0.6353458493557671
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.6158333333333333,
+          "mcse": 0.0062793661953110215,
+          "wilson_95": [
+            0.6034556024259055,
+            0.6280628361494247
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.6206666666666667,
+          "mcse": 0.006264177992835606,
+          "wilson_95": [
+            0.6083155824310211,
+            0.6328633377539272
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.3635,
+        "mcse": 0.006209773882088354,
         "wilson_95": [
-          0.9487540412680767,
-          0.9593312300360243
+          0.3514199849608239,
+          0.3757546895813408
         ],
         "replications": 6000
       },
-      "correctness": {
-        "estimate": 0.9466666666666667,
-        "mcse": 0.002900830021703239,
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9416666666666667,
+          "mcse": 0.0030257383549462096,
+          "wilson_95": [
+            0.935448901445932,
+            0.9473192456398596
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9528333333333333,
+          "mcse": 0.0027368464888816303,
+          "wilson_95": [
+            0.947173369438369,
+            0.9579138213661953
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9481666666666667,
+          "mcse": 0.0028620109156817473,
+          "wilson_95": [
+            0.9422649442685479,
+            0.9534948849819026
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9516666666666667,
+          "mcse": 0.002768791018423692,
+          "wilson_95": [
+            0.9459449890229018,
+            0.9568103613931339
+          ],
+          "replications": 6000
+        }
+      }
+    },
+    {
+      "scenario_kind": "boundary-sensitivity",
+      "seed": 20361024,
+      "independent_scenarios": 768,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        -0.01,
+        -0.01,
+        -0.01
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.8715,
+          "mcse": 0.00432025751547289,
+          "wilson_95": [
+            0.8627941253685922,
+            0.8797304783499849
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.865,
+          "mcse": 0.004411632350955823,
+          "wilson_95": [
+            0.8561194326109027,
+            0.8734134889430154
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.8698333333333333,
+          "mcse": 0.0043440247381807025,
+          "wilson_95": [
+            0.8610820050470822,
+            0.8781113981164541
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.719,
+        "mcse": 0.00580285849100826,
         "wilson_95": [
-          0.9406899905156519,
-          0.9520717582352617
+          0.7074892585127419,
+          0.730230494419609
         ],
         "replications": 6000
       },
-      "objections": {
-        "estimate": 0.9491666666666667,
-        "mcse": 0.002835762847264545,
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.9488333333333333,
+          "mcse": 0.002844545625370565,
+          "wilson_95": [
+            0.9429653379058729,
+            0.9541269715665937
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9495,
+          "mcse": 0.0028269462322442567,
+          "wilson_95": [
+            0.9436659930853131,
+            0.9547587966091697
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9441666666666667,
+          "mcse": 0.0029641179751100266,
+          "wilson_95": [
+            0.9380678192089944,
+            0.9496971287093583
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9515,
+          "mcse": 0.0027733178084501362,
+          "wilson_95": [
+            0.9457695776884428,
+            0.956652652672089
+          ],
+          "replications": 6000
+        }
+      }
+    },
+    {
+      "scenario_kind": "boundary-sensitivity",
+      "seed": 20361025,
+      "independent_scenarios": 1536,
+      "sigma_paired_quality": 0.1,
+      "arithmetic_token_ratio": 0.8,
+      "quality_means": [
+        -0.01,
+        -0.01,
+        -0.01
+      ],
+      "latent_quality_correlation": 0.5,
+      "latent_token_quality_correlation": 0.3,
+      "component_pass": {
+        "tokens": {
+          "estimate": 1.0,
+          "mcse": 0.0,
+          "wilson_95": [
+            0.9993601665122168,
+            1.0
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9861666666666666,
+          "mcse": 0.001507866717265502,
+          "wilson_95": [
+            0.9828848514604572,
+            0.9888263504449214
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9886666666666667,
+          "mcse": 0.001366558261283242,
+          "wilson_95": [
+            0.9856582597777963,
+            0.9910497429601437
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9885,
+          "mcse": 0.001376453776920966,
+          "wilson_95": [
+            0.9854724533033206,
+            0.9909024293791153
+          ],
+          "replications": 6000
+        }
+      },
+      "joint_success": {
+        "estimate": 0.9663333333333334,
+        "mcse": 0.002328562583162346,
         "wilson_95": [
-          0.9433156325003513,
-          0.9544429170831235
+          0.9614627729326299,
+          0.9706071423677642
         ],
         "replications": 6000
       },
-      "qualifications": {
-        "estimate": 0.9486666666666667,
-        "mcse": 0.0028489244234219994,
-        "wilson_95": [
-          0.9427902151648773,
-          0.9539689742520852
-        ],
-        "replications": 6000
+      "two_sided_95_coverage": {
+        "token_contrast": {
+          "estimate": 0.949,
+          "mcse": 0.0028401584462842927,
+          "wilson_95": [
+            0.9431404769924929,
+            0.9542849525354777
+          ],
+          "replications": 6000
+        },
+        "correctness": {
+          "estimate": 0.9513333333333334,
+          "mcse": 0.0027778355549546783,
+          "wilson_95": [
+            0.9455941839871418,
+            0.9564949263178859
+          ],
+          "replications": 6000
+        },
+        "objections": {
+          "estimate": 0.9501666666666667,
+          "mcse": 0.00280921021588578,
+          "wilson_95": [
+            0.9443669147060569,
+            0.9553903552104424
+          ],
+          "replications": 6000
+        },
+        "qualifications": {
+          "estimate": 0.9473333333333334,
+          "mcse": 0.002883657656775762,
+          "wilson_95": [
+            0.9413898128026535,
+            0.9527044161702763
+          ],
+          "replications": 6000
+        }
       }
     }
-  },
-  {
-    "independent_scenarios": 384,
-    "sigma_paired_quality": 0.1,
-    "arithmetic_token_ratio": 0.8,
-    "quality_means": [
-      -0.01,
-      -0.01,
-      -0.01
-    ],
-    "latent_quality_correlation": 0.5,
-    "latent_token_quality_correlation": 0.3,
-    "component_pass": {
-      "tokens": {
-        "estimate": 1.0,
-        "mcse": 0.0,
-        "wilson_95": [
-          0.9993601665122168,
-          1.0
-        ],
-        "replications": 6000
-      },
-      "correctness": {
-        "estimate": 0.6253333333333333,
-        "mcse": 0.0062488873083607925,
-        "wilson_95": [
-          0.6130092030233766,
-          0.6374970787156856
-        ],
-        "replications": 6000
-      },
-      "objections": {
-        "estimate": 0.62,
-        "mcse": 0.00626631204670392,
-        "wilson_95": [
-          0.6076451637471532,
-          0.6322012762157789
-        ],
-        "replications": 6000
-      },
-      "qualifications": {
-        "estimate": 0.6251666666666666,
-        "mcse": 0.006249444049347584,
-        "wilson_95": [
-          0.6128415528737954,
-          0.6373316088097629
-        ],
-        "replications": 6000
-      }
-    },
-    "joint_success": {
-      "estimate": 0.37383333333333335,
-      "mcse": 0.006246091741003893,
-      "wilson_95": [
-        0.3616755949808118,
-        0.3861525230026054
-      ],
-      "replications": 6000
-    },
-    "two_sided_95_coverage": {
-      "token_contrast": {
-        "estimate": 0.9533333333333334,
-        "mcse": 0.002723015757357054,
-        "wilson_95": [
-          0.9477000915564151,
-          0.9583864594146616
-        ],
-        "replications": 6000
-      },
-      "correctness": {
-        "estimate": 0.9556666666666667,
-        "mcse": 0.002657313458140536,
-        "wilson_95": [
-          0.9501603871196203,
-          0.9605898446285133
-        ],
-        "replications": 6000
-      },
-      "objections": {
-        "estimate": 0.9528333333333333,
-        "mcse": 0.0027368464888816303,
-        "wilson_95": [
-          0.947173369438369,
-          0.9579138213661953
-        ],
-        "replications": 6000
-      },
-      "qualifications": {
-        "estimate": 0.9515,
-        "mcse": 0.0027733178084501362,
-        "wilson_95": [
-          0.9457695776884428,
-          0.956652652672089
-        ],
-        "replications": 6000
-      }
-    }
-  },
-  {
-    "independent_scenarios": 768,
-    "sigma_paired_quality": 0.1,
-    "arithmetic_token_ratio": 0.8,
-    "quality_means": [
-      -0.01,
-      -0.01,
-      -0.01
-    ],
-    "latent_quality_correlation": 0.5,
-    "latent_token_quality_correlation": 0.3,
-    "component_pass": {
-      "tokens": {
-        "estimate": 1.0,
-        "mcse": 0.0,
-        "wilson_95": [
-          0.9993601665122168,
-          1.0
-        ],
-        "replications": 6000
-      },
-      "correctness": {
-        "estimate": 0.8701666666666666,
-        "mcse": 0.004339290243209691,
-        "wilson_95": [
-          0.861424392049871,
-          0.8784352512246734
-        ],
-        "replications": 6000
-      },
-      "objections": {
-        "estimate": 0.879,
-        "mcse": 0.0042102850259810205,
-        "wilson_95": [
-          0.8705045730424086,
-          0.8870104331738518
-        ],
-        "replications": 6000
-      },
-      "qualifications": {
-        "estimate": 0.8721666666666666,
-        "mcse": 0.004310683863422412,
-        "wilson_95": [
-          0.8634791040707803,
-          0.880377979869813
-        ],
-        "replications": 6000
-      }
-    },
-    "joint_success": {
-      "estimate": 0.7306666666666667,
-      "mcse": 0.005727024953220897,
-      "wilson_95": [
-        0.7192969367788729,
-        0.7417412200387632
-      ],
-      "replications": 6000
-    },
-    "two_sided_95_coverage": {
-      "token_contrast": {
-        "estimate": 0.9508333333333333,
-        "mcse": 0.00279133497200281,
-        "wilson_95": [
-          0.9450681078298031,
-          0.9560216423087122
-        ],
-        "replications": 6000
-      },
-      "correctness": {
-        "estimate": 0.9493333333333334,
-        "mcse": 0.002831358789096251,
-        "wilson_95": [
-          0.9434908045056756,
-          0.9546008651333033
-        ],
-        "replications": 6000
-      },
-      "objections": {
-        "estimate": 0.943,
-        "mcse": 0.002993075341517485,
-        "wilson_95": [
-          0.9368452650162628,
-          0.9485878425135613
-        ],
-        "replications": 6000
-      },
-      "qualifications": {
-        "estimate": 0.945,
-        "mcse": 0.002943212530552289,
-        "wilson_95": [
-          0.9389415045868775,
-          0.9504890436089953
-        ],
-        "replications": 6000
-      }
-    }
-  },
-  {
-    "independent_scenarios": 1536,
-    "sigma_paired_quality": 0.1,
-    "arithmetic_token_ratio": 0.8,
-    "quality_means": [
-      -0.01,
-      -0.01,
-      -0.01
-    ],
-    "latent_quality_correlation": 0.5,
-    "latent_token_quality_correlation": 0.3,
-    "component_pass": {
-      "tokens": {
-        "estimate": 1.0,
-        "mcse": 0.0,
-        "wilson_95": [
-          0.9993601665122168,
-          1.0
-        ],
-        "replications": 6000
-      },
-      "correctness": {
-        "estimate": 0.9878333333333333,
-        "mcse": 0.0014153114432807644,
-        "wilson_95": [
-          0.9847306181211654,
-          0.9903117843392543
-        ],
-        "replications": 6000
-      },
-      "objections": {
-        "estimate": 0.9891666666666666,
-        "mcse": 0.0013364113776717014,
-        "wilson_95": [
-          0.9862165622614442,
-          0.9914908006430078
-        ],
-        "replications": 6000
-      },
-      "qualifications": {
-        "estimate": 0.9906666666666667,
-        "mcse": 0.0012413851284098067,
-        "wilson_95": [
-          0.9879002527309154,
-          0.9928051906730734
-        ],
-        "replications": 6000
-      }
-    },
-    "joint_success": {
-      "estimate": 0.9703333333333334,
-      "mcse": 0.002190378793555866,
-      "wilson_95": [
-        0.965730170506508,
-        0.974334626125984
-      ],
-      "replications": 6000
-    },
-    "two_sided_95_coverage": {
-      "token_contrast": {
-        "estimate": 0.9506666666666667,
-        "mcse": 0.0027958169812404734,
-        "wilson_95": [
-          0.9448927838123246,
-          0.9558638462706869
-        ],
-        "replications": 6000
-      },
-      "correctness": {
-        "estimate": 0.9518333333333333,
-        "mcse": 0.002764255140445882,
-        "wilson_95": [
-          0.9461204180768471,
-          0.9569680523946927
-        ],
-        "replications": 6000
-      },
-      "objections": {
-        "estimate": 0.9513333333333334,
-        "mcse": 0.0027778355549546783,
-        "wilson_95": [
-          0.9455941839871418,
-          0.9564949263178859
-        ],
-        "replications": 6000
-      },
-      "qualifications": {
-        "estimate": 0.9495,
-        "mcse": 0.0028269462322442567,
-        "wilson_95": [
-          0.9436659930853131,
-          0.9547587966091697
-        ],
-        "replications": 6000
-      }
-    }
-  }
-]
+  ]
+}

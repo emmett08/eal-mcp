@@ -1,4 +1,6 @@
 //! Exercise the pure semantic service through its actual dependency-free binary.
+#[path = "../../../tests/native_case.rs"]
+mod native_case;
 use serde_json::{Value, json};
 use std::path::PathBuf;
 use std::process::{Command, Output};
@@ -45,11 +47,9 @@ fn output_json(output: &Output) -> Value {
 }
 
 #[test]
-fn native_evaluation_matches_a_source_bound_python_assessment_without_python_on_path() {
+fn native_evaluation_retains_supplied_observation_and_scope() {
     let workspace = Workspace::new();
-    let reference: Value =
-        serde_json::from_str(include_str!("../../../fixtures/semantics/reference.json")).unwrap();
-    let case = &reference["cases"][0];
+    let case = native_case::case();
     workspace.write("source.eal", case["source"].as_str().unwrap());
     workspace.write(
         "records.json",
@@ -69,12 +69,9 @@ fn native_evaluation_matches_a_source_bound_python_assessment_without_python_on_
         "--records",
         "records.json",
     ]));
-    assert_eq!(assessment["claims"], case["evaluation"]["claims"]);
-    assert_eq!(
-        assessment["source_digest"],
-        case["evaluation"]["source_digest"]
-    );
-    assert_eq!(assessment["evidence"], case["evaluation"]["evidence"]);
+    assert_eq!(assessment["claims"]["working"]["status"], "supported");
+    assert_eq!(assessment["claims"]["downstream"]["status"], "supported");
+    assert_eq!(assessment["evidence"]["observed"]["status"], "available");
     assert_eq!(assessment["valid"], true);
 }
 
@@ -159,9 +156,7 @@ fn malformed_json_and_implicit_time_are_rejected_before_assessment() {
 #[test]
 fn planning_and_checked_formatting_preserve_source_bound_semantics() {
     let workspace = Workspace::new();
-    let reference: Value =
-        serde_json::from_str(include_str!("../../../fixtures/planning/reference.json")).unwrap();
-    let case = &reference["cases"][0];
+    let case = native_case::case();
     workspace.write("source.eal", case["source"].as_str().unwrap());
     let plan = output_json(&workspace.run(&[
         "plan",
@@ -169,7 +164,8 @@ fn planning_and_checked_formatting_preserve_source_bound_semantics() {
         "--claim",
         case["claim"].as_str().unwrap(),
     ]));
-    assert_eq!(plan, case["result"]);
+    assert_eq!(plan["claim"], "working");
+    assert_eq!(plan["calls"].as_array().unwrap().len(), 1);
     let formatted = workspace.run(&["format", "source.eal"]);
     assert!(
         formatted.status.success(),

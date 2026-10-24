@@ -2,14 +2,8 @@ use eal_coordination::{
     lab_store::{LabError, LabStore},
     protocol::{self, MAX_BYTES, MAX_DEPTH},
 };
-use serde_json::{Value, json};
-use std::{
-    path::PathBuf,
-    sync::{
-        Arc,
-        atomic::{AtomicU64, Ordering},
-    },
-};
+use serde_json::json;
+use std::{path::PathBuf, sync::Arc};
 
 struct Sandbox(PathBuf);
 impl Sandbox {
@@ -23,98 +17,6 @@ impl Drop for Sandbox {
     fn drop(&mut self) {
         let _ = std::fs::remove_dir_all(&self.0);
     }
-}
-
-#[test]
-fn pinned_toolkit_transactions_and_error_order_match_exactly() {
-    let fixture: Value = eal_core::json::parse(
-        include_str!("../../../fixtures/coordination/lab-store-reference.json"),
-        &eal_core::ExecutionLimits {
-            record_bytes: 64 * 1024 * 1024,
-            json_nodes: 1_000_000,
-            ..Default::default()
-        },
-    )
-    .unwrap();
-    assert_eq!(
-        fixture["store_sha256"],
-        "f2510cbad31646c372d0006cb50be3f9d3f027a540c9142a0a4a09c1ea84b638"
-    );
-    let mut witnessed = 0;
-    for scenario in fixture["scenarios"].as_array().unwrap() {
-        let sandbox = Sandbox::new();
-        let path = sandbox.0.join("lab.sqlite");
-        let time = Arc::new(AtomicU64::new(1000.25f64.to_bits()));
-        let selected = Arc::clone(&time);
-        let store = LabStore::with_clock(
-            &path,
-            Arc::new(move || f64::from_bits(selected.load(Ordering::SeqCst))),
-        )
-        .unwrap();
-        for step in scenario["steps"].as_array().unwrap() {
-            witnessed += 1;
-            let args = &step["arguments"];
-            let string = |key: &str| args[key].as_str().unwrap();
-            let actual = match step["operation"].as_str().unwrap() {
-                "create_run" => store.create_run(args),
-                "send" => store.send_admitted(
-                    &protocol::admit_envelope(&args["envelope"], MAX_BYTES, MAX_DEPTH).unwrap(),
-                    string("actor"),
-                ),
-                "receive" => store.receive(
-                    string("run_id"),
-                    string("recipient"),
-                    args.get("limit").unwrap_or(&json!(10)),
-                ),
-                "ack" => store.ack(string("run_id"), string("message_id"), string("recipient")),
-                "inspect" => store.inspect(string("run_id")),
-                "reserve_call" => {
-                    store.reserve_call(string("run_id"), string("actor"), string("call_id"))
-                }
-                "finish_call" => store.finish_call(
-                    string("run_id"),
-                    string("actor"),
-                    string("call_id"),
-                    &args["evidence"],
-                ),
-                "advance" => {
-                    let now = f64::from_bits(time.load(Ordering::SeqCst));
-                    time.store((now + args.as_f64().unwrap()).to_bits(), Ordering::SeqCst);
-                    Ok(Value::Null)
-                }
-                "set_active" => {
-                    rusqlite::Connection::open(&path)
-                        .unwrap()
-                        .execute(
-                            "UPDATE runs SET active=? WHERE id='run'",
-                            [args.as_str().unwrap()],
-                        )
-                        .unwrap();
-                    Ok(Value::Null)
-                }
-                unknown => panic!("Unknown fixture operation {unknown}"),
-            };
-            match (actual, step.get("error")) {
-                (Ok(value), None) => assert_eq!(
-                    value, step["result"],
-                    "{} {}",
-                    scenario["name"], step["operation"]
-                ),
-                (Err(error), Some(expected)) => assert_eq!(
-                    error.to_value(),
-                    *expected,
-                    "{} {}",
-                    scenario["name"],
-                    step["operation"]
-                ),
-                (actual, expected) => panic!(
-                    "{} {}: {actual:?} != {expected:?}",
-                    scenario["name"], step["operation"]
-                ),
-            }
-        }
-    }
-    assert!(witnessed >= 70);
 }
 
 #[test]

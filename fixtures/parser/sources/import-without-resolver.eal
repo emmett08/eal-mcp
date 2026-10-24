@@ -1,2 +1,0 @@
-language "EAL/3"
-import "lib.eal" as lib

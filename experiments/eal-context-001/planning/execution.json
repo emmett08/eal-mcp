@@ -1,54 +1,58 @@
 {
-  "status": "completed_planning_simulations_only_no_empirical_model_sessions",
+  "status": "planning_simulations_completed",
   "experiment_id": "EAL-CONTEXT-001",
-  "started_at_utc": "2026-10-21T07:59:41.342640+00:00",
-  "finished_at_utc": "2026-10-21T08:00:03.414272+00:00",
+  "measurement_scope": "prospective_assumed_nuisance_simulations",
+  "recorded_at_utc": "2026-10-24T10:24:58.358Z",
   "runtime": {
-    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
-    "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
-    "numpy": "2.3.5",
-    "scipy": "1.17.0",
-    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
-    "machine": "x86_64"
+    "rustc": "rustc 1.90.0 (1159e78c4 2025-09-14)",
+    "platform": "linux",
+    "machine": "x64"
   },
+  "binary_sha256": "489bc5648e28302f7d4672bc3a65c2780245f8d60fb9687d983f06b7a573f9b4",
   "runs": [
     {
       "command": [
-        "python3",
-        "allocation.py"
+        "experiments/eal-context-001/target/release/eal-context",
+        "planning",
+        "allocation",
+        "--output",
+        "/tmp/eal-planning-allocation-current.json"
       ],
-      "working_directory": ".",
-      "started_at_utc": "2026-10-21T07:59:41.342869+00:00",
-      "finished_at_utc": "2026-10-21T08:00:03.413890+00:00",
-      "duration_seconds": 22.071038888,
+      "working_directory": "repository root",
+      "elapsed_seconds": 25.097,
       "exit_code": 0,
-      "stdout": "/workspace/scratch/ad46a1f488a4/eal-mcp/experiments/eal-context-001/planning/allocation-results.json\nanalytic {'sd': 0.05, 'normal_approx_n': 82, 'balanced_multiple_24': 96, 'two_arm_sessions_with_two_repeats': 384, 'three_arm_sessions_with_two_repeats': 576}\nanalytic {'sd': 0.1, 'normal_approx_n': 325, 'balanced_multiple_24': 336, 'two_arm_sessions_with_two_repeats': 1344, 'three_arm_sessions_with_two_repeats': 2016}\nanalytic {'sd': 0.15, 'normal_approx_n': 731, 'balanced_multiple_24': 744, 'two_arm_sessions_with_two_repeats': 2976, 'three_arm_sessions_with_two_repeats': 4464}\nuseful-benefit 96 0.05 joint 0.9685 [0.9637719497031756, 0.9726285263187715]\nuseful-benefit 192 0.05 joint 1.0 [0.9993601665122168, 1.0]\nuseful-benefit 384 0.05 joint 1.0 [0.9993601665122168, 1.0]\nuseful-benefit 768 0.05 joint 1.0 [0.9993601665122168, 1.0]\nuseful-benefit 96 0.1 joint 0.3545 [0.34249261628305167, 0.3666935752618931]\nuseful-benefit 192 0.1 joint 0.729 [0.7176095316412545, 0.7400974246213408]\nuseful-benefit 384 0.1 joint 0.9678333333333333 [0.963060869233117, 0.9720071265668139]\nuseful-benefit 768 0.1 joint 0.9993333333333333 [0.9982869695189036, 0.9997407167712968]\nuseful-benefit 96 0.15 joint 0.132 [0.123670121455964, 0.14080079599104436]\nuseful-benefit 192 0.15 joint 0.32366666666666666 [0.3119440998890597, 0.33561488138763174]\nuseful-benefit 384 0.15 joint 0.6581666666666667 [0.6460670458325753, 0.6700638868407892]\nuseful-benefit 768 0.15 joint 0.9491666666666667 [0.9433156325003513, 0.9544429170831235]\ntoken-boundary 384 0.1 joint 0.050666666666666665 [0.04539913486669664, 0.05650919549432444]\ncorrectness-boundary 384 0.1 joint 0.0515 [0.046189039333039576, 0.05738489130550186]\nobjection-boundary 384 0.1 joint 0.05483333333333333 [0.049352617444478074, 0.060883714304144805]\nqualification-boundary 384 0.1 joint 0.051333333333333335 [0.04603102574791475, 0.057209784835122623]\nall-boundaries 384 0.1 joint 0.0 [0.0, 0.0006398334877831174]\ntoken-harm 384 0.1 joint 0.0 [0.0, 0.0006398334877831174]\ncorrectness-harm 384 0.1 joint 0.0 [0.0, 0.0006398334877831174]\ntoken-boundary 768 0.15 joint 0.04566666666666667 [0.0406687699639757, 0.05124595873192321]\ncorrectness-boundary 768 0.15 joint 0.05433333333333333 [0.048877689805728146, 0.06035928177638252]\nobjection-boundary 768 0.15 joint 0.0545 [0.04903598408788886, 0.06053410754972587]\nqualification-boundary 768 0.15 joint 0.05 [0.04476750918703973, 0.05580834095196506]\nall-boundaries 768 0.15 joint 0.0 [0.0, 0.0006398334877831174]\ntoken-harm 768 0.15 joint 0.0 [0.0, 0.0006398334877831174]\ncorrectness-harm 768 0.15 joint 0.0 [0.0, 0.0006398334877831174]\n",
-      "stderr": ""
+      "retained_output": "allocation-results.json",
+      "completed_file_mtime_utc": "2026-10-24T10:24:24.969Z"
     },
     {
       "command": [
-        "python3",
-        "sensitivity.py"
+        "experiments/eal-context-001/target/release/eal-context",
+        "planning",
+        "sensitivity",
+        "--output",
+        "/tmp/eal-planning-sensitivity-current.json"
       ],
-      "working_directory": ".",
-      "started_at_utc": "2026-10-21T07:59:41.345761+00:00",
-      "finished_at_utc": "2026-10-21T07:59:46.010852+00:00",
-      "duration_seconds": 4.665103768,
+      "working_directory": "repository root",
+      "elapsed_seconds": 4.905,
       "exit_code": 0,
-      "stdout": "96 0.05 0.85 (0.0, 0.0, 0.0) {'estimate': 0.7911666666666667, 'mcse': 0.005247570425479811, 'wilson_95': [0.7806969226712779, 0.8012638142943365], 'replications': 6000}\n384 0.1 0.88 (0.0, 0.0, 0.0) {'estimate': 0.6106666666666667, 'mcse': 0.0062948774000358, 'wilson_95': [0.598261869861805, 0.622929846992899], 'replications': 6000}\n384 0.1 0.8 (-0.01, -0.01, -0.01) {'estimate': 0.37383333333333335, 'mcse': 0.006246091741003893, 'wilson_95': [0.3616755949808118, 0.3861525230026054], 'replications': 6000}\n768 0.1 0.8 (-0.01, -0.01, -0.01) {'estimate': 0.7306666666666667, 'mcse': 0.005727024953220897, 'wilson_95': [0.7192969367788729, 0.7417412200387632], 'replications': 6000}\n1536 0.1 0.8 (-0.01, -0.01, -0.01) {'estimate': 0.9703333333333334, 'mcse': 0.002190378793555866, 'wilson_95': [0.965730170506508, 0.974334626125984], 'replications': 6000}\n",
-      "stderr": ""
+      "retained_output": "sensitivity-results.json",
+      "completed_file_mtime_utc": "2026-10-24T10:24:29.873Z"
     }
   ],
   "sha256": {
-    "allocation.py": "9c3e570e1718943bfc6c314c43dcde2b2d372ed56ed2230265bad18ec745a4d2",
-    "sensitivity.py": "0f1b5d0de4a9b45dc737f0fa90d22c8c3f17b13f9b74212eaa30954c58124156",
-    "calculation-notes.md": "c185d46e5ef85c1cbdc0c6d2471dd8cdd2b9dab8721e80d80b18b18b50e5265e",
-    "requirements.txt": "1668a3152e33680d94637b13421c15e68bd97cd8701f7f555c691f5bc5c0b9f3",
-    "allocation-results.json": "099cae7de95874497f689d8c18bc0aef9f65358e0e903ec319e66a35086ee4d3",
-    "sensitivity-results.json": "a894c075e65c15e0975c2c31437231c98e8f0db148778ee019ba990066ed9b47"
+    "src/planning/design.rs": "27e4b1652b26895816fe04de4b267ce935db434eecb0887317374f75723ff773",
+    "src/planning/mod.rs": "e53e61c5a29fb6d5de9c739ac95eb55b3fbe8e0134c283415d53451262ac042a",
+    "src/planning/numerics.rs": "f5ae12acd2ed994ceaa63ee657df49de9e72a7683c53982a88ed75e294ecd8ea",
+    "src/planning/random.rs": "4b8b252190d42b92fce411abfdd404f2715aa248377c623a7f4cfb643a538523",
+    "src/planning/simulation.rs": "f177d302c72fea20b337f7df8d7d5ddfeccb5ff8ddc402a8a3360940ddaf4901",
+    "Cargo.toml": "3539fee64776e51e9641ff79437e8b8869eefd2096363c3a2b695d73e76bb297",
+    "Cargo.lock": "995510e5085f77175c3e19bbacdbb85a7f25b6c8da886ebd67abcf7fb70065ba",
+    "planning/allocation-results.json": "7939f47771b4d988a0d3d5e282325da65496e9d86a53d0c7e21d1daa34084b07",
+    "planning/sensitivity-results.json": "a49d5f310cec8a341f05fae05ef592283ce45c63de8d8315a0cc39dba0ec4751",
+    "planning/calculation-notes.md": "447bceb288498a65e445fcc5db9d93b8abd94634ee39dec9767e89797d51c3da"
   },
   "empirical_model_sessions": 0,
   "model_calls": 0,
   "provider_tokens": null,
-  "token_missingness_reason": "No model calls were made; token effectiveness is not measured."
+  "token_missingness_reason": "The planning commands generate synthetic scenario costs and quality differences."
 }

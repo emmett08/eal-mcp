@@ -8,12 +8,9 @@ construction, extension search and recomputed export. The server owns HTTP,
 request deadlines, concurrency and child cleanup. The browser retains its
 schema and graph checks for both imported and freshly solved snapshots.
 
-The companion integration is
-[visualiser PR #6](https://github.com/emmett08/aspic_visualisation/pull/6), tested
-at consumer revision
-[`a86e0984`](https://github.com/emmett08/aspic_visualisation/commit/a86e0984c8aa36142ba3383ade6edb5dc170b873).
-Merge the native producer change before that consumer change so its configured
-executable can be installed.
+The companion development server requires its native solver bridge and a
+configured absolute executable path. Static graph validation is checked against
+the selected consumer source file and its exact Git blob identity.
 
 ## Installation and request protocol
 
@@ -88,7 +85,7 @@ production build. It remains a trusted local development facility.
 
 ## Reproducible acceptance
 
-Normal Rust checks use no Python or Java:
+Run the native workspace checks:
 
 ```sh
 cargo test --workspace --locked
@@ -96,20 +93,40 @@ cargo fmt --all --check
 cargo clippy --workspace --all-targets --locked -- -D warnings
 ```
 
-Install all four packages from the root README into one prefix, then run the
-retained application and coordination checks:
+Install the application packages from the root README into one prefix, then run
+the native application and coordination checks:
 
 ```sh
-python tools/smoke-installed-applications.py --prefix /absolute/installed/bin
+cargo run --locked -p eal-devtools --bin eal-smoke -- applications \
+  --prefix /absolute/installed/bin
 cargo build --release --locked -p eal-coordination --example coordination_software_worker
-python tools/smoke-installed-coordination.py \
+cargo run --locked -p eal-devtools --bin eal-smoke -- coordination \
   --prefix /absolute/installed/bin \
   --worker /absolute/checkout/target/release/examples/coordination_software_worker
 ```
 
-These standard-library Python programs orchestrate native commands with child
-`PATH` empty. They retain their fresh synthetic workspaces and JSON results.
-Their orchestration is a development check, separate from production execution.
+These Rust commands launch installed executables with child `PATH` empty. They
+retain fresh synthetic workspaces and JSON reports. The application check covers
+CLI operations, evidence reuse, SDK stdio, authenticated HTTP and restricted
+packet retrieval. The coordination check covers both mailbox transports and
+lost-receipt recovery.
+
+Run the static graph consumer check with the exact pinned source file:
+
+```sh
+cargo run --locked -p eal-devtools --bin eal-smoke -- consumer \
+  --consumer /absolute/consumer/src/domain/aspic.ts \
+  --binary /absolute/installed/bin/eal-core \
+  --node /absolute/node
+```
+
+It checks authored native cases, the published schema, consumer policies and
+seven forged-graph controls. Node 24 or later runs the consumer's unchanged
+TypeScript validator. The source must have Git blob
+`16512f96824d5b218e5b790b79777a6f16217d21` from consumer revision
+`1c5523193669be98aeaa6290e54db7d91552c4de`. A downstream validator change requires
+an explicit identity update and renewed acceptance. Node and native commands
+run through the bounded native supervisor.
 
 In the consumer checkout, run the declared TypeScript, unit, build and browser
 checks, followed by the actual native bridge suite:
@@ -125,14 +142,6 @@ ASPIC_SOLVER_EXECUTABLE=/absolute/installed/bin/eal-aspic-solve npm run test:bro
 ```
 
 The static suite exercises file imports and graph inspection. The native suite
-submits theories through the real local HTTP bridge and native executable.
-Neither suite establishes measurement authenticity, correspondence between
-formal atoms and prose, or improvements in model or operator decisions.
-
-The retained producer and consumer changes passed the complete native workspace
-check (386 tests, formatting and all-target Clippy), 81 consumer unit tests,
-type checking and the production build. Browser checks passed 12 static cases
-and five actual native cases using Node 24.19.0, Playwright 1.58.2 and Chromium
-143.0.7499.0 on Linux. The native cases cover the engineering demo's exact undercut
-and surviving route, preferred query versus grounded labels, stable
-`no_extension`, incomplete-result preservation and partial last-link priority.
+submits theories through the local HTTP bridge and executable. These checks
+cover software integration. Claims about external observations and decisions
+require separate evidence.

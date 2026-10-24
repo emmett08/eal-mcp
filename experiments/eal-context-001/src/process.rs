@@ -1,0 +1,194 @@
+//! Bounded native process execution for the isolated diagnostics.
+use std::{
+    ffi::OsString,
+    io::{Read, Write},
+    path::{Path, PathBuf},
+    process::{Child, Command, Stdio},
+    sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    },
+    thread,
+    time::{Duration, Instant},
+};
+const MAX_OUTPUT: usize = 8 * 1024 * 1024;
+const DEADLINE: Duration = Duration::from_secs(240);
+struct OwnedChild {
+    process: Child,
+    cleaned: bool,
+}
+impl Drop for OwnedChild {
+    fn drop(&mut self) {
+        if !self.cleaned {
+            terminate(&mut self.process);
+            let _ = self.process.wait();
+        }
+    }
+}
+fn terminate(child: &mut Child) {
+    #[cfg(unix)]
+    if let Some(pid) = rustix::process::Pid::from_raw(child.id() as i32) {
+        let _ = rustix::process::kill_process_group(pid, rustix::process::Signal::KILL);
+    }
+    let _ = child.kill();
+}
+fn drain(mut source: impl Read, used: Arc<AtomicUsize>) -> Result<Vec<u8>, String> {
+    let mut retained = Vec::new();
+    let mut buffer = [0u8; 8192];
+    loop {
+        let read = source.read(&mut buffer).map_err(|e| e.to_string())?;
+        if read == 0 {
+            return Ok(retained);
+        }
+        let before = used.fetch_add(read, Ordering::Relaxed);
+        let accepted = MAX_OUTPUT.saturating_sub(before).min(read);
+        retained.extend_from_slice(&buffer[..accepted]);
+    }
+}
+pub struct Output {
+    pub stdout: Vec<u8>,
+    pub stderr: Vec<u8>,
+}
+pub fn execute(
+    program: &Path,
+    args: &[OsString],
+    input: Option<&[u8]>,
+    cwd: Option<&Path>,
+    empty_path: bool,
+    expected: i32,
+) -> Result<Output, String> {
+    if input.is_some_and(|bytes| bytes.len() > 1024 * 1024) {
+        return Err("native request exceeds 1 MiB".into());
+    }
+    let mut command = Command::new(program);
+    command
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+    if let Some(cwd) = cwd {
+        command.current_dir(cwd);
+    }
+    if empty_path {
+        command.env("PATH", "");
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        command.process_group(0);
+    }
+    let mut child = OwnedChild {
+        process: command
+            .spawn()
+            .map_err(|e| format!("Cannot launch {}: {e}", program.display()))?,
+        cleaned: false,
+    };
+    let used = Arc::new(AtomicUsize::new(0));
+    let out = child.process.stdout.take().ok_or("stdout pipe absent")?;
+    let err = child.process.stderr.take().ok_or("stderr pipe absent")?;
+    let out_used = Arc::clone(&used);
+    let err_used = Arc::clone(&used);
+    let stdout = thread::spawn(move || drain(out, out_used));
+    let stderr = thread::spawn(move || drain(err, err_used));
+    let mut stdin = child.process.stdin.take().ok_or("stdin pipe absent")?;
+    let bytes = input.unwrap_or_default().to_vec();
+    let writer = thread::spawn(move || stdin.write_all(&bytes));
+    let started = Instant::now();
+    let mut failure = None;
+    let status = loop {
+        if used.load(Ordering::Relaxed) > MAX_OUTPUT {
+            failure = Some("native process exceeds combined 8 MiB output limit");
+            terminate(&mut child.process);
+            break child.process.wait().map_err(|e| e.to_string())?;
+        }
+        if started.elapsed() >= DEADLINE {
+            failure = Some("native process exceeds 240-second deadline");
+            terminate(&mut child.process);
+            break child.process.wait().map_err(|e| e.to_string())?;
+        }
+        if let Some(status) = child.process.try_wait().map_err(|e| e.to_string())? {
+            break status;
+        }
+        thread::sleep(Duration::from_millis(5));
+    };
+    // Pipe-owning descendants belong to this invocation and are cleaned before joining readers.
+    child.cleaned = true;
+    terminate(&mut child.process);
+    let stdout = stdout.join().map_err(|_| "stdout reader panicked")??;
+    let stderr = stderr.join().map_err(|_| "stderr reader panicked")??;
+    let input_result = writer.join().map_err(|_| "stdin writer panicked")?;
+    if let Some(failure) = failure {
+        return Err(failure.into());
+    }
+    if used.load(Ordering::Relaxed) > MAX_OUTPUT {
+        return Err("native process exceeds combined 8 MiB output limit".into());
+    }
+    if status.code() != Some(expected) {
+        return Err(format!(
+            "{} returned {:?}; expected {expected}; diagnostic {}",
+            program.display(),
+            status.code(),
+            String::from_utf8_lossy(&stderr[..stderr.len().min(1500)])
+        ));
+    }
+    input_result.map_err(|e| format!("native process input failed: {e}"))?;
+    Ok(Output { stdout, stderr })
+}
+pub fn executable(name: &str) -> Result<PathBuf, String> {
+    let path = Path::new(name);
+    if path.components().count() > 1 {
+        if !path.is_file() {
+            return Err(format!(
+                "Selected executable does not exist: {}",
+                path.display()
+            ));
+        }
+        return std::path::absolute(path).map_err(|e| e.to_string());
+    }
+    for directory in std::env::split_paths(&std::env::var_os("PATH").unwrap_or_default()) {
+        let path = directory.join(name);
+        if path.is_file() {
+            // Preserve the selected basename for multicall launchers such as rustup's cargo.
+            return std::path::absolute(path).map_err(|e| e.to_string());
+        }
+    }
+    Err(format!("Cannot find explicitly selected executable {name}"))
+}
+
+#[cfg(all(test, unix))]
+mod tests {
+    use super::*;
+    #[test]
+    fn native_input_and_streams_are_transferred_with_an_empty_search_path() {
+        let output = execute(
+            Path::new("/bin/cat"),
+            &[],
+            Some(b"exact native input\n"),
+            None,
+            true,
+            0,
+        )
+        .unwrap();
+        assert_eq!(output.stdout, b"exact native input\n");
+        assert!(output.stderr.is_empty());
+    }
+    #[test]
+    fn nonzero_exit_is_checked_against_the_explicit_expected_status() {
+        let args = [OsString::from("-c"), OsString::from("exit 7")];
+        assert!(execute(Path::new("/bin/sh"), &args, None, None, true, 7).is_ok());
+        assert!(execute(Path::new("/bin/sh"), &args, None, None, true, 0).is_err());
+    }
+    #[test]
+    fn selected_executable_basename_survives_a_multicall_symlink() {
+        use std::os::unix::fs::symlink;
+        let directory =
+            std::env::temp_dir().join(format!("eal-executable-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir(&directory).unwrap();
+        let target = directory.join("multicall");
+        let selected = directory.join("selected");
+        std::fs::write(&target, b"synthetic executable identity").unwrap();
+        symlink(&target, &selected).unwrap();
+        assert_eq!(executable(selected.to_str().unwrap()).unwrap(), selected);
+        std::fs::remove_dir_all(directory).unwrap();
+    }
+}

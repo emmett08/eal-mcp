@@ -8,7 +8,7 @@ The coordination layer uses separate adapters for independent worker commands, E
 
 A worker's coordination-run lease directory differs from its execution workspace. The supervisor inherits that run lease and releases it after stopping and reaping the command's process group. The coordinator's `lifecycle.lock` is separate. An EAL gateway can therefore acquire the workspace's observation lease without competing with its worker's run lease.
 
-`software_test` accepts one strict JSON response object. `provider` and `actual_host_agent` command modes require a closed response/execution envelope with an external execution ID and optional model and usage data. A command cannot replace that external ID with its local call ID or a `command:` ID. The receipt is recorded as `operator_command_assertion`; it does not independently authenticate a provider or establish that a model ran. Manual recording retains the source's separate rule allowing an unwrapped `actual_host_agent` response.
+`software_test` accepts one strict JSON response object. `provider` and `actual_host_agent` command modes require a closed response/execution envelope with an external execution ID and optional model and usage data. A command cannot replace that external ID with its local call ID or a `command:` ID. The receipt is recorded as `operator_command_assertion`; it does not independently authenticate a provider or establish that a model ran. Manual recording permits an unwrapped `actual_host_agent` response.
 
 Failures distinguish cancellation, timeout, output limit, nonzero exit, startup failure, supervisor failure, and invalid response. They retain bounded partial stdout and the actual collector status when available. The supervisor PID is observed by the parent, rather than supplied in a worker response. Live-command stderr is omitted; software-test stderr is bounded and redacts explicit environment values, including credentials that coincide with the redaction marker.
 
@@ -24,14 +24,16 @@ A durable budget gate runs before each MCP call. Traces distinguish `not_called`
 
 `PersistentMcp` owns one lazy official-SDK connection on a dedicated Tokio owner thread. Calls are serialized, discovered schemas are checked before invocation, and tool requests use `call_tool_once`. It never reconnects or repeats an uncertain request. Local/schema rejection preserves a healthy session; transport failure or an operation timeout closes it terminally. Closing before the first call starts no process. Cleanup has a bounded allowance after deadline cancellation.
 
-The native Lab runtime directory contains `eal-mas-server`. It replaces the Python virtual-environment launcher and separate codec subprocess. The server uses the retained Rust wire grammar in process; diagnostics report `codec_mode: in_process`, rather than claiming a codec process or Python SDK isolation. The bridge exposes exactly `mas_create_run`, `mas_receive`, `mas_ack`, `mas_status`, `mas_encode`, `mas_validate`, `mas_reserve_call`, `mas_finish_call`, `mas_runtime_info`, and `mas_send_envelope`.
+The native Lab runtime directory contains `eal-mas-server`. The server checks the Rust wire grammar in process and reports `codec_mode: in_process`. The bridge exposes exactly `mas_create_run`, `mas_receive`, `mas_ack`, `mas_status`, `mas_encode`, `mas_validate`, `mas_reserve_call`, `mas_finish_call`, `mas_runtime_info`, and `mas_send_envelope`.
 
 Ordinary `{ok:false,error:{code,message}}` rejection preserves the session. A malformed envelope, tool-level failure, or `CODEC_IO` closes it. Actor identity remains a trusted local host assertion. Codec admission precedes routing and store creation; encoding, runtime inspection, and rejected admission do not create a mailbox database.
 
-Absolute deadlines cover adapter admission, first-session startup, discovery, and invocation. The source separately budgeted startup and calls in its persistent wrapper; the native API makes the total bound explicit. Both connection types retain the shared MCP client policy, including disabled expired-session replay.
+Absolute deadlines cover adapter admission, first-session startup, discovery, and invocation. Both connection types retain the shared MCP client policy, including disabled expired-session replay.
 
 ## Shipped method environment
 
 Bootstrap configures the bundled native reasoning-method worker with an empty environment. These executables implement closed pure algorithms and need no inherited variables. The selected empty environment is retained in executor identity, making native method fingerprints consistent across CLI, MCP, and commands that deliberately supply a minimal private environment. Custom `WorkerCommand` environments and collector bindings retain their explicit operator configuration.
 
-This changes fingerprints from earlier supervised native registries that included inherited environment variables. Re-registering a catalogue source creates a revision with the new method identity. Existing assessments retain their original identities; they are not silently relabelled.
+Changing a selected method environment changes its fingerprint. Registering the
+catalogue source records a new immutable method revision. Existing assessments
+retain their original identities.

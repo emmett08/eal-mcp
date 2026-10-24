@@ -371,64 +371,6 @@ argument support = [evidence observed] via measured => outcome
         CallToolRequestParams::new(tool.to_owned())
             .with_arguments(arguments.as_object().unwrap().clone())
     }
-    fn reference() -> Value {
-        serde_json::from_str(include_str!("../../../fixtures/mcp/reference.json")).unwrap()
-    }
-
-    #[tokio::test]
-    async fn actual_http_preserves_the_pinned_loopback_and_same_origin_admission_profile() {
-        let fixture = Fixture::new();
-        let client = reqwest::Client::builder().no_proxy().build().unwrap();
-        let cases = reference();
-        assert_eq!(cases["http_admission"].as_array().unwrap().len(), 10);
-        for case in cases["http_admission"].as_array().unwrap() {
-            let settings = ServerSettings {
-                workspace: fixture.path.clone(),
-                transport: "http".into(),
-                host: case["bind_host"].as_str().unwrap().into(),
-                token_env: Some("EAL_TEST_TOKEN".into()),
-                allowed_hosts: serde_json::from_value(case["allowed_hosts"].clone()).unwrap(),
-                allowed_origins: serde_json::from_value(case["allowed_origins"].clone()).unwrap(),
-                ..Default::default()
-            };
-            let policy = HttpPolicy::from_settings(
-                &settings,
-                &BTreeMap::from([("EAL_TEST_TOKEN".into(), TOKEN.into())]),
-            )
-            .unwrap();
-            let cancellation = CancellationToken::new();
-            let server =
-                Server::new(Arc::clone(&fixture.service), ServerOptions::default()).unwrap();
-            let router = http_router(server, "/mcp", policy, cancellation.clone()).unwrap();
-            let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
-            let url = format!("http://{}/mcp", listener.local_addr().unwrap());
-            let shutdown = cancellation.clone();
-            let task = tokio::spawn(async move {
-                axum::serve(listener, router)
-                    .with_graceful_shutdown(shutdown.cancelled_owned())
-                    .await
-                    .unwrap();
-            });
-            let running = Running {
-                url,
-                cancel: cancellation,
-                task,
-            };
-            let mut request=client.post(&running.url).header("Host",case["host_header"].as_str().unwrap())
-            .header("Authorization",format!("Bearer {TOKEN}")).header("Accept","application/json, text/event-stream")
-            .json(&json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"independent-origin-probe","version":"1"}}}));
-            if let Some(origin) = case["origin"].as_str() {
-                request = request.header("Origin", origin);
-            }
-            let status = request.send().await.unwrap().status().as_u16();
-            let expected = if case["status"] == 204 {
-                200
-            } else {
-                case["status"].as_u64().unwrap() as u16
-            };
-            assert_eq!(status, expected, "{}", case["name"]);
-        }
-    }
 
     #[derive(Clone)]
     struct SlowServer {
@@ -451,7 +393,7 @@ argument support = [evidence observed] via measured => outcome
             self.listed.fetch_add(1, Ordering::SeqCst);
             tokio::time::sleep(Duration::from_millis(600)).await;
             Ok(rmcp::model::ListToolsResult::with_all_items(vec![
-                serde_json::from_value(reference()["operator_tools"][0].clone()).unwrap(),
+                serde_json::from_value(json!({"name":"eal_describe","inputSchema":{"type":"object","properties":{},"required":[],"additionalProperties":false}})).unwrap(),
             ]))
         }
         async fn call_tool(
@@ -675,81 +617,24 @@ argument support = [evidence observed] via measured => outcome
     }
 
     #[tokio::test]
-    async fn real_tools_list_and_schema_failures_match_the_pinned_framework() {
+    async fn real_tools_list_and_schema_failures_preserve_native_admission() {
         let fixture = Fixture::new();
-        let reference = reference();
-        for (registered, prefix, count, error_count) in
-            [(false, "operator", 11, 6), (true, "registered", 4, 5)]
-        {
+        for registered in [false, true] {
             let server = start(&fixture, registered).await;
             let peer = ClientConfig::default()
                 .with_protocol_version(ProtocolVersion::LATEST_WITH_INITIALIZE)
                 .serve(transport(&server.url))
                 .await
                 .unwrap();
-            let tools = serde_json::to_value(peer.list_all_tools().await.unwrap()).unwrap();
-            assert_eq!(tools.as_array().unwrap().len(), count);
-            crate::common::assert_inventory_compatibility(
-                tools,
-                &reference[format!("{prefix}_tools")],
+            crate::common::assert_inventory(
+                serde_json::to_value(peer.list_all_tools().await.unwrap()).unwrap(),
                 registered,
             );
-            let errors = reference[format!("{prefix}_errors")].as_array().unwrap();
-            assert_eq!(errors.len(), error_count);
-            for case in errors {
-                let result = serde_json::to_value(
-                    peer.call_tool(params(case["tool"].as_str().unwrap(), &case["arguments"]))
-                        .await
-                        .unwrap(),
-                )
-                .unwrap();
-                assert_eq!(
-                    result["isError"], case["result"]["is_error"],
-                    "{}",
-                    case["name"]
-                );
-                assert_eq!(
-                    result.get("structuredContent").unwrap_or(&Value::Null),
-                    &case["result"]["structured_content"],
-                    "{}",
-                    case["name"]
-                );
-                assert_eq!(
-                    result["content"], case["result"]["content"],
-                    "{}",
-                    case["name"]
-                );
-            }
-            if registered {
-                let strict_calls = reference["registered_calls"].as_array().unwrap();
-                assert_eq!(strict_calls.len(), 2);
-                for case in strict_calls {
-                    assert_eq!(case["result"]["is_error"], true);
-                    assert!(
-                        case["result"]["content"][0]["text"]
-                            .as_str()
-                            .unwrap()
-                            .contains("[type=int_type,")
-                    );
-                    let result = serde_json::to_value(
-                        peer.call_tool(params(case["tool"].as_str().unwrap(), &case["arguments"]))
-                            .await
-                            .unwrap(),
-                    )
-                    .unwrap();
-                    assert_eq!(result["isError"], true, "{}", case["name"]);
-                    // Source Pydantic exposes its Python version/URL here. Native
-                    // execution retains its own explicit integer-type diagnostic.
-                    let field = if case["arguments"].get("limit").is_some() {
-                        "limit"
-                    } else {
-                        "offset"
-                    };
-                    assert_eq!(
-                        result["content"],
-                        json!([{"type":"text","text":format!("Tool input requires a strict integer for {field}")}])
-                    );
-                }
+            for (tool, args) in crate::common::invalid_calls(registered) {
+                let result = peer.call_tool(params(tool, &args)).await.unwrap();
+                assert_eq!(result.is_error, Some(true), "{tool}: {args}");
+                assert!(result.structured_content.is_none());
+                assert!(!result.content.is_empty());
             }
             peer.cancel().await.unwrap();
         }

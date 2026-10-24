@@ -133,19 +133,14 @@ fn server_spec_rejects_non_utf8_paths_without_lossy_identity() {
 
 #[test]
 fn finding_aggregation_uses_the_durable_record_ceiling() {
-    let fixture: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/coordination/reference.json"
-    ))
-    .unwrap();
-    let anchor = &fixture["contracts"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|case| case["op"] == "finding")
-        .unwrap()["value"];
+    let mut anchor = json!({"schema":"EAL/MAS-coordination-task/3","task":{"task_id":"bounded","question":"What does the registered sample establish?","entry_id":"sample","claims":["outcome"],"profile":"registered_claims/1","requirements":{"context":{}}},"source_digest":"a".repeat(64),"method_registry_fingerprint":"b".repeat(64),"registered_context":{},"pinned_at":"2026-10-24T10:00:00Z"});
+    anchor["task_digest"] = json!(
+        eal_core::canonical::canonical_digest(&anchor, &eal_core::ExecutionLimits::default())
+            .unwrap()
+    );
     let check = json!({"blob":"x".repeat(4 * 1024 * 1024 + 1)});
     let mut finding =
-        eal_coordination::contracts::make_finding(anchor, &check, None, None, None, None).unwrap();
+        eal_coordination::contracts::make_finding(&anchor, &check, None, None, None, None).unwrap();
     let identity = finding
         .as_object_mut()
         .unwrap()

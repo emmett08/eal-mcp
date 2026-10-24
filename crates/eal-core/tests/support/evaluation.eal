@@ -1,0 +1,45 @@
+language "EAL/3"
+
+environment lab {
+  require "site" == "bench"
+}
+
+tool runner {
+  version "1"
+}
+
+evidence observed {
+  tool runner
+  kind test
+  environment lab
+  max_age 60
+  input {"suite": "smoke"}
+  require "passed" == true
+}
+
+assumption stable {
+  statement "Configuration persists for the stated interval."
+  environment lab
+  validate observed
+  valid_from "2026-09-23T11:00:00Z"
+  valid_until "2026-09-23T13:00:00Z"
+}
+
+reasoning method {
+  method "structured/1"
+  rationale "Passing the smoke test supports this bounded test claim."
+}
+
+claim working {
+  statement "The smoke test passes."
+  environment lab
+}
+
+claim downstream {
+  statement "The follow-up conclusion follows under the declared relation."
+  environment lab
+}
+
+argument base = [evidence observed, assumptions stable] via method => working
+
+argument nested = [premises working] via method => downstream

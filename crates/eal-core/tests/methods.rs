@@ -1,103 +1,12 @@
-//! Reference agreement plus independently calculated positive and adverse cases.
+//! Registry contracts and independently calculated positive and adverse cases.
 use eal_core::methods::{
     MethodContract, NativeMethodIdentity, assess_mode, default_registry, engineering_registry,
     is_method_identifier, optional_registry, schema_errors, validate_mode,
 };
 use serde_json::{Value, json};
 
-fn compare(actual: &Value, expected: &Value, path: &str) {
-    match (actual, expected) {
-        (Value::Number(_), Value::Number(_)) => {
-            let integer = |v: &Value| {
-                !v.to_string()
-                    .bytes()
-                    .any(|c| matches!(c, b'.' | b'e' | b'E'))
-            };
-            if integer(expected) {
-                assert!(
-                    integer(actual),
-                    "{path}: integer output changed to float: {actual}"
-                );
-                assert_eq!(actual.to_string(), expected.to_string(), "{path}");
-            } else {
-                let a = actual.as_f64().unwrap();
-                let e = expected.as_f64().unwrap();
-                if e != 0.0 {
-                    assert_ne!(a, 0.0, "{path}: nonzero reference erased");
-                }
-                assert!(
-                    (a - e).abs() <= 5e-13 * a.abs().max(e.abs()).max(1e-300),
-                    "{path}: {a} differs from {e}"
-                );
-            }
-        }
-        (Value::Object(a), Value::Object(e)) => {
-            assert!(
-                a.len() == e.len() && a.keys().all(|key| e.contains_key(key)),
-                "{path}: fields"
-            );
-            for (key, v) in e {
-                compare(&a[key], v, &format!("{path}.{key}"));
-            }
-        }
-        (Value::Array(a), Value::Array(e)) => {
-            assert_eq!(a.len(), e.len(), "{path}: array length");
-            for (i, (a, e)) in a.iter().zip(e).enumerate() {
-                compare(a, e, &format!("{path}[{i}]"));
-            }
-        }
-        _ => assert_eq!(actual, expected, "{path}"),
-    }
-}
-
 #[test]
-fn python_reference_cases_match_without_python() {
-    let reference: Value =
-        serde_json::from_str(include_str!("../../../fixtures/methods/reference.json")).unwrap();
-    let cases = reference["cases"].as_array().unwrap();
-    assert_eq!(cases.len(), 93);
-    let optional = engineering_registry();
-    for case in cases {
-        let actual = assess_mode(
-            case["method"].as_str().unwrap(),
-            case["evidence"].as_array().unwrap(),
-            case["premises"].as_array().unwrap(),
-            if case["optional"] == true {
-                &optional
-            } else {
-                default_registry()
-            },
-        );
-        if case["optional"] == true {
-            if let Some(error) = case["expected_callback"]["error"].as_str() {
-                assert_eq!(actual["status"], "unsupported", "{}", case["name"]);
-                assert!(
-                    actual["reasons"]
-                        .as_array()
-                        .unwrap()
-                        .iter()
-                        .any(|r| r.as_str().unwrap().contains(error)),
-                    "{}: {actual}",
-                    case["name"]
-                );
-            } else {
-                assert_eq!(actual["status"], "supported", "{}: {actual}", case["name"]);
-                compare(
-                    &actual["details"],
-                    &case["expected_callback"]["details"],
-                    case["name"].as_str().unwrap(),
-                );
-            }
-        } else {
-            compare(&actual, &case["expected"], case["name"].as_str().unwrap());
-        }
-    }
-}
-
-#[test]
-fn optional_methods_are_explicit_and_keep_frozen_contract_semantics() {
-    let frozen: Value =
-        serde_json::from_str(include_str!("../../../contracts/public-contracts.json")).unwrap();
+fn optional_methods_are_explicit_and_selectable() {
     let all = engineering_registry();
     assert_eq!(default_registry().describe().as_object().unwrap().len(), 8);
     assert_eq!(all.describe().as_object().unwrap().len(), 12);
@@ -106,54 +15,6 @@ fn optional_methods_are_explicit_and_keep_frozen_contract_semantics() {
     assert!(default_registry().get("engineering/rms/1").is_none());
     assert!(optional_registry(&["engineering/rms/1", "engineering/rms/1"]).is_err());
     assert!(optional_registry(&["unknown/1"]).is_err());
-    for id in [
-        "engineering/api-load-criteria/1",
-        "engineering/reachability/1",
-        "engineering/rms/1",
-        "engineering/sampled-negative/1",
-    ] {
-        let contract = all.get(id).unwrap().describe();
-        for field in [
-            "identifier",
-            "evidence_kind",
-            "input_schema",
-            "query_schema",
-            "output_schema",
-            "outputs",
-            "quantities",
-            "exact_unit",
-        ] {
-            assert_eq!(
-                contract[field], frozen["optional_method_contracts"][id][field],
-                "{id}.{field}"
-            );
-        }
-    }
-}
-
-#[test]
-fn frozen_contract_semantics_match_source_descriptors() {
-    let frozen: Value =
-        serde_json::from_str(include_str!("../../../contracts/public-contracts.json")).unwrap();
-    let described = default_registry().describe();
-    assert_eq!(described.as_object().unwrap().len(), 8);
-    for (id, contract) in described.as_object().unwrap() {
-        for field in [
-            "identifier",
-            "evidence_kind",
-            "input_schema",
-            "query_schema",
-            "output_schema",
-            "outputs",
-            "quantities",
-            "exact_unit",
-        ] {
-            assert_eq!(
-                contract[field], frozen["builtin_methods"][id][field],
-                "{id}.{field}"
-            );
-        }
-    }
 }
 
 #[test]

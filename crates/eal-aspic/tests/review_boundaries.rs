@@ -1,4 +1,6 @@
 //! Independent probes of the public formal/provenance and resource boundaries.
+#[path = "../../../tests/native_case.rs"]
+mod native_case;
 use eal_aspic::{AspicError, CompileOptions, compile_eal_aspic, export_aspic_view, solve_aspic};
 use eal_core::{ExecutionLimits, canonical, methods};
 use serde_json::{Value, json};
@@ -327,8 +329,8 @@ fn exporter_keeps_installed_contract_byte_caps_when_host_limits_are_raised() {
     );
 }
 
-// Python's default JSON separators add one space per comma and colon.
-fn python_json_size(value: &Value) -> usize {
+// The bounded export representation includes one space per comma and colon.
+fn spaced_json_size(value: &Value) -> usize {
     let mut extra = 0;
     let mut pending = vec![value];
     while let Some(value) = pending.pop() {
@@ -351,14 +353,14 @@ fn python_json_size(value: &Value) -> usize {
 }
 
 #[test]
-fn fixed_export_input_limit_counts_the_exact_python_utf8_representation() {
+fn fixed_export_input_limit_counts_the_exact_wire_utf8_representation() {
     let limits = ExecutionLimits::default();
     let mut result = supplied(bare_theory(), &limits);
     result["padding"] = json!("");
-    let available = eal_aspic::export::MAX_INPUT_BYTES - python_json_size(&result);
+    let available = eal_aspic::export::MAX_INPUT_BYTES - spaced_json_size(&result);
     result["padding"] = json!("x".repeat(available));
     assert_eq!(
-        python_json_size(&result),
+        spaced_json_size(&result),
         eal_aspic::export::MAX_INPUT_BYTES
     );
     assert!(export_aspic_view(&result, &limits).is_ok());
@@ -368,9 +370,7 @@ fn fixed_export_input_limit_counts_the_exact_python_utf8_representation() {
 }
 
 fn eal_case() -> Value {
-    let fixture: Value =
-        serde_json::from_str(include_str!("../../../fixtures/semantics/reference.json")).unwrap();
-    fixture["cases"][0].clone()
+    native_case::case()
 }
 
 #[test]
@@ -420,7 +420,7 @@ fn compiled_snapshot_preserves_original_observation_age_and_binding_corresponden
     let at_boundary = compile_eal_aspic(
         source,
         &case["records"],
-        CompileOptions::new("working", "2026-09-23T12:01:00Z", &case["context"]),
+        CompileOptions::new("working", "2026-10-24T12:01:00Z", &case["context"]),
     )
     .unwrap()
     .to_dict()
@@ -428,12 +428,12 @@ fn compiled_snapshot_preserves_original_observation_age_and_binding_corresponden
     assert_eq!(at_boundary["claim_status"], "supported");
     assert_eq!(
         at_boundary["source_map"]["evidence"]["observed"]["identity"]["collected_at"],
-        "2026-09-23T12:00:00Z"
+        "2026-10-24T12:00:00Z"
     );
     let stale = compile_eal_aspic(
         source,
         &case["records"],
-        CompileOptions::new("working", "2026-09-23T12:01:00.000001Z", &case["context"]),
+        CompileOptions::new("working", "2026-10-24T12:01:00.000001Z", &case["context"]),
     )
     .unwrap()
     .to_dict()
@@ -538,8 +538,8 @@ fn incomplete_local_method_never_creates_a_compiled_formal_snapshot() {
             1,
         )
         .replace(
-            "argument nested = [premises working] via method",
-            "argument nested = [premises working] via alternative_method",
+            "argument propagate = [premises working] via measured => downstream\n",
+            "",
         );
     // The record must correspond to the exact changed source before the local method can run.
     let program =

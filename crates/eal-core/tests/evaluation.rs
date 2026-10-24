@@ -3,23 +3,31 @@ use eal_core::{
     ExecutionLimits, canonical, composition, evaluation, methods, semantic::Program, validation,
 };
 use serde_json::{Value, json};
+const SOURCE: &str = include_str!("support/evaluation.eal");
+const NOW: &str = "2026-09-23T12:00:00Z";
+
+fn observation(program: &Program, context: &Value) -> Value {
+    let evidence = &program.evidence["observed"];
+    let tool = &program.tools[&evidence.tool];
+    let acquisition = json!({"tool":tool.name,"tool_version":tool.version,"input":evidence.input,"context":context});
+    let request = json!({"evidence_id":"observed","environment":evidence.environment,"tool":tool.name,"tool_version":tool.version,"input":evidence.input,"context":context});
+    let digest = |value: &Value| canonical::canonical_digest(value, &program.limits).unwrap();
+    let value = json!({"passed":true});
+    json!({"evidence_id":"observed","source_digest":program.source_digest,
+        "tool":tool.name,"tool_version":tool.version,"tool_binding_digest":"0".repeat(64),
+        "evidence_kind":evidence.kind,"environment":evidence.environment,
+        "environment_fingerprint":evaluation::environment_fingerprint(&evidence.environment,context,&program.limits).unwrap(),
+        "input_digest":digest(&evidence.input),"input":evidence.input,"context":context,
+        "acquisition_request_digest":digest(&acquisition),"acquisition_request":acquisition,
+        "request_digest":digest(&request),"collected_at":NOW,"run_id":"native-test-observation",
+        "status":"ok","data_digest":digest(&value),"value":value})
+}
+
 fn baseline() -> (Program, Value, Value, String) {
-    let fixture: Value =
-        serde_json::from_str(include_str!("../../../fixtures/semantics/reference.json")).unwrap();
-    let case = &fixture["cases"][0];
-    let program = composition::compile(
-        case["source"].as_str().unwrap(),
-        None,
-        "",
-        ExecutionLimits::default(),
-    )
-    .unwrap();
-    (
-        program,
-        case["records"].clone(),
-        case["context"].clone(),
-        case["now"].as_str().unwrap().into(),
-    )
+    let program = composition::compile(SOURCE, None, "", ExecutionLimits::default()).unwrap();
+    let context = json!({"site":"bench"});
+    let records = json!({"observed":observation(&program,&context)});
+    (program, records, context, NOW.into())
 }
 
 #[test]
@@ -179,11 +187,7 @@ fn maximum_premise_edge_depth_is_safe_and_one_less_budget_rejects() {
     std::thread::Builder::new()
         .stack_size(2 * 1024 * 1024)
         .spawn(|| {
-            let fixture: Value =
-                serde_json::from_str(include_str!("../../../fixtures/semantics/reference.json"))
-                    .unwrap();
-            let case = &fixture["cases"][0];
-            let mut source = case["source"].as_str().unwrap().to_owned();
+            let mut source = SOURCE.to_owned();
             for index in (0..=128).rev() {
                 source.push_str(&format!(
                     "\nclaim c{index} {{\nstatement \"Scoped chain claim\"\nenvironment lab\n}}\n"
@@ -198,25 +202,13 @@ fn maximum_premise_edge_depth_is_safe_and_one_less_budget_rejects() {
             }
             let mut program =
                 composition::compile(&source, None, "", ExecutionLimits::default()).unwrap();
-            let mut records = case["records"].clone();
-            records["observed"]["source_digest"] = json!(program.source_digest);
-            let result = evaluation::evaluate_default(
-                &program,
-                &records,
-                case["now"].as_str().unwrap(),
-                &case["context"],
-            )
-            .unwrap();
+            let context = json!({"site":"bench"});
+            let records = json!({"observed":observation(&program,&context)});
+            let result = evaluation::evaluate_default(&program, &records, NOW, &context).unwrap();
             assert_eq!(result["valid"], true, "{}", result["diagnostics"]);
             assert_eq!(result["claims"]["c128"]["status"], "supported");
             program.limits.premise_depth = 127;
-            let rejected = evaluation::evaluate_default(
-                &program,
-                &records,
-                case["now"].as_str().unwrap(),
-                &case["context"],
-            )
-            .unwrap();
+            let rejected = evaluation::evaluate_default(&program, &records, NOW, &context).unwrap();
             assert_eq!(rejected["valid"], false);
             assert_eq!(rejected["claims"], json!({}));
         })

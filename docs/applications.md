@@ -4,8 +4,7 @@ The native application layer provides `eal`, `eal-mcp` and `eal-host`. All use
 the same reasoning contracts and configured runtime. The
 [coordination layer](coordination.md) adds `eal-coordinate`, and the
 [visualiser adapter](native-visualiser.md) provides the explicit theory-to-view
-process. The source reference remains
-`earl@e2d6f346`; the source repository and grammar are unchanged.
+process.
 
 ## Installation
 
@@ -27,7 +26,7 @@ The MCP package installs `eal-mcp` and `eal-host`; coordination installs
 `eal-coordinate`, `eal-mas-server` and `mas-protocol-codec`. Runtime commands resolve their companion
 executables beside themselves. The CLI also accepts operator-owned
 `--supervisor` and `--method-worker` paths. `eal-host` launches the installed
-sibling `eal-mcp` by default. No normal operation invokes Python or Java.
+sibling `eal-mcp` by default. Production commands run native Rust executables.
 
 The durable runtime currently requires POSIX ownership, file modes and process
 facilities. Windows builds retain an explicit private-store refusal because
@@ -99,13 +98,6 @@ the same. History selects exact source and context identities and returns run
 metadata, rather than observation values. It does not turn a historical result
 into a fresh observation.
 
-The native adapter intentionally fixes the pinned source's nested default-ID
-refresh bug. A generated ID such as `nested/case.eal` remains valid when an
-existing entry refreshes; the source mistakenly rechecks it as an explicit
-developer ID and rejects `/`. Public registration still applies the explicit-ID
-regex to newly supplied IDs. A retained oracle witness records the source
-failure and native tests cover registration, refresh and registered assessment.
-
 Registered assessment plans the complete support, objection and defence closure.
 The default `compatible` policy selects successful stored readings only when
 their request, scoped context, current binding and command-environment identities
@@ -156,17 +148,12 @@ tools accept optional byte and statement budgets through `packet_limits`. See
 for admission limits, historical semantics and model input guidance. Calls that
 omit the new options retain their existing response data.
 
-Strict integer fields reject integral floats such as `1.0`, preserving the
-source rejection outcome with the native diagnostic
+Strict integer fields reject integral floats such as `1.0` with the diagnostic
 `Tool input requires a strict integer for FIELD`. HTTP paths are literal: braces
 are rejected instead of selecting framework route parameters. Host, Origin and
 bearer policy is checked before SDK dispatch. For configuration precedence,
 authentication, deadlines, HTTP redaction and the one-request `eal-host` client,
 see [text host and HTTP policy](text-host.md).
 
-Retained application references cover catalogue metadata/history, packet/context
-projections, discovery, MCP descriptors and rejected requests, and host policy.
-Native tests add registered reuse, transport and cancellation regressions.
-These checks describe the exercised cases. [Coordination](coordination.md) adds
-durable role-scoped task execution; the visualiser's native live-solver bridge
-and complete installed-package acceptance remain outstanding.
+Native tests exercise registered reuse, MCP transport admission, cancellation and
+packet retrieval. [Coordination](coordination.md) adds durable role-scoped task execution.

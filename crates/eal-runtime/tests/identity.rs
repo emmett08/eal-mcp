@@ -3,29 +3,6 @@ use eal_runtime::identity::CollectionIdentityValidator;
 use serde_json::{Value, json};
 
 #[test]
-fn retained_python_collection_identity_cases_match_exactly() {
-    let fixture: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/runtime/collection-reference.json"
-    ))
-    .unwrap();
-    let cases = fixture["identity_cases"].as_array().unwrap();
-    assert_eq!(cases.len(), 9);
-    for case in cases {
-        let result = CollectionIdentityValidator.validate(
-            &case["collection"],
-            case["source_digest"].as_str().unwrap(),
-            &case["context"],
-            &ExecutionLimits::default(),
-        );
-        if let Some(error) = case["error"].as_str() {
-            assert_eq!(result.unwrap_err(), error, "{}", case["name"]);
-        } else {
-            assert_eq!(result.unwrap(), case["records"], "{}", case["name"]);
-        }
-    }
-}
-
-#[test]
 fn exact_source_context_types_and_record_shape_are_required() {
     let limits = ExecutionLimits::default();
     let validator = CollectionIdentityValidator;

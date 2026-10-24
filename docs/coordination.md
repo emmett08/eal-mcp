@@ -48,16 +48,15 @@ with optional `budgets` and `transport` only. For example:
 The server has exactly those five fields. Optional values can be `null`; the
 default database is `workspace/.eal/runs.sqlite3`. Paths resolve when the
 specification is admitted. Native method selections are `builtin`, `engineering`,
-`aspic` and `all`, replacing Python import factories. Existing runs accept no
+`aspic` and `all`. Existing runs accept no
 command-line server overrides.
 
 Shipped pure method workers use an empty environment consistently across CLI,
 MCP and worker gateway processes. Custom `WorkerCommand` environments and
 collector environment policies remain explicit and retain their exact identities.
-This changes the supervised method identity from the earlier application stage:
-catalogue refresh records a new immutable method revision, while old assessments
-retain their original fingerprint. A run pinned to an earlier fingerprint
-requires a new task pin.
+Catalogue refresh records a new immutable revision when its method identity
+changes. Existing assessments retain their original fingerprint. A task pin
+requires the current registered method identity.
 
 A task has exactly `task_id`, `question`, `entry_id`, `claims`, `profile` and
 `requirements`. It selects one to sixteen unique claims. Registration and task
@@ -186,8 +185,7 @@ Status distinguishes ready roles, `awaiting_worker_result`, `delivery_pending`,
 Failed, cancelled or expired results and rejected records exit with status 1.
 Successful unassessed answers and uncertain reservations retain their typed JSON
 status with exit 0. Usage errors exit 2. Other failures emit a native error
-object on stderr and exit 1. Successful exports return exit 0, correcting the
-source CLI's set-membership error on their nested status object.
+object on stderr and exit 1. Successful exports return exit 0.
 
 | Frozen budget | Default | Maximum |
 | --- | ---: | ---: |
@@ -211,21 +209,19 @@ Native CLI specification, demo and environment files are regular-file reads
 bounded at 4 MiB. External response files have a 16 MiB hard bound: bytes above
 the frozen run output budget but within that bound are retained and rejected;
 files above the hard bound fail before record commitment. Coordination JSON has
-a hard depth ceiling of 128. Task JSON retains its narrower source bounds.
+a hard depth ceiling of 128. Task JSON has narrower structural bounds.
 
 ## Native mailbox transport and codec
 
 The default `{"kind":"json"}` uses a durable local SQLite mailbox. Select
 `{"kind":"lab","runtime":"/absolute/installed/bin"}` in the run specification,
 or `start --runtime /absolute/installed/bin`, for a persistent native MCP mailbox.
-That directory must contain `eal-mas-server`. It is an executable installation
-directory, replacing the source adapter's external Python Lab checkout.
+That directory must contain `eal-mas-server`. It is an executable installation directory.
 
 `eal-mas-server --database ABSOLUTE_PATH` exposes the frozen mailbox, reservation,
 completion and codec operations over the official Rust MCP SDK. The pinned nom
 codec runs in process; `mas-protocol-codec` also exposes its bounded one-shot and
-line-oriented control interfaces. No Python interpreter or Python codec bridge
-is involved. Combined message admission validates complete JSON, canonical wire
+line-oriented control interfaces. Combined message admission validates complete JSON, canonical wire
 text and complete parsing before the mailbox transaction. Domain contracts keep
 `EAL/MAS-coordination/3`; the independent transport envelope remains version 1.
 
@@ -238,44 +234,31 @@ rules; transport syntax alone establishes no model-quality advantage.
 
 ## Checks and trust boundary
 
-Retained references cover pure task/answer contracts, codec admission and native
-mailbox operations. Native tests exercise both profiles, actual MCP retrieval,
-manual and command workers, original assessment identities/times, quotas,
-cancellation and recovery. The pure profile fixture contains 25 requirement
-checks and 20 answer-diagnostic checks. Python is a development reference only;
-normal tests execute native code.
-
-Installed-package smoke checks run all four production entry points with Python
-absent from child executable lookup. Coordination completed four runs under the
-engineering registry: two with the JSON mailbox and two with native Lab MCP. The first
-collected one observation; the other three reused it. Checks retained exact
-scoped answers, assessment IDs/times, response bytes and hashes, and distinct
-command execution receipts. Each run used six MCP calls and two gateway calls;
-`resume` and repeated `execute` added no calls or executions.
-
-A separate receipt-loss check rejected the coordination commit after an actual
-application assessment had persisted. Recovery returned `effect_outcome_unknown`
-without another assessment or MCP call. An exact manual software assessor
-disposition and a reviewer-only command completed with `unresolved` and null
-unassessed claim fields. These workers were deterministic software fixtures;
-no model or provider executed. Final combined acceptance with the visualiser
-remains separate from these installed application checks.
-
-Reproduce the installed coordination checks after installing all four packages
-into one prefix:
+Native tests exercise both correspondence profiles, actual MCP retrieval, manual
+and command workers, assessment identities and times, quotas, cancellation and
+recovery. Installed acceptance uses `eal-smoke coordination` with a fresh
+synthetic observation and explicit native worker executable.
 
 ```sh
-cargo build --release --locked -p eal-coordination --example coordination_software_worker
-python tools/smoke-installed-coordination.py \
+cargo build --workspace --locked
+cargo build --locked -p eal-coordination --example coordination_software_worker
+target/debug/eal-smoke coordination \
   --prefix /absolute/installed/bin \
-  --worker /absolute/checkout/target/release/examples/coordination_software_worker
+  --worker /absolute/checkout/target/debug/examples/coordination_software_worker
 ```
 
-The smoke tool uses only Python's standard library for development orchestration.
-Its native children run with `PATH` empty. It creates a fresh temporary workspace
-and retains exports plus `smoke-result.json`; `--workspace DIRECTORY` selects an
-explicit fresh location. Production binaries and normal Rust tests require no
-Python installation.
+The acceptance command executes two runs with the JSON mailbox and two with the
+native persistent MCP mailbox. It checks scoped answers, assessment IDs and
+times, exact response bytes and hashes, distinct execution receipts, compatible
+observation reuse and replay without new calls or executions. A separate injected
+receipt-commit failure checks recovery after an application assessment has
+persisted. An exact manual assessor disposition and a reviewer-only command then
+complete with `unresolved` and null unassessed fields.
+
+All native children run with `PATH` empty. The command retains exports and
+`smoke-result.json` in a fresh workspace. Supply `--workspace DIRECTORY` to
+select its location. See [native installed acceptance](native-smoke.md) for
+process, stream and deadline bounds.
 
 This is a trusted single-host process on a local filesystem. Role restrictions
 do not isolate shared filesystem permissions or authenticate measurements.

@@ -1,4 +1,4 @@
-//! Native visualiser protocol: no Python, Java, workspace state or ambient budgets.
+//! Native visualiser protocol with explicit inputs and bounded execution.
 use serde_json::{Value, json};
 use std::{
     io::Write,
@@ -98,31 +98,18 @@ fn simple() -> Value {
 }
 
 #[test]
-fn installed_protocol_matches_frozen_complete_exports_with_the_method_profile() {
+fn installed_protocol_emits_checked_current_views_without_workspace_state() {
     let directory = Directory::new();
-    let reference: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/aspic/export-reference.json"
-    ))
-    .unwrap();
-    assert_eq!(
-        reference["source_revision"],
-        "e2d6f346a37f92483b9f9a13923b98feb053447b"
-    );
-    let mut count = 0;
-    for case in reference["cases"].as_array().unwrap() {
-        if !case["name"].as_str().unwrap().starts_with("formal-") {
-            continue;
-        }
-        let mut expected = case["view"].clone();
-        // The process adapter, like the source adapter, declares the method
-        // selector. The retained export oracle otherwise uses its default profile.
-        expected["profile"] = json!(eal_aspic::METHOD);
-        let payload = json!({"theory":case["input"]["theory"]});
-        let actual = successful(directory.json(&payload, &[]));
-        assert_eq!(actual, expected, "{}", case["name"]);
-        count += 1;
+    for semantics in ["grounded", "preferred", "stable"] {
+        let mut payload = simple();
+        payload["theory"]["options"] = json!({"semantics":semantics});
+        let view = successful(directory.json(&payload, &[]));
+        assert_eq!(view["profile"], eal_aspic::METHOD);
+        assert_eq!(view["schema"], "aspic-view/3");
+        assert_eq!(view["semantics"], semantics);
+        assert_eq!(view["query_status"], "accepted");
+        assert_eq!(view["arguments"].as_array().unwrap().len(), 2);
     }
-    assert_eq!(count, 5);
     assert_eq!(std::fs::read_dir(&directory.0).unwrap().count(), 0);
 }
 

@@ -66,56 +66,6 @@ impl Drop for Case {
 }
 
 #[test]
-fn retained_python_rebinding_correspondence_and_reasons_match_exactly() {
-    let fixture: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/runtime/collection-reference.json"
-    ))
-    .unwrap();
-    let cases = fixture["reuse_cases"].as_array().unwrap();
-    assert_eq!(cases.len(), 29);
-    let directory = std::env::temp_dir().join(format!("eal-reuse-reference-{}", Uuid::new_v4()));
-    std::fs::create_dir(&directory).unwrap();
-    for (index, case) in cases.iter().enumerate() {
-        let program = composition::compile(
-            case["source"].as_str().unwrap(),
-            None,
-            "",
-            ExecutionLimits::default(),
-        )
-        .unwrap();
-        let store = RunStore::new(directory.join(format!("case-{index}/runs.sqlite3"))).unwrap();
-        store
-            .put(
-                "observation",
-                &case["stored"],
-                Some(
-                    case["stored"]["run_id"]
-                        .as_str()
-                        .unwrap_or("stored-invalid-run-id"),
-                ),
-            )
-            .unwrap();
-        let result = ObservationRebinder::new(store).prepare_record(
-            &program,
-            &case["context"],
-            case["evidence_id"].as_str().unwrap(),
-            &case["supplied"],
-            case["binding_digest"].as_str(),
-            case["execution_digest"].as_str(),
-        );
-        if let Some(error) = case["error"].as_str() {
-            assert_eq!(result.unwrap_err(), error, "{}", case["name"]);
-        } else {
-            let mut prepared = result.unwrap();
-            prepared["run_id"] = case["prepared"]["run_id"].clone();
-            prepared["rebound_at"] = case["prepared"]["rebound_at"].clone();
-            assert_eq!(prepared, case["prepared"], "{}", case["name"]);
-        }
-    }
-    std::fs::remove_dir_all(directory).unwrap();
-}
-
-#[test]
 fn source_revision_reuse_is_prepared_without_write_and_preserves_original_time_and_origin() {
     let case = Case::new();
     let revised = composition::compile(

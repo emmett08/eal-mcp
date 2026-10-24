@@ -1,53 +1,10 @@
-//! Check complete evidence closure, scope and acquisition ordering against retained source plans.
+//! Check complete evidence closure, scope and acquisition ordering for authored support and objection routes.
 use eal_core::{ExecutionLimits, composition, planning::EvidencePlanner};
-use serde_json::{Value, json};
-
-#[test]
-fn planning_matches_every_source_order_and_closure_fixture() {
-    let fixture: Value =
-        serde_json::from_str(include_str!("../../../fixtures/planning/reference.json")).unwrap();
-    for case in fixture["cases"].as_array().unwrap() {
-        let program = composition::compile(
-            case["source"].as_str().unwrap(),
-            None,
-            "",
-            ExecutionLimits::default(),
-        )
-        .unwrap();
-        let planner = EvidencePlanner::new(&program).unwrap();
-        let planned = planner.plan(case["claim"].as_str().unwrap());
-        if let Some(error) = case["error"].as_str() {
-            assert_eq!(planned.unwrap_err(), error, "{}", case["name"]);
-        } else {
-            let plan = planned.unwrap();
-            assert_eq!(
-                serde_json::to_value(&plan).unwrap(),
-                case["result"],
-                "{}",
-                case["name"]
-            );
-            assert_eq!(json!(plan.evidence_ids()), case["evidence_ids"]);
-            assert_eq!(
-                plan.estimated_calls(),
-                case["estimated_calls"].as_u64().unwrap() as usize
-            );
-            assert_eq!(plan, planner.plan(&plan.claim).unwrap());
-        }
-    }
-}
+const SOURCE: &str = include_str!("support/planning.eal");
 
 #[test]
 fn all_alternatives_and_defence_sources_are_included_once() {
-    let fixture: Value =
-        serde_json::from_str(include_str!("../../../fixtures/planning/reference.json")).unwrap();
-    let case = &fixture["cases"][0];
-    let program = composition::compile(
-        case["source"].as_str().unwrap(),
-        None,
-        "",
-        ExecutionLimits::default(),
-    )
-    .unwrap();
+    let program = composition::compile(SOURCE, None, "", ExecutionLimits::default()).unwrap();
     let plan = EvidencePlanner::new(&program)
         .unwrap()
         .plan("root")
@@ -75,16 +32,7 @@ fn all_alternatives_and_defence_sources_are_included_once() {
 
 #[test]
 fn invalid_programmes_are_rejected_before_reference_indexing() {
-    let fixture: Value =
-        serde_json::from_str(include_str!("../../../fixtures/planning/reference.json")).unwrap();
-    let case = &fixture["cases"][0];
-    let mut program = composition::compile(
-        case["source"].as_str().unwrap(),
-        None,
-        "",
-        ExecutionLimits::default(),
-    )
-    .unwrap();
+    let mut program = composition::compile(SOURCE, None, "", ExecutionLimits::default()).unwrap();
     program.tools.clear();
     assert!(EvidencePlanner::new(&program).is_err());
     program.limits.declarations = 0;

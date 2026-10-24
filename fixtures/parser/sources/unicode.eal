@@ -1,8 +1,0 @@
-// café 😀 before the first token
-language "EAL/3"
-/* β
-𝄞 */
-claim sensor {
-  statement "Sensor 😀\ud83d\ude00 \u03b1 café \"quoted\" slash\/ tab\t"
-  environment lab
-}

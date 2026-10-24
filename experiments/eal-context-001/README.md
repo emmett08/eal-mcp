@@ -1,93 +1,81 @@
-# EAL packet context experiment
+# EAL packet context diagnostics
 
-[EAL-CONTEXT-001](eal-context-experiment.md) asks whether bounded historical
-retrieval saves cumulative model tokens while preserving engineering decisions,
-objections and qualifications. The attached protocol is retained byte for byte.
-[Results](results.md) report the executed parts and the remaining empirical work.
+This independent Rust package implements the planning calculations, synthetic
+history policies and native packet diagnostics described by
+[EAL-CONTEXT-001](eal-context-experiment.md). It is excluded from the production
+workspace and has its own lockfile.
 
-**The 144-session model pilot has not run.** This directory contains executed
-planning simulations, synthetic host-policy checks and a native packet diagnostic.
-None supplies empirical model token savings or answer-quality measurements.
+The commands execute software diagnostics and assumed statistical models.
+Provider token savings and model answer quality remain unmeasured.
 
-The user explicitly requested inclusion in this repository. These optional
-research files are separate from the Rust production workspace. Normal builds,
-tests, binaries and dependencies do not invoke them. The narrow scope exception
-is recorded in the root `AGENTS.md` and [execution status](execution-status.json).
+## Build and verify
 
-## Reproduce the planning calculations
-
-Use Python 3.12 and the versions in
-[planning/requirements.txt](planning/requirements.txt). The original execution
-used Python 3.12.14. Install dependencies in a separate environment:
+Use the repository's Rust 1.90 toolchain.
 
 ```sh
-python3 -m venv /tmp/eal-context-env
-/tmp/eal-context-env/bin/python -m pip install -r experiments/eal-context-001/planning/requirements.txt
-/tmp/eal-context-env/bin/python experiments/eal-context-001/planning/allocation.py
-/tmp/eal-context-env/bin/python experiments/eal-context-001/planning/sensitivity.py
+cargo fmt --manifest-path experiments/eal-context-001/Cargo.toml --check
+cargo clippy --manifest-path experiments/eal-context-001/Cargo.toml --all-targets --locked -- -D warnings
+cargo test --manifest-path experiments/eal-context-001/Cargo.toml --locked
+cargo build --manifest-path experiments/eal-context-001/Cargo.toml --release --locked
 ```
 
-These commands overwrite the corresponding planning result JSON files. The
-[execution record](planning/execution.json) retains the original invocations,
-versions, timings and SHA-256 hashes. Each of 43 cells uses 6,000 synthetic
-studies; no provider or network calls occur. The
-[calculation notes](planning/calculation-notes.md) state assumptions and limits.
+The binary is `experiments/eal-context-001/target/release/eal-context` when no
+`CARGO_TARGET_DIR` override is selected. The tests exercise whole-exchange eviction,
+exact assessment identities, retrieval budgets, usage accounting and numerical
+calibration. Existing output files are protected. Select a fresh output path for
+each new run.
 
-## Reproduce the host-policy rehearsal
-
-The history implementation uses an injected token-counting function. Its checks
-and rehearsal use synthetic packet fixtures and a labelled byte counter. They
-exercise eviction, restoration and failure accounting without a language model.
-See [rehearsal-results.json](rehearsal-results.json) for the actual scope.
+## Planning calculations
 
 ```sh
-python3 -m unittest discover -s experiments/eal-context-001 -p test_history.py -v
-python3 experiments/eal-context-001/rehearse.py
+experiments/eal-context-001/target/release/eal-context planning allocation --output /tmp/eal-allocation.json
+experiments/eal-context-001/target/release/eal-context planning sensitivity --output /tmp/eal-sensitivity.json
 ```
 
-## Reproduce the native diagnostic
+Both commands default to 6,000 replications per cell and record their seed.
+`--replications` and `--seed` select explicit alternatives. The calculation notes
+in [planning/calculation-notes.md](planning/calculation-notes.md) define the
+assumed distributions, xoshiro256** generator and numerical profile. Reports
+identify the implemented generator and estimator. The results describe the
+selected planning assumptions.
 
-The protocol freezes reference `de3a99dfb1003f43f75d7bfe18007179ecb4f4aa`
-and candidate `71661ea05225157961fe32b355db62dac42e3bba` from PR #9.
-The experiment PR is based on current `main`; its production binary is not
-silently substituted for either experimental revision. Prepare separate clean
-checkouts and build both with the repository's pinned Rust toolchain:
+## Synthetic history rehearsal
 
 ```sh
-git fetch origin de3a99dfb1003f43f75d7bfe18007179ecb4f4aa 71661ea05225157961fe32b355db62dac42e3bba
-git worktree add --detach ../eal-context-reference de3a99dfb1003f43f75d7bfe18007179ecb4f4aa
-git worktree add --detach ../eal-context-candidate 71661ea05225157961fe32b355db62dac42e3bba
-(cd ../eal-context-reference && cargo build --workspace --locked)
-(cd ../eal-context-candidate && cargo build --workspace --locked)
-python3 experiments/eal-context-001/native_probe.py --candidate-root ../eal-context-candidate --reference-root ../eal-context-reference --output experiments/eal-context-001/native-results.json
+experiments/eal-context-001/target/release/eal-context rehearse --output /tmp/eal-rehearsal.json
 ```
 
-Use fresh checkout paths if these already exist. The diagnostic uses temporary
-private data stores, actual native processes and the stated packet budgets.
-[Native results](native-results.json) record exact revisions, binary hashes,
-checks and limitations. This is a machinery diagnostic rather than a model run.
+This runs nine scripted traces totalling 720 synthetic turns. Its common 32,768
+request ceiling is measured in serialised UTF-8 JSON bytes. Condition A retains
+packets until whole-turn emergency eviction. Condition B evicts old exchanges
+and restores the first exposed exchange from the host cache. Condition C requests
+stored packets through a three-level retrieval ladder. Failed retrieval consumes
+its selected budget level. Original assessment identities and times remain fixed.
+The report identifies the source and JSON serialisation used for its byte counts.
 
-## Run the empirical pilot next
+## Native packet comparison
 
-[execution-status.json](execution-status.json) records the missing prerequisites.
-The current host has no authenticated model endpoint exposing per-request usage.
-Native assistant delegation does not provide the controlled history, exact model
-configuration or token instrument required by this protocol.
+```sh
+experiments/eal-context-001/target/release/eal-context probe --reference-root /path/to/reference-checkout --reference-revision REFERENCE_SHA40 --candidate-root /path/to/candidate-checkout --candidate-revision CANDIDATE_SHA40 --build --output /tmp/eal-packet-comparison.json
+```
 
-Before the 11,520 scheduled user turns plus tool cycles, freeze the model,
-tokenizer, endpoint prices and monetary ceiling. Author and independently review
-24 scenario families and their event schedules, time-indexed gold and
-answerability ledgers. Integrate metered provider requests with checked
-`ModelContextBuilder` messages, actual registered tools and the host policies.
-Reconcile raw provider usage and validate the six end-to-end calibration cases.
-Then assign two blinded assessors for every primary decision answer.
+Replace both revision arguments with exact 40-digit commit identities. The command
+requires distinct clean checkouts. `--build` compiles the CLI, MCP server and
+runtime companions into each checkout's `target/debug` directory. `--cargo PATH`
+and `--git PATH` explicitly select development executables. Without `--build`,
+prepare those binaries beforehand. Reports record source revisions, binary hashes
+and whether this invocation rebuilt them.
 
-The synthetic rehearsal cases are machinery fixtures. They do not meet those
-scenario-authoring, provider-instrumentation or independent-scoring requirements.
-[record-schema.json](record-schema.json) remains the protocol's planned logging
-field contract; it is not an executable JSON Schema or a completed event logger.
-The research runner for live model sessions remains to be implemented.
+Native diagnostic children receive an empty `PATH`. Commands have a 240-second
+deadline and a combined 8 MiB output allowance. The trusted local run owns the
+children and their process groups. It removes temporary private stores on exit.
 
-Keep the original pilot and confirmation separate. Planning simulations do not
-establish the empirical variance, final allocation, practical acceptance of the
-quality margins or production readiness.
+The diagnostic exercises actual `eal-host` to MCP stdio to `eal-mcp` requests.
+It checks default packet compatibility, stored retrieval without new records,
+original identity and time after source edits, registered allowlists, model
+context and private-observation exclusion. Packet byte counts and hashes use the
+raw JSON packet carried by MCP. The cross-revision comparison normalises only
+assessment, collection and observation identifiers.
+
+[Results](results.md) distinguish executed diagnostics from the unrun model-session
+study. These tools perform no provider requests and assign no model quality scores.

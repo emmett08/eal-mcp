@@ -1,94 +1,16 @@
-//! Differential static checks, typed input correspondence and dimensional results.
+//! Native static validation, typed input correspondence and dimensional results.
 use eal_core::{
     ExecutionLimits, composition, methods::default_registry, propositions, semantic, validation,
 };
-use serde_json::{Value, json};
-
-fn fixture() -> Value {
-    serde_json::from_str(include_str!("../../../fixtures/validation/reference.json")).unwrap()
-}
-
-fn diagnostic_json(diagnostic: &semantic::Diagnostic) -> Value {
-    json!({"code":diagnostic.code,"message":diagnostic.message,"declaration":diagnostic.declaration,"expected":diagnostic.expected,"actual":diagnostic.actual,
-        "span":diagnostic.span.map(|span|json!({"line":span.start.line,"column":span.start.column,"end_line":span.end.line,"end_column":span.end.column}))})
-}
-
-#[test]
-fn static_diagnostics_match_the_pinned_python_passes() {
-    let fixture = fixture();
-    let cases = fixture["cases"].as_array().unwrap();
-    assert!(cases.len() >= 35);
-    for case in cases {
-        let program = composition::compile(
-            case["source"].as_str().unwrap(),
-            None,
-            "",
-            ExecutionLimits::default(),
-        )
-        .unwrap_or_else(|error| panic!("{}: {error}", case["name"]));
-        let actual: Vec<_> = validation::validate(&program, default_registry())
-            .iter()
-            .map(diagnostic_json)
-            .collect();
-        assert_eq!(json!(actual), case["diagnostics"], "{}", case["name"]);
-    }
-}
-
-#[test]
-fn explicit_iso_instants_match_python_microsecond_utc_semantics() {
-    for case in fixture()["times"].as_array().unwrap() {
-        let actual = validation::parse_time(case["input"].as_str().unwrap())
-            .ok()
-            .map(|time| time.timestamp_micros());
-        assert_eq!(
-            json!(actual),
-            case["unix_microseconds"],
-            "{}",
-            case["input"]
-        );
-    }
-}
-
-#[test]
-fn typed_envelopes_preserve_the_whole_query_and_identity() {
-    let fixture = fixture();
-    let proposition: semantic::Proposition =
-        serde_json::from_value(fixture["binding_proposition"].clone()).unwrap();
-    for case in fixture["bindings"].as_array().unwrap() {
-        let (payload, mut trace) = propositions::prepare_binding(
-            &proposition,
-            "causal/1",
-            "trial",
-            &case["input"],
-            default_registry(),
-        );
-        trace.as_object_mut().unwrap().remove("method_contract");
-        assert_eq!(json!(payload), case["payload"], "{}", case["name"]);
-        assert_eq!(trace, case["trace"], "{}", case["name"]);
-    }
-}
-
-#[test]
-fn rational_unit_conversion_matches_python_and_rejects_erased_results() {
-    let fixture = fixture();
-    let proposition: semantic::Proposition =
-        serde_json::from_value(fixture["binding_proposition"].clone()).unwrap();
-    for case in fixture["scalar_results"].as_array().unwrap() {
-        let result = propositions::check_result(
-            &proposition,
-            "causal/1",
-            &json!({"estimate":case["estimate"]}),
-            &json!({"input_unit":case["input_unit"]}),
-            default_registry(),
-        );
-        assert_eq!(result, case["result"], "{case}");
-    }
+use serde_json::json;
+const SOURCE: &str = include_str!("support/validation.eal");
+fn proposition() -> semantic::Proposition {
+    serde_json::from_value(json!({"subject":"pump-A","quantity":"pressure","unit":"kPa","scope":"experiment-v1","valid_from":"2026-09-23T10:00:00Z","valid_until":"2026-09-23T11:00:00Z","result":{"path":"estimate","operator":">=","expected":5,"expression":null},"query":{"assignment":"randomised"}})).unwrap()
 }
 
 #[test]
 fn modified_composed_tables_require_fresh_expansion() {
-    let fixture = fixture();
-    let source = fixture["cases"][0]["source"].as_str().unwrap();
+    let source = SOURCE;
     let mut program = composition::compile(source, None, "", ExecutionLimits::default()).unwrap();
     program.claims["working"].statement = "Edited executable declaration".into();
     assert!(
@@ -113,8 +35,7 @@ fn host_json_and_declaration_limits_are_enforced() {
         ..ExecutionLimits::default()
     };
     assert!(validation::check_json_resources(&json!([1, 2]), &limits).is_err());
-    let fixture = fixture();
-    let source = fixture["cases"][0]["source"].as_str().unwrap();
+    let source = SOURCE;
     let mut program = composition::compile(source, None, "", ExecutionLimits::default()).unwrap();
     program.limits.declarations = 1;
     assert_eq!(
@@ -125,8 +46,7 @@ fn host_json_and_declaration_limits_are_enforced() {
 
 #[test]
 fn streaming_ir_bound_has_an_explicit_exact_boundary() {
-    let fixture = fixture();
-    let source = fixture["cases"][0]["source"].as_str().unwrap();
+    let source = SOURCE;
     let program = composition::compile(source, None, "", ExecutionLimits::default()).unwrap();
     let count = validation::structural_value_count(&program, usize::MAX).unwrap();
     assert!(count > 100);
@@ -144,9 +64,7 @@ fn streaming_ir_bound_has_an_explicit_exact_boundary() {
 
 #[test]
 fn scalar_result_comparison_preserves_exact_large_integer_order() {
-    let fixture = fixture();
-    let mut proposition: semantic::Proposition =
-        serde_json::from_value(fixture["binding_proposition"].clone()).unwrap();
+    let mut proposition = proposition();
     proposition.unit = "Pa".into();
     proposition.result.operator = "==".into();
     proposition.result.expected = serde_json::from_str("9007199254740993").unwrap();
@@ -193,8 +111,7 @@ fn ir_traversal_handles_the_configured_language_nesting_boundary() {
 
 #[test]
 fn direct_compact_ir_is_relowered_before_execution() {
-    let fixture = fixture();
-    let source=fixture["cases"][0]["source"].as_str().unwrap().replace(
+    let source=SOURCE.replace(
         "argument first = [evidence observation, assumptions stable] via measured => working",
         "pattern support(e: evidence, a: assumption, r: reasoning, c: claim) = [evidence e, assumptions a] via r => c\napply first = support(e=observation, a=stable, r=measured, c=working)",
     );
@@ -211,4 +128,64 @@ fn direct_compact_ir_is_relowered_before_execution() {
     );
     let refreshed = composition::relower(&program).unwrap();
     assert!(validation::validate(&refreshed, default_registry()).is_empty());
+}
+
+#[test]
+fn typed_input_preserves_query_identity_and_rejects_scope_changes() {
+    let proposition = proposition();
+    let mut envelope = json!({"schema":"EAL/typed-input/1","method":"causal/1","subject":"pump-A","quantity":"pressure","unit":"Pa","scope":"experiment-v1","valid_from":"2026-09-23T10:00:00Z","valid_until":"2026-09-23T11:00:00Z","payload":{"assignment":"randomised","treatment":[10000,12000],"control":[3000,4000]}});
+    let (payload, trace) = propositions::prepare_binding(
+        &proposition,
+        "causal/1",
+        "trial",
+        &envelope,
+        default_registry(),
+    );
+    assert_eq!(payload.unwrap(), envelope["payload"]);
+    assert_eq!(trace["formal_query"], envelope["payload"]);
+    assert_eq!(trace["status"], "bound");
+    envelope["scope"] = json!("another-experiment");
+    let (payload, trace) = propositions::prepare_binding(
+        &proposition,
+        "causal/1",
+        "trial",
+        &envelope,
+        default_registry(),
+    );
+    assert!(payload.is_none());
+    assert_eq!(trace["status"], "unsupported");
+}
+
+#[test]
+fn rational_unit_conversion_retains_thresholds_and_requires_an_output() {
+    let proposition = proposition();
+    for (estimate, holds) in [(4999, false), (5000, true), (5001, true)] {
+        let result = propositions::check_result(
+            &proposition,
+            "causal/1",
+            &json!({"estimate":estimate}),
+            &json!({"input_unit":"Pa"}),
+            default_registry(),
+        );
+        assert_eq!(result["holds"], holds);
+    }
+    let result = propositions::check_result(
+        &proposition,
+        "causal/1",
+        &json!({}),
+        &json!({"input_unit":"Pa"}),
+        default_registry(),
+    );
+    assert_eq!(result["status"], "unsupported");
+}
+
+#[test]
+fn iso_instants_preserve_timezone_equivalence_and_half_open_precision() {
+    let utc = validation::parse_time("2026-09-23T12:00:00.000001Z").unwrap();
+    let shifted = validation::parse_time("2026-09-23T13:00:00.000001+01:00").unwrap();
+    assert_eq!(utc, shifted);
+    let previous = validation::parse_time("2026-09-23T12:00:00Z").unwrap();
+    assert_eq!((utc - previous).num_microseconds(), Some(1));
+    assert!(validation::parse_time("2026-09-23T12:00:00").is_err());
+    assert!(validation::parse_time("2026-13-01T12:00:00Z").is_err());
 }

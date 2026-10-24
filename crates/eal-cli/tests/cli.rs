@@ -17,7 +17,7 @@ fn run(command: &str, source: &[u8]) -> Output {
 }
 
 #[test]
-fn runs_without_python_java_or_other_executables_on_path() {
+fn runs_with_an_empty_executable_search_path() {
     let output = run(
         "parse",
         b"language \"EAL/3\"\nclaim c {\nstatement \"Scoped claim\"\nenvironment e\n}\n",

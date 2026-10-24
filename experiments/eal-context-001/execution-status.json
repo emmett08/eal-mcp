@@ -1,45 +1,34 @@
 {
   "experiment_id": "EAL-CONTEXT-001",
   "protocol_version": "0.1.0",
-  "source_attachment": {
-    "original_filename": "eal-context-experiment(2).md",
-    "retained_path": "eal-context-experiment.md",
-    "sha256": "6d1f9d645087daa1a55a74bb9b82f9e5d51e18764c769c0d417de3628b4df73d",
-    "modified": false
+  "implementation": "native Rust diagnostics",
+  "protocol_sha256": "590ccc02125f7402acde75141f07e147bcc36a34ad45043240a8c23766108418",
+  "planning": {
+    "status": "executed",
+    "cells": 43,
+    "replications_per_cell": 6000,
+    "record": "planning/execution.json",
+    "measurement_scope": "assumed-nuisance simulations"
   },
-  "reference_revision": "de3a99dfb1003f43f75d7bfe18007179ecb4f4aa",
-  "candidate_revision": "71661ea05225157961fe32b355db62dac42e3bba",
-  "report_repository_base": "c39185fb9123575ae8819faa2133f106fe5dd77f",
-  "scope_amendment": {
-    "date": "2026-10-21",
-    "basis": "Explicit user instruction to include this experiment in emmett08/eal-mcp and run it.",
-    "effect": "Admit optional isolated experiment files; production code, grammar and normal build dependencies remain unchanged."
+  "host_policy_rehearsal": {
+    "status": "executed",
+    "traces": 9,
+    "synthetic_turns": 720,
+    "report": "rehearsal-results.json",
+    "counter_unit": "UTF-8 bytes of complete serialised synthetic request"
   },
-  "execution_classification": {
-    "planning_simulations": "executed; synthetic observations only",
-    "host_policy_rehearsal": "executed: six software checks, nine synthetic traces, 720 synthetic turns",
-    "native_packet_probe": "executed: 14 checks passed against actual pinned binaries",
-    "empirical_pilot": "not run",
-    "confirmation": "not run"
+  "native_packet_comparison": {
+    "status": "implemented; cross-revision diagnostic not rerun in this change",
+    "command": "eal-context probe",
+    "revision_selection": "two explicit exact commit identities and distinct clean checkouts"
   },
-  "model_access_check": {
-    "provider_api_key_available": false,
-    "provider_endpoint_with_per_request_usage_available": false,
-    "method": "Inspected environment variable names and available tool capabilities; no credential values logged.",
-    "native_assistant_delegation": "Available for implementation and review; does not expose the controlled request history and provider usage required by this protocol."
+  "empirical_model_pilot": {
+    "status": "not run",
+    "model_sessions": 0,
+    "provider_usage": null,
+    "answer_quality": null,
+    "objection_retention": null,
+    "qualification_retention": null
   },
-  "pilot_requirements": [
-    "Freeze exact model snapshot, configuration and tokenizer; supply a reachable authenticated provider endpoint.",
-    "Quote and freeze a monetary ceiling from endpoint prices and calibrated per-call usage before 11,520 turns plus tool cycles.",
-    "Author and freeze 24 independent engineering scenario families with event schedules, gold and answerability ledgers; obtain domain review.",
-    "Integrate checked ModelContextBuilder messages with a metered provider runner, real registered tools, scripted clock/events and raw attempt logs.",
-    "Validate six separate end-to-end collection/scoring calibration cases and reconcile provider usage before running the pilot.",
-    "Assign two blinded assessors and retain calibration/adjudication records for every primary decision answer."
-  ],
-  "limits": [
-    "Synthetic history fixtures are not an independently authored pilot corpus.",
-    "A native packet diagnostic is not an end-to-end model-session experiment.",
-    "Provider usage, empirical correctness, objection retention and qualification retention are unavailable, not zero.",
-    "Production adoption and confirmatory adequacy remain unestablished."
-  ]
+  "verification_scope": "History, usage, numerical methods and native process helper tests. Live cross-revision comparison remains separately executable."
 }

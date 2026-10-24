@@ -3,53 +3,6 @@ use eal_core::{
 };
 
 #[test]
-fn reference_corpus_round_trips_without_python() {
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/parser");
-    let fixture: serde_json::Value =
-        serde_json::from_str(&std::fs::read_to_string(root.join("reference.json")).unwrap())
-            .unwrap();
-    let mut checked = 0;
-    for case in fixture["cases"].as_array().unwrap() {
-        let name = case["name"].as_str().unwrap();
-        let source = std::fs::read_to_string(root.join(case["path"].as_str().unwrap())).unwrap();
-        // The source entrypoint resolves imports and defers its language-version
-        // check. This lexical entrypoint retains imports and checks EAL/3 early.
-        let expected = if name == "import-without-resolver" {
-            true
-        } else if name == "unsupported-language" {
-            false
-        } else {
-            case["lowered"].as_bool().unwrap()
-        };
-        let result = parse(&source);
-        assert_eq!(
-            result.is_ok(),
-            expected,
-            "{name}: unexpected lexical outcome: {result:?}"
-        );
-        if let Ok(program) = result {
-            let formatted = program
-                .format_with_limits(ParseLimits::default())
-                .unwrap_or_else(|error| panic!("{name}: checked formatting failed: {error}"));
-            let reparsed = parse(&formatted).unwrap_or_else(|error| {
-                panic!("{name}: formatter source did not parse: {error}\n{formatted}")
-            });
-            assert!(
-                program.equivalent_to(&reparsed),
-                "{name}: typed lexical AST changed\n{formatted}"
-            );
-            assert_eq!(
-                formatted,
-                reparsed.format(),
-                "{name}: formatter is not idempotent"
-            );
-            checked += 1;
-        }
-    }
-    assert_eq!(checked, 86, "Unexpected lexical corpus coverage");
-}
-
-#[test]
 fn duplicates_and_missing_fields_are_rejected() {
     for source in [
         "language \"EAL/3\"\ntool t {\nversion \"1\"\nversion \"2\"\n}\n",

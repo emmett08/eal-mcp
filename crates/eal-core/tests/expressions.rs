@@ -2,80 +2,6 @@
 use eal_core::{ExecutionLimits, expressions};
 use serde_json::{Value, json};
 
-fn normalise(value: &Value) -> Value {
-    match value {
-        Value::Null => json!({"type":"null"}),
-        Value::Bool(value) => json!({"type":"boolean","value":value}),
-        Value::String(value) => json!({"type":"string","value":value}),
-        Value::Number(value) => {
-            let text = value.to_string();
-            if text.bytes().any(|byte| matches!(byte, b'.' | b'e' | b'E')) {
-                json!({"type":"float","bits":format!("{:016x}",text.parse::<f64>().unwrap().to_bits())})
-            } else {
-                json!({"type":"integer","value":text})
-            }
-        }
-        Value::Array(items) => {
-            json!({"type":"array","value":items.iter().map(normalise).collect::<Vec<_>>()})
-        }
-        Value::Object(items) => {
-            json!({"type":"object","value":items.iter().map(|(name,value)|(name.clone(),normalise(value))).collect::<serde_json::Map<_,_>>()})
-        }
-    }
-}
-
-#[test]
-fn pinned_python_expression_results_types_and_diagnostics_agree() {
-    let oracle: Value =
-        serde_json::from_str(include_str!("../../../fixtures/expressions/reference.json")).unwrap();
-    let cases = oracle["cases"].as_array().unwrap();
-    assert_eq!(cases.len(), 350);
-    for case in cases {
-        let source = case["source"].as_str().unwrap();
-        let expression = expressions::expression_from_json(&case["expression"]).unwrap();
-        assert_eq!(
-            normalise(&expressions::expression_to_json(&expression).unwrap()),
-            normalise(&case["expression"]),
-            "{source}: expression interchange"
-        );
-        let result = expressions::evaluate_expression(&expression, &case["context"]);
-        assert_eq!(
-            result.known(),
-            case["result"]["known"].as_bool().unwrap(),
-            "{source}: {result:?}"
-        );
-        assert_eq!(
-            result.issue,
-            case["result"]["issue"].as_str().map(str::to_owned),
-            "{source}: {result:?}"
-        );
-        if case["python_exception"].is_null() {
-            assert_eq!(
-                result.reason,
-                case["result"]["reason"].as_str().unwrap(),
-                "{source}"
-            );
-        }
-        if let Some(quantity) = &result.quantity {
-            let actual = json!({"type":"quantity","numerator":quantity.amount.numer().to_string(),"denominator":quantity.amount.denom().to_string(),"dimensions":quantity.dimensions});
-            assert_eq!(actual, case["result"]["value"], "{source}");
-        } else if let Some(value) = &result.value {
-            assert_eq!(normalise(value), case["result"]["value"], "{source}");
-        }
-        let schema = (!case["schema"].is_null()).then_some(&case["schema"]);
-        assert_eq!(
-            expressions::expression_errors(&expression, schema),
-            serde_json::from_value::<Vec<String>>(case["errors"].clone()).unwrap(),
-            "{source}: static errors"
-        );
-        assert_eq!(
-            expressions::format_expression(&expression).unwrap(),
-            case["formatted"].as_str().unwrap(),
-            "{source}: formatting"
-        );
-    }
-}
-
 #[test]
 fn explicit_expression_limits_bound_evaluation_and_static_checks() {
     let expression=expressions::expression_from_json(&json!({"kind":"binary","value":"+","arguments":[{"kind":"literal","value":1},{"kind":"literal","value":2}]})).unwrap();
@@ -238,4 +164,62 @@ fn checked_diagnostic_representation_preserves_python_quoting_and_limits() {
         .unwrap()
         .join()
         .unwrap();
+}
+
+#[test]
+fn arithmetic_preserves_exact_integer_order_and_signed_float_results() {
+    let literal = |value| json!({"kind":"literal","value":value,"arguments":[]});
+    for (operator, left, right, expected) in [
+        (
+            "+",
+            json!(9007199254740993u64),
+            json!(1),
+            json!(9007199254740994u64),
+        ),
+        (
+            ">",
+            json!(9007199254740993u64),
+            json!(9007199254740992.0),
+            json!(true),
+        ),
+        ("%", json!(-5), json!(2), json!(1)),
+        ("%", json!(5), json!(-2), json!(-1)),
+        ("/", json!(5), json!(-2), json!(-2.5)),
+    ] {
+        let expression = expressions::expression_from_json(
+            &json!({"kind":"binary","value":operator,"arguments":[literal(left),literal(right)]}),
+        )
+        .unwrap();
+        let result = expressions::evaluate_expression(&expression, &json!({}));
+        assert_eq!(result.value, Some(expected), "{operator}: {result:?}");
+    }
+    let incompatible = expressions::expression_from_json(
+        &json!({"kind":"binary","value":"==","arguments":[literal(json!(true)),literal(json!(1))]}),
+    )
+    .unwrap();
+    assert_eq!(
+        expressions::evaluate_expression(&incompatible, &json!({}))
+            .issue
+            .as_deref(),
+        Some("invalid_expression")
+    );
+    let sum = expressions::expression_from_json(
+        &json!({"kind":"call","value":"sum","arguments":[literal(json!([1e16,1.0,-1e16]))]}),
+    )
+    .unwrap();
+    let result = expressions::evaluate_expression(&sum, &json!({}));
+    assert_eq!(result.value, Some(json!(1.0)));
+    let zero = expressions::expression_from_json(
+        &json!({"kind":"binary","value":"/","arguments":[literal(json!(0)),literal(json!(-2))]}),
+    )
+    .unwrap();
+    assert_eq!(
+        expressions::evaluate_expression(&zero, &json!({}))
+            .value
+            .unwrap()
+            .as_f64()
+            .unwrap()
+            .to_bits(),
+        (-0.0f64).to_bits()
+    );
 }

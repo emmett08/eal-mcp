@@ -1,7 +1,7 @@
 # Native method workers
 
 The runtime executes installed engineering, ASPIC and custom methods through
-an independently supervised process. The original eight built-in methods stay
+an independently supervised process. The eight built-in methods stay
 in the pure core. Direct core native callbacks remain trusted in-process calls;
 their declared timeout and memory metadata does not enforce process limits.
 
@@ -14,8 +14,8 @@ Source and observation payloads cannot select executables, environment, imports
 or shell expressions. The runtime never constructs a shell command. An operator
 may explicitly register a command interpreter as trusted code.
 
-The bundled `eal-method-worker` replaces Python module/function loading. Custom
-implementations provide a protocol executable; they do not name a Python import.
+The bundled `eal-method-worker` launches custom implementations through a versioned
+process protocol. Each implementation supplies an explicit executable.
 The process boundary is a resource and lifecycle boundary, not a filesystem or
 network sandbox for untrusted code.
 
@@ -93,4 +93,4 @@ custom executable files. Those files are hashed again before each invocation;
 changes reject execution. This records checked file snapshots, not an atomic
 attestation of the machine code loaded by the operating system. Executable and
 directory ownership remain the operator's responsibility. No function-pointer
-address, Python code identity or process-specific address enters a fingerprint.
+process-specific address enters a fingerprint.

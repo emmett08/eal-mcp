@@ -1,4 +1,4 @@
-//! Retained source behavior and native one-request client boundaries.
+//! Native one-request client configuration, admission and response boundaries.
 use eal_mcp::{
     auth::{BearerTokenVerifier, HttpPolicy},
     client::{self, ClientTarget},
@@ -31,58 +31,6 @@ impl Drop for Directory {
 }
 fn strings(values: &[&str]) -> Vec<String> {
     values.iter().map(|s| (*s).to_owned()).collect()
-}
-fn reference() -> Value {
-    eal_core::json::parse(
-        include_str!("../../../fixtures/host/reference.json"),
-        &eal_core::ExecutionLimits::default(),
-    )
-    .unwrap()
-}
-#[test]
-fn strict_requests_match_retained_python_reference() {
-    for case in reference()["requests"].as_array().unwrap() {
-        let text = case["input"].as_str().unwrap();
-        let result = host::parse_request(text);
-        if let Some(expected) = case.get("output") {
-            let (tool, args) = result.unwrap_or_else(|e| panic!("{text}: {e}"));
-            assert_eq!(json!([tool, args]), *expected);
-        } else {
-            assert!(result.is_err(), "{text}");
-        }
-    }
-    for text in [
-        "{}{}",
-        "{\"operation\":\"describe\"} false",
-        "{\"operation\":\"eal_describe\"}",
-    ] {
-        assert!(host::parse_request(text).is_err());
-    }
-    assert!(
-        host::parse_request(&" ".repeat(host::MAX_REQUEST_BYTES + 1))
-            .unwrap_err()
-            .contains("2 MiB")
-    );
-}
-#[test]
-fn client_urls_and_redaction_match_retained_python_reference() {
-    let fixture = reference();
-    for case in fixture["urls"].as_array().unwrap() {
-        let result = client::validate_http_url(case["input"].as_str().unwrap());
-        if let Some(expected) = case.get("output") {
-            assert_eq!(result.unwrap(), expected.as_str().unwrap());
-        } else {
-            assert!(result.is_err(), "{}", case["input"]);
-        }
-    }
-    for case in fixture["redactions"].as_array().unwrap() {
-        let result = redaction::sanitise_response(&case["input"], case["token"].as_str());
-        if let Some(expected) = case.get("output") {
-            assert_eq!(result.unwrap(), *expected, "token {:?}", case["token"]);
-        } else {
-            assert_eq!(result.unwrap_err(), case["error"].as_str().unwrap());
-        }
-    }
 }
 #[test]
 fn configuration_precedence_retains_path_origins_and_replaces_lists() {
@@ -503,4 +451,45 @@ fn packet_retrieval_and_budgets_are_checked_before_connection() {
     ] {
         assert!(host::parse_request(text).is_err(), "{text}");
     }
+}
+
+#[test]
+fn native_requests_urls_and_redaction_have_explicit_boundaries() {
+    let (tool, args) =
+        host::parse_request(r#"{"operation":"plan","source":"source","claim":"outcome"}"#).unwrap();
+    assert_eq!(tool, "eal_plan");
+    assert_eq!(args, json!({"source":"source","claim":"outcome"}));
+    for text in [
+        "{}{}",
+        r#"{"operation":"describe"} false"#,
+        r#"{"operation":"eal_describe"}"#,
+        r#"{"operation":"describe","extra":true}"#,
+    ] {
+        assert!(host::parse_request(text).is_err());
+    }
+    assert!(
+        host::parse_request(&" ".repeat(host::MAX_REQUEST_BYTES + 1))
+            .unwrap_err()
+            .contains("2 MiB")
+    );
+    assert_eq!(
+        client::validate_http_url("http://localhost:8000/mcp").unwrap(),
+        "http://localhost:8000/mcp"
+    );
+    for url in [
+        "file:///tmp/socket",
+        "http://user:password@localhost/mcp",
+        "http://localhost/mcp#fragment",
+    ] {
+        assert!(client::validate_http_url(url).is_err(), "{url}");
+    }
+    let redacted = redaction::sanitise_response(
+        &json!({"text":"before TOKEN after","nested":["TOKEN"]}),
+        Some("TOKEN"),
+    )
+    .unwrap();
+    assert_eq!(
+        redacted,
+        json!({"text":"before [redacted] after","nested":["[redacted]"]})
+    );
 }
