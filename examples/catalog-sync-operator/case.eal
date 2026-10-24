@@ -47,7 +47,7 @@ reasoning identified {
   rationale "The GitHub response identifies the exact requested commit and its tree in the selected repository."
 }
 claim rollout_observed {
-  statement "The named Application resource is present in every operator-declared production cluster and Tempo returns spans matching the configured rollout kind and name for each mapped cluster in the selected time window."
+  statement "The named Application resource is present in every operator-declared production cluster and Tempo returns a trace matching the configured rollout query for each mapped cluster in the selected time window."
   environment production
 }
 claim revision_identified {

@@ -3,11 +3,7 @@ use super::input::parse_json;
 use super::{MAX_BYTES, Result};
 use eal_runtime::process::{CommandRequest, Supervisor};
 use serde_json::Value;
-use std::{
-    collections::BTreeMap,
-    path::Path,
-    time::Duration,
-};
+use std::{collections::BTreeMap, path::Path, time::Duration};
 pub(super) struct Runner {
     pub(super) supervisor: Supervisor,
     pub(super) environment: BTreeMap<String, String>,

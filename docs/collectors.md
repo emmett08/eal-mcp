@@ -80,6 +80,9 @@ can return different subsets. The wrapper therefore always retains
 result supports an existential match within its declared window. Empty results
 record that this query returned no match. They leave overall trace absence
 unresolved. Limit hits and reported partial-job counts are retained separately.
+The HTTP search response contains trace summaries. The retained trace ID
+identifies a returned trace matching the query. Fetching its complete spans
+requires a separate trace-by-ID observation.
 HTTP errors, reported error fields, missing explicit `traces`, invalid trace IDs,
 oversized responses and transfers that exceed the deadline fail acquisition.
 The retained `all_matched` predicate supports positive bounded queryability

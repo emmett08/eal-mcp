@@ -10,7 +10,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use views::{generated_views, put};
-const CONSUMER_REVISION: &str = "a38bff4a193634556ef81e64f9b7823a1b1de6ec";
+const CONSUMER_REVISION: &str = "1c5523193669be98aeaa6290e54db7d91552c4de";
 const CONSUMER_BLOB: &str = "16512f96824d5b218e5b790b79777a6f16217d21";
 const MAX_BYTES: usize = 4 * 1024 * 1024;
 const MAX_INPUT_BYTES: usize = 64 * 1024 * 1024;

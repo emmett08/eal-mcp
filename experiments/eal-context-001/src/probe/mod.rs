@@ -17,7 +17,13 @@ impl Temporary {
     fn new() -> Result<Self, String> {
         let path =
             std::env::temp_dir().join(format!("eal-context-native-{}", uuid::Uuid::new_v4()));
-        fs::create_dir(&path).map_err(|e| e.to_string())?;
+        let mut builder = fs::DirBuilder::new();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::DirBuilderExt;
+            builder.mode(0o700);
+        }
+        builder.create(&path).map_err(|e| e.to_string())?;
         Ok(Self(path))
     }
 }

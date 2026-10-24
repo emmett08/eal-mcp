@@ -13,11 +13,16 @@ use std::{
 };
 const MAX_OUTPUT: usize = 8 * 1024 * 1024;
 const DEADLINE: Duration = Duration::from_secs(240);
-struct OwnedChild(Child);
+struct OwnedChild {
+    process: Child,
+    cleaned: bool,
+}
 impl Drop for OwnedChild {
     fn drop(&mut self) {
-        terminate(&mut self.0);
-        let _ = self.0.wait();
+        if !self.cleaned {
+            terminate(&mut self.process);
+            let _ = self.process.wait();
+        }
     }
 }
 fn terminate(child: &mut Child) {
@@ -72,19 +77,20 @@ pub fn execute(
         use std::os::unix::process::CommandExt;
         command.process_group(0);
     }
-    let mut child = OwnedChild(
-        command
+    let mut child = OwnedChild {
+        process: command
             .spawn()
             .map_err(|e| format!("Cannot launch {}: {e}", program.display()))?,
-    );
+        cleaned: false,
+    };
     let used = Arc::new(AtomicUsize::new(0));
-    let out = child.0.stdout.take().ok_or("stdout pipe absent")?;
-    let err = child.0.stderr.take().ok_or("stderr pipe absent")?;
+    let out = child.process.stdout.take().ok_or("stdout pipe absent")?;
+    let err = child.process.stderr.take().ok_or("stderr pipe absent")?;
     let out_used = Arc::clone(&used);
     let err_used = Arc::clone(&used);
     let stdout = thread::spawn(move || drain(out, out_used));
     let stderr = thread::spawn(move || drain(err, err_used));
-    let mut stdin = child.0.stdin.take().ok_or("stdin pipe absent")?;
+    let mut stdin = child.process.stdin.take().ok_or("stdin pipe absent")?;
     let bytes = input.unwrap_or_default().to_vec();
     let writer = thread::spawn(move || stdin.write_all(&bytes));
     let started = Instant::now();
@@ -92,21 +98,22 @@ pub fn execute(
     let status = loop {
         if used.load(Ordering::Relaxed) > MAX_OUTPUT {
             failure = Some("native process exceeds combined 8 MiB output limit");
-            terminate(&mut child.0);
-            break child.0.wait().map_err(|e| e.to_string())?;
+            terminate(&mut child.process);
+            break child.process.wait().map_err(|e| e.to_string())?;
         }
         if started.elapsed() >= DEADLINE {
             failure = Some("native process exceeds 240-second deadline");
-            terminate(&mut child.0);
-            break child.0.wait().map_err(|e| e.to_string())?;
+            terminate(&mut child.process);
+            break child.process.wait().map_err(|e| e.to_string())?;
         }
-        if let Some(status) = child.0.try_wait().map_err(|e| e.to_string())? {
+        if let Some(status) = child.process.try_wait().map_err(|e| e.to_string())? {
             break status;
         }
         thread::sleep(Duration::from_millis(5));
     };
     // Pipe-owning descendants belong to this invocation and are cleaned before joining readers.
-    terminate(&mut child.0);
+    child.cleaned = true;
+    terminate(&mut child.process);
     let stdout = stdout.join().map_err(|_| "stdout reader panicked")??;
     let stderr = stderr.join().map_err(|_| "stderr reader panicked")??;
     let input_result = writer.join().map_err(|_| "stdin writer panicked")?;
@@ -146,4 +153,42 @@ pub fn executable(name: &str) -> Result<PathBuf, String> {
         }
     }
     Err(format!("Cannot find explicitly selected executable {name}"))
+}
+
+#[cfg(all(test, unix))]
+mod tests {
+    use super::*;
+    #[test]
+    fn native_input_and_streams_are_transferred_with_an_empty_search_path() {
+        let output = execute(
+            Path::new("/bin/cat"),
+            &[],
+            Some(b"exact native input\n"),
+            None,
+            true,
+            0,
+        )
+        .unwrap();
+        assert_eq!(output.stdout, b"exact native input\n");
+        assert!(output.stderr.is_empty());
+    }
+    #[test]
+    fn nonzero_exit_is_checked_against_the_explicit_expected_status() {
+        let args = [OsString::from("-c"), OsString::from("exit 7")];
+        assert!(execute(Path::new("/bin/sh"), &args, None, None, true, 7).is_ok());
+        assert!(execute(Path::new("/bin/sh"), &args, None, None, true, 0).is_err());
+    }
+    #[test]
+    fn selected_executable_basename_survives_a_multicall_symlink() {
+        use std::os::unix::fs::symlink;
+        let directory =
+            std::env::temp_dir().join(format!("eal-executable-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir(&directory).unwrap();
+        let target = directory.join("multicall");
+        let selected = directory.join("selected");
+        std::fs::write(&target, b"synthetic executable identity").unwrap();
+        symlink(&target, &selected).unwrap();
+        assert_eq!(executable(selected.to_str().unwrap()).unwrap(), selected);
+        std::fs::remove_dir_all(directory).unwrap();
+    }
 }
