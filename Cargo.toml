@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/eal-parser", "crates/eal-core", "crates/eal-aspic", "crates/eal-runtime", "crates/eal-mcp", "crates/eal-coordination", "crates/eal-cli", "tools/eal-devtools", "crates/eal-collectors"]
+members = ["crates/eal-parser", "crates/eal-core", "crates/eal-aspic", "crates/eal-runtime", "crates/eal-mcp", "crates/eal-coordination", "crates/eal-cli", "tools/eal-devtools", "crates/eal-collectors", "crates/eal-collector-contracts"]
 resolver = "2"
 exclude = ["vendor/rmcp", "experiments/eal-context-001"]
 
@@ -41,6 +41,7 @@ tower = { version = "=0.5.3", features = ["util"] }
 jsonschema = { version = "=0.46.0", default-features = false, features = ["arbitrary-precision"] }
 nom = "=8.0.0"
 base64 = "=0.23.1"
+eal-collector-contracts = { path = "crates/eal-collector-contracts" }
 eal-parser = { path = "crates/eal-parser" }
 eal-core = { path = "crates/eal-core" }
 eal-aspic = { path = "crates/eal-aspic" }

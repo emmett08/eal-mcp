@@ -3,6 +3,10 @@
 `eal-collector` supplies read-only Kubernetes, GitHub and Tempo wrappers for the
 existing `command` collector contract. Install it beside the runtime companions.
 
+Authoring clients can read versioned capability descriptions through
+`eal-collector describe`. See [collector authoring contracts](collector-contracts.md)
+for the input schemas and operator-owned command templates.
+
 ```sh
 cargo install --path crates/eal-collectors --locked
 eal-collector --help

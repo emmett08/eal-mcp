@@ -457,12 +457,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "eal-collector-contracts"
+version = "0.1.0"
+dependencies = [
+ "jsonschema",
+ "serde",
+ "serde_json",
+ "toml",
+]
+
+[[package]]
 name = "eal-collectors"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "eal-collector-contracts",
  "eal-core",
  "eal-runtime",
+ "jsonschema",
  "reqwest",
  "rustix",
  "serde",

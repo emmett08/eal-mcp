@@ -12,6 +12,7 @@ name = "eal-collector"
 path = "src/main.rs"
 
 [dependencies]
+eal-collector-contracts.workspace = true
 eal-core.workspace = true
 eal-runtime.workspace = true
 serde.workspace = true
@@ -24,6 +25,7 @@ url.workspace = true
 rustix.workspace = true
 
 [dev-dependencies]
+jsonschema.workspace = true
 uuid.workspace = true
 
 [lints]

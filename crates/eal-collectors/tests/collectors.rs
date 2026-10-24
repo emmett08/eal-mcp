@@ -1,5 +1,5 @@
 //! Local process and HTTP witnesses for the collector trust boundary.
-use eal_collectors::{Config, Request, collect};
+use eal_collectors::{Config, Request};
 use serde_json::{Value, json};
 use std::{
     io::{Read, Write},
@@ -8,6 +8,20 @@ use std::{
     process::{Command, Stdio},
     thread,
 };
+
+async fn collect(config: &Config, request: &Request) -> Result<Value, String> {
+    let result = eal_collectors::collect(config, request).await?;
+    let descriptor = eal_collectors::catalogue::native()
+        .collectors
+        .iter()
+        .find(|descriptor| descriptor.id == config.provider.name())
+        .unwrap();
+    jsonschema::validator_for(&descriptor.result_schema)
+        .unwrap()
+        .validate(&result["value"])
+        .unwrap();
+    Ok(result)
+}
 
 struct Workspace(PathBuf);
 impl Workspace {
