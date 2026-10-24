@@ -1,20 +1,14 @@
 # Attribution and licences
 
-The target repository's [GPL version 3 licence](LICENSE) is retained. New Rust
-implementation code uses `GPL-3.0-only` as declared in the Cargo workspace.
+This repository uses the [GPL version 3 licence](LICENSE). Rust code declares
+`GPL-3.0-only` in the Cargo workspace.
 
 ## EAL source materials
 
-The grammar, contract schemas and reference fixtures derive from
-[Emmett Miller's EAL implementation](https://github.com/emmett08/earl/tree/e2d6f346a37f92483b9f9a13923b98feb053447b),
-package `engineering-argument-language` version `3.2.4`. Its licence is the
-[Unlicense](contracts/licenses/earl-Unlicense.txt). Imported artefact hashes and
-source paths appear in `contracts/source-lock.json`. The source repository is
-unchanged by this port.
-
-The current visualiser schema was independently compared at
-[`aspic_visualisation@a38bff4a193634556ef81e64f9b7823a1b1de6ec`](https://github.com/emmett08/aspic_visualisation/tree/a38bff4a193634556ef81e64f9b7823a1b1de6ec).
-The retained schema is copied from the Unlicensed EAL producer.
+The EAL grammar and schema materials are authored by Emmett Miller and supplied
+under the [Unlicense](contracts/licenses/earl-Unlicense.txt). The required licence
+text is included locally. The ASPIC visualiser schema is maintained in
+`contracts/schemas/aspic-view.schema.json`.
 
 ## Generated recognisers and ANTLR runtime
 

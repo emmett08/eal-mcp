@@ -1,0 +1,58 @@
+// Replace the selected window before collecting live evidence.
+language "EAL/3"
+environment production {
+  require stage == "production"
+}
+tool production_resources {
+  version "1"
+}
+tool production_traces {
+  version "1"
+}
+tool github_commit {
+  version "1"
+}
+evidence resources {
+  tool production_resources
+  kind kubernetes_resource_inventory
+  environment production
+  max_age 300
+  input {"resource":"applications.argoproj.io","namespace":"argocd","name":"catalog-sync-operator"}
+  require all_present == true
+  require inventory_sha256 == "REPLACE_WITH_APPROVED_INVENTORY_SHA256"
+}
+evidence traces {
+  tool production_traces
+  kind tempo_scoped_search
+  environment production
+  max_age 300
+  input {"start_unix":1,"end_unix":2}
+  require all_matched == true
+  require inventory_sha256 == "REPLACE_WITH_APPROVED_INVENTORY_SHA256"
+}
+evidence revision {
+  tool github_commit
+  kind github_commit_identity
+  environment production
+  max_age 86400
+  input {"repository":"REPLACE_OWNER/REPLACE_REPOSITORY","commit":"REPLACE_WITH_EXACT_COMMIT_SHA"}
+  require found == true
+}
+reasoning observed {
+  method "structured/1"
+  rationale "The Kubernetes collector checks the named resource in every inventory context and the Tempo collector searches each mapped telemetry cluster in the declared time window."
+}
+reasoning identified {
+  method "structured/1"
+  rationale "The GitHub response identifies the exact requested commit and its tree in the selected repository."
+}
+claim rollout_observed {
+  statement "The named Application resource is present in every operator-declared production cluster and Tempo returns spans matching the configured rollout kind and name for each mapped cluster in the selected time window."
+  environment production
+}
+claim revision_identified {
+  statement "GitHub identifies the selected repository commit and its tree."
+  environment production
+}
+argument rollout = [evidence resources, traces] via observed => rollout_observed
+argument commit = [evidence revision] via identified => revision_identified

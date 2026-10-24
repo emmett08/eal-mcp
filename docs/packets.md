@@ -137,10 +137,7 @@ registry for method-output admission.
 whole envelope repeats the context in multiple representations. Consumers can
 retain assessment references separately for later retrieval.
 
-Normal Rust tests replay 66 frozen source cases without Python: 39 exact packet
-and context projections and 27 rejection cases. Native tests additionally cover
-extension allowlists, finite and depth admission, forged nested fields, false and
-zero scalar values, original observation ages and the distinctions among
-negative, stale and missing evidence. The development-only
-`tools/capture-packet-reference.py` verifies the pinned source revision and
-unchanged production tree before recapturing these fixtures.
+Native tests cover packet projection and context construction, extension
+allowlists, finite and depth admission, forged nested fields, false and zero
+scalar values, original observation ages and the distinctions among negative,
+stale and missing evidence.

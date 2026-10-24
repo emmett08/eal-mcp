@@ -1,60 +1,21 @@
+#[path = "../../../tests/native_case.rs"]
+mod native_case;
 use eal_aspic::{export_aspic_view, solve_aspic};
 use eal_core::ExecutionLimits;
-use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
-
-fn reference() -> Value {
-    serde_json::from_str(include_str!(
-        "../../../fixtures/aspic/export-reference.json"
-    ))
-    .unwrap()
-}
-
-#[test]
-fn complete_views_and_forged_result_rejections_match_pinned_python() {
-    let corpus = reference();
-    assert_eq!(
-        corpus["source_revision"],
-        "e2d6f346a37f92483b9f9a13923b98feb053447b"
-    );
-    let schema = include_bytes!("../../../contracts/schemas/aspic-view.schema.json");
-    assert_eq!(
-        corpus["view_schema_sha256"],
-        format!("{:x}", Sha256::digest(schema))
-    );
-    for case in corpus["cases"].as_array().unwrap() {
-        let limits: ExecutionLimits = serde_json::from_value(
-            case.get("host_limits")
-                .cloned()
-                .unwrap_or_else(|| json!({})),
-        )
-        .unwrap();
-        let actual = export_aspic_view(&case["input"], &limits);
-        if let Some(expected) = case.get("view") {
-            assert_eq!(
-                &actual.unwrap_or_else(|e| panic!("{}: {e}", case["name"])),
-                expected,
-                "{}",
-                case["name"]
-            );
-        } else {
-            let error = actual.expect_err(case["name"].as_str().unwrap());
-            assert!(
-                error
-                    .to_lowercase()
-                    .contains(&case["error_match"].as_str().unwrap().to_lowercase()),
-                "{}: {error}; source: {}",
-                case["name"],
-                case["error"]
-            );
-        }
-    }
-}
+use serde_json::json;
 
 #[test]
 fn export_is_detached_and_budget_capture_can_only_tighten_host_policy() {
-    let corpus = reference();
-    let input = &corpus["cases"][0]["input"];
+    let case = native_case::case();
+    let snapshot = eal_aspic::compile_eal_aspic(
+        native_case::SOURCE,
+        &case["records"],
+        eal_aspic::CompileOptions::new("working", native_case::NOW, &case["context"]),
+    )
+    .unwrap()
+    .to_dict()
+    .unwrap();
+    let input = &snapshot;
     let mut view = export_aspic_view(input, &ExecutionLimits::default()).unwrap();
     view["arguments"][0]["direct_subarguments"]
         .as_array_mut()
@@ -80,7 +41,7 @@ fn export_is_detached_and_budget_capture_can_only_tighten_host_policy() {
 }
 
 #[test]
-fn fixed_input_byte_boundary_uses_python_json_spacing_and_utf8() {
+fn fixed_input_byte_boundary_counts_wire_spacing_and_utf8() {
     let limit = eal_aspic::export::MAX_INPUT_BYTES;
     let mut input = json!({"padding":"x".repeat(limit-15)});
     let limits = ExecutionLimits::default();

@@ -1,0 +1,10 @@
+{
+  "revision": "REPLACE_WITH_AUTHORITATIVE_INVENTORY_REVISION",
+  "clusters": [
+    {
+      "id": "REPLACE_WITH_PRODUCTION_CLUSTER_ID",
+      "context": "REPLACE_WITH_KUBECONFIG_CONTEXT",
+      "tempo_cluster": "REPLACE_WITH_TELEMETRY_CLUSTER_ATTRIBUTE_VALUE"
+    }
+  ]
+}

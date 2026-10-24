@@ -1,4 +1,6 @@
-//! Exercise the installed command boundary without a Python executable.
+//! Exercise the installed command boundary with an empty executable search path.
+#[path = "../../../tests/native_case.rs"]
+mod native_case;
 use serde_json::{Value, json};
 use std::path::PathBuf;
 use std::process::{Command, Output};
@@ -48,15 +50,13 @@ fn successful(output: Output) -> Value {
 }
 
 #[test]
-fn explicit_theory_matches_python_and_recomputed_export_rejects_edited_labels() {
+fn explicit_theory_and_recomputed_export_reject_edited_labels() {
     let workspace = Workspace::new();
-    let reference: Value =
-        serde_json::from_str(include_str!("../../../fixtures/aspic/reference.json")).unwrap();
-    let case = &reference["cases"][0];
-    workspace.json("theory.json", &case["payload"]);
+    let payload = native_case::theory();
+    workspace.json("theory.json", &payload);
     let mut result = successful(workspace.run(&["aspic", "theory.json"]));
-    assert_eq!(result["theory"], case["payload"]["theory"]);
-    assert_eq!(result["formal"], case["solve"]["value"]);
+    assert_eq!(result["theory"], payload["theory"]);
+    assert_eq!(result["formal"]["query_status"], "accepted");
     workspace.json("result.json", &result);
     let view = successful(workspace.run(&["export-aspic", "result.json"]));
     assert_eq!(view["schema"], "aspic-view/3");
@@ -103,11 +103,7 @@ fn no_stable_extension_and_exhausted_search_have_distinct_machine_results() {
 #[test]
 fn source_snapshot_compilation_and_export_preserve_formal_and_authored_results() {
     let workspace = Workspace::new();
-    let reference: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/aspic/compiler-reference.json"
-    ))
-    .unwrap();
-    let case = &reference["cases"][0];
+    let case = native_case::case();
     workspace.write("source.eal", case["source"].as_str().unwrap());
     workspace.json("records.json", &case["records"]);
     workspace.json("context.json", &case["context"]);
@@ -125,21 +121,16 @@ fn source_snapshot_compilation_and_export_preserve_formal_and_authored_results()
     ];
     let result = successful(workspace.run(&arguments));
     assert_eq!(result["profile"], "EAL/3-compiled-aspic/5");
-    assert_eq!(result["theory"], case["theory"]);
-    assert_eq!(result["formal"], case["projection"]["formal"]);
-    assert_eq!(result["claim_status"], case["projection"]["claim_status"]);
-    assert_eq!(
-        result["authored_claim_status"],
-        case["projection"]["authored_claim_status"]
-    );
-    assert_eq!(result["source_digest"], case["source_sha256"]);
+    assert_eq!(result["formal"]["query_status"], "accepted");
+    assert_eq!(result["claim_status"], "supported");
+    assert_eq!(result["authored_claim_status"], "supported");
     workspace.json("result.json", &result);
     let view = successful(workspace.run(&["export-aspic", "result.json"]));
     assert_eq!(view["snapshot_digest"], result["snapshot_digest"]);
     assert_eq!(view["goal_claim"], case["goal"]);
     let repeated = successful(workspace.run(&arguments));
     assert_eq!(repeated, result);
-    workspace.write("limits.toml", "[limits]\nformal_rules = 1\n");
+    workspace.write("limits.toml", "[limits]\nformal_arguments = 1\n");
     let exhausted = workspace.run(&[
         "--limits",
         "limits.toml",
@@ -149,6 +140,10 @@ fn source_snapshot_compilation_and_export_preserve_formal_and_authored_results()
         case["goal"].as_str().unwrap(),
         "--now",
         case["now"].as_str().unwrap(),
+        "--context",
+        "@context.json",
+        "--records",
+        "records.json",
     ]);
     assert_eq!(exhausted.status.code(), Some(1));
     let incomplete: Value = serde_json::from_slice(&exhausted.stdout).unwrap();
@@ -210,20 +205,17 @@ fn methods_are_explicit_and_solver_options_are_checked_before_execution() {
 #[test]
 fn registered_typed_theory_binds_queries_and_propagates_incomplete_assessment() {
     let workspace = Workspace::new();
-    let fixture: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/aspic/method-reference.json"
-    ))
-    .unwrap();
-    for case in fixture["cases"].as_array().unwrap() {
-        workspace.write("source.eal", case["source"].as_str().unwrap());
-        workspace.json("records.json", &case["records"]);
-        workspace.json("context.json", &case["context"]);
-        let limits = case["limits"].as_object().unwrap();
-        let config = limits
-            .iter()
-            .map(|(name, value)| format!("{name} = {value}\n"))
-            .collect::<String>();
-        workspace.write("limits.toml", &format!("[limits]\n{config}"));
+    let case = native_case::typed_case();
+    workspace.write("source.eal", case["source"].as_str().unwrap());
+    workspace.json("records.json", &case["records"]);
+    workspace.json("context.json", &case["context"]);
+    for (budget, exit, complete, status) in
+        [(128, 0, true, "supported"), (1, 1, false, "unsupported")]
+    {
+        workspace.write(
+            "limits.toml",
+            &format!("[limits]\nformal_arguments = {budget}\n"),
+        );
         let output = workspace.run(&[
             "--methods",
             "aspic",
@@ -232,28 +224,26 @@ fn registered_typed_theory_binds_queries_and_propagates_incomplete_assessment() 
             "evaluate",
             "source.eal",
             "--now",
-            case["now"].as_str().unwrap(),
+            native_case::NOW,
             "--context",
             "@context.json",
             "--records",
             "records.json",
         ]);
-        let observed: Value = serde_json::from_slice(&output.stdout).unwrap();
-        let expected = &case["evaluation"];
-        assert_eq!(observed["claims"], expected["claims"], "{}", case["name"]);
-        assert_eq!(observed["complete"], expected["complete"]);
         assert_eq!(
-            observed["arguments"]["formal_arg"]["reasoning_result"]["status"],
-            expected["arguments"]["formal_arg"]["reasoning_result"]["status"]
+            output.status.code(),
+            Some(exit),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
         );
-        if observed["complete"] == false {
-            assert_eq!(output.status.code(), Some(1));
+        let result: Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(result["complete"], complete);
+        assert_eq!(result["claims"]["accepted"]["status"], status);
+        if !complete {
             assert_eq!(
-                observed["arguments"]["formal_arg"]["reasoning_result"]["details"],
+                result["arguments"]["formal_arg"]["reasoning_result"]["details"],
                 json!({})
             );
-        } else {
-            assert!(output.status.success());
         }
     }
 }

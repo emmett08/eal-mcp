@@ -1,4 +1,4 @@
-//! Frozen contract agreement and explicit bounded installation of native ASPIC.
+//! Current method contract validation and explicit bounded installation of native ASPIC.
 use eal_aspic::registry::{
     ASPIC_METHOD, aspic_contract, aspic_registry, module_identity, output_schema, theory_schema,
     with_aspic,
@@ -10,30 +10,15 @@ use eal_core::{
 use serde_json::{Value, json};
 
 #[test]
-fn frozen_aspic_contract_is_retained_with_native_identity() {
-    let frozen: Value =
-        serde_json::from_str(include_str!("../../../contracts/public-contracts.json")).unwrap();
-    let expected = &frozen["optional_method_contracts"][ASPIC_METHOD];
+fn current_aspic_contract_describes_native_identity_and_typed_query() {
     let actual = aspic_contract().describe();
-    for field in [
-        "identifier",
-        "evidence_kind",
-        "input_schema",
-        "query_schema",
-        "output_schema",
-        "outputs",
-        "quantities",
-        "exact_unit",
-        "quantity_interpretation",
-        "limits",
-    ] {
-        assert_eq!(actual[field], expected[field], "{field}");
-    }
+    assert_eq!(actual["identifier"], ASPIC_METHOD);
+    assert_eq!(actual["evidence_kind"], "aspic_theory");
     assert_eq!(
         theory_schema(),
-        &expected["input_schema"]["properties"]["theory"]
+        &actual["input_schema"]["properties"]["theory"]
     );
-    assert_eq!(output_schema(), &expected["output_schema"]);
+    assert_eq!(output_schema(), &actual["output_schema"]);
     assert_eq!(aspic_contract().query_fields, ["theory"]);
     assert_eq!(
         aspic_contract().output_type("query_accepted"),

@@ -1,4 +1,4 @@
-//! Adversarial checks for diagnostics and limits beyond the reference corpus.
+//! Adversarial checks for recognition diagnostics and resource limits.
 use eal_parser::{DiagnosticStage, ParseLimits, parse, parse_with_limits};
 
 #[test]

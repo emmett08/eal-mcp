@@ -537,6 +537,3 @@ fn nested_default_entry_ids_can_refresh_and_assess_registered_claims() {
     assert_eq!(result["source_digest"], entry["source_digest"]);
     assert_eq!(result["collected_count"], 1);
 }
-
-#[path = "catalogue/reference.rs"]
-mod reference;

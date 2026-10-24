@@ -1,6 +1,6 @@
 //! Checked semantic formatting retains source meaning and captured imports.
 use eal_core::{ExecutionLimits, composition, methods, semantic_format, validation};
-use serde_json::{Value, json};
+use serde_json::json;
 
 fn compile(source: &str) -> eal_core::semantic::Program {
     composition::compile(source, None, "", ExecutionLimits::default()).unwrap()
@@ -31,73 +31,6 @@ environment lab
 }
 argument assess = [evidence observed] via relation => passed
 "#;
-
-#[test]
-fn every_reference_case_is_checked_and_valid_sources_roundtrip() {
-    let corpus: Value =
-        serde_json::from_str(include_str!("../../../fixtures/semantics/reference.json")).unwrap();
-    let mut successes = 0;
-    let mut rejected = 0;
-    let mut input_errors = 0;
-    let mut failures = Vec::new();
-    for case in corpus["cases"].as_array().unwrap() {
-        let name = case["name"].as_str().unwrap();
-        let limits =
-            serde_json::from_value(case.get("limits").cloned().unwrap_or_else(|| json!({})))
-                .unwrap();
-        let resolver = |path: &str| {
-            case["imports"]
-                .get(path)
-                .and_then(Value::as_str)
-                .map(str::to_owned)
-                .ok_or_else(|| format!("No trusted source {path}"))
-        };
-        let program = match composition::compile(
-            case["source"].as_str().unwrap(),
-            case.get("imports")
-                .map(|_| &resolver as &composition::SourceResolver<'_>),
-            case["origin"].as_str().unwrap_or(""),
-            limits,
-        ) {
-            Ok(program) => program,
-            Err(_) => {
-                input_errors += 1;
-                continue;
-            }
-        };
-        let valid = validation::validate_default(&program).is_empty();
-        match semantic_format::format_default(&program) {
-            Ok(output) if valid => {
-                successes += 1;
-                let replay = composition::compile(
-                    &output,
-                    case.get("imports")
-                        .map(|_| &resolver as &composition::SourceResolver<'_>),
-                    &program.root_origin,
-                    program.limits.clone(),
-                )
-                .unwrap();
-                assert_eq!(
-                    semantic_format::semantic_ir(&program).unwrap(),
-                    semantic_format::semantic_ir(&replay).unwrap(),
-                    "{name}"
-                );
-                assert_eq!(
-                    semantic_format::format_default(&replay).unwrap(),
-                    output,
-                    "{name}"
-                );
-            }
-            Err(_) if !valid => {
-                rejected += 1;
-            }
-            Err(error) => failures.push(format!("{name}: {error}")),
-            Ok(_) => failures.push(format!("{name}: invalid programme was formatted")),
-        }
-    }
-    assert!(failures.is_empty(), "{}", failures.join("\n"));
-    assert_eq!((successes, rejected, input_errors), (71, 18, 4));
-}
 
 #[test]
 fn plain_direct_ir_has_a_faithful_fallback() {

@@ -1,0 +1,28 @@
+# Replace operator paths and selectors before use.
+# Keep this file and the inventory under operator control.
+[tools.production_resources]
+kind = "command"
+version = "1"
+argv = ["/opt/eal/bin/eal-collector", "kubernetes", "--executable", "/usr/local/bin/kubectl", "--supervisor", "/opt/eal/bin/eal-command-supervisor", "--inventory", "/etc/eal/production-clusters.json", "--resource", "applications.argoproj.io", "--kind", "Application", "--namespace", "argocd", "--name", "catalog-sync-operator", "--timeout-seconds", "90", "--max-bytes", "4194304", "--inherit-env", "KUBECONFIG", "--inherit-env", "HOME", "--inherit-env", "PATH"]
+timeout_seconds = 100
+max_output_bytes = 4194304
+inherit_env = ["KUBECONFIG", "HOME", "PATH"]
+parallel_safe = false
+
+[tools.production_traces]
+kind = "command"
+version = "1"
+argv = ["/opt/eal/bin/eal-collector", "tempo", "--inventory", "/etc/eal/production-clusters.json", "--url", "https://REPLACE_TEMPO_HOST/api/search", "--token-env", "TEMPO_TOKEN", "--tenant-env", "TEMPO_TENANT", "--kind", "Application", "--name", "catalog-sync-operator", "--cluster-attribute", "resource.k8s.cluster.name", "--timeout-seconds", "90", "--max-bytes", "4194304", "--max-window-seconds", "86400", "--limit", "20"]
+timeout_seconds = 100
+max_output_bytes = 4194304
+inherit_env = ["TEMPO_TOKEN", "TEMPO_TENANT"]
+parallel_safe = false
+
+[tools.github_commit]
+kind = "command"
+version = "1"
+argv = ["/opt/eal/bin/eal-collector", "github", "--executable", "/usr/local/bin/gh", "--supervisor", "/opt/eal/bin/eal-command-supervisor", "--repository", "REPLACE_OWNER/REPLACE_REPOSITORY", "--commit", "REPLACE_WITH_EXACT_COMMIT_SHA", "--inherit-env", "GH_TOKEN"]
+timeout_seconds = 40
+max_output_bytes = 1048576
+inherit_env = ["GH_TOKEN"]
+parallel_safe = false

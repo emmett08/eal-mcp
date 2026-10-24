@@ -1,0 +1,269 @@
+{
+  "languages": [
+    "EAL/3"
+  ],
+  "source_syntax": "EAL/3",
+  "syntax": {
+    "notation": "Capitalised placeholders denote values. Fields end at newlines and may appear in any order. Square brackets are literal lists/support groups. Names are unique within lexical modules and argument blocks; dotted names identify lowered declarations. Forward references are allowed. Strings use JSON quoting; comments use // or /* */.",
+    "program": "language \"EAL/3\"\nDECLARATIONS",
+    "context": "context environment ENV, tool TOOL, max_age SECONDS, kind KIND {\nDECLARATIONS\n}",
+    "module": "module NAME {\nDECLARATIONS\n}",
+    "import": "import \"WORKSPACE_SOURCE.eal\" as ALIAS",
+    "block_argument": "argument NAME {\nLOCAL_DECLARATIONS\n[evidence E, premises LOCAL_CLAIM] via REASONING => CLAIM\n}",
+    "compound_pattern": "pattern NAME(c: claim, r: reasoning, es: evidence[], env: environment) {\nLOCAL_DECLARATIONS_AND_APPLICATIONS\n}",
+    "recursive_pattern": "pattern NAME(c: claim, r: reasoning, es: evidence[]) decreases es {\nwhen es {\nargument item = [evidence head(es)] via r => c\napply rest = NAME(c=c, r=r, es=tail(es))\n}\n}",
+    "scope_transfer": "reasoning NAME {\nmethod \"structured/1\"\nrationale \"CONDITIONAL_RELATION\"\ntransfer from SOURCE_ENV to TARGET_ENV assuming ASSUMPTION reviewed \"REVIEW\"\n}",
+    "environment": "environment NAME {\nrequire CONTEXT.FIELD OP SCALAR\n}",
+    "tool": "tool NAME {\nversion \"VERSION\"\n}",
+    "evidence": "evidence NAME {\ntool TOOL\nkind KIND\nenvironment ENV\nmax_age SECONDS\ninput JSON\nrequire VALUE.FIELD OP SCALAR\n}",
+    "assumption": "assumption NAME {\nstatement \"TEXT\"\nenvironment ENV\nvalidate EVIDENCE\nvalid_from \"TIME\"\nvalid_until \"TIME\"\n}",
+    "reasoning": "reasoning NAME {\nmethod \"VERSIONED_METHOD_ID\"\nrationale \"TEXT\"\nbacking [EVIDENCE_LIST]\nrequire OUTPUT.FIELD OP SCALAR\n}",
+    "claim": "claim NAME {\nstatement \"TEXT\"\nenvironment ENV\nproposition {\nsubject \"ENTITY\"\nquantity \"QUANTITY\"\nunit \"UNIT\"\nscope \"SCOPE\"\nvalid_from \"TIME\"\nvalid_until \"TIME\"\nquery JSON\nresult OUTPUT.FIELD OP SCALAR\n}\n}",
+    "argument": "argument NAME = [evidence EVIDENCE_LIST, assumptions ASSUMPTION_LIST, premises CLAIM_LIST] via REASONING => CLAIM binding EVIDENCE",
+    "objection": "objection NAME = [evidence EVIDENCE_LIST, premises CLAIM_LIST] -x> TARGET_KIND TARGET_NAME",
+    "pattern": "pattern NAME(c: claim, r: reasoning, e: evidence) = [evidence e] via r => c",
+    "apply": "apply ARGUMENT = PATTERN(PARAM=REFERENCE, ...)",
+    "formal_relations": "strict ARGUMENT reviewed \"REVIEW_REFERENCE\"\nrank EVIDENCE_OR_ASSUMPTION_OR_ARGUMENT INTEGER reviewed \"REVIEW_REFERENCE\"\nprefer FALLIBLE_ELEMENT over FALLIBLE_ELEMENT reviewed \"REVIEW_REFERENCE\"\ncontrary CLAIM to CLAIM reviewed \"REVIEW_REFERENCE\". These are ASPIC+ formalisation directives. reason validates them; compile-aspic applies their effects. Ranks are integers 0-1000; claim contraries are directed.",
+    "scope_defaults": "Multiple declarations retain distinct identities, inputs and predicates. Nearest context wins; explicit fields override defaults. Defaults are restricted by declaration type: tool version; evidence environment/tool/kind/input/max_age; assumption environment/validate/dates; claim environment; reasoning method; proposition subject/quantity/unit/scope/dates/query. Required fields are checked after inheritance. Contexts group metadata; modules and block arguments introduce lexical namespaces.",
+    "optional_fields": "Evidence input, reasoning backing, claim proposition, assumption validity dates, each support group and binding are optional. Evidence/environment require predicates; arguments/objections require nonempty support. All proposition fields are required.",
+    "nested_derivations": "Block arguments contain local declarations and finish with a support flow. Compound patterns contain multiple routes, local definitions and nested applications. Premises still reference claims, retaining acyclic engineering derivations. Recursive template expansion is separate from logical self-support: recursive calls must consume a guarded tail of a finite typed list.",
+    "abstraction": "Patterns have closed typed parameters. Data references name typed parameters or local declarations; helper pattern calls are resolved lexically. Expansion preserves dependency identities and qualifies generated names by application. Forward references are allowed; invalid bindings are diagnosed.",
+    "operators": [
+      "==",
+      "!=",
+      "<",
+      "<=",
+      ">",
+      ">=",
+      "and",
+      "or",
+      "not",
+      "+",
+      "-",
+      "*",
+      "/",
+      "%"
+    ],
+    "expressions": "Pure functions: field, literal, count, sum, min, max, abs, all, any, quantity. Boolean operands are strict; missing data remains unknown under negation. Numerical operations require finite values; quantity arithmetic checks registered dimensions and rational unit scales. Invalid operations are never masked by Boolean composition.",
+    "lists": "Comma-separated identifiers retain their order. Computational methods need output predicates and typed claims need an evidence binding on each supporting argument."
+  },
+  "methods": {
+    "structured/1": {
+      "input": "Author-supplied evidence/premise relation",
+      "meaning": "Checks availability and composition; does not prove prose"
+    },
+    "deductive/1": {
+      "kind": "logical_case",
+      "input": {
+        "premises": [
+          "FORMULA"
+        ],
+        "conclusion": "FORMULA"
+      },
+      "formula": "An atom string, {\"not\":f}, {\"and\":[f,...]}, {\"or\":[f,...]} or {\"implies\":[f,g]}",
+      "outputs": [
+        "entailed",
+        "consistent_premises",
+        "counterexample"
+      ],
+      "limit": "At most 12 atoms; inconsistent premises are unusable"
+    },
+    "inductive/1": {
+      "kind": "sample",
+      "input": {
+        "successes": "INTEGER",
+        "trials": "POSITIVE_INTEGER",
+        "confidence": "NUMBER"
+      },
+      "outputs": [
+        "estimate",
+        "lower",
+        "upper",
+        "sample_size",
+        "confidence"
+      ],
+      "meaning": "Wilson interval; sampling assumptions are supplied, not established"
+    },
+    "abductive/1": {
+      "kind": "hypotheses",
+      "input": {
+        "observed": "JOINT_EVENT",
+        "candidates": [
+          {
+            "name": "HYPOTHESIS",
+            "prior": "NUMBER",
+            "likelihood": "NUMBER"
+          }
+        ]
+      },
+      "outputs": [
+        "posterior",
+        "best",
+        "best_posterior",
+        "ties"
+      ],
+      "meaning": "Bayesian update within supplied candidates and joint likelihoods"
+    },
+    "causal/1": {
+      "kind": "experiment",
+      "input": {
+        "assignment": "randomised",
+        "treatment": [
+          "NUMBER"
+        ],
+        "control": [
+          "NUMBER"
+        ]
+      },
+      "outputs": [
+        "estimate",
+        "standard_error"
+      ],
+      "meaning": "Difference of group means with standard error; at least two values per group; design metadata is asserted"
+    },
+    "counterfactual/1": {
+      "kind": "causal_model",
+      "input": {
+        "variables": {
+          "VARIABLE": {
+            "intercept": "NUMBER",
+            "coefficients": {
+              "PARENT": "NUMBER"
+            },
+            "noise": "NUMBER"
+          }
+        },
+        "intervention": {
+          "variable": "VARIABLE",
+          "value": "NUMBER"
+        },
+        "outcome": "VARIABLE"
+      },
+      "outputs": [
+        "factual",
+        "counterfactual",
+        "difference"
+      ],
+      "meaning": "Acyclic affine structural model, supplied fixed noise; at most 32 variables"
+    },
+    "analogical/1": {
+      "kind": "analogy",
+      "input": {
+        "relevant_features": [
+          "FEATURE"
+        ],
+        "source": {
+          "FEATURE": "SCALAR"
+        },
+        "target": {
+          "FEATURE": "SCALAR"
+        }
+      },
+      "outputs": [
+        "match_fraction"
+      ],
+      "meaning": "Exact declared feature comparisons, not a probability or proof of transfer"
+    },
+    "temporal/1": {
+      "kind": "trace",
+      "input": {
+        "start": "NUMBER",
+        "end": "NUMBER",
+        "max_gap": "NUMBER",
+        "events": [
+          {
+            "time": "NUMBER",
+            "value": "NUMBER"
+          }
+        ],
+        "property": {
+          "operator": "lt|le|eq|ne|ge|gt",
+          "value": "NUMBER"
+        },
+        "semantics": "sampled"
+      },
+      "outputs": [
+        "holds"
+      ],
+      "meaning": "Ordered, bounded finite samples with endpoint/gap coverage; no continuous-time conclusion"
+    }
+  },
+  "environment_contexts": "Supply flat context for one shared environment, or {$environments: {ENV: CONTEXT}} for explicit separate contexts. Scope transfer still requires a reviewed relation and validated target assumption.",
+  "optional_compilation": {
+    "profile": "EAL/3-compiled-aspic/5",
+    "cli": "compile-aspic SOURCE --context JSON --collection COLLECTION_ID --goal CLAIM [--now TIME]",
+    "mcp": "eal_compile_aspic(source, context, collection_id, goal, now?)",
+    "input": "Validated EAL/3 source, matching stored observation collection, declared goal claim and explicit or current assessment time",
+    "meaning": "Check EAL observations and local methods, then translate available evidence, locally usable argument routes, assumptions and targeted objections into a bounded ASPIC+ theory with explicit source mapping; reviewed EAL argumentation relations supply optional strict rules, ranks and directed claim contraries; ordinary EAL reasoning is unchanged",
+    "output": [
+      "profile",
+      "theory",
+      "formal",
+      "routes",
+      "source_map",
+      "claim_status",
+      "authored_claim_status",
+      "source_digest",
+      "snapshot_digest",
+      "collection_id"
+    ],
+    "limits": "Unannotated fallible elements use rank 500 and authored routes remain defeasible; strictness, claim contrariness and ranks require checked source annotations. Objections cannot undercut strict routes or carry ranks. Accepted contrary conclusions are rejected as outside this profile. Finite premise-founded construction, including cyclic rule graphs without repeated branch conclusions. Grounded, preferred and stable extensions; credulous or sceptical conclusion queries; minimum-rank, rank-based last-link or reviewed partial last-link preference. Host budgets bound construction and extension search; exhaustion is incomplete; no inferred prose semantics, full ASPIC+ expressiveness or general EAL/ASPIC+ equivalence"
+  },
+  "aspic_export": {
+    "cli": "export-aspic RESULT.json --output VIEW.json",
+    "input": "A previously computed compiled result, or an explicit theory and matching formal solver result",
+    "output": "aspic-view/3 JSON for the separate Vue/TypeScript visualisation app: arguments, direct derivations, grounded labels, selected extensions and query mode, explicit preferences and execution budgets, defeat witnesses, typed unavailable-evidence issues and supplied source locations",
+    "meaning": "Recompute the bounded formal result and require exact agreement before exporting. The separate app imports JSON locally; neither export nor viewing collects evidence or authenticates supplied provenance"
+  },
+  "composition": "Default EAL/3 computes the least-information fixed point of authored conjunctive support, alternative derivations and objection attacks. Objections can depend on claim subarguments; targeting an objection expresses defence. Attack cycles may remain undecided. Default assessment does not construct ASPIC+ rule arguments or preference-sensitive defeat. The separate opt-in compiler constructs a bounded ASPIC+ snapshot from checked EAL declarations. Rejected acceptance does not assert falsity.",
+  "statuses": {
+    "valid": "Static language well-formedness only",
+    "incomplete": "A host budget or timeout prevented a complete calculation; no false or accepted conclusion is manufactured",
+    "supported": "At least one usable, uncontested derivation under the declared model",
+    "contested": "A usable derivation or dependency is challenged; no independent uncontested derivation",
+    "unsupported": "No usable derivation; does not imply false",
+    "out_of_scope": "The supplied environment does not match the declared conditions"
+  },
+  "workflow": [
+    "describe",
+    "validate",
+    "plan",
+    "collect_claim|collect",
+    "reason",
+    "packet|explain"
+  ],
+  "registered_workflow": [
+    "eal_sources",
+    "eal_find_claims",
+    "eal_assess_known",
+    "eal_get_known_packet"
+  ],
+  "model_context": {
+    "schema": "EAL/model-context/2",
+    "packet_schema": "EAL/assessment-packet/2",
+    "meaning": "A decision-focused projection retains bounded authored statements and explicit prose_verified qualifications for selected and premise claims, checked method outputs, assumption applicability times and bounded field-level evidence failures. Formal support does not verify authored prose. Statement truncation and other omissions mark the summary incomplete. Complete source, acquisition values and trace identities remain in host state. Numeric method results are exposed through declared output contracts, not by copying raw tool records."
+  },
+  "registered_assessment": "The developer registers exact EAL source and selected claims once. Later sessions identify an entry and claim; the host plans all relevant argument routes, reuses eligible observations at their original age, collects missing evidence, evaluates the declared methods and returns a bounded packet. Model-facing registered MCP calls require a trusted launcher --known-entry allowlist and use registered context. A text-only model can receive this packet from ModelContextAdapter without tool or native reasoning calls.",
+  "acquisition_plan": "eal_plan(source, claim) computes the complete potentially decisive evidence closure, including alternative arguments, transitive premises, backing, assumption validation, objections and defences. eal_collect_claim runs that plan with operator-granted tools.",
+  "tool_binding": "A sibling operator-owned TOML registry chooses command or json_file, bounded execution, optional parallel_safe and command environment inheritance. Registered claims use those bindings through the host. Only operator-declared independent read-only calls may overlap.",
+  "source_identity": "Collections bind exact root source bytes, imported-source digests and context. Imports contain EAL source only and resolve inside the operator workspace. Registered assessment creates a new collection for a revision and can reuse matching observations at their original age. Reasoning refuses a mismatched collection.",
+  "observation_import": {
+    "required_envelope_fields": [
+      "value",
+      "observed_at",
+      "context",
+      "request"
+    ],
+    "acquisition_request_fields": [
+      "tool",
+      "tool_version",
+      "input",
+      "context"
+    ],
+    "correspondence": "File observations must match the requested acquisition. Explicit stored-observation rebinding also checks the same evidence ID, environment, kind, request, context and operator binding, preserving the original measurement time.",
+    "interpretation": "Matching metadata checks correspondence; it does not authenticate a measurement. Importing again preserves original observation time."
+  },
+  "time": "Timezone-aware ISO-8601; applicability intervals are [valid_from, valid_until). Evidence age is usable through max_age inclusively. New ingestion does not refresh original observation time.",
+  "interpretation": "Statements and rationales are prose. Typed bindings check represented correspondence and numerical predicates, not empirical truth. Model premises, scope, sampling and causal assumptions require their own grounds. Reusing an observation does not create independent evidence.",
+  "example": "language \"EAL/3\"\nenvironment bench {\n  require site == \"bench\"\n}\ntool collector {\n  version \"1\"\n}\ncontext environment bench, tool collector, max_age 3600 {\n  evidence observation {\n    kind test\n    require passed == true\n  }\n  reasoning measured {\n    method \"structured/1\"\n    rationale \"The observation supports only the stated test result in this environment.\"\n  }\n  claim checked {\n    statement \"The supplied test passes at the bench.\"\n  }\n  argument measurement = [evidence observation] via measured => checked\n}\n"
+}

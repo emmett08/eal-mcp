@@ -233,7 +233,7 @@ fn invalid_first_raw_bytes_are_durable_and_replay_cannot_repair_them() {
             coordinator
                 .record(id, b"{}", id_whitespace, "software_test", None, None)
                 .is_err(),
-            "Python-whitespace-only identity must not consume the first attempt"
+            "Whitespace-only identity must not consume the first attempt"
         );
     }
     assert!(

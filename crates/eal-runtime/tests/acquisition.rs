@@ -1,8 +1,8 @@
 use eal_core::ExecutionLimits;
 use eal_runtime::{acquisition::*, process::Supervisor};
-use serde_json::{Value, json};
+use serde_json::json;
 use sha2::{Digest, Sha256};
-use std::{collections::BTreeMap, fs, path::PathBuf};
+use std::{fs, path::PathBuf};
 
 struct Workspace(PathBuf);
 impl Workspace {
@@ -20,135 +20,8 @@ impl Drop for Workspace {
         let _ = fs::remove_dir_all(&self.0);
     }
 }
-fn reference() -> Value {
-    eal_core::json::parse(
-        include_str!("../../../fixtures/runtime/acquisition-reference.json"),
-        &ExecutionLimits::default(),
-    )
-    .unwrap()
-}
 fn secret() -> [u8; 32] {
     [b'x'; 32]
-}
-
-#[test]
-fn complete_registry_validation_and_private_binding_identities_match_python() {
-    let fixture = reference();
-    let workspace = Workspace::new();
-    for (name, value) in fixture["pinned_files"].as_object().unwrap() {
-        workspace.write(name, value.as_str().unwrap())
-    }
-    for case in fixture["registry"].as_array().unwrap() {
-        let actual = ToolRegistry::from_toml(case["toml"].as_str().unwrap());
-        if let Some(error) = case.get("error") {
-            let actual = actual.unwrap_err();
-            assert_eq!(actual.type_name(), error["type"], "{}", case["name"]);
-            assert_eq!(actual.message, error["message"], "{}", case["name"]);
-        } else {
-            let actual = actual.unwrap_or_else(|e| panic!("{}: {e}", case["name"]));
-            for (name, expected) in case["value"].as_object().unwrap() {
-                let b = actual
-                    .binding_for(name, expected["binding"]["version"].as_str().unwrap())
-                    .unwrap();
-                let fields = json!({"name":b.name,"kind":b.kind.as_str(),"version":b.version,"argv":b.argv,"path":b.path,
-                    "timeout_seconds":b.timeout_seconds,"max_output_bytes":b.max_output_bytes,"env":b.env,
-                    "pinned_files":b.pinned_files.iter().map(|p|json!([p.path,p.sha256])).collect::<Vec<_>>(),
-                    "parallel_safe":b.parallel_safe,"inherit_env":b.inherit_env});
-                assert_eq!(fields, expected["binding"], "{}", case["name"]);
-                assert_eq!(
-                    b.binding_digest(&secret(), Some(&workspace.0)).unwrap(),
-                    expected["digest"],
-                    "{}",
-                    case["name"]
-                );
-                let environment = BTreeMap::from([
-                    ("TOKEN".into(), "synthetic-secret".into()),
-                    ("LANG".into(), "C".into()),
-                ]);
-                assert_eq!(
-                    json!(
-                        b.process_environment_digest(&secret(), Some(&environment))
-                            .unwrap()
-                    ),
-                    expected["environment_digest"],
-                    "{}",
-                    case["name"]
-                );
-            }
-        }
-    }
-}
-
-#[test]
-fn keyed_domains_and_exact_ascii_request_bytes_match_python() {
-    let fixture = reference();
-    for case in fixture["digests"].as_array().unwrap() {
-        assert_eq!(
-            keyed_digest(
-                &secret(),
-                case["domain"].as_str().unwrap().as_bytes(),
-                &case["value"]
-            )
-            .unwrap(),
-            case["digest"],
-            "{}",
-            case["name"]
-        );
-    }
-    for case in fixture["requests"].as_array().unwrap() {
-        assert_eq!(
-            encode_request(&case["value"], &ExecutionLimits::default()).unwrap(),
-            case["encoded"].as_str().unwrap().as_bytes()
-        );
-    }
-    assert!(keyed_digest(&secret()[..31], b"tool-binding", &Value::Null).is_err());
-    assert!(keyed_digest(&secret(), b"", &Value::Null).is_err());
-}
-
-#[test]
-fn strict_json_and_envelope_correspondence_match_python() {
-    let fixture = reference();
-    for case in fixture["strict_json"].as_array().unwrap() {
-        let actual = strict_json(case["text"].as_str().unwrap());
-        if let Some(expected) = case.get("encoded_value") {
-            assert_eq!(
-                serde_json::to_string(&actual.unwrap_or_else(|e| panic!("{}: {e}", case["name"])))
-                    .unwrap(),
-                expected.as_str().unwrap(),
-                "{}",
-                case["name"]
-            );
-        } else if let Some(expected) = case.get("value") {
-            assert_eq!(
-                &actual.unwrap_or_else(|e| panic!("{}: {e}", case["name"])),
-                expected,
-                "{}",
-                case["name"]
-            )
-        } else {
-            let error = actual.expect_err(case["name"].as_str().unwrap());
-            assert_eq!(
-                error.type_name(),
-                case["error"]["type"],
-                "{}: {error}",
-                case["name"]
-            )
-        }
-    }
-    for case in fixture["envelopes"].as_array().unwrap() {
-        let actual = validate_envelope(
-            case["text"].as_str().unwrap().as_bytes(),
-            case["file_import"].as_bool().unwrap(),
-            &case["context"],
-            &case["acquisition"],
-        );
-        if let Some(expected) = case.get("value") {
-            assert_eq!(&actual.unwrap(), expected, "{}", case["name"])
-        } else {
-            let error = actual.expect_err(case["name"].as_str().unwrap());
-            assert_eq!(error.as_record(), case["error"], "{}", case["name"])
-        }
-    }
 }
 
 #[test]

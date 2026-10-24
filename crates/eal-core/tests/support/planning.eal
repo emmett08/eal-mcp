@@ -1,0 +1,167 @@
+language "EAL/3"
+
+environment lab {
+  require "site" == "bench"
+}
+
+environment field {
+  require "site" == "field"
+}
+
+tool collector {
+  version "1"
+}
+
+evidence alternative {
+  tool collector
+  kind test
+  environment lab
+  max_age 60
+  require "ok" == true
+}
+
+evidence direct {
+  tool collector
+  kind test
+  environment lab
+  max_age 60
+  require "ok" == true
+}
+
+evidence backing_record {
+  tool collector
+  kind test
+  environment lab
+  max_age 60
+  require "ok" == true
+}
+
+evidence validation {
+  tool collector
+  kind test
+  environment lab
+  max_age 60
+  require "ok" == true
+}
+
+evidence premise {
+  tool collector
+  kind test
+  environment lab
+  max_age 60
+  require "ok" == true
+}
+
+evidence challenge {
+  tool collector
+  kind test
+  environment lab
+  max_age 60
+  require "ok" == true
+}
+
+evidence defence {
+  tool collector
+  kind test
+  environment lab
+  max_age 60
+  require "ok" == true
+}
+
+evidence reply {
+  tool collector
+  kind test
+  environment lab
+  max_age 60
+  require "ok" == true
+}
+
+evidence objection_premise {
+  tool collector
+  kind test
+  environment lab
+  max_age 60
+  require "ok" == true
+}
+
+evidence unrelated {
+  tool collector
+  kind test
+  environment lab
+  max_age 60
+  require "ok" == true
+}
+
+evidence foreign {
+  tool collector
+  kind test
+  environment field
+  max_age 60
+  require "ok" == true
+}
+
+assumption calibrated {
+  statement "The collector is calibrated."
+  environment lab
+  validate validation
+}
+
+reasoning checked {
+  method "structured/1"
+  rationale "The measured facts support the claim."
+  backing [backing_record]
+}
+
+reasoning inferred {
+  method "structured/1"
+  rationale "The premise supports the claim."
+}
+
+claim root {
+  statement "The selected result."
+  environment lab
+}
+
+claim leaf {
+  statement "A required premise."
+  environment lab
+}
+
+claim attacker {
+  statement "A premise for the challenge."
+  environment lab
+}
+
+claim other {
+  statement "An unrelated result."
+  environment lab
+}
+
+claim foreign_claim {
+  statement "A foreign result."
+  environment field
+}
+
+argument primary = [evidence direct, assumptions calibrated] via checked => root
+
+argument alternative_route = [evidence alternative] via inferred => root
+
+argument nested = [premises leaf] via inferred => root
+
+argument leaf_route = [evidence premise] via inferred => leaf
+
+argument attacker_route = [evidence objection_premise] via inferred => attacker
+
+argument other_route = [evidence unrelated] via inferred => other
+
+argument foreign_route = [evidence foreign] via inferred => foreign_claim
+
+objection original = [evidence challenge] -x> assumption calibrated
+
+objection answer = [evidence defence] -x> objection original
+
+objection rejoinder = [evidence reply] -x> objection answer
+
+objection grounds = [premises attacker] -x> claim root
+
+objection scoped_out = [evidence foreign] -x> reasoning inferred

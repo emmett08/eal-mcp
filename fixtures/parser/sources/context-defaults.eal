@@ -1,3 +1,0 @@
-language "EAL/3"
-context environment lab, tool collector, max_age -1.25e+2, kind test, input {"v": [null, true, false, -0, 2E-3]}, version "1", validate first, method "structured/1", subject "pump", quantity "pressure", unit "Pa", scope "test", valid_from "2026-01-01T00:00:00Z", valid_until "2027-01-01T00:00:00Z", query {} {
-}

@@ -2,19 +2,18 @@
   "status": "synthetic_host_machinery_rehearsal_completed_not_empirical_pilot",
   "protocol_id": "EAL-CONTEXT-001",
   "protocol_version": "0.1.0",
-  "command": "python3 experiments/eal-context-001/rehearse.py",
-  "started_at_utc": "2026-10-21T08:08:23.944205+00:00",
-  "completed_at_utc": "2026-10-21T08:08:24.487703+00:00",
-  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
-  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "implementation": "native Rust history harness/1",
+  "command": "eal-context rehearse",
+  "started_at_utc": "2026-10-24T10:25:56.192835759+00:00",
+  "completed_at_utc": "2026-10-24T10:25:57.693185142+00:00",
+  "platform": "linux-x86_64",
   "code_sha256": {
-    "history.py": "da7c6c5a8639fb0ae30fcbe67bac3e73dce76e747af1c261f7ef1dc86606a8fe",
-    "test_history.py": "dc00367e717bd7e51ee7cf6b8be2f57d37e8c047ac958a17e69b706970057936",
-    "rehearse.py": "d8513b48298ba0667bc9fe15f846de7519a336ffa90b0c62300627b67fea89fe"
+    "history.rs": "66a25c9ef404b7982f493484e5a9b5d0978b85381eb1027e0fb6e224f2eeb1cc",
+    "history/tests.rs": "024335b7fd6a09c9b89b3f7b3179eaeabbfd94410dd09c6ef0cff77d180d7714",
+    "history/usage.rs": "8722071eee9927b9ee315c9b34f5e7ce8e87c71c308662133d9d13bb3afb8d41",
+    "history/budget.rs": "7239a00315fbd8ddfea9cfda9eb53d8df5fc8be3e94a996c8634f9c73af17015",
+    "rehearse.rs": "2a419165f2978343b6a01dc30fa7536ed20af1f4a595114566fb99210edd00aa"
   },
-  "calibration_checks_run": 6,
-  "calibration_check_failures": 0,
-  "calibration_check_errors": 0,
   "synthetic_history_traces": 9,
   "synthetic_turns_completed": 720,
   "model_sessions": 0,
@@ -22,13 +21,12 @@
   "provider_usage": null,
   "quality_scores": null,
   "limitations": [
-    "All packets, user turns and placeholder answers in this rehearsal are synthetic fixtures.",
-    "No EAL service, ModelContextBuilder or provider request is executed by this rehearsal.",
-    "The cap and recorded occupancies are serialised UTF-8 bytes, not model tokens or token estimates.",
-    "Three trace lengths and three policies are machinery configurations, not independent scenario families.",
-    "The six software checks do not validate assessors or replace the protocol's six independently reviewed calibration cases.",
-    "No model-directed retrieval, empirical efficiency, answer correctness or retention result is established.",
-    "The production adapter must supply actual checked model messages, actual MCP schemas, and a validated full-request token counter."
+    "All packets and turns are synthetic fixtures.",
+    "Request occupancy is UTF-8 JSON bytes rather than model tokens.",
+    "Request-byte figures use the recorded native JSON implementation.",
+    "No model, EAL service or provider request is executed by this rehearsal.",
+    "Run cargo test for independent policy assertions; this trace command reports its own exercised scope.",
+    "The empirical model-session pilot and independent assessor calibration remain unrun."
   ],
   "traces": [
     {

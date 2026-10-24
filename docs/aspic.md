@@ -1,6 +1,6 @@
 # Finite ASPIC reasoning
 
-`eal-aspic` implements the pinned `argumentation/aspic/2` theory contract,
+`eal-aspic` implements the `argumentation/aspic/2` theory contract,
 `EAL/3-compiled-aspic/5` source translation and `aspic-view/3` export. These are
 explicit formal operations alongside the authored EAL evaluator. An EAL source
 uses `method "argumentation/aspic/2"` only when the host installs that registry.
@@ -95,7 +95,7 @@ connects the explicit theory contract to the companion editor.
 ## Native commands and APIs
 
 ```sh
-cargo run --locked -p eal-cli --bin eal-core -- aspic fixtures/aspic/example-theory.json
+cargo run --locked -p eal-cli --bin eal-core -- aspic examples/aspic-theory.json
 cargo run --locked -p eal-cli --bin eal-core -- --methods aspic describe
 ```
 
@@ -132,20 +132,16 @@ code 2. Method assessment retains `status: "incomplete"`, causing the enclosing
 authored assessment to set `complete: false`.
 
 Local graph `resource_limit` diagnostics also produce typed `Incomplete` during
-compilation. The Python compiler wraps that particular failure as
-`CompilationError` before checking completeness; the native diagnostic text
-remains the same while its error category identifies unfinished computation.
+compilation. The error category identifies unfinished computation.
 
 Formal construction, arguments, antecedents, atoms, contrary pairs, defeat
 witnesses and extension search have independent budgets. Public solver inputs
 also enforce the selected JSON traversal limits, including the native depth
-ceiling. This strengthens direct-call admission when a host selects JSON
-budgets smaller than the source validator's fixed 100,000-node/depth-64 profile.
-The schema profile then remains the pinned source profile. Compiler and exporter
-also enforce the ASPIC contract's 256 KiB input and 1 MiB response limits.
+ceiling. Direct-call admission enforces the selected JSON budgets. Compiler and
+exporter also enforce the ASPIC contract's 256 KiB input and 1 MiB response limits.
 
-Native implementation identity identifies a retained Rust source bundle and its
-semantic helpers. It is distinct from the Python backend identity. The core
+Native implementation identity identifies the Rust source bundle and its
+semantic helpers. The core
 checks deterministic work and data budgets. The [runtime supervisor](runtime.md)
 owns process deadlines and resource limits for supervised methods. The standalone
 visualiser adapter remains a pure process whose HTTP owner enforces its deadline
@@ -153,29 +149,36 @@ and cancellation. Timeout metadata alone provides neither guarantee.
 
 ## Verification scope
 
-Normal Rust tests compare retained, pinned Python solver, compiler, registry and
-export cases without Python, collectors or a clock. Compiler comparisons omit
-only declared backend metadata and hashes depending on it, then independently
-recompute every native identity. Solver outputs and theory digests compare
-exactly. Independent subset definitions check complete extension families,
-query quantifiers, defeat witnesses and grounded labels for every directed
-graph through three nodes, including self-attacks.
+Rust tests check authored synthetic observations, source and observation
+identities, freshness, typed queries and incomplete computations. Independent
+subset definitions check complete extension families, query quantifiers, defeat
+witnesses and grounded labels for every directed graph through three nodes,
+including self-attacks. Export tests recompute results and reject forged labels,
+subarguments and provenance.
 
-The optional development command `python3 tools/check-aspic-consumer.py
-/path/to/src/domain/aspic.ts /path/to/eal-core` requires Python `jsonschema`
-and Node 24, fetches nothing, and verifies the pinned consumer file's Git blob
-before executing its unchanged graph-checking function bodies. The retained
-fixture cases produced 148 native views (87 explicit and 61 compiled); all
-passed those checks, the separately validated published schema and the
-consumer's size/count policies, while seven forged-graph controls failed.
-That static check is complemented by the companion consumer's Ajv, Vue, static
-browser and actual native live-bridge suites, described in the integration guide.
-Consumer policy additionally caps
-imports at 4 MiB, 4,096 arguments and 65,536 defeat witnesses, so arbitrary
-raised producer budgets do not guarantee browser import acceptance.
+The native static consumer check uses a supplied Node 24 or later executable:
 
-These checks establish the tested finite profile. They do not establish every
-ASPIC+ rationality condition, truth of external premises, deductive validity of
-an authored strict rule or general correspondence between authored and formal
-assessment. Implemented runtime, MCP and visualiser boundaries are recorded in
-[port status](port-status.md).
+```sh
+cargo run --locked -p eal-devtools --bin eal-smoke -- consumer \
+  --consumer /absolute/consumer/src/domain/aspic.ts \
+  --binary /absolute/installed/bin/eal-core \
+  --node /absolute/node
+```
+
+The check verifies the pinned consumer file's Git blob before executing its
+unchanged graph-checking function bodies. It generates views from authored
+native scenarios across all supported semantics, query modes and preference
+policies. It independently validates the published JSON schema and consumer
+size/count policy, then requires rejection of seven forged graphs. Its report
+identifies the executable hash and distinguishes freshly generated views from
+explicitly supplied cached views. The sibling `eal-command-supervisor` bounds
+each child process. `--supervisor FILE` can select it explicitly.
+
+Consumer imports are limited to 4 MiB, 4,096 arguments and 65,536 defeat
+witnesses. The companion consumer's TypeScript, schema and browser checks cover
+the remaining frontend boundaries, as described in the
+[visualiser guide](native-visualiser.md).
+
+These checks support the exercised finite profile. The truth of external
+premises, validity of an authored strict rule and adequacy of the selected
+formalisation require their own evidence.

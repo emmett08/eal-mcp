@@ -341,16 +341,13 @@ fn pure_grounded_and_checked_export_do_not_create_a_store_and_reject_output_esca
     );
     assert_eq!(configured["accepted"], json!(["a", "c"]));
     assert!(!workspace.0.join(".eal").exists());
-    let fixture: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/aspic/export-reference.json"
-    ))
+    let theory = json!({"premises":[{"atom":"ready","kind":"axiom"}],"rules":[],"contraries":[],"goal":"ready"});
+    let formal = eal_aspic::solve_aspic(
+        &json!({"theory":&theory}),
+        &eal_core::ExecutionLimits::default(),
+    )
     .unwrap();
-    let supplied = &fixture["cases"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|c| c["name"] == "formal-default")
-        .unwrap()["input"];
+    let supplied = json!({"theory":theory,"formal":formal});
     workspace.write("formal.json", &supplied.to_string());
     let exported = value(
         workspace.pure(&["export-aspic", "formal.json", "--output", "view.json"]),

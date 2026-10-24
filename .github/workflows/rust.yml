@@ -57,6 +57,29 @@ jobs:
         run: cargo test --workspace --locked
       - name: Build standalone commands and native companions
         run: cargo build --release --workspace --locked
+      - name: Check installed application boundaries
+        run: target/release/eal-smoke applications --prefix "$PWD/target/release"
+      - name: Build the coordination acceptance worker
+        run: cargo build --release --locked -p eal-coordination --example coordination_software_worker
+      - name: Check installed coordination and recovery
+        run: target/release/eal-smoke coordination --prefix "$PWD/target/release" --worker "$PWD/target/release/examples/coordination_software_worker"
+
+  context-experiment:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_PROFILE_DEV_DEBUG: line-tables-only
+      CARGO_PROFILE_TEST_DEBUG: line-tables-only
+      CARGO_INCREMENTAL: '0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install the pinned Rust toolchain
+        run: rustup show
+      - name: Check experiment formatting
+        run: cargo fmt --manifest-path experiments/eal-context-001/Cargo.toml --check
+      - name: Check experiment lints
+        run: cargo clippy --manifest-path experiments/eal-context-001/Cargo.toml --all-targets --locked -- -D warnings
+      - name: Test experiment machinery
+        run: cargo test --manifest-path experiments/eal-context-001/Cargo.toml --locked
 
   regeneration:
     runs-on: ubuntu-latest

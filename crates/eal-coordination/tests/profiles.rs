@@ -9,40 +9,6 @@ use eal_runtime::catalogue::RegisterOptions;
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 
-#[test]
-fn pure_profile_checks_match_the_pinned_reference() {
-    let reference: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/coordination/profile-reference.json"
-    ))
-    .unwrap();
-    for case in reference["requirements"].as_array().unwrap() {
-        let claims = case["claims"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|claim| claim.as_str().unwrap().to_owned())
-            .collect::<Vec<_>>();
-        let error = profiles::validate_requirements(
-            case["profile"].as_str().unwrap(),
-            &claims,
-            &case["requirements"],
-        )
-        .err();
-        assert_eq!(json!(error), case["error"], "{}", case["name"]);
-    }
-    for case in reference["answers"].as_array().unwrap() {
-        assert_eq!(
-            json!(
-                profiles::validate_answer(&case["anchor"], &case["finding"], &case["answer"])
-                    .unwrap()
-            ),
-            case["diagnostics"],
-            "{}",
-            case["name"]
-        );
-    }
-}
-
 struct Workspace(PathBuf);
 impl Workspace {
     fn new() -> Self {

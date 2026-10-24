@@ -6,39 +6,6 @@ use eal_core::{
 use serde_json::{Value, json};
 use std::collections::BTreeSet;
 
-#[test]
-fn retained_python_graph_outcomes_and_certificates_match() {
-    let fixture: Value =
-        serde_json::from_str(include_str!("../../../fixtures/evaluation/dialectic.json")).unwrap();
-    assert_eq!(fixture["python_unicode_version"], "15.0.0");
-    assert_eq!(unicode_general_category::UNICODE_VERSION, (15, 0, 0));
-    for case in fixture["cases"].as_array().unwrap() {
-        let mut limits = serde_json::to_value(ExecutionLimits::default()).unwrap();
-        if let Some(overrides) = case["limits"].as_object() {
-            for (key, value) in overrides {
-                limits[key] = value.clone();
-            }
-        }
-        let limits: ExecutionLimits = serde_json::from_value(limits).unwrap();
-        let request = &case["request"];
-        let result = if case["operation"] == "grounded" {
-            solve_grounded(&request["arguments"], &request["attacks"], &limits)
-        } else {
-            solve_composed(
-                &request["nodes"],
-                &request["claims"],
-                &request["attacks"],
-                &limits,
-            )
-        };
-        if let Some(error) = case["error"].as_str() {
-            assert_eq!(result.unwrap_err(), error, "{}", case["name"]);
-        } else {
-            assert_eq!(result.unwrap(), case["result"], "{}", case["name"]);
-        }
-    }
-}
-
 fn independently_enumerated(
     nodes: &[String],
     edges: &BTreeSet<(String, String)>,

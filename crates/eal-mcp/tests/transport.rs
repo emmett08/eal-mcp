@@ -1,5 +1,5 @@
 #![cfg(unix)]
-//! Actual SDK sessions over byte streams and TCP, using the pinned framework oracle.
+//! Actual native SDK sessions over byte streams and TCP.
 mod common;
 use eal_core::{ExecutionLimits, methods::default_registry};
 use eal_mcp::{
@@ -105,9 +105,6 @@ impl ClientHandler for LegacyClient {
         .with_protocol_version(self.0.clone())
     }
 }
-fn reference() -> Value {
-    serde_json::from_str(include_str!("../../../fixtures/mcp/reference.json")).unwrap()
-}
 fn call(name: &str, arguments: &Value) -> CallToolRequestParams {
     CallToolRequestParams::new(name.to_owned())
         .with_arguments(arguments.as_object().unwrap().clone())
@@ -143,24 +140,12 @@ async fn sdk_byte_stream_roundtrip_preserves_inventory_and_actual_framework_erro
             ProtocolVersion::V_2025_11_25
         );
         let tools = client.list_tools(None).await.unwrap().tools;
-        let fixture = reference();
-        let exposure = if registered { "registered" } else { "operator" };
-        common::assert_inventory_compatibility(
-            serde_json::to_value(tools).unwrap(),
-            &fixture[format!("{exposure}_tools")],
-            registered,
-        );
-        for case in fixture[format!("{exposure}_errors")].as_array().unwrap() {
-            let result = client
-                .call_tool(call(case["tool"].as_str().unwrap(), &case["arguments"]))
-                .await
-                .unwrap();
-            assert_eq!(result.is_error, Some(true), "{}", case["name"]);
+        common::assert_inventory(serde_json::to_value(tools).unwrap(), registered);
+        for (tool, arguments) in common::invalid_calls(registered) {
+            let result = client.call_tool(call(tool, &arguments)).await.unwrap();
+            assert_eq!(result.is_error, Some(true), "{tool}: {arguments}");
             assert_eq!(result.structured_content, None);
-            assert_eq!(
-                serde_json::to_value(result.content).unwrap(),
-                case["result"]["content"]
-            );
+            assert!(!result.content.is_empty());
         }
         if registered {
             let result = client

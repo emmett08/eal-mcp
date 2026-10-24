@@ -1,7 +1,7 @@
 [workspace]
-members = ["crates/eal-parser", "crates/eal-core", "crates/eal-aspic", "crates/eal-runtime", "crates/eal-mcp", "crates/eal-coordination", "crates/eal-cli"]
+members = ["crates/eal-parser", "crates/eal-core", "crates/eal-aspic", "crates/eal-runtime", "crates/eal-mcp", "crates/eal-coordination", "crates/eal-cli", "tools/eal-devtools", "crates/eal-collectors"]
 resolver = "2"
-exclude = ["vendor/rmcp"]
+exclude = ["vendor/rmcp", "experiments/eal-context-001"]
 
 [workspace.package]
 version = "0.1.0"

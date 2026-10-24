@@ -1,4 +1,4 @@
-//! The pinned language guide, with the selected native implementation identity.
+//! Current language syntax and operation guidance with installed method identities.
 use eal_core::{
     ExecutionLimits,
     methods::{self, MethodRegistry},
@@ -7,23 +7,17 @@ use eal_core::{
 use serde_json::{Value, json};
 use std::sync::OnceLock;
 
-pub const REFERENCE_REVISION: &str = "e2d6f346a37f92483b9f9a13923b98feb053447b";
-
-fn reference() -> &'static Value {
-    static REFERENCE: OnceLock<Value> = OnceLock::new();
-    REFERENCE.get_or_init(|| {
-        serde_json::from_str(include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../fixtures/applications/discovery-reference.json"
-        )))
-        .expect("frozen language reference")
+fn guide() -> &'static Value {
+    static GUIDE: OnceLock<Value> = OnceLock::new();
+    GUIDE.get_or_init(|| {
+        serde_json::from_str(include_str!("discovery/guide.json")).expect("current language guide")
     })
 }
 
 /// Describe the language and installed contracts. Transport admission is separate.
-/// The source reference names MCP operations without asserting a running server.
+/// Listed MCP operations describe the interface available through configured servers.
 pub fn describe_language(registry: &MethodRegistry) -> Result<Value, String> {
-    let mut guide = reference()["language"].clone();
+    let mut guide = guide().clone();
     guide["implementation_version"] = json!(env!("CARGO_PKG_VERSION"));
     guide["method_registry_fingerprint"] = json!(registry.fingerprint());
     guide["typed_bindings"] = propositions::describe_bindings(registry);
