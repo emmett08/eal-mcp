@@ -1,5 +1,9 @@
 # Native evidence collectors
 
+For OpenAPI, Datadog, Prometheus, Loki, GitHub CI and retained report profiles,
+see [API and delivery evidence](api-collectors.md).
+These additions are selected through catalogue version 3 or `describe-api`.
+
 `eal-collector` supplies read-only Kubernetes, GitHub and Tempo wrappers for the
 existing `command` collector contract. Install it beside the runtime companions.
 

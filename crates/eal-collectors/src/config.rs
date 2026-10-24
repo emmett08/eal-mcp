@@ -2,13 +2,17 @@
 mod cli;
 use std::{collections::BTreeSet, path::PathBuf, time::Duration};
 
-pub const HELP: &str = "eal-collector describe [--catalogue-version 1|2]\n\
-eal-collector kubernetes|github|tempo [OPTIONS]\n\
+pub const HELP: &str = "eal-collector describe [--catalogue-version 1|2|3]\n\
+eal-collector describe-api PROVIDER --contract-version 2 --measurement ID --config ABSOLUTE --config-sha256 SHA256\n\
+eal-collector kubernetes|github|tempo|openapi|datadog|prometheus|loki [OPTIONS]\n\
+API providers --contract-version 2 --measurement ID --config ABSOLUTE --config-sha256 SHA256\n\
 Shared --contract-version 1|2 --timeout-seconds 30 --max-bytes 1048576\n\
 Commands --executable ABSOLUTE --supervisor ABSOLUTE [--inherit-env NAME ...]\n\
 Kubernetes --inventory ABSOLUTE --resource RESOURCE --kind KIND --name NAME\n\
            [--scope namespaced --namespace NAME | --scope cluster]\n\
 GitHub --repository OWNER/REPO --commit EXACT_40_HEX_SHA\n\
+       github_checks [--max-pages 1..10] | github_workflow --run-id ID --attempt N\n\
+Report --manifest ABSOLUTE --manifest-sha256 SHA256 --contract-version 2\n\
 Tempo --inventory ABSOLUTE --url https://HOST/api/search --kind KIND --name NAME\n\
       [--cluster-attribute resource.k8s.cluster.name] [--kind-attribute span.dpe.rollout_kind]\n\
       [--name-attribute span.dpe.rollout_name] [--token-env NAME] [--tenant-env NAME]\n\
@@ -20,14 +24,22 @@ Credentials are read only from operator-named environment variables.";
 pub enum Provider {
     Kubernetes,
     Github,
+    GithubChecks,
+    GithubWorkflow,
+    Report,
     Tempo,
+    Api(crate::api::ApiProvider),
 }
 impl Provider {
     pub fn name(self) -> &'static str {
         match self {
             Self::Kubernetes => "kubernetes",
             Self::Github => "github",
+            Self::GithubChecks => "github_checks",
+            Self::GithubWorkflow => "github_workflow",
+            Self::Report => "report",
             Self::Tempo => "tempo",
+            Self::Api(provider) => provider.name(),
         }
     }
 }
@@ -144,6 +156,35 @@ impl GithubConfig {
     }
 }
 #[derive(Clone, Debug)]
+pub struct GithubChecksConfig {
+    pub github: GithubConfig,
+    pub max_pages: u64,
+}
+impl GithubChecksConfig {
+    fn validate(&self) -> Result<(), String> {
+        self.github.validate()?;
+        if !(1..=10).contains(&self.max_pages) {
+            return Err("GitHub checks require 1 to 10 pages".into());
+        }
+        Ok(())
+    }
+}
+#[derive(Clone, Debug)]
+pub struct GithubWorkflowConfig {
+    pub github: GithubConfig,
+    pub run_id: u64,
+    pub attempt: u64,
+}
+impl GithubWorkflowConfig {
+    fn validate(&self) -> Result<(), String> {
+        self.github.validate()?;
+        if self.run_id == 0 || self.attempt == 0 {
+            return Err("GitHub workflow requires a positive run and attempt".into());
+        }
+        Ok(())
+    }
+}
+#[derive(Clone, Debug)]
 pub struct TempoConfig {
     pub inventory: PathBuf,
     pub url: url::Url,
@@ -207,35 +248,53 @@ impl TempoConfig {
 pub enum ProviderConfig {
     Kubernetes(KubernetesConfig),
     Github(GithubConfig),
+    GithubChecks(GithubChecksConfig),
+    GithubWorkflow(GithubWorkflowConfig),
+    Report(crate::reports::ReportConfig),
     Tempo(TempoConfig),
+    Api(crate::api::ApiConfig),
 }
 impl ProviderConfig {
     pub fn provider(&self) -> Provider {
         match self {
             Self::Kubernetes(_) => Provider::Kubernetes,
             Self::Github(_) => Provider::Github,
+            Self::GithubChecks(_) => Provider::GithubChecks,
+            Self::GithubWorkflow(_) => Provider::GithubWorkflow,
+            Self::Report(_) => Provider::Report,
             Self::Tempo(_) => Provider::Tempo,
+            Self::Api(c) => Provider::Api(c.provider),
         }
     }
     fn validate(&self) -> Result<(), String> {
         match self {
             Self::Kubernetes(c) => c.validate(),
             Self::Github(c) => c.validate(),
+            Self::GithubChecks(c) => c.validate(),
+            Self::GithubWorkflow(c) => c.validate(),
+            Self::Report(c) => c.validate(),
             Self::Tempo(c) => c.validate(),
+            Self::Api(c) => c.validate(),
         }
     }
     pub fn command(&self) -> Option<&CommandConfig> {
         match self {
             Self::Kubernetes(c) => Some(&c.command),
             Self::Github(c) => Some(&c.command),
-            Self::Tempo(_) => None,
+            Self::GithubChecks(c) => Some(&c.github.command),
+            Self::GithubWorkflow(c) => Some(&c.github.command),
+            Self::Tempo(_) | Self::Api(_) | Self::Report(_) => None,
         }
     }
     pub fn inventory(&self) -> Option<&std::path::Path> {
         match self {
             Self::Kubernetes(c) => Some(&c.inventory),
             Self::Tempo(c) => Some(&c.inventory),
-            Self::Github(_) => None,
+            Self::Github(_)
+            | Self::GithubChecks(_)
+            | Self::GithubWorkflow(_)
+            | Self::Api(_)
+            | Self::Report(_) => None,
         }
     }
 }
@@ -253,6 +312,17 @@ impl Config {
         version: ContractVersion,
     ) -> Result<Self, String> {
         selected.validate()?;
+        if version != ContractVersion::V2
+            && matches!(
+                &selected,
+                ProviderConfig::Api(_)
+                    | ProviderConfig::GithubChecks(_)
+                    | ProviderConfig::GithubWorkflow(_)
+                    | ProviderConfig::Report(_)
+            )
+        {
+            return Err("Extended measurements require collector contract version 2".into());
+        }
         if version == ContractVersion::V1
             && matches!(
                 &selected,
@@ -292,7 +362,7 @@ impl Config {
         cli::parse(arguments)
     }
 }
-fn absolute(path: &std::path::Path) -> Result<(), String> {
+pub(crate) fn absolute(path: &std::path::Path) -> Result<(), String> {
     if !path.is_absolute() || path.as_os_str().len() > 8192 || path.to_str().is_none() {
         Err("Operator path requires a bounded absolute UTF-8 path".into())
     } else {

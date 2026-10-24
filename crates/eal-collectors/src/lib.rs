@@ -1,10 +1,13 @@
 //! Read-only external observations under fixed operator selectors.
+pub mod api;
 pub mod catalogue;
 pub mod config;
 mod github;
+mod github_delivery;
 mod inventory;
 mod kubernetes;
 mod process;
+pub mod reports;
 mod request;
 mod tempo;
 mod timing;
@@ -36,7 +39,18 @@ pub async fn collect_with_clock(
         );
     }
     let mut timeline = timing::Timeline::new(clock);
+    let mut retained_at = None;
     let (value, credentials) = match config.selected() {
+        ProviderConfig::Report(selected) => {
+            let (value, observed_at) = reports::collect(selected, request)?;
+            let observed = chrono::DateTime::parse_from_rfc3339(&observed_at)
+                .map_err(|_| "Invalid retained report time")?;
+            if observed.timestamp() > timeline.mark().timestamp().saturating_add(60) {
+                return Err("Retained report measurement time is in the future".into());
+            }
+            retained_at = Some(observed_at);
+            (value, None)
+        }
         ProviderConfig::Kubernetes(selected) => (
             kubernetes::collect(config, selected, request, started, &mut timeline)?,
             None,
@@ -44,10 +58,22 @@ pub async fn collect_with_clock(
         ProviderConfig::Github(selected) => {
             (github::collect(config, selected, request, started)?, None)
         }
+        ProviderConfig::GithubChecks(selected) => (
+            github_delivery::checks(config, selected, request, started)?,
+            None,
+        ),
+        ProviderConfig::GithubWorkflow(selected) => (
+            github_delivery::workflow(config, selected, request, started)?,
+            None,
+        ),
         ProviderConfig::Tempo(selected) => {
             let collected =
                 tempo::collect(config, selected, request, started, &mut timeline).await?;
-            (collected.value, Some(collected.credentials))
+            (collected.value, Some(Guard::Tempo(collected.credentials)))
+        }
+        ProviderConfig::Api(selected) => {
+            let collected = api::collect(config, selected, request, started, &mut timeline).await?;
+            (collected.value, Some(Guard::Http(collected.credentials)))
         }
     };
     if started.elapsed() >= config.limits().timeout() {
@@ -56,7 +82,7 @@ pub async fn collect_with_clock(
     let interval = timeline.finish();
     let envelope = serde_json::to_value(ObservationEnvelope {
         value,
-        observed_at: Some(timeline.observed_at()),
+        observed_at: Some(retained_at.unwrap_or_else(|| timeline.observed_at())),
         context: Some(request.context.clone()),
         request: Some(request.acquisition()),
         details: Some(json!({
@@ -80,4 +106,17 @@ pub async fn collect_with_clock(
         return Err("Collector deadline exhausted".into());
     }
     Ok(envelope)
+}
+
+enum Guard {
+    Tempo(tempo::Credentials),
+    Http(eal_adapters::http::CredentialGuard),
+}
+impl Guard {
+    fn inspect(&self, value: &Value) -> Result<(), String> {
+        match self {
+            Self::Tempo(guard) => guard.inspect(value),
+            Self::Http(guard) => guard.inspect(value).map_err(|e| e.to_string()),
+        }
+    }
 }

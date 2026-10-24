@@ -31,6 +31,13 @@ declared JSON types. An `ordered_window` constraint requires an increasing pair
 of integer fields with a bounded difference. The collector independently enforces
 its current contract before acquisition.
 
+`CollectorDescriptor::required_parameters` returns unconditional top-level
+required input fields and command-template parameters. Other declared input
+properties can be omitted. Supplied null remains a value subject to the schema.
+Conditional schema requirements are checked against the complete prepared input.
+Catalogue version 3 retains earlier descriptors and adds API and delivery
+profiles. `describe-api` derives a descriptor from a pinned operator source.
+
 The predicate describes measurement availability. For example, a nonempty
 cluster inventory permits interpretation of a Kubernetes observation even when
 `all_present` is false. Collecting that observation leaves the argument's separate

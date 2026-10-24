@@ -7,8 +7,15 @@ pub(super) fn parse(arguments: Vec<String>) -> Result<Config, String> {
     let provider = match args.next().as_deref() {
         Some("kubernetes") => Provider::Kubernetes,
         Some("github") => Provider::Github,
+        Some("github_checks") => Provider::GithubChecks,
+        Some("github_workflow") => Provider::GithubWorkflow,
+        Some("report") => Provider::Report,
         Some("tempo") => Provider::Tempo,
-        _ => return Err("Select kubernetes, github or tempo".into()),
+        Some("openapi") => Provider::Api(crate::api::ApiProvider::Openapi),
+        Some("datadog") => Provider::Api(crate::api::ApiProvider::Datadog),
+        Some("prometheus") => Provider::Api(crate::api::ApiProvider::Prometheus),
+        Some("loki") => Provider::Api(crate::api::ApiProvider::Loki),
+        _ => return Err("Select an installed native collector provider".into()),
     };
     let mut options = BTreeMap::new();
     let mut inherit_env = Vec::new();
@@ -62,6 +69,26 @@ pub(super) fn parse(arguments: Vec<String>) -> Result<Config, String> {
         })
     };
     let selected = match provider {
+        Provider::Report => {
+            if !inherit_env.is_empty() {
+                return Err("Report imports do not use inherited credentials".into());
+            }
+            ProviderConfig::Report(crate::reports::ReportConfig {
+                manifest: take(&mut options, "--manifest")?.into(),
+                sha256: take(&mut options, "--manifest-sha256")?,
+            })
+        }
+        Provider::Api(provider) => {
+            if !inherit_env.is_empty() {
+                return Err("API credential names belong in pinned operator configuration".into());
+            }
+            ProviderConfig::Api(crate::api::ApiConfig {
+                provider,
+                measurement: take(&mut options, "--measurement")?,
+                path: take(&mut options, "--config")?.into(),
+                sha256: take(&mut options, "--config-sha256")?,
+            })
+        }
         Provider::Kubernetes => {
             let command = command()?;
             let scope = match options.remove("--scope").as_deref().unwrap_or("namespaced") {
@@ -82,11 +109,25 @@ pub(super) fn parse(arguments: Vec<String>) -> Result<Config, String> {
                 scope,
             })
         }
-        Provider::Github => ProviderConfig::Github(GithubConfig {
-            command: command()?,
-            repository: take(&mut options, "--repository")?,
-            commit: take(&mut options, "--commit")?,
-        }),
+        Provider::Github | Provider::GithubChecks | Provider::GithubWorkflow => {
+            let github = GithubConfig {
+                command: command()?,
+                repository: take(&mut options, "--repository")?,
+                commit: take(&mut options, "--commit")?,
+            };
+            match provider {
+                Provider::GithubChecks => ProviderConfig::GithubChecks(GithubChecksConfig {
+                    github,
+                    max_pages: number(options.remove("--max-pages").as_deref(), 1, 1, 10)?,
+                }),
+                Provider::GithubWorkflow => ProviderConfig::GithubWorkflow(GithubWorkflowConfig {
+                    github,
+                    run_id: number(Some(&take(&mut options, "--run-id")?), 1, 1, u64::MAX)?,
+                    attempt: number(Some(&take(&mut options, "--attempt")?), 1, 1, u64::MAX)?,
+                }),
+                _ => ProviderConfig::Github(github),
+            }
+        }
         Provider::Tempo => {
             // Retain the previously accepted CLI flag for source compatibility.
             // HTTP credentials are selected exclusively by token_env and tenant_env.

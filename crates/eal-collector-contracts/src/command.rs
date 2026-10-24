@@ -12,6 +12,16 @@ pub struct CommandTemplate {
     pub parallel_safe: bool,
 }
 impl CommandTemplate {
+    pub(crate) fn parameter_names(&self) -> Result<Vec<String>, String> {
+        self.argv
+            .iter()
+            .filter_map(|token| match placeholder(token) {
+                Ok(Some(Placeholder::Parameter(name))) => Some(Ok(name.to_owned())),
+                Ok(_) => None,
+                Err(error) => Some(Err(error)),
+            })
+            .collect()
+    }
     pub fn validate(&self, parameters: &[String]) -> Result<(), String> {
         if self.argv.is_empty()
             || self.argv.len() > 256

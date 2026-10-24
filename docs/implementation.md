@@ -16,7 +16,7 @@ have separate owners.
 | `eal-mcp` | Operator and registered catalogues, stdio, Streamable HTTP and the text host | Closed schemas, admission limits and configured authentication |
 | `eal-coordination` | Task pinning, role gateways, first responses, effect reservations, delivery and mailbox serving | Trusted workers and one authoritative local ledger |
 | `eal-cli` | Production commands, development drivers and the visualiser adapter | Workspace file boundaries and explicitly selected outputs |
-| `eal-collectors` | Kubernetes, GitHub and Tempo observations | Fixed operator selectors, finite inventory, deadlines and byte allowances |
+| `eal-collectors` | Infrastructure, OpenAPI, telemetry, CI and retained-report observations | Pinned operator scope, finite queries, deadlines and byte allowances |
 | `eal-devtools` | Native capture and installed acceptance commands | Explicitly selected executables, fixtures and output destinations |
 | `eal-context-experiment` | Context-history, rehearsal, comparison and allocation calculations | Separate experiment crate and explicit synthetic or measured scope |
 
