@@ -1,7 +1,7 @@
 //! One identified, finite operator declaration of the production cluster universe.
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
-use std::{collections::BTreeSet, io::Read};
+use std::collections::BTreeSet;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -18,18 +18,23 @@ pub(crate) struct Inventory {
 }
 pub(crate) fn read(config: &crate::Config) -> Result<(Inventory, String), String> {
     let path = config.path("--inventory")?;
-    let mut file = open_inventory(&path)?;
-    let metadata = file
-        .metadata()
-        .map_err(|_| "Cannot inspect cluster inventory")?;
-    if !metadata.is_file() || metadata.len() > 1_048_576 {
-        return Err("Inventory must be a bounded regular file".into());
-    }
-    let mut bytes = Vec::new();
-    (&mut file)
-        .take(1_048_577)
-        .read_to_end(&mut bytes)
-        .map_err(|_| "Cannot read cluster inventory")?;
+    // Resolve operator-selected parent aliases while leaving the leaf untouched
+    // so the runtime reader can reject a symlink or special file before reading.
+    let name = path
+        .file_name()
+        .ok_or("Inventory must name a regular file")?;
+    let parent = path
+        .parent()
+        .ok_or("Inventory requires an absolute parent directory")?
+        .canonicalize()
+        .map_err(|_| "Cannot resolve cluster inventory parent")?;
+    let path = parent.join(name);
+    let bytes = eal_runtime::acquisition::read_regular(
+        &path,
+        1_048_576,
+        "Inventory must be a bounded regular file",
+    )
+    .map_err(|_| "Cannot read the bounded regular no-follow cluster inventory")?;
     if bytes.len() > 1_048_576 {
         return Err("Cluster inventory exceeds 1 MiB".into());
     }
@@ -67,20 +72,4 @@ pub(crate) fn read(config: &crate::Config) -> Result<(Inventory, String), String
         }
     }
     Ok((inventory, format!("{:x}", Sha256::digest(bytes))))
-}
-
-#[cfg(unix)]
-fn open_inventory(path: &std::path::Path) -> Result<std::fs::File, String> {
-    use rustix::fs::{Mode, OFlags};
-    let file = rustix::fs::open(
-        path,
-        OFlags::RDONLY | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-        Mode::empty(),
-    )
-    .map_err(|_| "Cannot open the regular no-follow cluster inventory")?;
-    Ok(file.into())
-}
-#[cfg(not(unix))]
-fn open_inventory(_: &std::path::Path) -> Result<std::fs::File, String> {
-    Err("No-follow cluster inventory currently requires a POSIX host".into())
 }

@@ -11,15 +11,20 @@ use chrono::{SecondsFormat, Utc};
 pub use config::{Config, Provider};
 pub use request::Request;
 use serde_json::{Value, json};
+use std::time::Instant;
 
 /// Execute one bounded observation and retain its exact acquisition correspondence.
 pub async fn collect(config: &Config, request: &Request) -> Result<Value, String> {
+    let started = Instant::now();
     config.validate()?;
     let value = match config.provider {
-        Provider::Kubernetes => kubernetes::collect(config, request)?,
-        Provider::Github => github::collect(config, request)?,
-        Provider::Tempo => tempo::collect(config, request).await?,
+        Provider::Kubernetes => kubernetes::collect(config, request, started)?,
+        Provider::Github => github::collect(config, request, started)?,
+        Provider::Tempo => tempo::collect(config, request, started).await?,
     };
+    if started.elapsed() >= config.timeout {
+        return Err("Collector deadline exhausted".into());
+    }
     let envelope = json!({"value":value,
         "observed_at":Utc::now().to_rfc3339_opts(SecondsFormat::Secs,true),
         "context":request.context,"request":request.acquisition(),

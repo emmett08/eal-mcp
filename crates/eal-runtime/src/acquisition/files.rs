@@ -121,11 +121,24 @@ fn unchanged(path: &Path, before: &std::fs::Metadata) -> Result<(), AcquisitionE
     Ok(())
 }
 
-pub(crate) fn read_regular(
+/// Read at most `limit + 1` bytes from an identified regular file.
+///
+/// Supply an absolute path with a canonical parent. The final component and
+/// every resolved directory are opened without following links on POSIX hosts.
+/// Special files are rejected before reading, and the path identity is checked
+/// afterwards. The caller distinguishes an oversized result from other errors.
+pub fn read_regular(
     path: &Path,
     limit: usize,
     not_regular: &str,
 ) -> Result<Vec<u8>, AcquisitionError> {
+    let parent = path
+        .parent()
+        .filter(|_| path.is_absolute())
+        .ok_or("Regular-file reads require an absolute path with a canonical parent")?;
+    if parent.canonicalize()? != parent {
+        return Err("Regular-file reads require an absolute path with a canonical parent".into());
+    }
     let file = open_checked(path)?;
     let metadata = file.metadata()?;
     if !metadata.is_file() {

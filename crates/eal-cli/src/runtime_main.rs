@@ -1,88 +1,36 @@
 //! Staged native runtime driver; production catalogues and transports follow.
 use eal_cli::input;
 mod runtime_options;
-use eal_core::methods;
 use eal_runtime::{
-    methods::{MethodExecutor, WorkerCommand},
-    process::Supervisor,
-    scheduler::CollectionScheduler,
-    service::{FormalOptions, ReasoningService, ServiceConfig},
+    bootstrap::{self, RuntimeOptions},
+    service::FormalOptions,
 };
 use serde_json::Value;
-use std::{collections::BTreeMap, path::PathBuf, process::ExitCode, time::Duration};
-
-fn sibling(name: &str) -> Result<PathBuf, String> {
-    let executable = std::env::current_exe().map_err(|e| e.to_string())?;
-    Ok(executable
-        .parent()
-        .ok_or("Cannot locate executable directory")?
-        .join(format!("{name}{}", std::env::consts::EXE_SUFFIX)))
-}
+use std::process::ExitCode;
 
 fn run(options: runtime_options::Options) -> Result<Value, String> {
     let workspace = input::Workspace::new(&options.workspace)?;
+    // Preserve this driver's bounded, workspace-relative limits input contract.
     let limits = workspace.limits(options.limits.as_deref())?;
-    let supervisor_path = options
-        .supervisor
-        .unwrap_or(sibling("eal-command-supervisor")?)
-        .canonicalize()
-        .map_err(|e| format!("Cannot resolve supervisor executable: {e}"))?;
-    let supervisor = Supervisor::new(supervisor_path);
-    let worker = options
-        .method_worker
-        .unwrap_or(sibling("eal-method-worker")?)
-        .canonicalize()
-        .map_err(|e| format!("Cannot resolve method worker executable: {e}"))?;
-    let environment = std::env::vars_os()
-        .map(|(key, value)| {
-            Ok((
-                key.into_string()
-                    .map_err(|_| "Environment names must be UTF-8")?,
-                value
-                    .into_string()
-                    .map_err(|_| "Environment values must be UTF-8")?,
-            ))
-        })
-        .collect::<Result<BTreeMap<_, _>, String>>()?;
-    let worker = WorkerCommand::new(
-        vec![
-            worker
-                .to_str()
-                .ok_or("Worker path must be UTF-8")?
-                .to_owned(),
-        ],
-        environment,
-        options
-            .workspace
-            .canonicalize()
-            .map_err(|e| e.to_string())?,
-    )
-    .map_err(|e| e.to_string())?;
-    let executor = MethodExecutor::new(supervisor.clone(), worker).map_err(|e| e.to_string())?;
-    let registry = match options.methods.as_str() {
-        "builtin" => methods::default_registry().clone(),
-        "engineering" => methods::engineering_registry().clone(),
-        "aspic" => eal_aspic::registry::aspic_registry().clone(),
-        "all" => eal_aspic::registry::with_aspic(&methods::engineering_registry())?,
-        _ => unreachable!(),
-    };
-    let registry = executor.supervise_registry(&registry)?;
-    let service = ReasoningService::new(ServiceConfig {
-        workspace: options.workspace,
-        registry_path: options.registry,
-        database_path: options.database,
-        method_registry: registry,
-        method_executor: Some(executor),
-        scheduler: CollectionScheduler::new(options.workers)?,
-        supervisor,
-        limits: limits.clone(),
-        lease_timeout: Duration::from_secs(30),
-    })?;
+    let service = bootstrap::build_service_with_limits(
+        RuntimeOptions {
+            workspace: options.workspace,
+            registry: options.registry,
+            database: options.database,
+            limits: None,
+            methods: options.methods,
+            workers: options.workers,
+            supervisor: options.supervisor,
+            method_worker: options.method_worker,
+        },
+        limits,
+    )?;
+    let limits = service.limits();
     if options.command == "explain" {
         return service.explain(&options.source, options.claim.as_deref());
     }
     let source = workspace.source(&options.source, limits.source_bytes)?;
-    let context = workspace.context(options.context.as_deref(), &limits)?;
+    let context = workspace.context(options.context.as_deref(), limits)?;
     match options.command.as_str() {
         "validate" => Ok(service.validate(&source)),
         "format" => service.format(&source),

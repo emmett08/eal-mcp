@@ -427,3 +427,52 @@ fn special_limits_are_rejected_before_a_blocking_read_or_database_creation() {
     assert!(error["error"].as_str().unwrap().contains("regular"));
     assert!(!workspace.0.join(".eal").exists());
 }
+
+#[test]
+fn runtime_and_application_validation_ignore_unrelated_ambient_environment() {
+    let workspace = Workspace::new();
+    let mut results = Vec::new();
+    for executable in [env!("CARGO_BIN_EXE_eal"), env!("CARGO_BIN_EXE_eal-runtime")] {
+        let output = Command::new(executable)
+            .current_dir(&workspace.0)
+            .arg("--workspace")
+            .arg(&workspace.0)
+            .args(["validate", "case.eal"])
+            .envs((0..260).map(|index| (format!("EAL_TEST_UNRELATED_{index}"), "unused")))
+            .output()
+            .unwrap();
+        let result = value(output, 0);
+        assert_eq!(result["valid"], true);
+        results.push(result);
+    }
+    assert_eq!(results[0], results[1]);
+}
+
+#[test]
+fn runtime_limits_remain_bounded_and_relative_to_the_workspace() {
+    let workspace = Workspace::new();
+    workspace.write("limits.toml", "[limits]\n");
+    let output = Command::new(env!("CARGO_BIN_EXE_eal-runtime"))
+        .current_dir(std::env::temp_dir())
+        .arg("--workspace")
+        .arg(&workspace.0)
+        .args(["--limits", "limits.toml", "validate", "case.eal"])
+        .output()
+        .unwrap();
+    assert_eq!(value(output, 0)["valid"], true);
+
+    workspace.write("oversized.toml", &"x".repeat(16 * 1024 + 1));
+    let output = Command::new(env!("CARGO_BIN_EXE_eal-runtime"))
+        .current_dir(std::env::temp_dir())
+        .arg("--workspace")
+        .arg(&workspace.0)
+        .args(["--limits", "oversized.toml", "validate", "case.eal"])
+        .output()
+        .unwrap();
+    assert!(
+        value(output, 2)["error"]
+            .as_str()
+            .unwrap()
+            .contains("budget")
+    );
+}

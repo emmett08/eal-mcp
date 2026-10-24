@@ -1,8 +1,11 @@
 //! Named resource observations across one declared production inventory.
 use serde_json::{Value, json};
-use std::time::Instant;
 
-pub(crate) fn collect(config: &crate::Config, request: &crate::Request) -> Result<Value, String> {
+pub(crate) fn collect(
+    config: &crate::Config,
+    request: &crate::Request,
+    started: std::time::Instant,
+) -> Result<Value, String> {
     request.fields(&["resource", "namespace", "name"])?;
     let resource = config.get("--resource")?;
     let namespace = config.get("--namespace")?;
@@ -16,7 +19,6 @@ pub(crate) fn collect(config: &crate::Config, request: &crate::Request) -> Resul
         request.matches(key, value)?;
     }
     let (inventory, digest) = crate::inventory::read(config)?;
-    let started = Instant::now();
     let mut clusters = Vec::new();
     let mut all_present = true;
     let mut spent = 0usize;

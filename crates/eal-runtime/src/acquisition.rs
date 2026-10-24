@@ -9,8 +9,7 @@ mod registry;
 pub use adapters::{acquire, acquire_with_limits, encode_request};
 pub use binding::{PinnedFile, ToolBinding, ToolKind, keyed_digest, keyed_digest_with_limits};
 pub use error::{AcquisitionError, AcquisitionFailureCategory};
-pub use files::bounded_path;
-pub(crate) use files::read_regular;
+pub use files::{bounded_path, read_regular};
 pub use json::{
     strict_json, strict_json_with_limits, validate_envelope, validate_envelope_with_limits,
 };

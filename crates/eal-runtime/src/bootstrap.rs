@@ -69,6 +69,17 @@ pub fn load_limits(path: Option<&Path>) -> Result<ExecutionLimits, String> {
 }
 
 pub fn build_service(options: RuntimeOptions) -> Result<ReasoningService, String> {
+    let limits = load_limits(options.limits.as_deref())?;
+    build_service_with_limits(options, limits)
+}
+
+/// Construct the same runtime for frontends that already admitted bounded limits.
+/// The supplied limits replace file loading and still undergo runtime validation.
+pub fn build_service_with_limits(
+    options: RuntimeOptions,
+    limits: ExecutionLimits,
+) -> Result<ReasoningService, String> {
+    limits.validate()?;
     let workspace = options
         .workspace
         .canonicalize()
@@ -76,7 +87,6 @@ pub fn build_service(options: RuntimeOptions) -> Result<ReasoningService, String
     if !workspace.is_dir() {
         return Err("Workspace must be a directory".into());
     }
-    let limits = load_limits(options.limits.as_deref())?;
     let scheduler = CollectionScheduler::new(options.workers)?;
     let registry = match options.methods.as_str() {
         "builtin" => methods::default_registry().clone(),

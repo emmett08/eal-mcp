@@ -244,3 +244,33 @@ fn exact_request_limit_rejects_before_any_supervisor_is_started() {
         .contains("Tool request exceeds")
     );
 }
+
+#[test]
+fn public_regular_file_reader_checks_path_identity_before_opening() {
+    let workspace = Workspace::new();
+    workspace.write("reading.json", b"identified observation");
+    let root = workspace.0.canonicalize().unwrap();
+    let path = root.join("reading.json");
+    assert_eq!(
+        read_regular(&path, 64, "regular file required").unwrap(),
+        b"identified observation"
+    );
+    let relative = std::path::Path::new("reading.json");
+    assert!(
+        read_regular(relative, 64, "regular file required")
+            .unwrap_err()
+            .message
+            .contains("absolute path")
+    );
+    std::fs::create_dir(root.join("nested")).unwrap();
+    assert!(
+        read_regular(
+            &root.join("nested/../reading.json"),
+            64,
+            "regular file required"
+        )
+        .unwrap_err()
+        .message
+        .contains("canonical parent")
+    );
+}

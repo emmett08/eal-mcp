@@ -462,3 +462,86 @@ async fn tempo_http_body_has_a_hard_byte_limit() {
     );
     server.join().unwrap();
 }
+
+#[cfg(unix)]
+#[test]
+fn fifo_inventory_is_rejected_before_a_blocking_read_for_both_inventory_providers() {
+    use std::time::{Duration, Instant};
+    let workspace = Workspace::new();
+    let fifo = workspace.0.join("inventory.fifo");
+    rustix::fs::mkfifoat(
+        rustix::fs::CWD,
+        &fifo,
+        rustix::fs::Mode::RUSR | rustix::fs::Mode::WUSR,
+    )
+    .unwrap();
+    let marker = workspace.0.join("external-read");
+    let executable = workspace.script(&format!("/usr/bin/touch '{}'", marker.display()));
+    for provider in ["kubernetes", "tempo"] {
+        let mut command = Command::new(env!("CARGO_BIN_EXE_eal-collector"));
+        command.arg(provider).arg("--inventory").arg(&fifo).args([
+            "--kind",
+            "Application",
+            "--name",
+            "catalog-sync-operator",
+            "--timeout-seconds",
+            "1",
+        ]);
+        let input = if provider == "kubernetes" {
+            command
+                .arg("--executable")
+                .arg(&executable)
+                .arg("--supervisor")
+                .arg(supervisor())
+                .args([
+                    "--resource",
+                    "applications.argoproj.io",
+                    "--namespace",
+                    "argocd",
+                ]);
+            kube_request().input
+        } else {
+            command.args(["--url", "http://127.0.0.1:1/api/search"]);
+            window().input
+        };
+        let mut child = command
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        child
+            .stdin
+            .take()
+            .unwrap()
+            .write_all(
+                &serde_json::to_vec(&json!({
+                    "evidence_id":"reading", "environment":"production", "tool":"reader",
+                    "tool_version":"1", "input":input, "context":{}
+                }))
+                .unwrap(),
+            )
+            .unwrap();
+        let deadline = Instant::now() + Duration::from_secs(2);
+        loop {
+            if child.try_wait().unwrap().is_some() {
+                break;
+            }
+            if Instant::now() >= deadline {
+                let _ = child.kill();
+                let _ = child.wait();
+                panic!("{provider} blocked while opening a FIFO inventory");
+            }
+            thread::sleep(Duration::from_millis(10));
+        }
+        let output = child.wait_with_output().unwrap();
+        assert_eq!(output.status.code(), Some(2));
+        assert!(output.stdout.is_empty());
+        assert!(
+            String::from_utf8_lossy(&output.stderr).contains("regular"),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert!(!marker.exists());
+    }
+}
