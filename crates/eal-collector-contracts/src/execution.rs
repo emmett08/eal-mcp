@@ -231,6 +231,11 @@ pub enum RequiredCoverage {
 #[derive(Clone, Debug, Serialize, schemars::JsonSchema)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum EvaluationCriterion {
+    /// Admit a collected typed method input, without asserting a method result
+    /// or the empirical adequacy of its model and correspondence.
+    MethodInput {
+        method: String,
+    },
     Equals {
         #[serde(deserialize_with = "crate::deserialize_value_exact")]
         #[schemars(with = "Value")]
@@ -275,6 +280,9 @@ impl<'de> Deserialize<'de> for EvaluationCriterion {
                 .ok_or_else(|| D::Error::custom(format!("evaluation criterion requires {name}")))
         };
         let result = match kind.as_str() {
+            "method_input" => Self::MethodInput {
+                method: serde_json::from_value(take("method")?).map_err(D::Error::custom)?,
+            },
             "equals" => Self::Equals {
                 expected: take("expected")?,
             },
@@ -657,7 +665,9 @@ impl EvidenceExecutionPlan {
             }
             if matches!(
                 evaluation.criterion,
-                EvaluationCriterion::Equals { .. } | EvaluationCriterion::Numeric { .. }
+                EvaluationCriterion::Equals { .. }
+                    | EvaluationCriterion::Numeric { .. }
+                    | EvaluationCriterion::MethodInput { .. }
             ) && evaluation.inputs.len() != 1
             {
                 return Err("scalar evaluation requires exactly one input".into());
@@ -669,6 +679,13 @@ impl EvidenceExecutionPlan {
                 scope.validate()?;
             }
             match &evaluation.criterion {
+                EvaluationCriterion::MethodInput { method }
+                    if !identifier(method) || !method.contains('/') =>
+                {
+                    return Err(
+                        "method input admission requires a versioned method identity".into(),
+                    );
+                }
                 EvaluationCriterion::Judgement { criterion, .. } if criterion.trim().is_empty() => {
                     return Err("judgement requires an explicit criterion".into());
                 }

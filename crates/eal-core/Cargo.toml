@@ -9,7 +9,7 @@ description = "Typed EAL/3 lexical syntax and structural validation"
 [dependencies]
 eal-parser.workspace = true
 serde.workspace = true
-serde_json.workspace = true
+serde_json = { version = "1.0.145", features = ["arbitrary_precision", "raw_value"] }
 sha2.workspace = true
 num-bigint.workspace = true
 num-rational.workspace = true

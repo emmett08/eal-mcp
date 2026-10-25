@@ -578,6 +578,7 @@ dependencies = [
  "chrono",
  "eal-adapters",
  "eal-collector-contracts",
+ "eal-core",
  "eal-mcp",
  "eal-process",
  "getrandom 0.4.3",

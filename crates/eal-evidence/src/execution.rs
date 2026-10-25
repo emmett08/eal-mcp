@@ -382,21 +382,56 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
         assessment_time: Option<&str>,
         deadline: Instant,
     ) -> Result<ExecutionReport, String> {
+        self.execute_requirements_until(
+            plan,
+            &[requirement_id.to_owned()],
+            assessment_time,
+            deadline,
+        )
+        .await
+    }
+
+    /// Execute the union of the named requirements' dependency closures under
+    /// one source/request budget. This preserves shared observations while a
+    /// typed method input checks its separate premise acquisitions.
+    pub async fn execute_requirements_until(
+        &self,
+        plan: &EvidenceExecutionPlan,
+        requirement_ids: &[String],
+        assessment_time: Option<&str>,
+        deadline: Instant,
+    ) -> Result<ExecutionReport, String> {
         plan.validate()?;
+        let identities: std::collections::BTreeSet<_> =
+            requirement_ids.iter().map(String::as_str).collect();
+        if identities.is_empty()
+            || identities.len() != requirement_ids.len()
+            || requirement_ids.len() > 4096
+            || identities.iter().any(|id| {
+                plan.evaluations
+                    .iter()
+                    .filter(|evaluation| evaluation.requirement_id == **id)
+                    .count()
+                    != 1
+            })
+        {
+            return Err("execution requires distinct unambiguous requirement identities".into());
+        }
         let selected: Vec<_> = plan
             .evaluations
             .iter()
-            .filter(|evaluation| evaluation.requirement_id == requirement_id)
+            .filter(|evaluation| identities.contains(evaluation.requirement_id.as_str()))
             .cloned()
             .collect();
-        if selected.len() != 1 {
-            return Err("execution requires one unambiguous requirement".into());
-        }
-        let mut retained: std::collections::BTreeSet<_> = selected[0]
-            .inputs
+        let mut retained: std::collections::BTreeSet<_> = selected
             .iter()
-            .chain(&selected[0].applicability)
-            .chain(&selected[0].challenges)
+            .flat_map(|evaluation| {
+                evaluation
+                    .inputs
+                    .iter()
+                    .chain(&evaluation.applicability)
+                    .chain(&evaluation.challenges)
+            })
             .map(|reference| reference.step_id.clone())
             .collect();
         loop {
