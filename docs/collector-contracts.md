@@ -137,3 +137,24 @@ allowance and scalar predicates belong to the named runtime-exportable profile.
 The corpus labels those distinctions explicitly. A structural JSON Schema check
 alone therefore cannot replace shared semantic/profile admission. Downstream
 compatibility checks can run the same cases without reproducing those rules.
+
+## Execution-plan feature compatibility
+
+`eal.evidence-execution-plan/1` identifies the shared plan envelope. Consumers
+must also support every operation and operand used by the submitted plan.
+Strict decoding rejects unknown fields and operation variants before execution.
+A matching envelope label alone does not establish feature compatibility.
+
+| Construct | Minimum producer and reader revision | Compatibility |
+| --- | --- | --- |
+| Literal witness `equals` and per-record `project` | `2a6f260` | Current readers retain their original interpretation. |
+| Dynamic witness `equals_output` and whole-response `project_value` | `cb5013c37ef79331e79ee0337862aec58d1ee5cb` | Earlier readers reject these constructs during decoding. |
+
+Pin the EAL runtime and the authoring client's contract dependency to a revision
+that supports the emitted features. The current EngArg integration records that
+producer revision in its dependency lockfile and compatibility workflow.
+An operator upgrading one component separately must run the producer/consumer
+checks before using the pair. Downgrading a retained plan requires a reader that
+supports its operations and preserves their meaning. Rewriting a dynamic
+comparison into an invented literal or changing whole-response projection to
+per-record projection changes the evidence requirement.

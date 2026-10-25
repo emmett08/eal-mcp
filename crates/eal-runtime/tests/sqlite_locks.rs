@@ -134,3 +134,70 @@ fn private_database_construction_and_reads_preserve_live_sqlite_locks() {
         writer_is_blocked(&path, false);
     }
 }
+
+#[test]
+fn run_store_survives_concurrent_wal_checkpoint_and_connection_cleanup() {
+    use std::sync::{Arc, Barrier};
+
+    let directory = Directory::new();
+    let path = directory.database();
+    let store = RunStore::new(&path).unwrap();
+    store
+        .put("test", &json!({"retained": true}), Some("retained"))
+        .unwrap();
+    let start = Arc::new(Barrier::new(3));
+    let readers = (0..2)
+        .map(|_| {
+            let store = store.clone();
+            let start = Arc::clone(&start);
+            std::thread::spawn(move || {
+                start.wait();
+                for _ in 0..64 {
+                    assert_eq!(
+                        store.get("retained", Some("test")).unwrap(),
+                        json!({"retained": true})
+                    );
+                    assert_eq!(store.list(Some("test"), 10).unwrap().len(), 1);
+                }
+            })
+        })
+        .collect::<Vec<_>>();
+    start.wait();
+    for _ in 0..64 {
+        let connection = Connection::open(&path).unwrap();
+        connection.busy_timeout(Duration::from_secs(5)).unwrap();
+        let (busy, _, _): (i64, i64, i64) = connection
+            .query_row("PRAGMA wal_checkpoint(TRUNCATE)", [], |row| {
+                Ok((row.get(0)?, row.get(1)?, row.get(2)?))
+            })
+            .unwrap();
+        assert!(
+            busy == 0 || busy == 1,
+            "unexpected SQLite checkpoint result {busy}"
+        );
+        // Dropping the last connection lets SQLite unlink its WAL/SHM files
+        // while a different thread validates or opens the next connection.
+        drop(connection);
+    }
+    for reader in readers {
+        reader.join().unwrap();
+    }
+    for suffix in ["-wal", "-shm"] {
+        let mut sidecar = path.as_os_str().to_owned();
+        sidecar.push(suffix);
+        assert!(
+            !PathBuf::from(sidecar).exists(),
+            "last connection must clean up {suffix}"
+        );
+    }
+    let reopened = RunStore::new(&path).unwrap();
+    assert_eq!(
+        reopened.get("retained", Some("test")).unwrap(),
+        json!({"retained": true})
+    );
+    let connection = Connection::open(&path).unwrap();
+    let integrity: String = connection
+        .query_row("PRAGMA integrity_check", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(integrity, "ok");
+}

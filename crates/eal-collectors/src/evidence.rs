@@ -16,12 +16,23 @@ use std::{
     io::Read,
     path::{Path, PathBuf},
     sync::Arc,
+    time::{Duration, Instant},
 };
 
 const FILE_BYTES: usize = 16 * 1024 * 1024;
 fn read_json<T: DeserializeOwned>(path: &Path) -> Result<T, String> {
-    let file =
-        std::fs::File::open(path).map_err(|_| "evidence configuration or plan is unavailable")?;
+    let mut options = std::fs::OpenOptions::new();
+    options.read(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.custom_flags(rustix::fs::OFlags::NONBLOCK.bits() as i32);
+    }
+    // Inspect the opened descriptor before reading. Nonblocking open prevents a
+    // FIFO at an operator path from waiting for a writer before this check.
+    let file = options
+        .open(path)
+        .map_err(|_| "evidence configuration or plan is unavailable")?;
     if !file
         .metadata()
         .map_err(|_| "evidence file metadata is unavailable")?
@@ -44,10 +55,17 @@ fn read_json<T: DeserializeOwned>(path: &Path) -> Result<T, String> {
         .map_err(|_| "evidence configuration or execution plan fields are invalid".into())
 }
 fn flags(arguments: &[String], expected: &[&str]) -> Result<BTreeMap<String, PathBuf>, String> {
+    flags_with_optional(arguments, expected, &[])
+}
+fn flags_with_optional(
+    arguments: &[String],
+    expected: &[&str],
+    optional: &[&str],
+) -> Result<BTreeMap<String, PathBuf>, String> {
     let mut flags = BTreeMap::new();
     for pair in arguments.chunks(2) {
         if pair.len() != 2
-            || !expected.contains(&pair[0].as_str())
+            || !(expected.contains(&pair[0].as_str()) || optional.contains(&pair[0].as_str()))
             || pair[1].is_empty()
             || flags
                 .insert(pair[0].clone(), PathBuf::from(&pair[1]))
@@ -88,25 +106,72 @@ pub async fn support_graph(
     arguments: &[String],
     request_bytes: &[u8],
 ) -> Result<ObservationEnvelope, String> {
-    let flags = flags(arguments, &["--plan", "--config", "--store"])?;
-    let value = strict_json_exact(
-        request_bytes,
-        JsonLimits {
-            max_bytes: 1_048_576,
-            ..Default::default()
-        },
+    let started = Instant::now();
+    let flags = flags_with_optional(
+        arguments,
+        &["--plan", "--config", "--store"],
+        &["--timeout-ms"],
     )?;
-    let request: AcquisitionRequest =
-        serde_json::from_value(value).map_err(|_| "support request fields are invalid")?;
-    let plan: EvidenceExecutionPlan = read_json(&flags["--plan"])?;
-    let selected = validate_support_request(&request, &plan)?;
-    let bridge = bridge(read_json(&flags["--config"])?)?;
-    let store = SourceStore::open(&flags["--store"], 4096, 16 * 1024 * 1024)?;
-    let executor = EvidenceExecutor::new(Arc::new(bridge), store, ExecutionLimits::default())?;
+    let mut limits = ExecutionLimits::default();
+    if let Some(value) = flags.get("--timeout-ms") {
+        let millis = value
+            .to_str()
+            .and_then(|value| value.parse::<u64>().ok())
+            .filter(|value| (1..=86_400_000).contains(value))
+            .ok_or("support timeout requires integer milliseconds from 1 to 86400000")?;
+        limits.timeout = Duration::from_millis(millis);
+    }
+    let deadline = started
+        .checked_add(limits.timeout)
+        .ok_or("support timeout is not representable")?;
+    if request_bytes.len() > 1_048_576 {
+        return Err("support acquisition request exceeds 1 MiB".into());
+    }
+    let request_bytes = request_bytes.to_owned();
+    let plan_path = flags["--plan"].clone();
+    let config_path = flags["--config"].clone();
+    let prepared = tokio::task::spawn_blocking(move || {
+        support_deadline(deadline)?;
+        let value = strict_json_exact(
+            &request_bytes,
+            JsonLimits {
+                max_bytes: 1_048_576,
+                ..Default::default()
+            },
+        )?;
+        let request: AcquisitionRequest =
+            serde_json::from_value(value).map_err(|_| "support request fields are invalid")?;
+        let plan: EvidenceExecutionPlan = read_json(&plan_path)?;
+        support_deadline(deadline)?;
+        let selected = validate_support_request(&request, &plan)?;
+        support_deadline(deadline)?;
+        let config = read_json(&config_path)?;
+        support_deadline(deadline)?;
+        let bridge = bridge(config)?;
+        support_deadline(deadline)?;
+        Ok::<_, String>((request, plan, selected.requirement_id, bridge))
+    });
+    let (request, plan, requirement_id, bridge) =
+        tokio::time::timeout_at(tokio::time::Instant::from_std(deadline), prepared)
+            .await
+            .map_err(|_| "support preparation deadline exhausted")?
+            .map_err(|_| "support preparation worker failed")??;
+    support_deadline(deadline)?;
+    let store =
+        SourceStore::open_until(&flags["--store"], 4096, 16 * 1024 * 1024, deadline).await?;
+    let executor = EvidenceExecutor::new(Arc::new(bridge), store, limits)?;
     let report = executor
-        .execute_requirement(&plan, &selected.requirement_id, None)
+        .execute_requirement_until(&plan, &requirement_id, None, deadline)
         .await?;
     project_requirement(&request, &report)
+}
+
+fn support_deadline(deadline: Instant) -> Result<(), String> {
+    if Instant::now() >= deadline {
+        Err("support preparation deadline exhausted".into())
+    } else {
+        Ok(())
+    }
 }
 
 /// Explicitly reconcile an uncertain read while refusing an active acquisition.

@@ -118,12 +118,12 @@ pub fn project_requirement(
         Ok(json!({"observation_id":id,"source_id":record.source_id,"value_sha256":record.value_sha256,"observed_at":record.observed_at,"snapshot":format!("observations/{id}.json")}))
     }).collect::<Result<Vec<_>,String>>()?;
     Ok(ObservationEnvelope {
-        value: json!({"execution_plan_sha256":report.plan_sha256,"collected":true,"criterion_satisfied":evaluation.status==EvaluationStatus::Satisfied,"requirement_id":evaluation.requirement_id,"evaluation_id":evaluation.id,"status":evaluation.status,"source_ids":evaluation.source_ids,"observation_ids":evaluation.observation_ids,"evaluation":evaluation}),
+        value: json!({"execution_plan_sha256":report.plan_sha256,"collected":true,"execution_complete":report.complete,"budget_exhausted":report.budget_exhausted,"criterion_satisfied":evaluation.status==EvaluationStatus::Satisfied,"requirement_id":evaluation.requirement_id,"evaluation_id":evaluation.id,"status":evaluation.status,"source_ids":evaluation.source_ids,"observation_ids":evaluation.observation_ids,"evaluation":evaluation}),
         observed_at: Some(observed_at),
         context: Some(request.context.clone()),
         request: Some(request.acquisition()),
         details: Some(
-            json!({"execution_plan_sha256":report.plan_sha256,"evaluated_at":report.evaluated_at,"metric_scope":report.metric_scope,"metrics":report.metrics,"observations":observations}),
+            json!({"execution_plan_sha256":report.plan_sha256,"evaluated_at":report.evaluated_at,"execution_complete":report.complete,"budget_exhausted":report.budget_exhausted,"metric_scope":report.metric_scope,"metrics":report.metrics,"observations":observations}),
         ),
     })
 }

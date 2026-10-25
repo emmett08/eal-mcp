@@ -8,7 +8,7 @@ use std::{
     pin::Pin,
     sync::{
         Arc,
-        atomic::{AtomicUsize, Ordering},
+        atomic::{AtomicBool, AtomicUsize, Ordering},
     },
     time::{Duration, Instant},
 };
@@ -303,6 +303,9 @@ pub struct ExecutionReport {
     pub plan_sha256: String,
     pub evaluated_at: String,
     pub complete: bool,
+    /// Invocation budget outcome remains distinct from each retained criterion.
+    #[serde(default)]
+    pub budget_exhausted: bool,
     pub steps: BTreeMap<String, StepResult>,
     pub sources: BTreeMap<String, SourceRecord>,
     /// Every exact observation used by this execution, including older records
@@ -364,6 +367,21 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
         requirement_id: &str,
         assessment_time: Option<&str>,
     ) -> Result<ExecutionReport, String> {
+        let deadline = Instant::now()
+            .checked_add(self.limits.timeout)
+            .ok_or("execution timeout is not representable")?;
+        self.execute_requirement_until(plan, requirement_id, assessment_time, deadline)
+            .await
+    }
+
+    /// Apply a caller's absolute deadline to requirement projection and execution.
+    pub async fn execute_requirement_until(
+        &self,
+        plan: &EvidenceExecutionPlan,
+        requirement_id: &str,
+        assessment_time: Option<&str>,
+        deadline: Instant,
+    ) -> Result<ExecutionReport, String> {
         plan.validate()?;
         let selected: Vec<_> = plan
             .evaluations
@@ -422,8 +440,14 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
             evaluations: selected,
             scheduling: plan.scheduling.clone(),
         };
-        let mut report = self.execute(&projection, assessment_time).await?;
+        let mut report = self
+            .execute_until(&projection, assessment_time, deadline)
+            .await?;
         report.plan_sha256 = canonical_digest(plan)?;
+        if Instant::now() >= deadline {
+            report.budget_exhausted = true;
+            report.complete = false;
+        }
         Ok(report)
     }
 
@@ -434,14 +458,30 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
         plan: &EvidenceExecutionPlan,
         assessment_time: Option<&str>,
     ) -> Result<ExecutionReport, String> {
+        let deadline = Instant::now()
+            .checked_add(self.limits.timeout)
+            .ok_or("execution timeout is not representable")?;
+        self.execute_until(plan, assessment_time, deadline).await
+    }
+
+    /// Acquisition and publication share the caller's deadline. Final assessment
+    /// reports retained observations separately from an exhausted invocation.
+    pub async fn execute_until(
+        &self,
+        plan: &EvidenceExecutionPlan,
+        assessment_time: Option<&str>,
+        deadline: Instant,
+    ) -> Result<ExecutionReport, String> {
+        let started = Instant::now();
+        let deadline = deadline.min(
+            started
+                .checked_add(self.limits.timeout)
+                .ok_or("execution timeout is not representable")?,
+        );
         plan.validate()?;
         if let Some(now) = assessment_time {
             parse_time(now)?;
         }
-        let started = Instant::now();
-        let deadline = started
-            .checked_add(self.limits.timeout)
-            .ok_or("execution timeout is not representable")?;
         let policy = Arc::new(Concurrency {
             global: Arc::new(Semaphore::new(plan.scheduling.maximum_concurrent_sources)),
             providers: plan
@@ -464,6 +504,8 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
             assessment_time: assessment_time.map(str::to_owned),
             acquired: std::sync::Mutex::new(std::collections::BTreeSet::new()),
             maximum_requests: self.limits.maximum_source_requests,
+            budget_exhausted: AtomicBool::new(false),
+            progress: std::sync::Mutex::new(BTreeMap::new()),
         });
         let mut acquisitions: BTreeMap<_, _> = plan
             .acquisitions
@@ -499,44 +541,9 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
             let derived_any = !ready.is_empty();
             for id in ready {
                 let step = derivations.remove(&id).expect("ready derivation");
-                let parents: Vec<_> = step
-                    .inputs
-                    .iter()
-                    .filter_map(|reference| steps.get(&reference.step_id))
-                    .collect();
-                let mut output = lineage(&id, &parents);
-                match step
-                    .inputs
-                    .iter()
-                    .map(|reference| evaluation::referenced(reference, &steps))
-                    .collect::<Result<Vec<_>, _>>()
-                    .and_then(|values| evaluation::derive(&step.operation, &values))
-                {
-                    Ok(value) => {
-                        output.status = StepStatus::Derived;
-                        if matches!(step.operation, DerivationOperation::AnyIdentityEqual) {
-                            output.coverage = if value == Value::Bool(true) {
-                                CoverageStatus::Witness
-                            } else if parents
-                                .get(1)
-                                .is_some_and(|step| step.coverage.is_complete())
-                                && !output.truncated
-                            {
-                                CoverageStatus::CompleteEnumeration
-                            } else {
-                                CoverageStatus::Unspecified
-                            };
-                        }
-                        output.value = Some(value);
-                    }
-                    Err(message) => {
-                        output.status = StepStatus::Unavailable;
-                        output.diagnostic = Some(message);
-                    }
-                }
+                let mut output = derive_step(&step, &steps);
                 if Instant::now() >= deadline {
                     output.status = StepStatus::Incomplete;
-                    output.value = None;
                     output.diagnostic =
                         Some("execution deadline exhausted during derivation".into());
                 }
@@ -544,6 +551,11 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
                 if Instant::now() >= deadline {
                     break;
                 }
+            }
+            if Instant::now() >= deadline {
+                running.abort_all();
+                while running.join_next().await.is_some() {}
+                break;
             }
             let ready: Vec<_> = acquisitions
                 .values()
@@ -564,6 +576,7 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
                     .collect();
                 let upstream = lineage(&id, &parents.iter().collect::<Vec<_>>());
                 let freshness = minimum_freshness(&id, plan);
+                let continue_after_witness = requires_continuation(&id, plan);
                 let (executor, store, policy, limits) = (
                     self.executor.clone(),
                     self.store.clone(),
@@ -576,8 +589,16 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
                             let mut upstream = upstream;
                             upstream.truncated |= prepared.truncated;
                             acquire_step(
-                                executor, store, &step, prepared, upstream, &policy, &limits,
-                                deadline, freshness,
+                                executor,
+                                store,
+                                &step,
+                                prepared,
+                                upstream,
+                                &policy,
+                                &limits,
+                                deadline,
+                                freshness,
+                                continue_after_witness,
                             )
                             .await
                         }
@@ -609,25 +630,24 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
             .await
             {
                 Ok(Some(Ok((id, (result, records, counts))))) => {
-                    metrics.reused_sources += counts.reused_sources;
-                    metrics.reported_provider_requests += counts.reported_provider_requests;
-                    metrics.reported_request_bytes += counts.reported_request_bytes;
-                    metrics.reported_response_bytes += counts.reported_response_bytes;
-                    metrics.normalised_response_bytes += counts.normalised_response_bytes;
-                    owned_sources.insert(
-                        id.clone(),
-                        records
-                            .iter()
-                            .map(|record| record.observation_id.clone())
-                            .collect(),
+                    policy
+                        .progress
+                        .lock()
+                        .expect("acquisition progress lock")
+                        .remove(&id);
+                    retain_acquisition(
+                        id,
+                        AcquisitionProgress {
+                            result,
+                            records,
+                            metrics: counts,
+                        },
+                        &mut metrics,
+                        &mut owned_sources,
+                        &mut sources,
+                        &mut observations,
+                        &mut steps,
                     );
-                    for record in records {
-                        observations
-                            .entry(record.observation_id.clone())
-                            .or_insert_with(|| record.clone());
-                        sources.insert(record.source_id.clone(), record);
-                    }
-                    steps.insert(id, result);
                 }
                 Ok(Some(Err(_))) => return Err("evidence acquisition worker failed".into()),
                 Ok(None) => {
@@ -642,6 +662,28 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
                 }
             }
         }
+        // Recover completed responses, including a finished worker whose result
+        // was not delivered before cancellation. No further I/O is admitted.
+        for (id, progress) in
+            std::mem::take(&mut *policy.progress.lock().expect("acquisition progress lock"))
+        {
+            if steps.contains_key(&id) {
+                continue;
+            }
+            retain_acquisition(
+                id,
+                progress,
+                &mut metrics,
+                &mut owned_sources,
+                &mut sources,
+                &mut observations,
+                &mut steps,
+            );
+        }
+        // Final assessment can use small retained structural/identity results.
+        // Admit bounded work before cloning inputs, including expanding Collect
+        // and Project operations. Numeric work stays incomplete after expiry.
+        finalise_retained_derivations(&mut derivations, &mut steps);
         for id in plan
             .acquisitions
             .iter()
@@ -674,14 +716,220 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
                 evaluation::evaluate(evaluation, &steps, &observations, &evaluated_at)
             })
             .collect::<Vec<_>>();
+        let plan_sha256 = canonical_digest(plan)?;
         metrics.source_requests = policy.requests.load(Ordering::Relaxed);
         metrics.elapsed_ms = started.elapsed().as_millis().try_into().unwrap_or(u64::MAX);
-        let complete = steps
-            .values()
-            .all(|step| matches!(step.status, StepStatus::Measured | StepStatus::Derived))
+        let budget_exhausted = policy.budget_exhausted.load(Ordering::Relaxed)
+            || Instant::now() >= deadline
+            || steps
+                .values()
+                .any(|step| matches!(step.status, StepStatus::Incomplete));
+        let complete = !budget_exhausted
+            && steps
+                .values()
+                .all(|step| matches!(step.status, StepStatus::Measured | StepStatus::Derived))
             && evaluations
                 .iter()
                 .all(|result| result.status != EvaluationStatus::Pending);
-        Ok(ExecutionReport{schema:"eal.evidence-execution/1".into(),plan_sha256:canonical_digest(plan)?,evaluated_at,complete,steps,sources,observations,evaluations,metrics,metric_scope:"source executor calls and normalised JSON response payloads; reported provider JSON protocol metrics include cache-admission checks; failed calls may lack byte counts; provider per-observation metrics remain on source records".into()})
+        Ok(ExecutionReport{schema:"eal.evidence-execution/1".into(),plan_sha256,evaluated_at,complete,budget_exhausted,steps,sources,observations,evaluations,metrics,metric_scope:"source executor calls and normalised JSON response payloads; reported provider JSON protocol metrics include cache-admission checks; failed calls may lack byte counts; provider per-observation metrics remain on source records".into()})
+    }
+}
+
+/// Finished tasks and cancelled-task recovery share observation and metric accounting.
+fn retain_acquisition(
+    id: String,
+    mut progress: AcquisitionProgress,
+    metrics: &mut ExecutionMetrics,
+    owned_sources: &mut BTreeMap<String, Vec<String>>,
+    sources: &mut BTreeMap<String, SourceRecord>,
+    observations: &mut BTreeMap<String, SourceRecord>,
+    steps: &mut BTreeMap<String, StepResult>,
+) {
+    progress.result.source_ids.sort();
+    progress.result.source_ids.dedup();
+    progress.result.observation_ids.sort();
+    progress.result.observation_ids.dedup();
+    metrics.reused_sources += progress.metrics.reused_sources;
+    metrics.reported_provider_requests += progress.metrics.reported_provider_requests;
+    metrics.reported_request_bytes += progress.metrics.reported_request_bytes;
+    metrics.reported_response_bytes += progress.metrics.reported_response_bytes;
+    metrics.normalised_response_bytes += progress.metrics.normalised_response_bytes;
+    owned_sources.insert(
+        id.clone(),
+        progress
+            .records
+            .iter()
+            .map(|record| record.observation_id.clone())
+            .collect(),
+    );
+    for record in progress.records {
+        observations
+            .entry(record.observation_id.clone())
+            .or_insert_with(|| record.clone());
+        sources.insert(record.source_id.clone(), record);
+    }
+    steps.insert(id, progress.result);
+}
+
+fn derive_step(step: &DerivationStep, steps: &BTreeMap<String, StepResult>) -> StepResult {
+    let parents: Vec<_> = step
+        .inputs
+        .iter()
+        .filter_map(|reference| steps.get(&reference.step_id))
+        .collect();
+    let mut output = lineage(&step.id, &parents);
+    match step
+        .inputs
+        .iter()
+        .map(|reference| evaluation::referenced(reference, steps))
+        .collect::<Result<Vec<_>, _>>()
+        .and_then(|values| evaluation::derive(&step.operation, &values))
+    {
+        Ok(value) => {
+            output.status = StepStatus::Derived;
+            if matches!(step.operation, DerivationOperation::AnyIdentityEqual) {
+                output.coverage = if value == Value::Bool(true) {
+                    CoverageStatus::Witness
+                } else if parents
+                    .get(1)
+                    .is_some_and(|step| step.coverage.is_complete())
+                    && !output.truncated
+                {
+                    CoverageStatus::CompleteEnumeration
+                } else {
+                    CoverageStatus::Unspecified
+                };
+            }
+            output.value = Some(value);
+        }
+        Err(message) => {
+            output.status = StepStatus::Unavailable;
+            output.diagnostic = Some(message);
+        }
+    }
+    output
+}
+
+const MAXIMUM_FINAL_DERIVATIONS: usize = 128;
+const MAXIMUM_FINAL_DERIVATION_BYTES: usize = 16 * 1024 * 1024;
+
+fn finalise_retained_derivations(
+    derivations: &mut BTreeMap<String, DerivationStep>,
+    steps: &mut BTreeMap<String, StepResult>,
+) {
+    let mut remaining_work = MAXIMUM_FINAL_DERIVATIONS;
+    let mut remaining_bytes = MAXIMUM_FINAL_DERIVATION_BYTES;
+    while remaining_work > 0 {
+        let ready: Vec<_> = derivations
+            .values()
+            .filter(|step| {
+                step.inputs.iter().all(|reference| {
+                    steps
+                        .get(&reference.step_id)
+                        .is_some_and(|step| step.value.is_some())
+                })
+            })
+            .take(remaining_work)
+            .map(|step| step.id.clone())
+            .collect();
+        if ready.is_empty() {
+            break;
+        }
+        for id in ready {
+            remaining_work -= 1;
+            let step = derivations.remove(&id).expect("ready retained derivation");
+            let output = if admit_final_derivation(&step, steps, &mut remaining_bytes) {
+                derive_step(&step, steps)
+            } else {
+                let parents = step
+                    .inputs
+                    .iter()
+                    .filter_map(|reference| steps.get(&reference.step_id))
+                    .collect::<Vec<_>>();
+                let mut output = lineage(&id, &parents);
+                output.status = StepStatus::Incomplete;
+                output.diagnostic = Some(
+                    "bounded final assessment cannot admit this derivation after execution expiry"
+                        .into(),
+                );
+                output
+            };
+            steps.insert(id, output);
+        }
+    }
+}
+
+/// Conservative aggregate cloned-value bound. Count bytes through a bounded
+/// writer before any selected input is cloned. JSON structural operations can
+/// expand by their authored field count. Arithmetic intermediate sizes require
+/// separate numeric work limits, so those operations remain incomplete here.
+fn admit_final_derivation(
+    step: &DerivationStep,
+    steps: &BTreeMap<String, StepResult>,
+    remaining: &mut usize,
+) -> bool {
+    let factor = match &step.operation {
+        DerivationOperation::Collect | DerivationOperation::Extract { .. } => 2,
+        DerivationOperation::Project { fields } | DerivationOperation::ProjectValue { fields } => {
+            fields.len() + 2
+        }
+        DerivationOperation::Count
+        | DerivationOperation::IdentityEqual
+        | DerivationOperation::AnyIdentityEqual => 1,
+        _ => return false,
+    };
+    let mut counter = BoundedByteCount {
+        remaining: *remaining,
+        bytes: 0,
+    };
+    if serde_json::to_writer(&mut counter, &step.operation).is_err() {
+        *remaining = 0;
+        return false;
+    }
+    let operation_bytes = counter.bytes;
+    for reference in &step.inputs {
+        let Some(value) = steps
+            .get(&reference.step_id)
+            .and_then(|step| step.value.as_ref())
+            .and_then(|value| value.pointer(&reference.pointer))
+        else {
+            return false;
+        };
+        if serde_json::to_writer(&mut counter, value).is_err() {
+            *remaining = 0;
+            return false;
+        }
+    }
+    let Some(charge) = (counter.bytes - operation_bytes)
+        .checked_mul(factor)
+        .and_then(|bytes| bytes.checked_add(operation_bytes))
+        .and_then(|bytes| bytes.checked_add(step.inputs.len().saturating_add(128)))
+    else {
+        *remaining = 0;
+        return false;
+    };
+    let Some(next) = remaining.checked_sub(charge) else {
+        *remaining = 0;
+        return false;
+    };
+    *remaining = next;
+    true
+}
+
+struct BoundedByteCount {
+    remaining: usize,
+    bytes: usize,
+}
+impl std::io::Write for BoundedByteCount {
+    fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+        self.remaining = self
+            .remaining
+            .checked_sub(bytes.len())
+            .ok_or_else(|| std::io::Error::other("final assessment byte budget exhausted"))?;
+        self.bytes += bytes.len();
+        Ok(bytes.len())
+    }
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
     }
 }

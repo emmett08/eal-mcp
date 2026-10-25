@@ -488,3 +488,180 @@ fn prepare_native_provider_normalizes_hash_without_contacting_or_qualifying_the_
     assert!(returned.capability.semantics.is_none());
     assert_eq!(std::fs::read(path).unwrap(), original);
 }
+
+#[cfg(unix)]
+#[test]
+fn public_support_command_bounds_contended_key_initialisation() {
+    use std::time::{Duration, Instant};
+    let temp = Directory::new();
+    let plan = pending_plan();
+    let path = temp.0.join("plan.json");
+    std::fs::write(&path, serde_json::to_vec(&plan).unwrap()).unwrap();
+    let config = temp.0.join("config.json");
+    std::fs::write(
+        &config,
+        br#"{"schema":"eal.evidence-config/1","connections":[]}"#,
+    )
+    .unwrap();
+    let store = temp.0.join("store");
+    eal_evidence::storage::SourceStore::open(&store, 10, 1_048_576).unwrap();
+    let held = std::fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(store.join("store.key"))
+        .unwrap();
+    rustix::fs::flock(&held, rustix::fs::FlockOperation::LockExclusive).unwrap();
+    let holder = std::thread::spawn(move || {
+        std::thread::sleep(Duration::from_secs(1));
+        drop(held);
+    });
+    let started = Instant::now();
+    let output = command(
+        &[
+            "support-graph",
+            "--plan",
+            path.to_str().unwrap(),
+            "--config",
+            config.to_str().unwrap(),
+            "--store",
+            store.to_str().unwrap(),
+            "--timeout-ms",
+            "50",
+        ],
+        Some(&request(&plan)),
+    );
+    let elapsed = started.elapsed();
+    eprintln!("public support command with 50 ms budget returned after {elapsed:?}");
+    assert!(
+        elapsed < Duration::from_millis(750),
+        "includes process startup and scheduler tolerance"
+    );
+    assert!(!output.status.success());
+    assert!(output.stdout.is_empty());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("deadline exhausted"));
+    holder.join().unwrap();
+    // A timed-out opener leaves the existing key readable and does not acquire a source.
+    eal_evidence::storage::SourceStore::open(&store, 10, 1_048_576).unwrap();
+    assert_eq!(
+        std::fs::read_dir(store.join("observations"))
+            .unwrap()
+            .count(),
+        0
+    );
+}
+
+#[test]
+fn support_timeout_requires_a_positive_bounded_integer_and_rejects_duplicates() {
+    for value in ["0", "86400001", "-1", "1.5", "NaN"] {
+        let output = command(
+            &[
+                "support-graph",
+                "--plan",
+                "absent",
+                "--config",
+                "absent",
+                "--store",
+                "absent",
+                "--timeout-ms",
+                value,
+            ],
+            Some(&json!({})),
+        );
+        assert!(!output.status.success());
+        assert!(String::from_utf8_lossy(&output.stderr).contains("support timeout requires"));
+    }
+    let output = command(
+        &[
+            "support-graph",
+            "--plan",
+            "absent",
+            "--config",
+            "absent",
+            "--store",
+            "absent",
+            "--timeout-ms",
+            "1",
+            "--timeout-ms",
+            "1",
+        ],
+        Some(&json!({})),
+    );
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("duplicate"));
+}
+
+#[cfg(unix)]
+#[test]
+fn support_command_rejects_fifo_plan_and_configuration_without_waiting_for_a_writer() {
+    use std::time::{Duration, Instant};
+    for fifo_option in ["plan", "config"] {
+        let temp = Directory::new();
+        let plan = pending_plan();
+        let plan_path = temp.0.join("plan");
+        let config_path = temp.0.join("config");
+        let store = temp.0.join("store");
+        if fifo_option == "plan" {
+            rustix::fs::mkfifoat(
+                rustix::fs::CWD,
+                &plan_path,
+                rustix::fs::Mode::RUSR | rustix::fs::Mode::WUSR,
+            )
+            .unwrap();
+            std::fs::write(
+                &config_path,
+                br#"{"schema":"eal.evidence-config/1","connections":[]}"#,
+            )
+            .unwrap();
+        } else {
+            std::fs::write(&plan_path, serde_json::to_vec(&plan).unwrap()).unwrap();
+            rustix::fs::mkfifoat(
+                rustix::fs::CWD,
+                &config_path,
+                rustix::fs::Mode::RUSR | rustix::fs::Mode::WUSR,
+            )
+            .unwrap();
+        }
+        let mut child = Command::new(env!("CARGO_BIN_EXE_eal-collector"))
+            .args([
+                "support-graph",
+                "--plan",
+                plan_path.to_str().unwrap(),
+                "--config",
+                config_path.to_str().unwrap(),
+                "--store",
+                store.to_str().unwrap(),
+                "--timeout-ms",
+                "50",
+            ])
+            .env_clear()
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        child
+            .stdin
+            .take()
+            .unwrap()
+            .write_all(&serde_json::to_vec(&request(&plan)).unwrap())
+            .unwrap();
+        let started = Instant::now();
+        while child.try_wait().unwrap().is_none() && started.elapsed() < Duration::from_secs(1) {
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        if child.try_wait().unwrap().is_none() {
+            child.kill().unwrap();
+            child.wait().unwrap();
+            panic!("support command blocked opening FIFO {fifo_option}");
+        }
+        let output = child.wait_with_output().unwrap();
+        assert!(!output.status.success());
+        assert!(output.stdout.is_empty());
+        let diagnostic = String::from_utf8_lossy(&output.stderr);
+        assert!(
+            diagnostic.contains("regular file") || diagnostic.contains("deadline exhausted"),
+            "{diagnostic}"
+        );
+        assert!(!store.exists());
+    }
+}

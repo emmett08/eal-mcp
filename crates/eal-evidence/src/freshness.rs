@@ -10,7 +10,6 @@ pub(crate) fn diagnostic<'a>(
     fallback: Option<&str>,
     now: &str,
 ) -> Option<String> {
-    let maximum = maximum?;
     let times = times.collect::<Vec<_>>();
     let times = if times.is_empty() {
         fallback.into_iter().collect()
@@ -23,10 +22,9 @@ pub(crate) fn diagnostic<'a>(
             .ok()
             .is_none_or(|at| {
                 at > current
-                    || current
-                        .signed_duration_since(at)
-                        .to_std()
-                        .is_ok_and(|age| age > std::time::Duration::from_secs(maximum))
+                    || current.signed_duration_since(at).to_std().is_ok_and(|age| {
+                        maximum.is_some_and(|maximum| age > std::time::Duration::from_secs(maximum))
+                    })
             })
     }) {
         Some("source observation does not meet its original acquisition freshness contract".into())
