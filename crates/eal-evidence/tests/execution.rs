@@ -93,7 +93,15 @@ impl SourceExecutor for Mock {
                     AT.into()
                 },
                 provenance: json!({"operator":"test-provider","method":"measurement/1"}),
-                coverage: CoverageStatus::CompleteEnumeration,
+                coverage: if request.arguments.get("coverage_unspecified")
+                    == Some(&Value::Bool(true))
+                {
+                    CoverageStatus::Unspecified
+                } else if request.arguments.get("coverage_witness") == Some(&Value::Bool(true)) {
+                    CoverageStatus::Witness
+                } else {
+                    CoverageStatus::CompleteEnumeration
+                },
                 metrics: SourceMetrics {
                     transport_requests: Some(1),
                     request_bytes: Some(10),
@@ -1640,8 +1648,10 @@ async fn discovery_binding_executes_projection_but_rejects_scope_change_before_i
     let temp = tempfile::tempdir().unwrap();
     let mock = Arc::new(Mock::default());
     let runtime = runtime(mock.clone(), store(&temp));
-    let discovery = acquisition("discovery", json!({"api_version":25}));
+    let mut discovery = acquisition("discovery", json!({"api_version":25}));
+    discovery.arguments["coverage_unspecified"] = json!(true);
     let mut read = acquisition("read", Value::Null);
+    read.arguments["coverage_witness"] = json!(true);
     read.source.scope = json!({"cluster":"dev","resource":"widgets"});
     read.bindings.push(DependencyBinding {
         output: reference("discovery_projection", "/api_version"),
@@ -1654,6 +1664,7 @@ async fn discovery_binding_executes_projection_but_rejects_scope_change_before_i
         vec![discovery, read],
         vec![evaluation("named_object", "read", json!(25))],
     );
+    graph.evaluations[0].required_coverage = RequiredCoverage::Witness;
     graph.derivations.push(DerivationStep {
         id: "discovery_projection".into(),
         inputs: vec![reference("discovery", "")],
@@ -1664,6 +1675,17 @@ async fn discovery_binding_executes_projection_but_rejects_scope_change_before_i
     let result = runtime.execute(&graph, Some(NOW)).await.unwrap();
     assert_eq!(result.evaluations[0].status, EvaluationStatus::Satisfied);
     assert_eq!(result.steps["read"].value, Some(json!(25)));
+    assert!(matches!(
+        result.steps["discovery"].coverage,
+        CoverageStatus::Unspecified
+    ));
+    assert!(matches!(
+        result.steps["read"].coverage,
+        CoverageStatus::Witness
+    ));
+    assert_eq!(result.steps["read"].source_ids.len(), 2);
+    assert_eq!(result.steps["read"].observation_ids.len(), 2);
+    assert_eq!(result.steps["read"].observed_at.as_deref(), Some(AT));
     assert_eq!(mock.calls.load(Ordering::SeqCst), 2);
     graph.acquisitions[0].source.scope["cluster"] = json!("prod");
     assert!(runtime.execute(&graph, Some(NOW)).await.is_err());

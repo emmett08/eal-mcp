@@ -319,8 +319,12 @@ Execution admits discovery references through single-source `extract`,
 fan-out origins and cyclic chains cannot relabel a selection as discovery.
 The qualified planner must additionally establish that the source contract is a
 discovery operation, retaining its original clocks and provenance. The runtime
-checks the pinned source identities and scope correspondence. This role does
-not itself qualify a protocol or establish an empirical witness.
+checks the pinned source identities and scope correspondence. Discovery retains
+its source and observation identities and original clock in the consumer's
+lineage. Its metadata supplies no population coverage. A consumer's witness
+therefore comes from its own measurement and any actual selection ancestors,
+while an unspecified discovery coverage cannot erase that witness. This role
+does not itself qualify a protocol or establish an empirical witness.
 
 ## Shared support execution deadlines
 
