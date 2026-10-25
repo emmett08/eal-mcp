@@ -364,7 +364,8 @@ async fn explicit_witness_can_stop_detail_reads_but_cannot_skip_applicability() 
         maximum_items: 3,
         stop_on_witness: Some(WitnessPredicate {
             pointer: "/witness".into(),
-            equals: json!(true),
+            equals: Some(json!(true)),
+            equals_output: None,
         }),
     });
     let challenge = acquisition("challenge", json!(false));
@@ -1006,6 +1007,71 @@ async fn acquired_fanout_projects_per_record_quantities_for_numeric_and_witness_
 }
 
 #[tokio::test]
+async fn whole_value_projection_addresses_root_arrays_without_implicit_fanout() {
+    let temp = tempfile::tempdir().unwrap();
+    let mock = Arc::new(Mock::default());
+    let runtime = runtime(mock.clone(), store(&temp));
+    let raw = json!([
+        {"uid":"resource-17","nested":{"samples":[["a"],["b"]]}},
+        {"uid":"resource-18"}
+    ]);
+    let mut check = evaluation("first-uid", "projected", json!(0));
+    check.inputs = vec![reference("projected", "/first_uid")];
+    check.criterion = EvaluationCriterion::Equals {
+        expected: json!("resource-17"),
+    };
+    check.required_coverage = RequiredCoverage::CompleteEnumeration;
+    let mut plan = plan(vec![acquisition("batch", raw.clone())], vec![check]);
+    plan.derivations.push(DerivationStep {
+        id: "projected".into(),
+        inputs: vec![reference("batch", "")],
+        operation: DerivationOperation::ProjectValue {
+            fields: BTreeMap::from([
+                ("first_uid".into(), "/0/uid".into()),
+                ("samples".into(), "/0/nested/samples".into()),
+                ("whole".into(), String::new()),
+            ]),
+        },
+    });
+    let output = runtime.execute(&plan, Some(NOW)).await.unwrap();
+    assert_eq!(output.evaluations[0].status, EvaluationStatus::Satisfied);
+    assert_eq!(
+        output.steps["projected"].value,
+        Some(json!({"first_uid":"resource-17","samples":[["a"],["b"]],"whole":raw}))
+    );
+    assert_eq!(
+        output.steps["projected"].source_ids,
+        output.steps["batch"].source_ids
+    );
+    assert_eq!(
+        output.steps["projected"].observation_ids,
+        output.steps["batch"].observation_ids
+    );
+    assert_eq!(output.steps["projected"].observed_at.as_deref(), Some(AT));
+    assert_eq!(
+        output.steps["projected"].coverage,
+        CoverageStatus::CompleteEnumeration
+    );
+    assert!(!output.steps["projected"].truncated);
+    assert_eq!(mock.calls.load(Ordering::SeqCst), 1);
+    // An absent whole-response pointer cannot silently become a per-record
+    // lookup, a null measurement or a successful negative.
+    if let DerivationOperation::ProjectValue { fields } = &mut plan.derivations[0].operation {
+        fields.insert("first_uid".into(), "/2/uid".into());
+    }
+    let missing = runtime.execute(&plan, Some(NOW)).await.unwrap();
+    assert_eq!(missing.evaluations[0].status, EvaluationStatus::Pending);
+    assert!(missing.steps["projected"].value.is_none());
+    assert_eq!(missing.metrics.source_requests, 0);
+    // Invalid pointers are rejected before source activity.
+    if let DerivationOperation::ProjectValue { fields } = &mut plan.derivations[0].operation {
+        fields.insert("first_uid".into(), "0/uid".into());
+    }
+    assert!(runtime.execute(&plan, Some(NOW)).await.is_err());
+    assert_eq!(mock.calls.load(Ordering::SeqCst), 1);
+}
+
+#[tokio::test]
 async fn scalar_resource_uid_matches_a_projected_trace_uid_collection_without_coercion() {
     let temp = tempfile::tempdir().unwrap();
     let runtime = runtime(Arc::new(Mock::default()), store(&temp));
@@ -1212,4 +1278,127 @@ async fn source_age_is_rechecked_at_final_assessment_and_invalidates_derived_con
     assert!(result.steps["derived"].value.is_none());
     assert_eq!(result.evaluations[0].source_ids.len(), 1);
     assert!(result.evaluations[0].observed_at.is_some());
+}
+
+#[tokio::test]
+async fn dynamic_witness_stopping_uses_upstream_uid_without_skipping_challenges() {
+    let temp = tempfile::tempdir().unwrap();
+    let mock = Arc::new(Mock::default());
+    let runtime = runtime(mock.clone(), store(&temp));
+    let uid = acquisition("resource", json!({"uid":"resource-17"}));
+    let mut search = acquisition("search", Value::Null);
+    search.arguments = json!({"operation":"search"});
+    let mut details = acquisition("details", Value::Null);
+    details.arguments = json!({"operation":"detail","id":null});
+    details.for_each = Some(ForEachBinding {
+        output: reference("search", "/ids"),
+        argument_pointer: "/id".into(),
+        maximum_items: 3,
+        stop_on_witness: Some(WitnessPredicate {
+            pointer: "/attributes/resource_uid".into(),
+            equals: None,
+            equals_output: Some(reference("resource", "/uid")),
+        }),
+    });
+    let challenge = acquisition("challenge", json!(false));
+    let mut criterion = evaluation("correlation", "matches", json!(0));
+    criterion.criterion = EvaluationCriterion::Equals {
+        expected: json!(true),
+    };
+    criterion.required_coverage = RequiredCoverage::Witness;
+    criterion.challenges = vec![reference("challenge", "")];
+    let mut plan = plan(vec![uid, search, details, challenge], vec![criterion]);
+    plan.derivations = vec![
+        DerivationStep {
+            id: "uids".into(),
+            inputs: vec![reference("details", "")],
+            operation: DerivationOperation::Project {
+                fields: BTreeMap::from([("uid".into(), "/attributes/resource_uid".into())]),
+            },
+        },
+        DerivationStep {
+            id: "matches".into(),
+            inputs: vec![reference("resource", "/uid"), reference("uids", "/uid")],
+            operation: DerivationOperation::AnyIdentityEqual,
+        },
+    ];
+    let output = runtime.execute(&plan, Some(NOW)).await.unwrap();
+    assert_eq!(mock.calls.load(Ordering::SeqCst), 5);
+    assert_eq!(
+        output.steps["details"]
+            .value
+            .as_ref()
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .len(),
+        2
+    );
+    assert!(output.steps["details"].truncated);
+    assert_eq!(output.steps["matches"].value, Some(json!(true)));
+    assert_eq!(output.evaluations[0].status, EvaluationStatus::Pending);
+    assert!(
+        output.evaluations[0]
+            .diagnostic
+            .as_ref()
+            .unwrap()
+            .contains("challenge")
+    );
+    assert!(
+        output.steps["details"]
+            .source_ids
+            .iter()
+            .any(|id| output.steps["resource"].source_ids.contains(id))
+    );
+    plan.evaluations[0].challenges.clear();
+    let reused = runtime.execute(&plan, Some(NOW)).await.unwrap();
+    assert_eq!(reused.evaluations[0].status, EvaluationStatus::Satisfied);
+    assert_eq!(reused.metrics.source_requests, 0);
+}
+
+#[tokio::test]
+async fn a_witness_stopped_count_cannot_establish_a_population_total() {
+    let temp = tempfile::tempdir().unwrap();
+    let runtime = runtime(Arc::new(Mock::default()), store(&temp));
+    let uid = acquisition("resource", json!({"uid":"resource-17"}));
+    let mut search = acquisition("search", Value::Null);
+    search.arguments = json!({"operation":"search"});
+    let mut details = acquisition("details", Value::Null);
+    details.arguments = json!({"operation":"detail","id":null});
+    details.for_each = Some(ForEachBinding {
+        output: reference("search", "/ids"),
+        argument_pointer: "/id".into(),
+        maximum_items: 3,
+        stop_on_witness: Some(WitnessPredicate {
+            pointer: "/attributes/resource_uid".into(),
+            equals: None,
+            equals_output: Some(reference("resource", "/uid")),
+        }),
+    });
+    let mut total = evaluation("total", "count", json!(2));
+    total.criterion = EvaluationCriterion::Numeric {
+        comparison: NumericComparison::Equal,
+        threshold: json!(2),
+        value_unit: "1".into(),
+        threshold_unit: "1".into(),
+    };
+    total.required_coverage = RequiredCoverage::CompleteEnumeration;
+    let mut sample = total.clone();
+    sample.id = "sample".into();
+    sample.requirement_id = "sample".into();
+    sample.required_coverage = RequiredCoverage::Unspecified;
+    let mut plan = plan(vec![uid, search, details], vec![total, sample]);
+    plan.derivations = vec![DerivationStep {
+        id: "count".into(),
+        inputs: vec![reference("details", "")],
+        operation: DerivationOperation::Count,
+    }];
+    let report = runtime.execute(&plan, Some(NOW)).await.unwrap();
+    assert!(report.steps["count"].truncated);
+    assert_eq!(
+        report.steps["count"].value.as_ref().unwrap()["numerator"],
+        "2"
+    );
+    assert_eq!(report.evaluations[0].status, EvaluationStatus::Pending);
+    assert_eq!(report.evaluations[1].status, EvaluationStatus::Satisfied);
 }

@@ -168,6 +168,14 @@ synthetic machinery checks are separate from live model-session measurements.
 The manually triggered [workflow](.github/workflows/rust.yml) runs formatting,
 Clippy, tests and a release build. It uses bounded debug information and caches
 Cargo downloads and build output. Cache hits still run verification.
+The context experiment has a separate cache keyed by its manifest, lockfile,
+toolchain and runner image. The release workspace and coordination worker are
+built in one invocation before both installed-boundary smoke checks. Manual
+dispatch, the three independent jobs and every test selection are retained.
+On the last measured dispatch, [40105751849](https://github.com/emmett08/eal-mcp/actions/runs/40105751849),
+the Rust job took 365 seconds and the experiment took 44 seconds; the separate
+worker build rounded to zero seconds. Candidate cache and build-time savings
+remain unmeasured.
 
 ## Regenerate the parser
 

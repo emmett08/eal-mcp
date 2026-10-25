@@ -414,3 +414,77 @@ fn configured_only_discovery_defers_approved_catalogue_requests_without_changing
     assert!(!duplicate.status.success());
     assert!(duplicate.stdout.is_empty());
 }
+
+#[test]
+fn prepare_native_provider_normalizes_hash_without_contacting_or_qualifying_the_source() {
+    use eal_collector_contracts::capability::*;
+    use eal_evidence::{ObservationTime, ResponseFormat, ToolMapping, providers::*};
+    let temp = Directory::new();
+    let input_schema = json!({"type":"object"});
+    let output_schema = json!({"type":"boolean"});
+    let mut provider = NativeProviderConfig {
+        capability: CapabilityDescriptor {
+            id: "prepared".into(),
+            version: "1".into(),
+            description: "Structurally prepared only".into(),
+            provider: ProviderIdentity {
+                id: "unavailable-http".into(),
+                version: "1".into(),
+                transport: TransportKind::Http,
+                connection: None,
+                tool: None,
+                authentication_scope: "operator-reader".into(),
+                configuration_sha256: "0".repeat(64),
+            },
+            input_schema_sha256: schema_identity(&input_schema).unwrap(),
+            input_schema,
+            output_schema_sha256: schema_identity(&output_schema).unwrap(),
+            output_schema,
+            semantics: None,
+            configuration_requirements: vec![],
+            limits: CapabilityLimits {
+                timeout_seconds: 1,
+                output_bytes: 1024,
+                concurrency: 1,
+                requests_per_minute: None,
+            },
+            costs: CapabilityCosts::unknown("not measured"),
+        },
+        transport: NativeTransport::HttpGet {
+            url: "http://127.0.0.1:9/no-source-call".into(),
+            query_bindings: Default::default(),
+            token_env: Some("MISSING_PREPARE_NATIVE_TOKEN".into()),
+        },
+        mapping: ToolMapping {
+            tool: "prepared".into(),
+            raw_output_schema_sha256: None,
+            response_format: ResponseFormat::Structured,
+            value_pointer: "".into(),
+            observation_time: ObservationTime::CollectionTime,
+            scope_pointers: Default::default(),
+        },
+        pinned_files: vec![],
+        credential_env: vec!["MISSING_PREPARE_NATIVE_TOKEN".into()],
+    };
+    let path = temp.0.join("provider.json");
+    std::fs::write(&path, serde_json::to_vec(&provider).unwrap()).unwrap();
+    let original = std::fs::read(&path).unwrap();
+    let output = command(
+        &["prepare-native-provider", "--input", path.to_str().unwrap()],
+        None,
+    );
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(output.stderr.is_empty());
+    provider.capability.provider.configuration_sha256 = provider.configuration_identity().unwrap();
+    let returned: NativeProviderConfig = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(
+        serde_json::to_value(&returned).unwrap(),
+        serde_json::to_value(&provider).unwrap()
+    );
+    assert!(returned.capability.semantics.is_none());
+    assert_eq!(std::fs::read(path).unwrap(), original);
+}

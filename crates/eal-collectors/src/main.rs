@@ -18,6 +18,15 @@ async fn main() {
 }
 
 async fn run(arguments: Vec<String>) -> Result<(), String> {
+    if arguments.first().map(String::as_str) == Some("prepare-native-provider") {
+        let prepared = eal_collectors::evidence::prepare_native_provider(&arguments[1..])?;
+        let bytes =
+            serde_json::to_vec(&prepared).map_err(|_| "cannot encode prepared native provider")?;
+        std::io::stdout()
+            .write_all(&bytes)
+            .map_err(|_| "cannot write prepared native provider")?;
+        return Ok(());
+    }
     if arguments.first().map(String::as_str) == Some("evidence-reconcile") {
         let result = eal_collectors::evidence::reconcile(&arguments[1..])?;
         let bytes = serde_json::to_vec(&result)

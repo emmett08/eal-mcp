@@ -136,9 +136,20 @@ pub struct ForEachBinding {
 #[serde(deny_unknown_fields)]
 pub struct WitnessPredicate {
     pub pointer: String,
-    #[serde(deserialize_with = "crate::deserialize_value_exact")]
-    #[schemars(with = "Value")]
-    pub equals: Value,
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "deserialize_present_value"
+    )]
+    #[schemars(with = "Option<Value>")]
+    pub equals: Option<Value>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub equals_output: Option<OutputReference>,
+}
+fn deserialize_present_value<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<Value>, D::Error> {
+    crate::deserialize_value_exact(deserializer).map(Some)
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, schemars::JsonSchema)]
@@ -159,6 +170,11 @@ pub enum DerivationOperation {
     /// Select named quantities from one result. For a fan-out array, each
     /// field is an array of per-record selections (including empty arrays).
     Project {
+        fields: BTreeMap<String, String>,
+    },
+    /// Select named quantities from one whole result. Pointers address the
+    /// result itself even when it is an array, rather than each fan-out record.
+    ProjectValue {
         fields: BTreeMap<String, String>,
     },
     Count,
@@ -332,6 +348,23 @@ pub fn plan_schema() -> Value {
 }
 
 impl SourceIdentity {
+    /// Check only declared measurement identity. IO adapters separately bind
+    /// actual authentication/configuration fingerprints and derived scope.
+    pub fn validate_capability(
+        &self,
+        capability: &crate::capability::CapabilityDescriptor,
+    ) -> Result<(), String> {
+        if self.provider_id != capability.provider.id
+            || self.capability_id != capability.id
+            || self.capability_version != capability.version
+            || self.input_schema_sha256 != capability.input_schema_sha256
+            || self.output_schema_sha256 != capability.output_schema_sha256
+            || self.qualified_contract_sha256 != capability.measurement_identity()?
+        {
+            return Err("planned source differs from the qualified capability identity".into());
+        }
+        Ok(())
+    }
     pub fn validate(&self) -> Result<(), String> {
         if ![
             &self.provider_id,
@@ -435,6 +468,17 @@ impl EvidenceExecutionPlan {
                         "fan-out requires bounded items and valid argument/witness pointers".into(),
                     );
                 }
+                if let Some(predicate) = &fanout.stop_on_witness {
+                    if predicate.equals.is_some() == predicate.equals_output.is_some() {
+                        return Err(
+                            "witness predicate requires exactly one literal or upstream output"
+                                .into(),
+                        );
+                    }
+                    if let Some(output) = &predicate.equals_output {
+                        references.push(output);
+                    }
+                }
                 references.push(&fanout.output);
             }
             if !identifier(&step.id) || nodes.insert(&step.id, references).is_some() {
@@ -458,6 +502,7 @@ impl EvidenceExecutionPlan {
         for step in &self.derivations {
             match &step.operation {
                 DerivationOperation::Project { fields }
+                | DerivationOperation::ProjectValue { fields }
                     if step.inputs.len() != 1
                         || fields.is_empty()
                         || fields.len() > 256

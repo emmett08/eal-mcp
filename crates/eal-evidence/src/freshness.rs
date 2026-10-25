@@ -73,6 +73,13 @@ pub(crate) fn enforce(
                 .iter()
                 .map(|binding| &binding.output)
                 .chain(contract.for_each.iter().map(|binding| &binding.output))
+                .chain(
+                    contract
+                        .for_each
+                        .iter()
+                        .filter_map(|binding| binding.stop_on_witness.as_ref())
+                        .filter_map(|predicate| predicate.equals_output.as_ref()),
+                )
                 .any(|reference| stale.contains(&reference.step_id))
             {
                 stale.insert(contract.id.clone());

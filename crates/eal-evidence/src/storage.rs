@@ -153,52 +153,100 @@ impl SourceStore {
         &self.root
     }
 
-    pub(crate) async fn lock(&self, key: &str, deadline: Instant) -> Result<SourceLock, String> {
+    pub(crate) async fn lock(
+        &self,
+        key: &str,
+        deadline: Instant,
+    ) -> Result<Arc<SourceLock>, StoreIoError> {
+        let key = key.to_owned();
+        let store = self.clone();
+        run_io(deadline, move || store.lock_sync(&key, deadline)).await
+    }
+    fn lock_sync(&self, key: &str, deadline: Instant) -> Result<Arc<SourceLock>, String> {
+        check_deadline(deadline)?;
         if !valid_digest(key) {
             return Err("source lock identity is invalid".into());
         }
+        let publication =
+            lock_file_until(open_private(&self.root.join("store.lock"), true)?, deadline)?;
         let path = self.root.join(format!("{key}.lock"));
-        let publication = open_private(&self.root.join("store.lock"), true)?;
-        #[cfg(unix)]
-        rustix::fs::flock(&publication, rustix::fs::FlockOperation::LockExclusive)
-            .map_err(|_| "source store reservation lock failed")?;
         if !path.exists() {
-            let locks = fs::read_dir(&self.root)
-                .map_err(|_| "source store is unavailable")?
-                .filter_map(Result::ok)
-                .filter(|entry| {
-                    entry
-                        .path()
-                        .extension()
-                        .is_some_and(|extension| extension == "lock")
-                        && entry.file_name() != "store.lock"
-                })
-                .take(self.maximum_records + 1)
-                .count();
-            if locks >= self.maximum_records {
-                return Err("source store identity budget is exhausted".into());
+            let mut count = 0;
+            for entry in fs::read_dir(&self.root).map_err(|_| "source store is unavailable")? {
+                check_deadline(deadline)?;
+                let entry = entry.map_err(|_| "source store entry is unavailable")?;
+                if entry
+                    .path()
+                    .extension()
+                    .is_some_and(|extension| extension == "lock")
+                    && entry.file_name() != "store.lock"
+                {
+                    count += 1;
+                }
+                if count >= self.maximum_records {
+                    return Err("source store identity budget is exhausted".into());
+                }
             }
         }
         let file = open_private(&path, true)?;
         drop(publication);
-        #[cfg(unix)]
-        loop {
-            match rustix::fs::flock(&file, rustix::fs::FlockOperation::NonBlockingLockExclusive) {
-                Ok(()) => return Ok(SourceLock { file }),
-                Err(error) if error == rustix::io::Errno::WOULDBLOCK => {
-                    if Instant::now() >= deadline {
-                        return Err("source lock deadline expired".into());
-                    }
-                    tokio::time::sleep(std::time::Duration::from_millis(5)).await;
-                }
-                Err(_) => return Err("source lock could not be acquired".into()),
-            }
-        }
-        #[cfg(not(unix))]
-        {
-            let _ = (file, deadline);
-            Err("atomic source sharing requires supported file locks".into())
-        }
+        lock_file_until(file, deadline)
+    }
+    pub(crate) async fn load_until(
+        &self,
+        key: &str,
+        lease: &Arc<SourceLock>,
+        deadline: Instant,
+    ) -> Result<Option<SourceRecord>, StoreIoError> {
+        let store = self.clone();
+        let key = key.to_owned();
+        let lease = lease.clone();
+        run_io(deadline, move || {
+            let _lease = lease;
+            check_deadline(deadline)?;
+            let result = store.load(&key, deadline)?;
+            check_deadline(deadline)?;
+            Ok(result)
+        })
+        .await
+    }
+    pub(crate) async fn begin_until(
+        &self,
+        key: &str,
+        lease: &Arc<SourceLock>,
+        deadline: Instant,
+    ) -> Result<(), StoreIoError> {
+        let store = self.clone();
+        let key = key.to_owned();
+        let lease = lease.clone();
+        run_io(deadline, move || {
+            let _lease = lease;
+            check_deadline(deadline)?;
+            store.begin_acquisition(&key)?;
+            check_deadline(deadline)
+        })
+        .await
+    }
+    pub(crate) async fn publish_until(
+        &self,
+        mut record: SourceRecord,
+        lease: &Arc<SourceLock>,
+        deadline: Instant,
+    ) -> Result<SourceRecord, StoreIoError> {
+        let store = self.clone();
+        let lease = lease.clone();
+        run_io(deadline, move || {
+            let _lease = lease;
+            check_deadline(deadline)?;
+            store.seal(&mut record)?;
+            check_deadline(deadline)?;
+            let record = store.save(&record, deadline)?;
+            check_deadline(deadline)?;
+            store.complete_acquisition(&record.source_id)?;
+            check_deadline(deadline)?;
+            Ok(record)
+        })
+        .await
     }
 
     fn seal_bytes(&self, record: &SourceRecord) -> Result<String, String> {
@@ -351,4 +399,106 @@ fn private_directory(path: &Path) -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+#[derive(Debug)]
+pub(crate) enum StoreIoError {
+    Deadline,
+    Storage(String),
+}
+impl std::fmt::Display for StoreIoError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Deadline => f.write_str(STORE_DEADLINE),
+            Self::Storage(message) => f.write_str(message),
+        }
+    }
+}
+const STORE_DEADLINE: &str = "source store deadline exhausted";
+fn check_deadline(deadline: Instant) -> Result<(), String> {
+    if Instant::now() >= deadline {
+        Err(STORE_DEADLINE.into())
+    } else {
+        Ok(())
+    }
+}
+fn lock_file_until(file: File, deadline: Instant) -> Result<Arc<SourceLock>, String> {
+    #[cfg(unix)]
+    loop {
+        check_deadline(deadline)?;
+        match rustix::fs::flock(&file, rustix::fs::FlockOperation::NonBlockingLockExclusive) {
+            Ok(()) => return Ok(Arc::new(SourceLock { file })),
+            Err(error) if error == rustix::io::Errno::WOULDBLOCK => {
+                std::thread::sleep(std::time::Duration::from_millis(2))
+            }
+            Err(_) => return Err("source store lock could not be acquired".into()),
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = (file, deadline);
+        Err("atomic source sharing requires supported file locks".into())
+    }
+}
+async fn run_io<T: Send + 'static>(
+    deadline: Instant,
+    operation: impl FnOnce() -> Result<T, String> + Send + 'static,
+) -> Result<T, StoreIoError> {
+    if Instant::now() >= deadline {
+        return Err(StoreIoError::Deadline);
+    }
+    // Blocking workers retain their source lease if a caller reaches its
+    // deadline. Reconciliation and another write cannot race unfinished IO.
+    let result = tokio::time::timeout_at(
+        tokio::time::Instant::from_std(deadline),
+        tokio::task::spawn_blocking(operation),
+    )
+    .await;
+    match result {
+        Err(_) => Err(StoreIoError::Deadline),
+        Ok(Err(_)) => Err(StoreIoError::Storage("source store worker failed".into())),
+        Ok(Ok(Err(message))) if message == STORE_DEADLINE => Err(StoreIoError::Deadline),
+        Ok(Ok(Err(message))) => Err(StoreIoError::Storage(message)),
+        Ok(Ok(Ok(value))) => {
+            if Instant::now() >= deadline {
+                Err(StoreIoError::Deadline)
+            } else {
+                Ok(value)
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod io_tests {
+    use super::*;
+    #[tokio::test]
+    async fn an_expired_io_worker_retains_its_source_lease_until_it_finishes() {
+        let directory = tempfile::tempdir().unwrap();
+        let store = SourceStore::open(&directory.path().join("cache"), 10, 1_048_576).unwrap();
+        let key = "a".repeat(64);
+        let lease = store
+            .lock(&key, Instant::now() + std::time::Duration::from_secs(2))
+            .await
+            .unwrap();
+        store.begin_acquisition(&key).unwrap();
+        let worker_lease = lease.clone();
+        let (done, wait) = tokio::sync::oneshot::channel();
+        let result = run_io(
+            Instant::now() + std::time::Duration::from_millis(20),
+            move || {
+                let _lease = worker_lease;
+                std::thread::sleep(std::time::Duration::from_millis(150));
+                drop(_lease);
+                let _ = done.send(());
+                Ok(())
+            },
+        )
+        .await;
+        assert!(matches!(result, Err(StoreIoError::Deadline)));
+        drop(lease);
+        assert!(store.reconcile_source(&key).is_err());
+        wait.await.unwrap();
+        store.reconcile_source(&key).unwrap();
+    }
 }

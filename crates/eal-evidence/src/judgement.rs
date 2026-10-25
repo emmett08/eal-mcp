@@ -42,19 +42,10 @@ pub(crate) fn correspondence(
         let source = &sources[id];
         source.source.validate()?;
         if contains(&source.value, selected) {
-            let declares_judgement = |field: &str| {
-                source
-                    .provenance
-                    .get(field)
-                    .and_then(Value::as_array)
-                    .is_some_and(|values| {
-                        values
-                            .iter()
-                            .any(|value| value.as_str() == Some("judgement"))
-                    })
-            };
-            if !declares_judgement("qualified_support_types")
-                || !declares_judgement("qualified_logical_strengths")
+            if !eal_collector_contracts::capability::QualifiedSupportClaims::from_provenance(
+                &source.provenance,
+            )
+            .is_ok_and(|claims| claims.permits_judgement())
             {
                 mismatch = Some(
                     "retained judgement source is not qualified to supply reviewer judgements"

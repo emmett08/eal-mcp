@@ -263,7 +263,13 @@ impl EvidenceBridge {
                     "Cannot identify MCP source observation",
                 )
             })?;
-        let provenance = json!({"provider":binding.identity.provider_id,"capability":binding.identity.capability_id,"capability_version":binding.identity.capability_version,"qualification_reference":binding.descriptor.semantics.as_ref().map(|semantics|&semantics.qualification_reference),"input_schema_sha256":binding.identity.input_schema_sha256,"output_schema_sha256":binding.identity.output_schema_sha256,"configuration_sha256":config,"authentication_scope_sha256":auth,"qualified_contract_sha256":qualification,"qualified_support_types":binding.descriptor.semantics.as_ref().map(|semantics|&semantics.support_types),"qualified_logical_strengths":binding.descriptor.semantics.as_ref().map(|semantics|semantics.coverage.iter().map(|guarantee|guarantee.strength).collect::<Vec<_>>()),"metric_scope":"mcp_logical_json_payloads"});
+        let mut provenance = binding.descriptor.qualified_provenance().map_err(|_| {
+            error(
+                BridgeErrorKind::Configuration,
+                "cannot identify qualified source provenance",
+            )
+        })?;
+        provenance.as_object_mut().expect("provenance object").extend(json!({"configuration_sha256":config,"authentication_scope_sha256":auth,"metric_scope":"mcp_logical_json_payloads"}).as_object().expect("transport provenance object").clone());
         Ok(BridgeObservation {
             value: normal.value,
             observed_at: normal.observed_at,

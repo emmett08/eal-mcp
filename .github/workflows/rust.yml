@@ -57,12 +57,10 @@ jobs:
         run: cargo build --workspace --bins --locked
       - name: Test the Rust workspace
         run: cargo test --workspace --locked
-      - name: Build standalone commands and native companions
-        run: cargo build --release --workspace --locked
+      - name: Build standalone commands, native companions and coordination worker
+        run: cargo build --release --workspace --locked --lib --bins --example coordination_software_worker
       - name: Check installed application boundaries
         run: target/release/eal-smoke applications --prefix "$PWD/target/release"
-      - name: Build the coordination acceptance worker
-        run: cargo build --release --locked -p eal-coordination --example coordination_software_worker
       - name: Check installed coordination and recovery
         run: target/release/eal-smoke coordination --prefix "$PWD/target/release" --worker "$PWD/target/release/examples/coordination_software_worker"
 
@@ -76,6 +74,25 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install the pinned Rust toolchain
         run: rustup show
+      - name: Identify compatible experiment environment
+        id: experiment-environment
+        shell: bash
+        run: |
+          fingerprint=$(
+            { rustc -vV; cc --version; printf '%s\n' "${ImageOS:-unknown}" "${ImageVersion:-unknown}"; } \
+              | sha256sum | cut -d ' ' -f 1
+          )
+          printf 'fingerprint=%s\n' "$fingerprint" >> "$GITHUB_OUTPUT"
+      - name: Restore experiment downloads and build outputs
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0, Node.js 24
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/registry/src
+            experiments/eal-context-001/target
+          key: ${{ runner.os }}-${{ runner.arch }}-context-v1-${{ steps.experiment-environment.outputs.fingerprint }}-${{ hashFiles('rust-toolchain.toml', 'experiments/eal-context-001/Cargo.lock', 'experiments/eal-context-001/Cargo.toml', '.cargo/config*', '.github/workflows/rust.yml') }}-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-${{ runner.arch }}-context-v1-${{ steps.experiment-environment.outputs.fingerprint }}-${{ hashFiles('rust-toolchain.toml', 'experiments/eal-context-001/Cargo.lock', 'experiments/eal-context-001/Cargo.toml', '.cargo/config*', '.github/workflows/rust.yml') }}-
       - name: Check experiment formatting
         run: cargo fmt --manifest-path experiments/eal-context-001/Cargo.toml --check
       - name: Check experiment lints

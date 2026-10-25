@@ -39,19 +39,12 @@ fn source(
                 .into(),
         })?;
     }
-    if identity.provider_id != requested.provider_id
-        || identity.capability_id != requested.capability_id
-        || identity.capability_version != requested.capability_version
-        || identity.input_schema_sha256 != requested.input_schema_sha256
-        || identity.output_schema_sha256 != requested.output_schema_sha256
-        || identity.qualified_contract_sha256 != requested.qualified_contract_sha256
-    {
-        return Err(SourceError {
+    requested
+        .validate_capability(&binding.descriptor)
+        .map_err(|message| SourceError {
             kind: SourceErrorKind::SchemaDrift,
-            message: "planned capability identity differs from the operator-qualified live source"
-                .into(),
-        });
-    }
+            message,
+        })?;
     Ok(SourceIdentity {
         provider_id: identity.provider_id.clone(),
         capability_id: identity.capability_id.clone(),

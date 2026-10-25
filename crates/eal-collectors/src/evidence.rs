@@ -124,3 +124,14 @@ pub fn reconcile(arguments: &[String]) -> Result<serde_json::Value, String> {
         serde_json::json!({"schema":"eal.source-reconciliation/1","source_id":key,"reconciled":true}),
     )
 }
+
+/// Normalize the native transport fingerprint without admitting a source or
+/// manufacturing a scientific qualification. Schema pins remain authoritative.
+pub fn prepare_native_provider(arguments: &[String]) -> Result<serde_json::Value, String> {
+    let selected = flags(arguments, &["--input"])?;
+    let mut provider: eal_evidence::providers::NativeProviderConfig =
+        read_json(&selected["--input"])?;
+    provider.capability.provider.configuration_sha256 = provider.configuration_identity()?;
+    provider.validate()?;
+    serde_json::to_value(provider).map_err(|_| "cannot encode prepared native provider".into())
+}

@@ -276,3 +276,15 @@ conservative, rather than silently rejuvenating an observation.
 
 The optional collector package depends on the narrow process and adapter packages.
 It does not require the EAL runtime, language parser or database for collection.
+
+## Shared graph quantity projection
+
+An acquisition response can itself be an array without being a graph fan-out.
+Use derivation `project_value` to select named fields against that whole response:
+`{"kind":"project_value","fields":{"uid":"/0/uid"}}` selects the first item's
+UID. The existing `project` operation preserves its per-record array behavior:
+after a `for_each` acquisition, `{"kind":"project","fields":{"uid":"/uid"}}`
+produces an array of UIDs, including an empty array for an empty fan-out. Both
+operations retain source lineage, original observation times and coverage; absent
+pointers leave evaluation pending. Graph authors must select the operation from
+the acquisition's declared `for_each`, rather than infer fan-out from JSON shape.

@@ -1,7 +1,11 @@
 //! Immutable signed observations, followed by atomic publication of the latest index.
 use super::*;
 impl SourceStore {
-    pub(crate) fn load(&self, key: &str) -> Result<Option<SourceRecord>, String> {
+    pub(crate) fn load(
+        &self,
+        key: &str,
+        deadline: Instant,
+    ) -> Result<Option<SourceRecord>, String> {
         if !valid_digest(key) {
             return Err("source identity is invalid".into());
         }
@@ -15,7 +19,7 @@ impl SourceStore {
         // an immutable observation before they can be referenced again.
         if record.observation_id.is_empty() {
             self.seal(&mut record)?;
-            record = self.save(&record)?;
+            record = self.save(&record, deadline)?;
         }
         let snapshot = self
             .load_observation(&record.observation_id)?
@@ -104,7 +108,12 @@ impl SourceStore {
             .map_err(|_| "stored original measurement time is invalid")?;
         Ok(())
     }
-    pub(crate) fn save(&self, record: &SourceRecord) -> Result<SourceRecord, String> {
+    pub(crate) fn save(
+        &self,
+        record: &SourceRecord,
+        deadline: Instant,
+    ) -> Result<SourceRecord, String> {
+        check_deadline(deadline)?;
         self.verify(record)?;
         if !valid_digest(&record.observation_id) {
             return Err("source record requires an immutable observation identity".into());
@@ -113,15 +122,13 @@ impl SourceStore {
         if bytes.len() > self.maximum_bytes {
             return Err("source record exceeds its byte limit".into());
         }
-        let _store_lock = open_private(&self.root.join("store.lock"), true)?;
-        #[cfg(unix)]
-        rustix::fs::flock(&_store_lock, rustix::fs::FlockOperation::LockExclusive)
-            .map_err(|_| "source store publication lock failed")?;
+        let _store_lock =
+            lock_file_until(open_private(&self.root.join("store.lock"), true)?, deadline)?;
         let directory = self.root.join("observations");
         private_directory(&directory)?;
         let destination = self.root.join(format!("{}.json", record.source_id));
         if !destination.exists()
-            && count_json(&self.root, self.maximum_records)? >= self.maximum_records
+            && count_json(&self.root, self.maximum_records, deadline)? >= self.maximum_records
         {
             return Err("source store reuse-index capacity is exhausted; existing observations were retained".into());
         }
@@ -129,10 +136,10 @@ impl SourceStore {
         let canonical = if let Some(existing) = self.load_observation(&record.observation_id)? {
             existing
         } else {
-            if count_json(&directory, self.maximum_records)? >= self.maximum_records {
+            if count_json(&directory, self.maximum_records, deadline)? >= self.maximum_records {
                 return Err("source store observation capacity is exhausted; existing observations were retained".into());
             }
-            publish(&directory, &snapshot, &bytes)?;
+            publish(&directory, &snapshot, &bytes, deadline)?;
             record.clone()
         };
         // Fetch costs belong to execution metrics. Repeated reads of the exact
@@ -141,13 +148,14 @@ impl SourceStore {
             serde_json::to_vec(&canonical).map_err(|_| "source record could not be encoded")?;
         // A snapshot is durable before a reuse index can expose its ID. No
         // snapshot is overwritten or evicted to make room for a fresh read.
-        publish(&self.root, &destination, &bytes)?;
+        publish(&self.root, &destination, &bytes, deadline)?;
         Ok(canonical)
     }
 }
-fn count_json(path: &Path, maximum: usize) -> Result<usize, String> {
+fn count_json(path: &Path, maximum: usize, deadline: Instant) -> Result<usize, String> {
     let mut count = 0;
     for entry in fs::read_dir(path).map_err(|_| "source store directory is unavailable")? {
+        check_deadline(deadline)?;
         let entry = entry.map_err(|_| "source store entry is unavailable")?;
         if entry
             .path()
@@ -162,7 +170,13 @@ fn count_json(path: &Path, maximum: usize) -> Result<usize, String> {
     }
     Ok(count)
 }
-fn publish(directory: &Path, destination: &Path, bytes: &[u8]) -> Result<(), String> {
+fn publish(
+    directory: &Path,
+    destination: &Path,
+    bytes: &[u8],
+    deadline: Instant,
+) -> Result<(), String> {
+    check_deadline(deadline)?;
     let temporary = directory.join(format!(
         ".source-{}-{}",
         std::process::id(),
@@ -183,10 +197,12 @@ fn publish(directory: &Path, destination: &Path, bytes: &[u8]) -> Result<(), Str
             .map_err(|_| "source record could not be written")?;
         file.sync_all()
             .map_err(|_| "source record could not be synced")?;
+        check_deadline(deadline)?;
         fs::rename(&temporary, destination).map_err(|_| "source record could not be published")?;
         File::open(directory)
             .and_then(|file| file.sync_all())
             .map_err(|_| "source store directory could not be synced")?;
+        check_deadline(deadline)?;
         Ok(())
     })();
     let _ = fs::remove_file(&temporary);

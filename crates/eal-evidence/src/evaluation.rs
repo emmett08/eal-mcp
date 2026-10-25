@@ -36,21 +36,8 @@ pub(crate) fn derive(operation: &DerivationOperation, values: &[Value]) -> Resul
                 .ok_or_else(|| "derivation output pointer is absent".into()),
             _ => Err("extraction requires exactly one selected input".into()),
         },
-        DerivationOperation::Project { fields } => match values {
-            [value] => fields
-                .iter()
-                .map(|(name, pointer)| {
-                    let selected=if let Value::Array(records)=value {
-                        Value::Array(records.iter().map(|record|record.pointer(pointer).cloned().ok_or_else(||"projection output pointer is absent from an acquired record".to_owned())).collect::<Result<Vec<_>,_>>()?)
-                    }else{
-                        value.pointer(pointer).cloned().ok_or_else(||"projection output pointer is absent".to_owned())?
-                    };
-                    Ok((name.clone(),selected))
-                })
-                .collect::<Result<serde_json::Map<_, _>, _>>()
-                .map(Value::Object),
-            _ => Err("projection requires exactly one selected input".into()),
-        },
+        DerivationOperation::Project { fields } => project(values, fields, true),
+        DerivationOperation::ProjectValue { fields } => project(values, fields, false),
         DerivationOperation::Count => Ok(numeric::value(
             &BigRational::from_integer(numeric::flat_values(values).len().into()),
             Some("1"),
@@ -118,6 +105,35 @@ pub(crate) fn derive(operation: &DerivationOperation, values: &[Value]) -> Resul
             Ok(numeric::value(&result, unit.as_deref()))
         }
     }
+}
+
+fn project(
+    values: &[Value],
+    fields: &BTreeMap<String, String>,
+    fanout: bool,
+) -> Result<Value, String> {
+    let [value] = values else {
+        return Err("projection requires exactly one selected input".into());
+    };
+    fields
+        .iter()
+        .map(|(name, pointer)| {
+            let select = |value: &Value| {
+                value
+                    .pointer(pointer)
+                    .cloned()
+                    .ok_or_else(|| "projection output pointer is absent".to_owned())
+            };
+            let selected = match value {
+                Value::Array(records) if fanout => {
+                    Value::Array(records.iter().map(select).collect::<Result<Vec<_>, _>>()?)
+                }
+                _ => select(value)?,
+            };
+            Ok((name.clone(), selected))
+        })
+        .collect::<Result<serde_json::Map<_, _>, _>>()
+        .map(Value::Object)
 }
 
 pub(crate) fn evaluate(

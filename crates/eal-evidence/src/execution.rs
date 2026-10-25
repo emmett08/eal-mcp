@@ -442,7 +442,6 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
         let deadline = started
             .checked_add(self.limits.timeout)
             .ok_or("execution timeout is not representable")?;
-        let current = assessment_time.map(str::to_owned).unwrap_or_else(now);
         let policy = Arc::new(Concurrency {
             global: Arc::new(Semaphore::new(plan.scheduling.maximum_concurrent_sources)),
             providers: plan
@@ -483,6 +482,11 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
         let mut owned_sources = BTreeMap::<String, Vec<String>>::new();
         let mut running = JoinSet::new();
         loop {
+            if Instant::now() >= deadline {
+                running.abort_all();
+                while running.join_next().await.is_some() {}
+                break;
+            }
             let ready: Vec<_> = derivations
                 .values()
                 .filter(|step| {
@@ -530,7 +534,16 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
                         output.diagnostic = Some(message);
                     }
                 }
+                if Instant::now() >= deadline {
+                    output.status = StepStatus::Incomplete;
+                    output.value = None;
+                    output.diagnostic =
+                        Some("execution deadline exhausted during derivation".into());
+                }
                 steps.insert(id, output);
+                if Instant::now() >= deadline {
+                    break;
+                }
             }
             let ready: Vec<_> = acquisitions
                 .values()
@@ -551,21 +564,20 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
                     .collect();
                 let upstream = lineage(&id, &parents.iter().collect::<Vec<_>>());
                 let freshness = minimum_freshness(&id, plan);
-                let (executor, store, policy, limits, current) = (
+                let (executor, store, policy, limits) = (
                     self.executor.clone(),
                     self.store.clone(),
                     policy.clone(),
                     self.limits.clone(),
-                    current.clone(),
                 );
                 running.spawn(async move {
                     let result = match prepared {
-                        Ok((arguments, truncated)) => {
+                        Ok(prepared) => {
                             let mut upstream = upstream;
-                            upstream.truncated |= truncated;
+                            upstream.truncated |= prepared.truncated;
                             acquire_step(
-                                executor, store, &step, arguments, upstream, &policy, &limits,
-                                deadline, &current, freshness,
+                                executor, store, &step, prepared, upstream, &policy, &limits,
+                                deadline, freshness,
                             )
                             .await
                         }

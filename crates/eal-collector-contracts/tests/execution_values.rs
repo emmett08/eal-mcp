@@ -72,3 +72,28 @@ fn scoped_retained_judgement_wire_preserves_exact_scope_and_legacy_missing_scope
         .validate(&serde_json::to_value(retained).unwrap())
         .unwrap();
 }
+
+#[test]
+fn dynamic_witness_wire_keeps_literal_compatibility_and_references_are_validated() {
+    for value in [
+        json!(true),
+        Value::Null,
+        json!({"$serde_json::private::Number":"literal"}),
+    ] {
+        let old = json!({"pointer":"/match","equals":value});
+        let decoded: WitnessPredicate = serde_json::from_value(old.clone()).unwrap();
+        assert_eq!(serde_json::to_value(decoded).unwrap(), old);
+    }
+    let dynamic = json!({"pointer":"/uid","equals_output":{"step_id":"resource","pointer":"/uid"}});
+    let decoded: WitnessPredicate = serde_json::from_value(dynamic.clone()).unwrap();
+    assert_eq!(serde_json::to_value(decoded).unwrap(), dynamic);
+}
+
+#[test]
+fn whole_value_projection_is_additive_to_the_legacy_projection_wire() {
+    for kind in ["project", "project_value"] {
+        let encoded = json!({"kind":kind,"fields":{"first_uid":"/0/uid"}});
+        let decoded: DerivationOperation = serde_json::from_value(encoded.clone()).unwrap();
+        assert_eq!(serde_json::to_value(decoded).unwrap(), encoded);
+    }
+}

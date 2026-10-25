@@ -644,3 +644,48 @@ fn catalogue_versions_duplicate_ids_and_nonliteral_pointers_are_rejected() {
     candidate.provider.transport = TransportKind::McpStdio;
     assert!(candidate.validate().is_err());
 }
+
+#[test]
+fn qualified_provenance_and_source_identity_share_one_pure_contract() {
+    use eal_collector_contracts::execution::SourceIdentity;
+    let mut descriptor = capability("provenance");
+    let provenance = descriptor.qualified_provenance().unwrap();
+    assert_eq!(
+        provenance["qualified_contract_sha256"],
+        descriptor.measurement_identity().unwrap()
+    );
+    assert_eq!(
+        provenance["input_schema_sha256"],
+        descriptor.input_schema_sha256
+    );
+    assert!(
+        !QualifiedSupportClaims::from_provenance(&provenance)
+            .unwrap()
+            .permits_judgement()
+    );
+    let source = SourceIdentity {
+        provider_id: descriptor.provider.id.clone(),
+        capability_id: descriptor.id.clone(),
+        capability_version: descriptor.version.clone(),
+        input_schema_sha256: descriptor.input_schema_sha256.clone(),
+        output_schema_sha256: descriptor.output_schema_sha256.clone(),
+        qualified_contract_sha256: descriptor.measurement_identity().unwrap(),
+        configuration_sha256: "1".repeat(64),
+        authentication_scope_sha256: "2".repeat(64),
+        scope: json!({"cluster":"dev"}),
+        historical_interval: None,
+    };
+    source.validate_capability(&descriptor).unwrap();
+    descriptor.version = "2".into();
+    assert!(source.validate_capability(&descriptor).is_err());
+    let mut claims = provenance;
+    claims["qualified_support_types"] = json!(["judgement"]);
+    claims["qualified_logical_strengths"] = json!(["judgement"]);
+    assert!(
+        QualifiedSupportClaims::from_provenance(&claims)
+            .unwrap()
+            .permits_judgement()
+    );
+    claims["qualified_logical_strengths"] = json!(["unknown"]);
+    assert!(QualifiedSupportClaims::from_provenance(&claims).is_err());
+}

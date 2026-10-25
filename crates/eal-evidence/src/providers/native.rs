@@ -239,17 +239,9 @@ impl NativeSources {
         config.validate().map_err(configuration)?;
         let descriptor = &config.capability;
         let qualification = descriptor.measurement_identity().map_err(configuration)?;
-        if step.source.provider_id != descriptor.provider.id
-            || step.source.capability_version != descriptor.version
-            || step.source.input_schema_sha256 != descriptor.input_schema_sha256
-            || step.source.output_schema_sha256 != descriptor.output_schema_sha256
-            || step.source.qualified_contract_sha256 != qualification
-        {
-            return Err(failure(
-                SourceErrorKind::SchemaDrift,
-                "Planned native source differs from its configured qualified capability",
-            ));
-        }
+        step.source
+            .validate_capability(descriptor)
+            .map_err(|message| failure(SourceErrorKind::SchemaDrift, message))?;
         let required_scope = step
             .source
             .scope
@@ -576,11 +568,16 @@ impl NativeSources {
         )
         .map_err(|error| protocol(error.message))?;
         let coverage = measured_coverage(&normalised.value, &normalised.coverage);
+        let mut provenance = config
+            .capability
+            .qualified_provenance()
+            .map_err(configuration)?;
+        provenance.as_object_mut().expect("provenance object").extend(json!({"configuration_sha256":request.source.configuration_sha256,"authentication_scope_sha256":request.source.authentication_scope_sha256,"transport":"native","metric_scope":"native_payload_bytes"}).as_object().expect("transport provenance object").clone());
         Ok(SourceObservation {
             value: normalised.value,
             observed_at: normalised.observed_at,
             coverage,
-            provenance: json!({"provider":request.source.provider_id,"capability":request.source.capability_id,"qualified_contract_sha256":request.source.qualified_contract_sha256,"configuration_sha256":request.source.configuration_sha256,"authentication_scope_sha256":request.source.authentication_scope_sha256,"transport":"native","qualified_support_types":config.capability.semantics.as_ref().map(|semantics|&semantics.support_types),"qualified_logical_strengths":config.capability.semantics.as_ref().map(|semantics|semantics.coverage.iter().map(|guarantee|guarantee.strength).collect::<Vec<_>>()),"metric_scope":"native_payload_bytes"}),
+            provenance,
             metrics: SourceMetrics {
                 transport_requests: Some(transport_requests),
                 request_bytes: Some(request_bytes),
