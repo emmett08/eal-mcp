@@ -18,6 +18,41 @@ async fn main() {
 }
 
 async fn run(arguments: Vec<String>) -> Result<(), String> {
+    if arguments.first().map(String::as_str) == Some("evidence-reconcile") {
+        let result = eal_collectors::evidence::reconcile(&arguments[1..])?;
+        let bytes = serde_json::to_vec(&result)
+            .map_err(|_| "Cannot encode source reconciliation result")?;
+        std::io::stdout()
+            .write_all(&bytes)
+            .map_err(|_| "Cannot write source reconciliation result")?;
+        return Ok(());
+    }
+    if arguments.first().map(String::as_str) == Some("evidence-discover") {
+        let report = eal_collectors::evidence::discover(&arguments[1..]).await?;
+        let bytes =
+            serde_json::to_vec(&report).map_err(|_| "Evidence discovery encoding failed")?;
+        std::io::stdout()
+            .write_all(&bytes)
+            .map_err(|_| "Cannot write evidence discovery report")?;
+        return Ok(());
+    }
+    if arguments.first().map(String::as_str) == Some("support-graph") {
+        let mut input = Vec::new();
+        std::io::stdin()
+            .take(1_048_577)
+            .read_to_end(&mut input)
+            .map_err(|_| "Cannot read support acquisition request")?;
+        if input.len() > 1_048_576 {
+            return Err("Collector request exceeds 1 MiB".into());
+        }
+        let envelope = eal_collectors::evidence::support_graph(&arguments[1..], &input).await?;
+        let bytes =
+            serde_json::to_vec(&envelope).map_err(|_| "Support observation encoding failed")?;
+        std::io::stdout()
+            .write_all(&bytes)
+            .map_err(|_| "Cannot write support observation")?;
+        return Ok(());
+    }
     if arguments.first().map(String::as_str) == Some("describe") {
         let version = match arguments.as_slice() {
             [_] => "1",

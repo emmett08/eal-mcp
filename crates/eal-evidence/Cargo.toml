@@ -1,0 +1,40 @@
+[package]
+name = "eal-evidence"
+description = "Qualified MCP evidence discovery and shared source execution"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+eal-collector-contracts.workspace = true
+eal-mcp.workspace = true
+eal-process.workspace = true
+eal-adapters.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+tokio.workspace = true
+reqwest.workspace = true
+chrono = { workspace = true, features = ["clock"] }
+rmcp.workspace = true
+num-bigint.workspace = true
+num-rational.workspace = true
+num-traits.workspace = true
+rustix.workspace = true
+hmac.workspace = true
+getrandom.workspace = true
+
+[[test]]
+name = "native_providers"
+path = "tests/native_providers.rs"
+harness = false
+
+[dev-dependencies]
+axum.workspace = true
+tokio-util.workspace = true
+tempfile = "=3.23.0"
+
+[lints]
+workspace = true

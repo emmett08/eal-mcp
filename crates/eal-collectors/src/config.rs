@@ -2,10 +2,14 @@
 mod cli;
 use std::{collections::BTreeSet, path::PathBuf, time::Duration};
 
-pub const HELP: &str = "eal-collector describe [--catalogue-version 1|2|3]\n\
+pub const HELP: &str = "eal-collector evidence-reconcile --store ABSOLUTE --source-id SHA256\n\
+eal-collector evidence-discover --config ABSOLUTE [--configured-only] [--request-budget N] [--byte-budget N] [--timeout-secs N] [--pages-per-connection N]\n\
+eal-collector support-graph --plan ABSOLUTE --config ABSOLUTE --store ABSOLUTE\n\
+eal-collector describe [--catalogue-version 1|2|3]\n\
 eal-collector describe-api PROVIDER --contract-version 2 --measurement ID --config ABSOLUTE --config-sha256 SHA256\n\
 eal-collector kubernetes|github|tempo|openapi|datadog|prometheus|loki [OPTIONS]\n\
 API providers --contract-version 2 --measurement ID --config ABSOLUTE --config-sha256 SHA256\n\
+Discovery overrides only reduce operator bounds; exhausted budgets return incomplete candidates.\n\
 Shared --contract-version 1|2 --timeout-seconds 30 --max-bytes 1048576\n\
 Commands --executable ABSOLUTE --supervisor ABSOLUTE [--inherit-env NAME ...]\n\
 Kubernetes --inventory ABSOLUTE --resource RESOURCE --kind KIND --name NAME\n\

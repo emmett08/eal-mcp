@@ -12,7 +12,9 @@ pub struct AcquisitionRequest {
     pub environment: String,
     pub tool: String,
     pub tool_version: String,
+    #[serde(deserialize_with = "crate::deserialize_value_exact")]
     pub input: Value,
+    #[serde(deserialize_with = "crate::deserialize_value_exact")]
     pub context: Value,
 }
 impl AcquisitionRequest {
@@ -65,13 +67,17 @@ impl AcquisitionRequest {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ObservationEnvelope {
+    #[serde(deserialize_with = "crate::deserialize_value_exact")]
     pub value: Value,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub observed_at: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(deserialize_with = "crate::deserialize_optional_value_exact")]
     pub context: Option<Value>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(deserialize_with = "crate::deserialize_optional_value_exact")]
     pub request: Option<Value>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(deserialize_with = "crate::deserialize_optional_value_exact")]
     pub details: Option<Value>,
 }

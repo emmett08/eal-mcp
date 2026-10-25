@@ -1,0 +1,36 @@
+{
+  "schema": "eal.source-sharing-measurement/1",
+  "test": "graph_vs_flat::graph_vs_flat_retains_observed_request_byte_and_elapsed_measurements",
+  "test_command": "CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 cargo +1.90.0 test -p eal-evidence --test mcp_bridge --locked --offline -- --nocapture",
+  "fixture": "loopback HTTP MCP SDK server; three thresholds over the same observed latency",
+  "requirements": 3,
+  "flat": {
+    "source_calls": 3,
+    "reported_provider_requests": 10,
+    "logical_request_bytes": 285,
+    "logical_response_bytes": 2514,
+    "elapsed_us": 56916,
+    "generated_source_count": 0
+  },
+  "graph": {
+    "source_calls": 1,
+    "reported_provider_requests": 5,
+    "logical_request_bytes": 95,
+    "logical_response_bytes": 1082,
+    "elapsed_us": 48147,
+    "generated_source_count": 0
+  },
+  "criterion_satisfied": [
+    false,
+    true,
+    true
+  ],
+  "metric_scope": "source tool calls and reported logical MCP JSON payloads including initialization and schema admission; excludes HTTP/TLS framing and unreported list-request bytes; elapsed is one loopback test run, not a general speed claim",
+  "revision_scope": "Working implementation before commit, based on da9279fd5d2b1107335d218c8bf7c2b685667df6",
+  "live_private_evidence_verified": false,
+  "results": [
+    false,
+    true,
+    true
+  ]
+}
