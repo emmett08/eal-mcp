@@ -150,6 +150,7 @@ async fn dependent_cache_decisions_use_lookup_time_and_refresh_expired_records()
     let mut delay = acquisition("delay");
     delay.arguments["delay"] = json!(true);
     data.bindings = vec![DependencyBinding {
+        role: Default::default(),
         output: OutputReference {
             step_id: "delay".into(),
             pointer: "".into(),
@@ -371,6 +372,7 @@ async fn deadline_outcome_remains_incomplete_when_an_independent_criterion_is_sa
     let mut delay = acquisition("delay");
     delay.arguments["delay"] = json!(true);
     delay.bindings.push(DependencyBinding {
+        role: Default::default(),
         output: OutputReference {
             step_id: "data".into(),
             pointer: "".into(),
@@ -425,6 +427,7 @@ async fn retained_fallback_satisfies_its_criterion_without_erasing_request_budge
     let mut data = acquisition("data");
     data.reuse = ReusePolicy::Refresh;
     data.bindings.push(DependencyBinding {
+        role: Default::default(),
         output: OutputReference {
             step_id: "prelude".into(),
             pointer: "".into(),

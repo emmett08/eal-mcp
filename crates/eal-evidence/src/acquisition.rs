@@ -228,6 +228,35 @@ pub(crate) fn lineage(id: &str, parents: &[&StepResult]) -> StepResult {
         diagnostic: None,
     }
 }
+/// Metadata retains clocks and provenance but supplies no population coverage.
+pub(crate) fn acquisition_lineage(
+    step: &AcquisitionStep,
+    steps: &BTreeMap<String, StepResult>,
+) -> StepResult {
+    let parents = references(step)
+        .iter()
+        .filter_map(|reference| steps.get(&reference.step_id))
+        .collect::<Vec<_>>();
+    let mut result = lineage(&step.id, &parents);
+    result.coverage = step
+        .bindings
+        .iter()
+        .filter(|binding| binding.role.is_selection())
+        .map(|binding| &binding.output)
+        .chain(step.for_each.iter().map(|binding| &binding.output))
+        .chain(
+            step.for_each
+                .iter()
+                .filter_map(|binding| binding.stop_on_witness.as_ref())
+                .filter_map(|predicate| predicate.equals_output.as_ref()),
+        )
+        .filter_map(|reference| steps.get(&reference.step_id))
+        .fold(CoverageStatus::CompleteEnumeration, |coverage, parent| {
+            combine_coverage(&coverage, &parent.coverage)
+        });
+    result
+}
+
 fn combine_coverage(left: &CoverageStatus, right: &CoverageStatus) -> CoverageStatus {
     if matches!(left, CoverageStatus::Unspecified) || matches!(right, CoverageStatus::Unspecified) {
         return CoverageStatus::Unspecified;

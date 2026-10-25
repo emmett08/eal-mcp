@@ -569,12 +569,7 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
             for id in ready {
                 let step = acquisitions.remove(&id).expect("ready acquisition");
                 let prepared = prepare_arguments(&step, &steps);
-                let parents: Vec<_> = references(&step)
-                    .iter()
-                    .filter_map(|reference| steps.get(&reference.step_id))
-                    .cloned()
-                    .collect();
-                let upstream = lineage(&id, &parents.iter().collect::<Vec<_>>());
+                let upstream = acquisition_lineage(&step, &steps);
                 let freshness = minimum_freshness(&id, plan);
                 let continue_after_witness = requires_continuation(&id, plan);
                 let (executor, store, policy, limits) = (

@@ -158,3 +158,18 @@ checks before using the pair. Downgrading a retained plan requires a reader that
 supports its operations and preserves their meaning. Rewriting a dynamic
 comparison into an invented literal or changing whole-response projection to
 per-record projection changes the evidence requirement.
+
+## Support-contract diagnostics
+
+The derived `SupportContract` JSON schema fixes `schema` to
+`eal.support-contract/1`. `acceptable_methods` requires 1–128 distinct protocol
+identities in `name/version` form, each at most 256 ASCII characters. A method
+identity names the protocol required by the obligation. Its appearance in a
+model response does not qualify a provider or establish that the protocol was
+performed.
+
+`SupportContract::diagnostics()` returns independently detected defects with a
+relative JSON pointer, stable code and actionable message. A wrong schema
+identity and an empty method list appear together. The existing `validate()` API
+joins those diagnostics into its error result. Structural admission remains a
+separate check from source availability and empirical adequacy.

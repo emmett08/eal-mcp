@@ -8,6 +8,10 @@ use std::collections::{BTreeMap, BTreeSet};
 
 pub const PLAN_SCHEMA: &str = "eal.evidence-execution-plan/1";
 
+#[path = "execution_dependency.rs"]
+mod dependency;
+pub use dependency::DependencyRole;
+
 #[derive(Clone, Debug, Serialize, Deserialize, schemars::JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct EvidenceExecutionPlan {
@@ -119,6 +123,9 @@ pub struct OutputReference {
 pub struct DependencyBinding {
     pub output: OutputReference,
     pub argument_pointer: String,
+    /// Old bindings retain their conservative record-selection meaning.
+    #[serde(default, skip_serializing_if = "DependencyRole::is_selection")]
+    pub role: DependencyRole,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, schemars::JsonSchema)]
@@ -400,6 +407,46 @@ impl SourceIdentity {
 }
 
 impl EvidenceExecutionPlan {
+    // Physical collectors can expose discovery quantities through pure projections.
+    // Arithmetic, joins and fan-out must never disguise record selection as metadata.
+    fn discovery_source_scope(&self, id: &str) -> Result<&Value, String> {
+        let mut current = id;
+        let mut visited = BTreeSet::new();
+        while visited.insert(current) && visited.len() <= 4096 {
+            if let Some(source) = self.acquisitions.iter().find(|source| source.id == current) {
+                if source.for_each.is_some()
+                    || source
+                        .bindings
+                        .iter()
+                        .any(|binding| binding.role.is_selection())
+                {
+                    return Err("discovery metadata cannot originate from a fan-out or selection-dependent source".into());
+                }
+                return Ok(&source.source.scope);
+            }
+            let derived = self
+                .derivations
+                .iter()
+                .find(|derived| derived.id == current)
+                .ok_or("discovery dependency source is unavailable")?;
+            if derived.inputs.len() != 1
+                || !matches!(
+                    derived.operation,
+                    DerivationOperation::Extract { .. }
+                        | DerivationOperation::Project { .. }
+                        | DerivationOperation::ProjectValue { .. }
+                )
+            {
+                return Err(
+                    "discovery metadata requires one source with only projection or extraction"
+                        .into(),
+                );
+            }
+            current = &derived.inputs[0].step_id;
+        }
+        Err("discovery dependency lineage is cyclic or exceeds its node bound".into())
+    }
+
     /// Validate graph references and finite resource limits before performing IO.
     pub fn validate(&self) -> Result<(), String> {
         if self.schema != PLAN_SCHEMA {
@@ -454,6 +501,27 @@ impl EvidenceExecutionPlan {
                     || step.arguments.pointer(&binding.argument_pointer).is_none()
             }) {
                 return Err("dependency binding requires an existing JSON argument pointer".into());
+            }
+            for binding in &step.bindings {
+                if !binding.role.is_selection() {
+                    let scope = self
+                        .discovery_source_scope(&binding.output.step_id)
+                        .map_err(|error| {
+                            format!(
+                                "acquisition {} discovery dependency {}: {error}",
+                                step.id, binding.output.step_id
+                            )
+                        })?;
+                    binding
+                        .role
+                        .validate_scopes(scope, &step.source.scope)
+                        .map_err(|error| {
+                            format!(
+                                "acquisition {} discovery dependency {}: {error}",
+                                step.id, binding.output.step_id
+                            )
+                        })?;
+                }
             }
             if let Some(fanout) = &step.for_each {
                 if !(1..=1024).contains(&fanout.maximum_items)

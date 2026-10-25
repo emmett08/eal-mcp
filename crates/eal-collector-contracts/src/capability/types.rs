@@ -170,10 +170,12 @@ pub struct ProvenanceSemantics {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct SupportContract {
+    #[schemars(schema_with = "support_contract_identity_schema")]
     pub schema: String,
     pub support_type: SupportType,
     pub scope: SubjectScope,
     /// Qualified protocol identifiers. At least one offered protocol must match.
+    #[schemars(schema_with = "support_methods_schema")]
     pub acceptable_methods: Vec<String>,
     pub quantities: Vec<QuantityRequirement>,
     pub logical_strength: LogicalStrength,
@@ -301,5 +303,31 @@ impl CapabilityCosts {
             monetary_microunits: CostEstimate::unknown(reference),
             transfer_bytes: CostEstimate::unknown(reference),
         }
+    }
+}
+
+fn support_contract_identity_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    schemars::json_schema!({"type":"string","const":super::SUPPORT_CONTRACT_SCHEMA})
+}
+
+fn support_methods_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+    schemars::json_schema!({
+        "type":"array","minItems":1,"maxItems":128,"uniqueItems":true,
+        "items":{"type":"string","maxLength":256,
+            "pattern":"^[A-Za-z_][A-Za-z0-9_.-]*/[A-Za-z0-9._-]+$"}
+    })
+}
+
+/// One independently detected contract defect, relative to the contract root.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ContractDiagnostic {
+    pub path: String,
+    pub code: String,
+    pub message: String,
+}
+impl std::fmt::Display for ContractDiagnostic {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}: {}", self.path, self.message)
     }
 }

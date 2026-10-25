@@ -93,7 +93,15 @@ impl SourceExecutor for Mock {
                     AT.into()
                 },
                 provenance: json!({"operator":"test-provider","method":"measurement/1"}),
-                coverage: CoverageStatus::CompleteEnumeration,
+                coverage: if request.arguments.get("coverage_unspecified")
+                    == Some(&Value::Bool(true))
+                {
+                    CoverageStatus::Unspecified
+                } else if request.arguments.get("coverage_witness") == Some(&Value::Bool(true)) {
+                    CoverageStatus::Witness
+                } else {
+                    CoverageStatus::CompleteEnumeration
+                },
                 metrics: SourceMetrics {
                     transport_requests: Some(1),
                     request_bytes: Some(10),
@@ -438,6 +446,7 @@ async fn graph_is_validated_before_acquisition_and_failure_is_not_a_negative() {
     );
     let mut broken = plan.clone();
     broken.acquisitions[0].bindings.push(DependencyBinding {
+        role: Default::default(),
         output: reference("absent", ""),
         argument_pointer: "/value".into(),
     });
@@ -675,10 +684,12 @@ async fn cycles_are_rejected_without_source_activity() {
     let mut first = acquisition("first", json!(25));
     let mut second = acquisition("second", json!(25));
     first.bindings.push(DependencyBinding {
+        role: Default::default(),
         output: reference("second", ""),
         argument_pointer: "/value".into(),
     });
     second.bindings.push(DependencyBinding {
+        role: Default::default(),
         output: reference("first", ""),
         argument_pointer: "/value".into(),
     });
@@ -1630,4 +1641,53 @@ async fn postdeadline_finalisation_bounds_expanding_collect_before_cloning() {
             .as_deref()
             .is_some_and(|diagnostic| diagnostic.contains("bounded final assessment"))
     }));
+}
+
+#[tokio::test]
+async fn discovery_binding_executes_projection_but_rejects_scope_change_before_io() {
+    let temp = tempfile::tempdir().unwrap();
+    let mock = Arc::new(Mock::default());
+    let runtime = runtime(mock.clone(), store(&temp));
+    let mut discovery = acquisition("discovery", json!({"api_version":25}));
+    discovery.arguments["coverage_unspecified"] = json!(true);
+    let mut read = acquisition("read", Value::Null);
+    read.arguments["coverage_witness"] = json!(true);
+    read.source.scope = json!({"cluster":"dev","resource":"widgets"});
+    read.bindings.push(DependencyBinding {
+        output: reference("discovery_projection", "/api_version"),
+        argument_pointer: "/value".into(),
+        role: DependencyRole::Discovery {
+            scope_bindings: BTreeMap::from([("/cluster".into(), "/cluster".into())]),
+        },
+    });
+    let mut graph = plan(
+        vec![discovery, read],
+        vec![evaluation("named_object", "read", json!(25))],
+    );
+    graph.evaluations[0].required_coverage = RequiredCoverage::Witness;
+    graph.derivations.push(DerivationStep {
+        id: "discovery_projection".into(),
+        inputs: vec![reference("discovery", "")],
+        operation: DerivationOperation::Project {
+            fields: BTreeMap::from([("api_version".into(), "/api_version".into())]),
+        },
+    });
+    let result = runtime.execute(&graph, Some(NOW)).await.unwrap();
+    assert_eq!(result.evaluations[0].status, EvaluationStatus::Satisfied);
+    assert_eq!(result.steps["read"].value, Some(json!(25)));
+    assert!(matches!(
+        result.steps["discovery"].coverage,
+        CoverageStatus::Unspecified
+    ));
+    assert!(matches!(
+        result.steps["read"].coverage,
+        CoverageStatus::Witness
+    ));
+    assert_eq!(result.steps["read"].source_ids.len(), 2);
+    assert_eq!(result.steps["read"].observation_ids.len(), 2);
+    assert_eq!(result.steps["read"].observed_at.as_deref(), Some(AT));
+    assert_eq!(mock.calls.load(Ordering::SeqCst), 2);
+    graph.acquisitions[0].source.scope["cluster"] = json!("prod");
+    assert!(runtime.execute(&graph, Some(NOW)).await.is_err());
+    assert_eq!(mock.calls.load(Ordering::SeqCst), 2);
 }
