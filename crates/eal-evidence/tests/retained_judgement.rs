@@ -316,6 +316,7 @@ async fn revised_judgement_on_the_same_source_does_not_replace_the_old_evaluatio
     new.max_age_seconds = Some(60);
     new.arguments["record"] = Value::Null;
     new.bindings = vec![DependencyBinding {
+        role: Default::default(),
         output: OutputReference {
             step_id: "old-review".into(),
             pointer: "".into(),

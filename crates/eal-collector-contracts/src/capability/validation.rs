@@ -68,14 +68,37 @@ impl SubjectScope {
     }
 }
 impl SupportContract {
-    pub fn validate(&self) -> Result<(), String> {
+    /// Report independent defects together, so one repair need not expose the next.
+    pub fn diagnostics(&self) -> Vec<ContractDiagnostic> {
+        let mut errors = Vec::new();
+        let mut issue = |path: &str, code: &str, message: String| {
+            errors.push(ContractDiagnostic {
+                path: path.into(),
+                code: code.into(),
+                message,
+            });
+        };
         if self.schema != SUPPORT_CONTRACT_SCHEMA {
-            return Err("Invalid support contract identity".into());
+            issue(
+                "/schema",
+                "support_contract_schema",
+                format!(
+                    "expected {SUPPORT_CONTRACT_SCHEMA:?}, received {:?}",
+                    self.schema
+                ),
+            );
         }
-        self.scope.validate()?;
+        if let Err(error) = self.scope.validate() {
+            issue("/scope", "support_contract_scope", error);
+        }
         if !methods(&self.acceptable_methods) {
-            return Err(
-                "Support requirements need explicit qualified measurement method identities".into(),
+            issue(
+                "/acceptable_methods",
+                "support_contract_methods",
+                format!(
+                    "expected 1–128 distinct qualified method identities in name/version format, each at most 256 bytes; received {} entries",
+                    self.acceptable_methods.len()
+                ),
             );
         }
         if self.quantities.len() > 128
@@ -91,7 +114,11 @@ impl SupportContract {
                 .len()
                 != self.quantities.len()
         {
-            return Err("Support quantities require distinct names and explicit units".into());
+            issue(
+                "/quantities",
+                "support_contract_quantities",
+                "expected at most 128 distinct quantity names and explicit units".into(),
+            );
         }
         if self
             .population
@@ -100,7 +127,7 @@ impl SupportContract {
             || (self.logical_strength == LogicalStrength::CompleteEnumeration
                 && self.population.is_none())
         {
-            return Err("Complete enumeration requires an explicit population".into());
+            issue("/population", "support_contract_population", "complete enumeration requires an explicit nonblank population of at most 4096 bytes".into());
         }
         if self
             .time
@@ -108,17 +135,43 @@ impl SupportContract {
             .as_ref()
             .is_some_and(|interval| interval.end_unix <= interval.start_unix)
         {
-            return Err("Historical support requires an ordered interval".into());
+            issue(
+                "/time/historical_interval",
+                "support_contract_time",
+                "expected end_unix greater than start_unix".into(),
+            );
         }
-        if !unique_text(&self.provenance.required_authorities, 128)
-            || self
-                .expected_output_schema_sha256
-                .as_deref()
-                .is_some_and(|value| !digest(value))
+        if !unique_text(&self.provenance.required_authorities, 128) {
+            issue(
+                "/provenance/required_authorities",
+                "support_contract_provenance",
+                "expected at most 128 distinct nonblank authority identities".into(),
+            );
+        }
+        if self
+            .expected_output_schema_sha256
+            .as_deref()
+            .is_some_and(|value| !digest(value))
         {
-            return Err("Invalid support provenance or schema identity".into());
+            issue(
+                "/expected_output_schema_sha256",
+                "support_contract_output_schema",
+                "expected null or a 64-character lowercase hexadecimal SHA-256".into(),
+            );
         }
-        Ok(())
+        errors
+    }
+    pub fn validate(&self) -> Result<(), String> {
+        let errors = self.diagnostics();
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors
+                .iter()
+                .map(ToString::to_string)
+                .collect::<Vec<_>>()
+                .join("; "))
+        }
     }
 }
 

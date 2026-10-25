@@ -289,6 +289,39 @@ operations retain source lineage, original observation times and coverage; absen
 pointers leave evaluation pending. Graph authors must select the operation from
 the acquisition's declared `for_each`, rather than infer fan-out from JSON shape.
 
+## Discovery dependencies
+
+A dependency binding without `role` retains its original record-selection
+meaning and serialises unchanged. Discovery metadata can instead declare an
+explicit role with scope correspondence:
+
+```json
+{
+  "output": {"step_id": "api_discovery", "pointer": "/api_version"},
+  "argument_pointer": "/api_version",
+  "role": {
+    "kind": "discovery",
+    "scope_bindings": {"/cluster": "/cluster", "/required_kind": "/kind"}
+  }
+}
+```
+
+The correspondence maps JSON pointers in the source's declared scope to equal
+values in the consumer's declared scope. Every source selector must either occur
+unchanged under the same key or have an explicit correspondence. Shared keys
+must agree even when another mapping is supplied. Empty mappings, missing or
+null selectors and contradictory identities fail plan validation before IO.
+The example requires predeclared `/api_version` argument space and compatible
+source and consumer scopes.
+
+Execution admits discovery references through single-source `extract`,
+`project` and `project_value` chains. Arithmetic, multi-source derivations,
+fan-out origins and cyclic chains cannot relabel a selection as discovery.
+The qualified planner must additionally establish that the source contract is a
+discovery operation, retaining its original clocks and provenance. The runtime
+checks the pinned source identities and scope correspondence. This role does
+not itself qualify a protocol or establish an empirical witness.
+
 ## Shared support execution deadlines
 
 `eal-collector support-graph --plan plan.json --config evidence.json --store sources`

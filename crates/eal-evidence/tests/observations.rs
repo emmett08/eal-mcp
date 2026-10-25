@@ -184,6 +184,7 @@ async fn one_execution_keeps_old_and_refreshed_measurements_of_the_same_source_s
     strict.max_age_seconds = Some(60);
     strict.arguments["anchor"] = Value::Null;
     strict.bindings = vec![DependencyBinding {
+        role: Default::default(),
         output: OutputReference {
             step_id: "old".into(),
             pointer: "".into(),
