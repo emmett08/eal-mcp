@@ -97,3 +97,69 @@ fn whole_value_projection_is_additive_to_the_legacy_projection_wire() {
         assert_eq!(serde_json::to_value(decoded).unwrap(), encoded);
     }
 }
+
+#[test]
+fn unsupported_execution_constructs_are_rejected_before_execution() {
+    let unsupported_witness = json!({"pointer":"/uid","equals":true,"equals_future_output":{"step_id":"resource","pointer":"/uid"}});
+    assert!(
+        serde_json::from_value::<WitnessPredicate>(unsupported_witness)
+            .unwrap_err()
+            .to_string()
+            .contains("unknown field")
+    );
+    let unsupported_operation = json!({"kind":"project_future_value","fields":{"uid":"/uid"}});
+    assert!(
+        serde_json::from_value::<DerivationOperation>(unsupported_operation)
+            .unwrap_err()
+            .to_string()
+            .contains("unknown variant")
+    );
+    let unsupported_plan = json!({"schema":PLAN_SCHEMA,"acquisitions":[],"derivations":[],"evaluations":[],"future_semantics":true});
+    assert!(
+        serde_json::from_value::<EvidenceExecutionPlan>(unsupported_plan)
+            .unwrap_err()
+            .to_string()
+            .contains("unknown field")
+    );
+}
+
+#[test]
+fn original_literal_plan_decodes_with_defaults_and_keeps_literal_criteria() {
+    let value = json!({
+        "schema": PLAN_SCHEMA,
+        "acquisitions": [{
+            "id": "measurement",
+            "source": {
+                "provider_id": "provider", "capability_id": "read", "capability_version": "1",
+                "input_schema_sha256": "a".repeat(64), "output_schema_sha256": "b".repeat(64),
+                "qualified_contract_sha256": "c".repeat(64), "configuration_sha256": "d".repeat(64),
+                "authentication_scope_sha256": "e".repeat(64), "scope": {}
+            },
+            "arguments": {}
+        }],
+        "derivations": [],
+        "evaluations": [{
+            "id": "accept", "requirement_id": "requirement",
+            "inputs": [{"step_id": "measurement", "pointer": ""}],
+            "criterion": {"kind": "equals", "expected": true}
+        }]
+    });
+    let decoded: EvidenceExecutionPlan = serde_json::from_value(value).unwrap();
+    decoded.validate().unwrap();
+    assert_eq!(decoded.scheduling.maximum_concurrent_sources, 4);
+    assert!(decoded.acquisitions[0].max_age_seconds.is_none());
+    assert!(matches!(
+        decoded.evaluations[0].criterion,
+        EvaluationCriterion::Equals {
+            expected: Value::Bool(true)
+        }
+    ));
+    assert_eq!(
+        decoded.evaluations[0].required_coverage,
+        RequiredCoverage::Unspecified
+    );
+    jsonschema::validator_for(&plan_schema())
+        .unwrap()
+        .validate(&serde_json::to_value(decoded).unwrap())
+        .unwrap();
+}

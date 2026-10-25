@@ -57,6 +57,16 @@ impl SourceExecutor for Mock {
             if self.fail.load(Ordering::SeqCst) {
                 return Err(SourceError::acquisition("independent source failure"));
             }
+            if request.arguments.get("stall_id") == request.arguments.get("id")
+                && request.arguments.get("stall_id").is_some()
+            {
+                std::future::pending::<()>().await;
+            }
+            if request.arguments.get("fail_id") == request.arguments.get("id")
+                && request.arguments.get("fail_id").is_some()
+            {
+                return Err(SourceError::acquisition("detail unavailable"));
+            }
             let value = match request.arguments["operation"].as_str() {
                 Some("search") => {
                     json!({"ids":request.arguments.get("ids").cloned().unwrap_or_else(||json!(["a","b","c"]))})
@@ -67,20 +77,28 @@ impl SourceExecutor for Mock {
                         Some("b") => 20,
                         _ => 30,
                     };
-                    json!({"id":request.arguments["id"],"witness":request.arguments["id"]=="b","metrics":{"latency_ms":latency},"nested":{"samples":[request.arguments["id"]]},"attributes":{"resource_uid":if request.arguments["id"]=="b"{"resource-17"}else{"other-resource"}}})
+                    json!({"id":request.arguments["id"],"witness":request.arguments["id"]=="b","metrics":{"latency_ms":latency},"nested":{"samples":[request.arguments["id"]]},"attributes":{"resource_uid":if request.arguments["id"]=="b"{request.arguments.get("expected_uid").cloned().unwrap_or(json!("resource-17"))}else{json!("other-resource")}}})
                 }
                 _ => request.arguments.get("value").cloned().unwrap_or(json!(25)),
             };
             Ok(SourceObservation {
                 value,
-                observed_at: if request.arguments.get("current_time") == Some(&Value::Bool(true)) {
+                observed_at: if let Some(at) =
+                    request.arguments.get("observed_at").and_then(Value::as_str)
+                {
+                    at.to_owned()
+                } else if request.arguments.get("current_time") == Some(&Value::Bool(true)) {
                     chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Nanos, true)
                 } else {
                     AT.into()
                 },
                 provenance: json!({"operator":"test-provider","method":"measurement/1"}),
                 coverage: CoverageStatus::CompleteEnumeration,
-                metrics: SourceMetrics::default(),
+                metrics: SourceMetrics {
+                    transport_requests: Some(1),
+                    request_bytes: Some(10),
+                    response_bytes: Some(20),
+                },
             })
         })
     }
@@ -1356,15 +1374,12 @@ async fn dynamic_witness_stopping_uses_upstream_uid_without_skipping_challenges(
     assert_eq!(reused.metrics.source_requests, 0);
 }
 
-#[tokio::test]
-async fn a_witness_stopped_count_cannot_establish_a_population_total() {
-    let temp = tempfile::tempdir().unwrap();
-    let runtime = runtime(Arc::new(Mock::default()), store(&temp));
-    let uid = acquisition("resource", json!({"uid":"resource-17"}));
+fn mixed_witness_plan(ids: Value, uid_value: Value) -> EvidenceExecutionPlan {
+    let uid = acquisition("resource", json!({"uid": uid_value}));
     let mut search = acquisition("search", Value::Null);
-    search.arguments = json!({"operation":"search"});
+    search.arguments = json!({"operation":"search", "ids": ids});
     let mut details = acquisition("details", Value::Null);
-    details.arguments = json!({"operation":"detail","id":null});
+    details.arguments = json!({"operation":"detail","id":null,"expected_uid":uid_value});
     details.for_each = Some(ForEachBinding {
         output: reference("search", "/ids"),
         argument_pointer: "/id".into(),
@@ -1375,30 +1390,244 @@ async fn a_witness_stopped_count_cannot_establish_a_population_total() {
             equals_output: Some(reference("resource", "/uid")),
         }),
     });
-    let mut total = evaluation("total", "count", json!(2));
+    let mut total = evaluation("total", "count", json!(ids.as_array().unwrap().len()));
     total.criterion = EvaluationCriterion::Numeric {
         comparison: NumericComparison::Equal,
-        threshold: json!(2),
+        threshold: json!(ids.as_array().unwrap().len()),
         value_unit: "1".into(),
         threshold_unit: "1".into(),
     };
     total.required_coverage = RequiredCoverage::CompleteEnumeration;
-    let mut sample = total.clone();
-    sample.id = "sample".into();
-    sample.requirement_id = "sample".into();
-    sample.required_coverage = RequiredCoverage::Unspecified;
-    let mut plan = plan(vec![uid, search, details], vec![total, sample]);
-    plan.derivations = vec![DerivationStep {
-        id: "count".into(),
-        inputs: vec![reference("details", "")],
-        operation: DerivationOperation::Count,
-    }];
+    let mut witness = evaluation("witness", "matches", json!(0));
+    witness.criterion = EvaluationCriterion::Equals {
+        expected: json!(true),
+    };
+    witness.required_coverage = RequiredCoverage::Witness;
+    let mut plan = plan(vec![uid, search, details], vec![total, witness]);
+    plan.derivations = vec![
+        DerivationStep {
+            id: "count".into(),
+            inputs: vec![reference("details", "")],
+            operation: DerivationOperation::Count,
+        },
+        DerivationStep {
+            id: "uids".into(),
+            inputs: vec![reference("details", "")],
+            operation: DerivationOperation::Project {
+                fields: BTreeMap::from([("uid".into(), "/attributes/resource_uid".into())]),
+            },
+        },
+        DerivationStep {
+            id: "matches".into(),
+            inputs: vec![reference("resource", "/uid"), reference("uids", "/uid")],
+            operation: DerivationOperation::AnyIdentityEqual,
+        },
+    ];
+    plan
+}
+
+#[tokio::test]
+async fn shared_witness_and_population_consumers_finish_for_first_last_and_absent_matches() {
+    for (ids, witness_status) in [
+        (json!(["b", "a", "c"]), EvaluationStatus::Satisfied),
+        (json!(["a", "c", "b"]), EvaluationStatus::Satisfied),
+        (json!(["a", "c"]), EvaluationStatus::NotSatisfied),
+    ] {
+        let temp = tempfile::tempdir().unwrap();
+        let mock = Arc::new(Mock::default());
+        let runtime = runtime(mock.clone(), store(&temp));
+        let plan = mixed_witness_plan(ids.clone(), json!("resource-17"));
+        let report = runtime.execute(&plan, Some(NOW)).await.unwrap();
+        assert!(report.complete);
+        assert!(!report.budget_exhausted);
+        assert!(!report.steps["count"].truncated);
+        assert_eq!(
+            report.steps["count"].value.as_ref().unwrap()["numerator"],
+            ids.as_array().unwrap().len().to_string()
+        );
+        assert_eq!(report.evaluations[0].status, EvaluationStatus::Satisfied);
+        assert_eq!(report.evaluations[1].status, witness_status);
+        assert_eq!(
+            mock.calls.load(Ordering::SeqCst),
+            ids.as_array().unwrap().len() + 2
+        );
+    }
+}
+
+#[tokio::test]
+async fn selecting_only_the_witness_requirement_keeps_early_stopping() {
+    let temp = tempfile::tempdir().unwrap();
+    let mock = Arc::new(Mock::default());
+    let runtime = runtime(mock.clone(), store(&temp));
+    let plan = mixed_witness_plan(json!(["b", "a", "c"]), json!("resource-17"));
+    let report = runtime
+        .execute_requirement(&plan, "witness", Some(NOW))
+        .await
+        .unwrap();
+    assert!(report.complete);
+    assert!(report.steps["details"].truncated);
+    assert_eq!(report.evaluations[0].status, EvaluationStatus::Satisfied);
+    assert_eq!(mock.calls.load(Ordering::SeqCst), 3);
+}
+
+#[tokio::test]
+async fn incomplete_enumeration_retains_positive_witness_and_keeps_absence_pending() {
+    for (ids, witness_status) in [
+        (json!(["b", "a", "c"]), EvaluationStatus::Satisfied),
+        (json!(["a", "c", "b"]), EvaluationStatus::Pending),
+    ] {
+        let temp = tempfile::tempdir().unwrap();
+        let mock = Arc::new(Mock::default());
+        let runtime = EvidenceExecutor::new(
+            mock.clone(),
+            store(&temp),
+            ExecutionLimits {
+                maximum_source_requests: 3,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+        let plan = mixed_witness_plan(ids, json!("resource-17"));
+        let report = runtime.execute(&plan, Some(NOW)).await.unwrap();
+        assert!(!report.complete);
+        assert!(report.budget_exhausted);
+        assert!(report.steps["details"].truncated);
+        assert_eq!(report.evaluations[0].status, EvaluationStatus::Pending);
+        assert_eq!(report.evaluations[1].status, witness_status);
+        assert_eq!(mock.calls.load(Ordering::SeqCst), 3);
+    }
+}
+
+#[tokio::test]
+async fn failed_continuation_retains_witness_with_exact_large_identity() {
+    let temp = tempfile::tempdir().unwrap();
+    let mock = Arc::new(Mock::default());
+    let runtime = runtime(mock.clone(), store(&temp));
+    let identity: Value = serde_json::from_str("90071992547409931234567891").unwrap();
+    let mut plan = mixed_witness_plan(json!(["b", "a", "c"]), identity.clone());
+    plan.acquisitions[2].arguments["fail_id"] = json!("a");
     let report = runtime.execute(&plan, Some(NOW)).await.unwrap();
-    assert!(report.steps["count"].truncated);
-    assert_eq!(
-        report.steps["count"].value.as_ref().unwrap()["numerator"],
-        "2"
-    );
+    assert!(!report.complete);
+    assert!(!report.budget_exhausted);
     assert_eq!(report.evaluations[0].status, EvaluationStatus::Pending);
     assert_eq!(report.evaluations[1].status, EvaluationStatus::Satisfied);
+    assert_eq!(
+        report.steps["uids"].value.as_ref().unwrap()["uid"][0],
+        identity
+    );
+    assert!(matches!(report.steps["details"].status, StepStatus::Failed));
+    assert_eq!(mock.calls.load(Ordering::SeqCst), 4);
+}
+
+#[tokio::test]
+async fn deadline_during_continuation_retains_witness_and_each_completed_response() {
+    let temp = tempfile::tempdir().unwrap();
+    let mock = Arc::new(Mock::default());
+    let runtime = EvidenceExecutor::new(
+        mock.clone(),
+        store(&temp),
+        ExecutionLimits {
+            timeout: Duration::from_millis(500),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    let mut plan = mixed_witness_plan(json!(["b", "a", "c"]), json!("resource-17"));
+    plan.acquisitions[2].arguments["stall_id"] = json!("c");
+    let report = runtime.execute(&plan, Some(NOW)).await.unwrap();
+    assert!(!report.complete);
+    assert!(report.budget_exhausted);
+    assert_eq!(report.evaluations[0].status, EvaluationStatus::Pending);
+    assert_eq!(report.evaluations[1].status, EvaluationStatus::Satisfied);
+    assert_eq!(
+        report.steps["details"]
+            .value
+            .as_ref()
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .len(),
+        2
+    );
+    assert_eq!(mock.calls.load(Ordering::SeqCst), 5);
+    assert_eq!(report.metrics.source_requests, 5);
+    assert_eq!(report.metrics.reported_provider_requests, 4);
+    assert_eq!(report.metrics.reported_request_bytes, 40);
+    assert_eq!(report.metrics.reported_response_bytes, 80);
+    assert_eq!(report.observations.len(), 4);
+    assert!(!report.evaluations[1].observation_ids.is_empty());
+}
+
+#[tokio::test]
+async fn mixed_continuation_preserves_stale_comparisons_and_material_challenges() {
+    for stale in [true, false] {
+        let temp = tempfile::tempdir().unwrap();
+        let mock = Arc::new(Mock::default());
+        let runtime = runtime(mock, store(&temp));
+        let mut plan = mixed_witness_plan(json!(["b", "a", "c"]), json!("resource-17"));
+        if stale {
+            plan.acquisitions[0].max_age_seconds = Some(1);
+        } else {
+            plan.acquisitions
+                .push(acquisition("challenge", json!(false)));
+            plan.evaluations[1]
+                .challenges
+                .push(reference("challenge", ""));
+        }
+        let report = runtime.execute(&plan, Some(NOW)).await.unwrap();
+        assert_eq!(report.evaluations[1].status, EvaluationStatus::Pending);
+        assert!(!report.complete);
+    }
+}
+
+#[tokio::test]
+async fn a_future_comparison_cannot_hide_behind_an_older_search_timestamp() {
+    let temp = tempfile::tempdir().unwrap();
+    let runtime = runtime(Arc::new(Mock::default()), store(&temp));
+    let mut plan = mixed_witness_plan(json!(["b", "a", "c"]), json!("resource-17"));
+    plan.acquisitions[0].arguments["observed_at"] = json!("2026-10-25T12:00:01Z");
+    let report = runtime.execute(&plan, Some(NOW)).await.unwrap();
+    assert_eq!(report.evaluations[1].status, EvaluationStatus::Pending);
+    assert!(report.steps["resource"].value.is_none());
+    assert!(!report.complete);
+}
+
+#[tokio::test]
+async fn postdeadline_finalisation_bounds_expanding_collect_before_cloning() {
+    let temp = tempfile::tempdir().unwrap();
+    let runtime = EvidenceExecutor::new(
+        Arc::new(Mock::default()),
+        store(&temp),
+        ExecutionLimits {
+            timeout: Duration::from_millis(500),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+    let mut plan = mixed_witness_plan(json!(["b", "a", "c"]), json!("resource-17"));
+    plan.acquisitions[2].arguments["stall_id"] = json!("c");
+    let mut previous = "details".to_owned();
+    for index in 0..40 {
+        let id = format!("expand-{index:02}");
+        plan.derivations.push(DerivationStep {
+            id: id.clone(),
+            inputs: vec![reference(&previous, ""), reference(&previous, "")],
+            operation: DerivationOperation::Collect,
+        });
+        previous = id;
+    }
+    let report = runtime.execute(&plan, Some(NOW)).await.unwrap();
+    assert!(report.budget_exhausted);
+    assert!(!report.complete);
+    assert_eq!(report.evaluations[1].status, EvaluationStatus::Satisfied);
+    assert!(report.steps[&previous].value.is_none());
+    assert!(matches!(
+        report.steps[&previous].status,
+        StepStatus::Incomplete
+    ));
+    assert!(report.steps.values().any(|step| {
+        step.diagnostic
+            .as_deref()
+            .is_some_and(|diagnostic| diagnostic.contains("bounded final assessment"))
+    }));
 }

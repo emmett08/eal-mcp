@@ -13,7 +13,7 @@ use std::{
         Arc,
         atomic::{AtomicU64, Ordering},
     },
-    time::Instant,
+    time::{Duration, Instant},
 };
 
 mod records;
@@ -52,7 +52,41 @@ impl SourceStore {
     /// Each physical reuse index and each immutable observation is bounded by
     /// maximum_bytes. maximum_records independently bounds source identities
     /// and retained observations; capacity exhaustion never evicts raw records.
+    /// Synchronous initialisation has a finite 30-second lock-wait budget.
+    /// Request handlers should use `open_until` to keep blocking filesystem work
+    /// outside their async executor and share the caller's absolute deadline.
     pub fn open(path: &Path, maximum_records: usize, maximum_bytes: usize) -> Result<Self, String> {
+        Self::open_sync_until(
+            path,
+            maximum_records,
+            maximum_bytes,
+            Instant::now() + Duration::from_secs(30),
+        )
+    }
+
+    /// Initialise the store within the caller's monotonic deadline. A timed-out
+    /// filesystem worker retains the key lock until its admitted I/O finishes.
+    pub async fn open_until(
+        path: &Path,
+        maximum_records: usize,
+        maximum_bytes: usize,
+        deadline: Instant,
+    ) -> Result<Self, String> {
+        let path = path.to_owned();
+        run_io(deadline, move || {
+            Self::open_sync_until(&path, maximum_records, maximum_bytes, deadline)
+        })
+        .await
+        .map_err(|error| error.to_string())
+    }
+
+    fn open_sync_until(
+        path: &Path,
+        maximum_records: usize,
+        maximum_bytes: usize,
+        deadline: Instant,
+    ) -> Result<Self, String> {
+        check_deadline(deadline)?;
         if maximum_records == 0
             || maximum_records > 1_000_000
             || maximum_bytes == 0
@@ -107,10 +141,10 @@ impl SourceStore {
                 return Err("source store must be private to its owner".into());
             }
         }
-        let mut key_file = open_private(&root.join("store.key"), true)?;
-        #[cfg(unix)]
-        rustix::fs::flock(&key_file, rustix::fs::FlockOperation::LockExclusive)
-            .map_err(|_| "source store key lock failed")?;
+        check_deadline(deadline)?;
+        let key_lock = lock_file_until(open_private(&root.join("store.key"), true)?, deadline)?;
+        let mut key_file = &key_lock.file;
+        check_deadline(deadline)?;
         let mut key = [0u8; 32];
         if key_file
             .metadata()
@@ -138,10 +172,10 @@ impl SourceStore {
                 .read_exact(&mut key)
                 .map_err(|_| "source store key could not be read")?;
         }
-        #[cfg(unix)]
-        rustix::fs::flock(&key_file, rustix::fs::FlockOperation::Unlock)
-            .map_err(|_| "source store key unlock failed")?;
+        drop(key_lock);
+        check_deadline(deadline)?;
         private_directory(&root.join("observations"))?;
+        check_deadline(deadline)?;
         Ok(Self {
             root,
             maximum_records,

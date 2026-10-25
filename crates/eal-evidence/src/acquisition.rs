@@ -10,7 +10,7 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     sync::{
         Arc,
-        atomic::{AtomicUsize, Ordering},
+        atomic::{AtomicBool, AtomicUsize, Ordering},
     },
     time::{Duration, Instant},
 };
@@ -22,6 +22,14 @@ pub(crate) struct Concurrency {
     pub(crate) providers: BTreeMap<String, Arc<Semaphore>>,
     pub(crate) requests: AtomicUsize,
     pub(crate) maximum_requests: usize,
+    pub(crate) budget_exhausted: AtomicBool,
+    /// Completed responses survive cancellation and a finished task awaiting delivery.
+    pub(crate) progress: std::sync::Mutex<BTreeMap<String, AcquisitionProgress>>,
+}
+pub(crate) struct AcquisitionProgress {
+    pub result: StepResult,
+    pub records: Vec<SourceRecord>,
+    pub metrics: ExecutionMetrics,
 }
 pub(crate) fn parse_time(value: &str) -> Result<chrono::DateTime<chrono::FixedOffset>, String> {
     chrono::DateTime::parse_from_rfc3339(value)
@@ -122,6 +130,44 @@ pub(crate) fn prepare_arguments(
     }
 }
 pub(crate) fn minimum_freshness(id: &str, plan: &EvidenceExecutionPlan) -> Option<u64> {
+    let dependants = dependants(id, plan);
+    plan.evaluations
+        .iter()
+        .filter(|evaluation| {
+            evaluation
+                .inputs
+                .iter()
+                .chain(&evaluation.applicability)
+                .chain(&evaluation.challenges)
+                .any(|reference| dependants.contains(&reference.step_id))
+        })
+        .filter_map(|evaluation| evaluation.max_age_seconds)
+        .chain(
+            plan.acquisitions
+                .iter()
+                .find(|step| step.id == id)
+                .and_then(|step| step.max_age_seconds),
+        )
+        .min()
+}
+
+/// A witness can stop only when no consumer still needs population/sample coverage.
+pub(crate) fn requires_continuation(id: &str, plan: &EvidenceExecutionPlan) -> bool {
+    let dependants = dependants(id, plan);
+    plan.evaluations.iter().any(|evaluation| {
+        matches!(
+            evaluation.required_coverage,
+            RequiredCoverage::CompleteEnumeration | RequiredCoverage::Statistical
+        ) && evaluation
+            .inputs
+            .iter()
+            .chain(&evaluation.applicability)
+            .chain(&evaluation.challenges)
+            .any(|reference| dependants.contains(&reference.step_id))
+    })
+}
+
+fn dependants(id: &str, plan: &EvidenceExecutionPlan) -> BTreeSet<String> {
     let mut dependants = BTreeSet::from([id.to_owned()]);
     loop {
         let before = dependants.len();
@@ -146,24 +192,7 @@ pub(crate) fn minimum_freshness(id: &str, plan: &EvidenceExecutionPlan) -> Optio
             break;
         }
     }
-    plan.evaluations
-        .iter()
-        .filter(|evaluation| {
-            evaluation
-                .inputs
-                .iter()
-                .chain(&evaluation.applicability)
-                .chain(&evaluation.challenges)
-                .any(|reference| dependants.contains(&reference.step_id))
-        })
-        .filter_map(|evaluation| evaluation.max_age_seconds)
-        .chain(
-            plan.acquisitions
-                .iter()
-                .find(|step| step.id == id)
-                .and_then(|step| step.max_age_seconds),
-        )
-        .min()
+    dependants
 }
 pub(crate) fn lineage(id: &str, parents: &[&StepResult]) -> StepResult {
     let source_ids = parents
@@ -232,6 +261,7 @@ pub(crate) async fn acquire_step<E: SourceExecutor + 'static>(
     limits: &ExecutionLimits,
     deadline: Instant,
     freshness: Option<u64>,
+    continue_after_witness: bool,
 ) -> (StepResult, Vec<SourceRecord>, ExecutionMetrics) {
     let availability = match &step.availability {
         SourceAvailability::Configured => None,
@@ -255,6 +285,7 @@ pub(crate) async fn acquire_step<E: SourceExecutor + 'static>(
     let mut values = Vec::new();
     let mut metrics = ExecutionMetrics::default();
     let mut all_reused = true;
+    let mut stopped = None;
     for arguments in prepared.arguments {
         let call = acquire_one(
             executor.as_ref(),
@@ -301,14 +332,25 @@ pub(crate) async fn acquire_step<E: SourceExecutor + 'static>(
                 });
                 values.push(record.value.clone());
                 records.push(record);
-                if witness {
+                retain_progress(
+                    policy,
+                    step,
+                    &output,
+                    records.last().expect("completed source record"),
+                    &metrics,
+                    all_reused,
+                );
+                if witness && !continue_after_witness {
                     output.truncated = true;
                     output.coverage = combine_coverage(&output.coverage, &CoverageStatus::Witness);
                     break;
                 }
             }
             Err(error) => {
-                output.status = if matches!(error.kind, SourceErrorKind::Budget) {
+                if matches!(error.kind, SourceErrorKind::Budget) {
+                    policy.budget_exhausted.store(true, Ordering::Relaxed);
+                }
+                stopped = Some(if matches!(error.kind, SourceErrorKind::Budget) {
                     StepStatus::Incomplete
                 } else if matches!(
                     error.kind,
@@ -319,13 +361,11 @@ pub(crate) async fn acquire_step<E: SourceExecutor + 'static>(
                     StepStatus::Unavailable
                 } else {
                     StepStatus::Failed
-                };
+                });
                 output.diagnostic = Some(error.message);
-                output.source_ids.sort();
-                output.source_ids.dedup();
-                output.observation_ids.sort();
-                output.observation_ids.dedup();
-                return (output, records, metrics);
+                output.truncated = true;
+                output.coverage = combine_coverage(&output.coverage, &CoverageStatus::Witness);
+                break;
             }
         }
     }
@@ -333,13 +373,17 @@ pub(crate) async fn acquire_step<E: SourceExecutor + 'static>(
     output.source_ids.dedup();
     output.observation_ids.sort();
     output.observation_ids.dedup();
-    output.status = StepStatus::Measured;
+    output.status = stopped.clone().unwrap_or(StepStatus::Measured);
     output.reused = all_reused;
-    output.value = Some(if step.for_each.is_some() {
-        json!(values)
+    output.value = if stopped.is_some() && values.is_empty() {
+        None
     } else {
-        values.into_iter().next().unwrap_or(Value::Null)
-    });
+        Some(if step.for_each.is_some() {
+            json!(values)
+        } else {
+            values.into_iter().next().unwrap_or(Value::Null)
+        })
+    };
     let assessment = policy.assessment_time.clone().unwrap_or_else(now);
     if let Some(message) = crate::freshness::diagnostic(
         step.max_age_seconds,
@@ -351,7 +395,73 @@ pub(crate) async fn acquire_step<E: SourceExecutor + 'static>(
         output.value = None;
         output.diagnostic = Some(message);
     }
+    if let Some(progress) = policy
+        .progress
+        .lock()
+        .expect("acquisition progress lock")
+        .get_mut(&step.id)
+    {
+        progress.result = output.clone();
+        progress.metrics = metrics.clone();
+    }
     (output, records, metrics)
+}
+
+/// Append only the newly completed response, keeping retention linear in input size.
+fn retain_progress(
+    policy: &Concurrency,
+    step: &AcquisitionStep,
+    output: &StepResult,
+    record: &SourceRecord,
+    metrics: &ExecutionMetrics,
+    reused: bool,
+) {
+    use std::collections::btree_map::Entry;
+    let mut progress = policy.progress.lock().expect("acquisition progress lock");
+    match progress.entry(step.id.clone()) {
+        Entry::Vacant(entry) => {
+            let mut result = output.clone();
+            result.value = Some(if step.for_each.is_some() {
+                json!([record.value])
+            } else {
+                record.value.clone()
+            });
+            result.status = StepStatus::Incomplete;
+            result.truncated |= step.for_each.is_some();
+            if step.for_each.is_some() {
+                result.coverage = combine_coverage(&result.coverage, &CoverageStatus::Witness);
+            }
+            result.reused = reused;
+            result.diagnostic = Some(
+                "execution stopped after retained measurements; acquisition is incomplete".into(),
+            );
+            entry.insert(AcquisitionProgress {
+                result,
+                records: vec![record.clone()],
+                metrics: metrics.clone(),
+            });
+        }
+        Entry::Occupied(mut entry) => {
+            let progress = entry.get_mut();
+            progress
+                .result
+                .value
+                .as_mut()
+                .and_then(Value::as_array_mut)
+                .expect("fan-out values")
+                .push(record.value.clone());
+            progress.result.source_ids.push(record.source_id.clone());
+            progress
+                .result
+                .observation_ids
+                .push(record.observation_id.clone());
+            progress.result.observed_at = output.observed_at.clone();
+            progress.result.coverage = combine_coverage(&output.coverage, &CoverageStatus::Witness);
+            progress.result.reused = reused;
+            progress.records.push(record.clone());
+            progress.metrics = metrics.clone();
+        }
+    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -365,6 +475,7 @@ async fn acquire_one<E: SourceExecutor>(
     deadline: Instant,
     freshness: Option<u64>,
 ) -> Result<(SourceRecord, bool, Option<String>, SourceMetrics), SourceError> {
+    ensure_deadline(deadline)?;
     let request = tokio::time::timeout_at(tokio::time::Instant::from_std(deadline), async {
         let provider = policy
             .providers
@@ -379,6 +490,7 @@ async fn acquire_one<E: SourceExecutor>(
             .acquire()
             .await
             .map_err(|_| SourceError::acquisition("global admission scheduler closed"))?;
+        ensure_deadline(deadline)?;
         executor.bind_until(step, arguments, deadline).await
     })
     .await
@@ -539,6 +651,12 @@ async fn acquire_one<E: SourceExecutor>(
                 message: "source acquisition deadline exhausted".into(),
             })
         });
+    if outcome
+        .as_ref()
+        .is_err_and(|error| matches!(error.kind, SourceErrorKind::Budget))
+    {
+        policy.budget_exhausted.store(true, Ordering::Relaxed);
+    }
     match (outcome, cached) {
         (Ok(record), _) => Ok(record),
         (Err(error), Some(record))

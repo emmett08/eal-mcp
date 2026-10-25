@@ -288,3 +288,60 @@ produces an array of UIDs, including an empty array for an empty fan-out. Both
 operations retain source lineage, original observation times and coverage; absent
 pointers leave evaluation pending. Graph authors must select the operation from
 the acquisition's declared `for_each`, rather than infer fan-out from JSON shape.
+
+## Shared support execution deadlines
+
+`eal-collector support-graph --plan plan.json --config evidence.json --store sources`
+starts a monotonic budget on entry to the support facade. The default is 300 seconds.
+`--timeout-ms` selects an integer budget from 1 to 86400000 milliseconds. Input and
+configuration validation, source-store initialisation, acquisition, derivation and
+final evaluation consume that same budget. An already-expired request admits no
+source acquisition. `SourceStore::open_until` and `EvidenceExecutor::execute_until`
+accept the same absolute deadline for programmatic callers. Synchronous store
+opening uses a separate finite 30-second lock-wait budget.
+
+Key initialisation and source-store I/O run on blocking workers. Lock waits poll
+without blocking the async scheduler and stop admitting work after expiry. An I/O
+operation admitted before expiry can finish after the caller returns. Its worker
+keeps the key or source lease until completion. Reconciliation refuses an active
+source lease, and an uncertain acquisition remains marked for explicit operator
+reconciliation before another acquisition can begin.
+
+An immutable observation snapshot is published and synced before the source's
+reuse index exposes its identity. Each publication checks the deadline before
+renaming. Expiry after snapshot publication can leave a retained snapshot without
+a new reuse index. Expiry after an admitted rename can expose the index while the
+invocation reports exhaustion. The pending marker retains the uncertain outcome
+until reconciliation or successful completion. Retained observations keep their
+original timestamps and signatures.
+
+Execution reports carry `budget_exhausted` separately from criterion satisfaction.
+An expired invocation has `complete: false`, including expiry during final
+assessment. An independently admissible observation can still satisfy a criterion.
+Collector projections expose `execution_complete` and `budget_exhausted` alongside
+that criterion result. Freshness uses the actual lookup time unless the caller
+supplies an explicit assessment cut-off. The maximum age is inclusive, and a future
+observation or an age above that bound leaves the affected criterion pending.
+Elapsed-time tests include documented scheduler tolerance. These bounds describe
+cooperative admission and caller response, rather than cancellation of filesystem
+operations already in progress.
+
+A fan-out shared by witness and complete-enumeration or statistical consumers
+continues after its first match to seek the requested population coverage. A
+requirement projection that needs only the witness can still stop early. If later
+acquisition fails or exhausts the budget, the retained positive prefix keeps its
+original observation age and lineage. Pure final assessment can use that prefix
+after the deadline, including its applicability and challenge checks. Population
+consumers remain pending until their own coverage conditions hold. This final
+assessment admits no further acquisition or publication.
+
+After expiry, recovery admits at most 128 structural or identity derivations.
+It shares a 16 MiB budget for conservatively estimated JSON input and output
+bytes across those derivations. A bounded counting writer checks selected values
+before cloning them. Projection estimates include the number of output fields,
+so repeated `collect` or `project` operations cannot expand without consuming
+the budget. Numeric transforms remain incomplete after expiry because their
+intermediate arithmetic cost needs a separate bound. Completed observations and
+their reported request and byte counts survive interruption, including responses
+received after the first witness. These are bounds on recovery work and encoded
+values, rather than a strict wall-clock grace period or a process-memory limit.

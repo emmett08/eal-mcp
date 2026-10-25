@@ -352,4 +352,88 @@ mod sidecar_tests {
         drop(file);
         fs::remove_dir(root).unwrap();
     }
+
+    #[test]
+    fn sidecar_recheck_rejects_hostile_replacements_after_an_unlink() {
+        let root =
+            std::env::temp_dir().join(format!("eal-sidecar-replacement-{}", uuid::Uuid::new_v4()));
+        fs::DirBuilder::new().mode(0o700).create(&root).unwrap();
+        let path = root.join("sidecar");
+        let removed_file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create_new(true)
+            .mode(0o600)
+            .open(&path)
+            .unwrap();
+        fs::remove_file(&path).unwrap();
+        let removed = removed_file.metadata().unwrap();
+        assert_eq!(removed.nlink(), 0);
+
+        let target = root.join("target");
+        let target_file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create_new(true)
+            .mode(0o600)
+            .open(&target)
+            .unwrap();
+        let assert_rejected = |metadata: fs::Metadata| {
+            let mut samples = 0;
+            let error = check_sidecar_metadata(|| {
+                samples += 1;
+                Ok(if samples == 1 {
+                    removed.clone()
+                } else {
+                    metadata.clone()
+                })
+            })
+            .unwrap_err();
+            assert_eq!(
+                samples, 2,
+                "unsafe replacement must fail on its first sample"
+            );
+            assert!(error.contains("private regular 0600 file"), "{error}");
+        };
+        std::os::unix::fs::symlink(&target, &path).unwrap();
+        assert_rejected(fs::symlink_metadata(&path).unwrap());
+        fs::remove_file(&path).unwrap();
+        fs::hard_link(&target, &path).unwrap();
+        assert_rejected(fs::symlink_metadata(&path).unwrap());
+        fs::remove_file(&path).unwrap();
+        assert_eq!(target_file.metadata().unwrap().nlink(), 1);
+
+        // Changing file ownership requires privilege. The other replacement
+        // cases run for every Unix user; root exercises foreign ownership when
+        // the current user namespace permits constructing that fixture.
+        if rustix::process::getuid().as_raw() == 0 {
+            match rustix::fs::fchown(
+                &target_file,
+                Some(rustix::process::Uid::from_raw(65534)),
+                None,
+            ) {
+                Ok(()) => {
+                    assert_rejected(target_file.metadata().unwrap());
+                    rustix::fs::fchown(&target_file, Some(rustix::process::getuid()), None)
+                        .unwrap();
+                }
+                Err(error)
+                    if matches!(
+                        error,
+                        rustix::io::Errno::PERM
+                            | rustix::io::Errno::ACCESS
+                            | rustix::io::Errno::INVAL
+                    ) =>
+                {
+                    eprintln!(
+                        "foreign-owner sidecar case unavailable in this user namespace: {error}"
+                    );
+                }
+                Err(error) => panic!("cannot construct ownership fixture: {error}"),
+            }
+        }
+        drop(target_file);
+        drop(removed_file);
+        fs::remove_dir_all(root).unwrap();
+    }
 }
