@@ -46,15 +46,40 @@ pub(crate) fn absolute(path: &Path) -> Result<PathBuf, String> {
 pub(crate) fn check_sqlite_sidecars(database: &Path) -> Result<(), String> {
     for ending in ["-wal", "-shm", "-journal"] {
         let path = suffix(database, ending);
-        match fs::symlink_metadata(&path) {
-            Ok(metadata) => {
-                check_metadata(&metadata, "SQLite store sidecar")?;
-            }
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        check_sidecar_metadata(|| fs::symlink_metadata(&path))?;
+    }
+    Ok(())
+}
+
+/// SQLite may unlink a WAL/SHM inode after lstat resolved it but before the
+/// kernel copies its metadata. Only that otherwise-private zero-link snapshot
+/// is transient. Recheck names using metadata alone, never sidecar descriptors.
+fn check_sidecar_metadata(
+    mut inspect: impl FnMut() -> std::io::Result<fs::Metadata>,
+) -> Result<(), String> {
+    for _ in 0..4 {
+        match inspect() {
+            Ok(metadata) if removed_private_sidecar(&metadata) => std::thread::yield_now(),
+            Ok(metadata) => return check_metadata(&metadata, "SQLite store sidecar").map(|_| ()),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
             Err(error) => return Err(error.to_string()),
         }
     }
-    Ok(())
+    Err("SQLite store sidecar did not stabilise after unlink".into())
+}
+fn removed_private_sidecar(metadata: &fs::Metadata) -> bool {
+    #[cfg(unix)]
+    {
+        metadata.file_type().is_file()
+            && metadata.uid() == rustix::process::getuid().as_raw()
+            && metadata.mode() & 0o777 == 0o600
+            && metadata.nlink() == 0
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = metadata;
+        false
+    }
 }
 
 /// Validate SQLite-owned paths without opening another descriptor. Closing any
@@ -249,4 +274,82 @@ pub(crate) fn suffix(path: &Path, suffix: &str) -> PathBuf {
     let mut name = path.as_os_str().to_owned();
     name.push(suffix);
     PathBuf::from(name)
+}
+
+#[cfg(all(test, unix))]
+mod sidecar_tests {
+    use super::*;
+    #[test]
+    fn unlinked_private_sidecar_snapshots_are_rechecked_with_a_fixed_bound() {
+        let root = std::env::temp_dir().join(format!(
+            "eal-sidecar-metadata-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir(&root).unwrap();
+        let path = root.join("metadata-fixture");
+        let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create_new(true)
+            .mode(0o600)
+            .open(&path)
+            .unwrap();
+        let linked = file.metadata().unwrap();
+        fs::remove_file(&path).unwrap();
+        let removed = file.metadata().unwrap();
+        assert_eq!(removed.nlink(), 0);
+        let mut calls = 0;
+        check_sidecar_metadata(|| {
+            calls += 1;
+            if calls == 1 {
+                Ok(removed.clone())
+            } else {
+                Err(std::io::ErrorKind::NotFound.into())
+            }
+        })
+        .unwrap();
+        assert_eq!(calls, 2);
+        let mut calls = 0;
+        check_sidecar_metadata(|| {
+            calls += 1;
+            Ok(if calls == 1 {
+                removed.clone()
+            } else {
+                linked.clone()
+            })
+        })
+        .unwrap();
+        assert_eq!(calls, 2);
+        let mut calls = 0;
+        assert!(
+            check_sidecar_metadata(|| {
+                calls += 1;
+                Ok(removed.clone())
+            })
+            .unwrap_err()
+            .contains("did not stabilise")
+        );
+        assert_eq!(calls, 4);
+        // Only normal unlink is retried. A permissive inode is rejected on its
+        // first sample even if its next sample would disappear.
+        use std::os::unix::fs::PermissionsExt;
+        file.set_permissions(fs::Permissions::from_mode(0o644))
+            .unwrap();
+        let unsafe_removed = file.metadata().unwrap();
+        let mut calls = 0;
+        assert!(
+            check_sidecar_metadata(|| {
+                calls += 1;
+                Ok(unsafe_removed.clone())
+            })
+            .is_err()
+        );
+        assert_eq!(calls, 1);
+        drop(file);
+        fs::remove_dir(root).unwrap();
+    }
 }

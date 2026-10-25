@@ -1,11 +1,14 @@
 //! Pure wire models for describing and configuring operator-selected collectors.
 mod binding;
+pub mod capability;
 mod catalogue;
 mod command;
 mod identifiers;
 mod json;
+mod opaque_json;
 mod profile;
 mod request;
+mod retained_judgement;
 mod schema;
 mod sensitive_json;
 mod toml_diagnostic;
@@ -21,6 +24,9 @@ pub use identifiers::{CollectorId, EnvironmentName, ToolId};
 pub use json::{
     JsonDiagnostic, JsonDiagnosticCode, JsonLimits, JsonNumericProfile, strict_json,
     strict_json_diagnostic, strict_json_exact, strict_json_exact_diagnostic,
+};
+pub use opaque_json::{
+    deserialize_optional_value_exact, deserialize_value_exact, deserialize_value_map_exact,
 };
 pub use profile::{AuthoringProfile, checked_predicate};
 pub use request::{ACQUISITION_CONTRACT, AcquisitionRequest, ObservationEnvelope};
@@ -45,3 +51,5 @@ pub const REGISTRY_CORPUS: &str = include_str!("../registry-corpus.json");
 
 /// Independent catalogue/schema/profile cases, including semantic-only restrictions.
 pub const CATALOGUE_CORPUS: &str = include_str!("../catalogue-corpus.json");
+
+pub mod execution;

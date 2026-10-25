@@ -5,6 +5,7 @@ pub mod client;
 pub mod guard;
 pub mod host;
 pub mod operations;
+pub mod persistent_mcp;
 pub mod redaction;
 pub mod server;
 pub mod settings;

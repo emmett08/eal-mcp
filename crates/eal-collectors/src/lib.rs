@@ -2,6 +2,7 @@
 pub mod api;
 pub mod catalogue;
 pub mod config;
+pub mod evidence;
 mod github;
 mod github_delivery;
 mod inventory;

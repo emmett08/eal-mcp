@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/eal-parser", "crates/eal-core", "crates/eal-aspic", "crates/eal-runtime", "crates/eal-mcp", "crates/eal-coordination", "crates/eal-cli", "tools/eal-devtools", "crates/eal-collectors", "crates/eal-collector-contracts", "crates/eal-process", "crates/eal-adapters"]
+members = ["crates/eal-parser", "crates/eal-core", "crates/eal-aspic", "crates/eal-runtime", "crates/eal-mcp", "crates/eal-coordination", "crates/eal-cli", "tools/eal-devtools", "crates/eal-collectors", "crates/eal-collector-contracts", "crates/eal-process", "crates/eal-adapters", "crates/eal-evidence"]
 resolver = "2"
 exclude = ["vendor/rmcp", "experiments/eal-context-001"]
 
@@ -51,6 +51,7 @@ eal-coordination = { path = "crates/eal-coordination" }
 
 eal-process = { path = "crates/eal-process" }
 eal-adapters = { path = "crates/eal-adapters" }
+eal-evidence = { path = "crates/eal-evidence" }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

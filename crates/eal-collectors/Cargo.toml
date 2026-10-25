@@ -13,6 +13,7 @@ path = "src/main.rs"
 
 [dependencies]
 eal-collector-contracts.workspace = true
+eal-evidence.workspace = true
 eal-process.workspace = true
 eal-adapters.workspace = true
 serde.workspace = true
@@ -27,6 +28,9 @@ jsonschema.workspace = true
 quick-xml = "=0.42.0"
 
 [dev-dependencies]
+axum.workspace = true
+rmcp.workspace = true
+tokio-util.workspace = true
 eal-core.workspace = true
 eal-runtime.workspace = true
 uuid.workspace = true

@@ -474,9 +474,12 @@ dependencies = [
 name = "eal-collector-contracts"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "jsonschema",
+ "schemars",
  "serde",
  "serde_json",
+ "sha2",
  "toml",
 ]
 
@@ -484,20 +487,24 @@ dependencies = [
 name = "eal-collectors"
 version = "0.1.0"
 dependencies = [
+ "axum",
  "chrono",
  "eal-adapters",
  "eal-collector-contracts",
  "eal-core",
+ "eal-evidence",
  "eal-process",
  "eal-runtime",
  "jsonschema",
  "quick-xml",
  "reqwest",
+ "rmcp",
  "rustix",
  "serde",
  "serde_json",
  "sha2",
  "tokio",
+ "tokio-util",
  "url",
  "uuid",
 ]
@@ -561,6 +568,32 @@ dependencies = [
  "sha2",
  "tokio",
  "uuid",
+]
+
+[[package]]
+name = "eal-evidence"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "eal-adapters",
+ "eal-collector-contracts",
+ "eal-mcp",
+ "eal-process",
+ "getrandom 0.4.3",
+ "hmac",
+ "num-bigint",
+ "num-rational",
+ "num-traits",
+ "reqwest",
+ "rmcp",
+ "rustix",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "tokio",
+ "tokio-util",
 ]
 
 [[package]]
@@ -676,6 +709,12 @@ dependencies = [
  "regex-automata",
  "regex-syntax",
 ]
+
+[[package]]
+name = "fastrand"
+version = "2.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223"
 
 [[package]]
 name = "filetime"
@@ -2339,6 +2378,19 @@ dependencies = [
  "filetime",
  "libc",
  "xattr",
+]
+
+[[package]]
+name = "tempfile"
+version = "3.23.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d31c77bdf42a745371d260a26ca7163f1e0924b64afa0b688e61b5a9fa02f16"
+dependencies = [
+ "fastrand",
+ "getrandom 0.3.4",
+ "once_cell",
+ "rustix",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
