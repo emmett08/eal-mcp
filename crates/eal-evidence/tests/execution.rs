@@ -621,6 +621,375 @@ async fn collector_projection_pins_case_plan_and_retains_false_and_context() {
     assert!(project_requirement(&request, &output).is_err());
 }
 
+fn method_envelope(method: &str, quantity: &str, payload: Value) -> Value {
+    json!({"schema":"EAL/typed-input/1","method":method,"subject":"catalogue-fixture",
+        "quantity":quantity,"unit":"1","scope":"fixture-v1",
+        "valid_from":"2026-10-25T11:00:00Z","valid_until":"2026-10-25T13:00:00Z",
+        "payload":payload})
+}
+
+#[test]
+fn method_input_admission_checks_each_registered_kernel_contract_without_claiming_truth() {
+    for (method, quantity, payload) in [
+        (
+            "deductive/1",
+            "proposition",
+            json!({"premises":["p",{"implies":["p","q"]}],"conclusion":"q"}),
+        ),
+        (
+            "inductive/1",
+            "probability",
+            json!({"successes":8,"trials":10,"confidence":0.95}),
+        ),
+        (
+            "abductive/1",
+            "probability",
+            json!({"observed":"alarm","candidates":[{"name":"fault","prior":0.5,"likelihood":0.9},{"name":"noise","prior":0.5,"likelihood":0.1}]}),
+        ),
+        (
+            "causal/1",
+            "dimensionless",
+            json!({"assignment":"randomised","treatment":[2,4],"control":[0,2]}),
+        ),
+        (
+            "counterfactual/1",
+            "dimensionless",
+            json!({"variables":{"x":{"intercept":1,"coefficients":{},"noise":0},"y":{"intercept":0,"coefficients":{"x":2},"noise":0}},"intervention":{"variable":"x","value":3},"outcome":"y"}),
+        ),
+    ] {
+        let envelope = method_envelope(method, quantity, payload);
+        validate_reasoning_envelope(&envelope, method).unwrap();
+        let mut wrong = envelope.clone();
+        wrong["method"] = json!("structured/1");
+        assert!(validate_reasoning_envelope(&wrong, method).is_err());
+        let mut wrong = envelope.clone();
+        wrong["payload"] = json!({});
+        assert!(validate_reasoning_envelope(&wrong, method).is_err());
+        let mut wrong = envelope.clone();
+        wrong["unit"] = json!("kPa");
+        assert!(validate_reasoning_envelope(&wrong, method).is_err());
+        let mut wrong = envelope;
+        wrong["valid_until"] = wrong["valid_from"].clone();
+        assert!(validate_reasoning_envelope(&wrong, method).is_err());
+    }
+    assert!(validate_reasoning_envelope(&json!({}), "unknown/1").is_err());
+    assert!(validate_reasoning_envelope(&json!({}), "structured/1").is_err());
+}
+
+#[tokio::test]
+async fn typed_input_projection_preserves_collected_payload_and_rejects_selector_and_report_tampering()
+ {
+    let temp = tempfile::tempdir().unwrap();
+    let runtime = runtime(Arc::new(Mock::default()), store(&temp));
+    let value = method_envelope(
+        "inductive/1",
+        "probability",
+        json!({"successes":8,"trials":10,"confidence":0.95}),
+    );
+    let mut plan = plan(
+        vec![acquisition(
+            "sample",
+            json!({"input":value,"private_sibling":17}),
+        )],
+        vec![],
+    );
+    plan.derivations.push(DerivationStep {
+        id: "selected".into(),
+        inputs: vec![reference("sample", "")],
+        operation: DerivationOperation::Extract {
+            pointer: "/input".into(),
+        },
+    });
+    let mut selected = evaluation("kernel-input", "selected", json!(0));
+    selected.criterion = EvaluationCriterion::MethodInput {
+        method: "inductive/1".into(),
+    };
+    plan.evaluations.push(selected);
+    let mut observed_trials = evaluation("observed-trials", "sample", json!(10));
+    observed_trials.inputs[0].pointer = "/input/payload/trials".into();
+    if let EvaluationCriterion::Numeric {
+        value_unit,
+        threshold_unit,
+        ..
+    } = &mut observed_trials.criterion
+    {
+        *value_unit = "1".into();
+        *threshold_unit = "1".into();
+    }
+    plan.evaluations.push(observed_trials);
+    let digest = canonical_digest(&plan).unwrap();
+    let mut request = AcquisitionRequest {
+        evidence_id: "sample_input".into(),
+        environment: "dev".into(),
+        tool: "support_graph".into(),
+        tool_version: "1".into(),
+        input: json!({"schema":REASONING_INPUT_SCHEMA,"case_digest":"f".repeat(64),"execution_plan_sha256":digest,
+            "requirement_id":"kernel-input","output":{"step_id":"selected","pointer":""},
+            "premise_bindings":[{"premise_id":"g-sample","input_pointer":"/trials","requirement_id":"observed-trials","correspondence":{"kind":"identity_value","source_input_index":0,"source_pointer":""}}]}),
+        context: json!({"engarg_export_digest":"f".repeat(64)}),
+    };
+    validate_graph_request(&request, &plan).unwrap();
+    let report = runtime.execute(&plan, Some(NOW)).await.unwrap();
+    assert_eq!(report.evaluations[0].status, EvaluationStatus::Satisfied);
+    assert_eq!(
+        report.evaluations[0].value.as_ref().unwrap()["method_result_evaluated"],
+        false
+    );
+    let envelope = project_graph_request(&request, &plan, &report).unwrap();
+    assert_eq!(envelope.value, value);
+    assert_eq!(envelope.observed_at.as_deref(), Some(AT));
+    assert_eq!(envelope.request, Some(request.acquisition()));
+    assert_eq!(
+        envelope.details.as_ref().unwrap()["reasoning_input"]["premise_truth_verified"],
+        false
+    );
+    let original = request.clone();
+    request.input["output"]["step_id"] = json!("sample");
+    request.input["output"]["pointer"] = json!("/input");
+    assert!(validate_graph_request(&request, &plan).is_err());
+    request = original.clone();
+    request.input["payload"] = json!({"successes":10});
+    assert!(validate_graph_request(&request, &plan).is_err());
+    request = original.clone();
+    request.input["premise_bindings"][0]["input_pointer"] = json!("/absent");
+    assert!(project_graph_request(&request, &plan, &report).is_err());
+    request = original.clone();
+    request.input["premise_bindings"][0]["requirement_id"] = json!("undeclared");
+    assert!(validate_graph_request(&request, &plan).is_err());
+    let mut changed = report.clone();
+    changed
+        .steps
+        .get_mut("selected")
+        .unwrap()
+        .value
+        .as_mut()
+        .unwrap()["payload"]["successes"] = json!(10);
+    assert!(project_graph_request(&original, &plan, &changed).is_err());
+    let mut changed = report.clone();
+    changed.observations.values_mut().next().unwrap().value["input"]["payload"]["successes"] =
+        json!(10);
+    assert!(project_graph_request(&original, &plan, &changed).is_err());
+    let mut changed = report.clone();
+    changed.evaluations[0].observed_at = Some(NOW.into());
+    assert!(project_graph_request(&original, &plan, &changed).is_err());
+    let mut changed = report;
+    changed.evaluations[0].status = EvaluationStatus::NotSatisfied;
+    assert!(project_graph_request(&original, &plan, &changed).is_err());
+}
+
+#[tokio::test]
+async fn missing_model_or_evidence_keeps_method_input_pending_and_unavailable() {
+    for (method, value, fail) in [
+        (
+            "counterfactual/1",
+            method_envelope("counterfactual/1", "dimensionless", json!({})),
+            false,
+        ),
+        (
+            "inductive/1",
+            method_envelope(
+                "inductive/1",
+                "probability",
+                json!({"successes":8,"trials":10,"confidence":0.95}),
+            ),
+            true,
+        ),
+        (
+            "uninstalled/1",
+            method_envelope("uninstalled/1", "probability", json!({})),
+            false,
+        ),
+    ] {
+        let temp = tempfile::tempdir().unwrap();
+        let mock = Arc::new(Mock::default());
+        mock.fail.store(fail, Ordering::SeqCst);
+        let runtime = runtime(mock, store(&temp));
+        let mut plan = plan(
+            vec![acquisition("input", value)],
+            vec![evaluation("input", "input", json!(0))],
+        );
+        plan.evaluations[0].criterion = EvaluationCriterion::MethodInput {
+            method: method.into(),
+        };
+        let request = AcquisitionRequest {
+            evidence_id: "input".into(),
+            environment: "dev".into(),
+            tool: "support_graph".into(),
+            tool_version: "1".into(),
+            input: json!({"schema":REASONING_INPUT_SCHEMA,"case_digest":"f".repeat(64),"execution_plan_sha256":canonical_digest(&plan).unwrap(),"requirement_id":"input","output":{"step_id":"input","pointer":""}}),
+            context: json!({"engarg_export_digest":"f".repeat(64)}),
+        };
+        let report = runtime.execute(&plan, Some(NOW)).await.unwrap();
+        assert_eq!(report.evaluations[0].status, EvaluationStatus::Pending);
+        assert!(report.evaluations[0].diagnostic.is_some());
+        assert!(project_graph_request(&request, &plan, &report).is_err());
+    }
+}
+
+#[tokio::test]
+async fn joined_premise_acquisition_compares_actual_values_and_preserves_the_older_clock() {
+    for (emitted_successes, expected_projection) in [(8, true), (9, false)] {
+        let temp = tempfile::tempdir().unwrap();
+        let mock = Arc::new(Mock::default());
+        let runtime = runtime(mock.clone(), store(&temp));
+        let input = method_envelope(
+            "inductive/1",
+            "probability",
+            json!({"successes":emitted_successes,"trials":10,"confidence":0.95}),
+        );
+        let older = "2026-10-25T11:59:00Z";
+        let mut empirical = acquisition("observations", json!({"successes":8,"trials":10}));
+        empirical.arguments["observed_at"] = json!(older);
+        let mut plan = plan(
+            vec![
+                acquisition("input", input),
+                empirical,
+                acquisition("unrelated", json!(999)),
+            ],
+            vec![],
+        );
+        let mut admission = evaluation("input", "input", json!(0));
+        admission.criterion = EvaluationCriterion::MethodInput {
+            method: "inductive/1".into(),
+        };
+        plan.evaluations.push(admission);
+        for field in ["successes", "trials"] {
+            let mut criterion = evaluation(field, "observations", json!(0));
+            criterion.inputs[0].pointer = format!("/{field}");
+            criterion.criterion = EvaluationCriterion::Numeric {
+                comparison: NumericComparison::AtLeast,
+                threshold: json!(0),
+                value_unit: "1".into(),
+                threshold_unit: "1".into(),
+            };
+            plan.evaluations.push(criterion);
+        }
+        plan.evaluations
+            .push(evaluation("unrelated", "unrelated", json!(1000)));
+        let request = AcquisitionRequest {
+            evidence_id: "input".into(),
+            environment: "dev".into(),
+            tool: "support_graph".into(),
+            tool_version: "1".into(),
+            input: json!({"schema":REASONING_INPUT_SCHEMA,"case_digest":"f".repeat(64),"execution_plan_sha256":canonical_digest(&plan).unwrap(),"requirement_id":"input","output":{"step_id":"input","pointer":""},
+                "premise_bindings":[
+                    {"premise_id":"g-sample","input_pointer":"/successes","requirement_id":"successes","correspondence":{"kind":"identity_value","source_input_index":0,"source_pointer":""}},
+                    {"premise_id":"g-sample","input_pointer":"/trials","requirement_id":"trials","correspondence":{"kind":"identity_value","source_input_index":0,"source_pointer":""}}]}),
+            context: json!({"engarg_export_digest":"f".repeat(64)}),
+        };
+        let ids = graph_request_requirements(&request, &plan).unwrap();
+        let mut duplicate = request.clone();
+        let copied = duplicate.input["premise_bindings"][0].clone();
+        duplicate.input["premise_bindings"]
+            .as_array_mut()
+            .unwrap()
+            .push(copied);
+        assert!(validate_graph_request(&duplicate, &plan).is_err());
+        assert_eq!(ids, ["input", "successes", "trials"]);
+        let report = runtime
+            .execute_requirements_until(
+                &plan,
+                &ids,
+                Some(NOW),
+                Instant::now() + Duration::from_secs(30),
+            )
+            .await
+            .unwrap();
+        assert_eq!(mock.calls.load(Ordering::SeqCst), 2);
+        assert!(!report.steps.contains_key("unrelated"));
+        assert_eq!(report.evaluations.len(), 3);
+        assert!(
+            report
+                .evaluations
+                .iter()
+                .all(|evaluation| evaluation.status == EvaluationStatus::Satisfied)
+        );
+        let projected = project_graph_request(&request, &plan, &report);
+        assert_eq!(projected.is_ok(), expected_projection);
+        if let Ok(envelope) = projected {
+            assert_eq!(envelope.observed_at.as_deref(), Some(older));
+            assert_eq!(
+                envelope.details.as_ref().unwrap()["reasoning_input"]["observation_ids"]
+                    .as_array()
+                    .unwrap()
+                    .len(),
+                2
+            );
+            assert_eq!(envelope.value["payload"]["successes"], 8);
+            let mut rejected = report.clone();
+            rejected
+                .evaluations
+                .iter_mut()
+                .find(|evaluation| evaluation.requirement_id == "successes")
+                .unwrap()
+                .status = EvaluationStatus::NotSatisfied;
+            assert!(project_graph_request(&request, &plan, &rejected).is_err());
+            let mut absent = report;
+            absent
+                .evaluations
+                .retain(|evaluation| evaluation.requirement_id != "successes");
+            assert!(project_graph_request(&request, &plan, &absent).is_err());
+        }
+    }
+}
+
+#[tokio::test]
+async fn accepted_deductive_premise_requires_a_collected_satisfied_independent_criterion() {
+    for observed in [true, false] {
+        let temp = tempfile::tempdir().unwrap();
+        let runtime = runtime(Arc::new(Mock::default()), store(&temp));
+        let mut plan = plan(
+            vec![
+                acquisition(
+                    "input",
+                    method_envelope(
+                        "deductive/1",
+                        "proposition",
+                        json!({"premises":["p"],"conclusion":"p"}),
+                    ),
+                ),
+                acquisition("observed", json!(observed)),
+            ],
+            vec![],
+        );
+        let mut admission = evaluation("input", "input", json!(0));
+        admission.criterion = EvaluationCriterion::MethodInput {
+            method: "deductive/1".into(),
+        };
+        let mut empirical = evaluation("premise", "observed", json!(0));
+        empirical.criterion = EvaluationCriterion::AllTrue;
+        plan.evaluations = vec![admission, empirical];
+        let request = AcquisitionRequest {
+            evidence_id: "input".into(),
+            environment: "dev".into(),
+            tool: "support_graph".into(),
+            tool_version: "1".into(),
+            input: json!({"schema":REASONING_INPUT_SCHEMA,"case_digest":"f".repeat(64),"execution_plan_sha256":canonical_digest(&plan).unwrap(),"requirement_id":"input","output":{"step_id":"input","pointer":""},"premise_bindings":[{"premise_id":"g-observed","input_pointer":"/premises/0","requirement_id":"premise","correspondence":{"kind":"accepted_premise"}}]}),
+            context: json!({"engarg_export_digest":"f".repeat(64)}),
+        };
+        let ids = graph_request_requirements(&request, &plan).unwrap();
+        let report = runtime
+            .execute_requirements_until(
+                &plan,
+                &ids,
+                Some(NOW),
+                Instant::now() + Duration::from_secs(30),
+            )
+            .await
+            .unwrap();
+        assert_eq!(
+            project_graph_request(&request, &plan, &report).is_ok(),
+            observed
+        );
+        let mut wrong = request.clone();
+        wrong.input["premise_bindings"][0]["input_pointer"] = json!("/conclusion");
+        assert!(validate_graph_request(&wrong, &plan).is_err());
+        let mut wrong = request;
+        wrong.input["premise_bindings"][0]["requirement_id"] = json!("input");
+        assert!(validate_graph_request(&wrong, &plan).is_err());
+    }
+}
+
 #[tokio::test]
 async fn requirement_projection_executes_only_its_dependency_closure_and_keeps_full_plan_pin() {
     let temp = tempfile::tempdir().unwrap();

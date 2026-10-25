@@ -7,6 +7,13 @@ use eal_collector_contracts::{AcquisitionRequest, ObservationEnvelope};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
+mod reasoning;
+pub use reasoning::{
+    REASONING_INPUT_SCHEMA, ReasoningInputAcquisition, ReasoningPremiseBinding,
+    ReasoningPremiseCorrespondence, graph_request_requirements, project_graph_request,
+    validate_graph_request, validate_reasoning_envelope,
+};
+
 pub const SUPPORT_ACQUISITION_SCHEMA: &str = "engarg.support-acquisition/1";
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

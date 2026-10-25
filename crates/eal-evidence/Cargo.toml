@@ -9,6 +9,7 @@ repository.workspace = true
 
 [dependencies]
 eal-collector-contracts.workspace = true
+eal-core.workspace = true
 eal-mcp.workspace = true
 eal-process.workspace = true
 eal-adapters.workspace = true

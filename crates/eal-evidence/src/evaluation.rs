@@ -253,6 +253,21 @@ pub(crate) fn evaluate(
             .map(|reference| referenced(reference, steps))
             .collect::<Result<Vec<_>, _>>()?;
         let passed = match &evaluation.criterion {
+            EvaluationCriterion::MethodInput { method } => {
+                let [value] = values.as_slice() else {
+                    return Err(
+                        "method input admission requires exactly one collected input".into(),
+                    );
+                };
+                crate::projection::validate_reasoning_envelope(value, method)?;
+                result.value = Some(json!({
+                    "method": method,
+                    "input_contract_satisfied": true,
+                    "method_result_evaluated": false,
+                    "scientific_adequacy_verified": false
+                }));
+                true
+            }
             EvaluationCriterion::Judgement { criterion, scope } => {
                 let Some(scope) = scope else {
                     return Err(format!(

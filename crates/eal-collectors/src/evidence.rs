@@ -6,7 +6,7 @@ use eal_evidence::{
     EvidenceConfig,
     execution::{EvidenceExecutor, ExecutionLimits},
     plan::EvidenceExecutionPlan,
-    projection::{project_requirement, validate_support_request},
+    projection::{graph_request_requirements, project_graph_request},
     providers::EvidenceSources,
     storage::SourceStore,
 };
@@ -143,15 +143,15 @@ pub async fn support_graph(
             serde_json::from_value(value).map_err(|_| "support request fields are invalid")?;
         let plan: EvidenceExecutionPlan = read_json(&plan_path)?;
         support_deadline(deadline)?;
-        let selected = validate_support_request(&request, &plan)?;
+        let requirements = graph_request_requirements(&request, &plan)?;
         support_deadline(deadline)?;
         let config = read_json(&config_path)?;
         support_deadline(deadline)?;
         let bridge = bridge(config)?;
         support_deadline(deadline)?;
-        Ok::<_, String>((request, plan, selected.requirement_id, bridge))
+        Ok::<_, String>((request, plan, requirements, bridge))
     });
-    let (request, plan, requirement_id, bridge) =
+    let (request, plan, requirements, bridge) =
         tokio::time::timeout_at(tokio::time::Instant::from_std(deadline), prepared)
             .await
             .map_err(|_| "support preparation deadline exhausted")?
@@ -161,9 +161,9 @@ pub async fn support_graph(
         SourceStore::open_until(&flags["--store"], 4096, 16 * 1024 * 1024, deadline).await?;
     let executor = EvidenceExecutor::new(Arc::new(bridge), store, limits)?;
     let report = executor
-        .execute_requirement_until(&plan, &requirement_id, None, deadline)
+        .execute_requirements_until(&plan, &requirements, None, deadline)
         .await?;
-    project_requirement(&request, &report)
+    project_graph_request(&request, &plan, &report)
 }
 
 fn support_deadline(deadline: Instant) -> Result<(), String> {

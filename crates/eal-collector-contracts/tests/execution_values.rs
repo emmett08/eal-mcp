@@ -1,6 +1,21 @@
 //! Opaque JSON literals cross text, derived structs and tagged criterion boundaries unchanged.
 use eal_collector_contracts::{execution::*, strict_json_exact};
 use serde_json::{Value, json};
+
+#[test]
+fn method_input_admission_has_a_closed_distinct_wire_contract() {
+    let value = json!({"kind":"method_input","method":"counterfactual/1"});
+    let decoded: EvaluationCriterion = serde_json::from_value(value.clone()).unwrap();
+    assert_eq!(serde_json::to_value(decoded).unwrap(), value);
+    for invalid in [
+        json!({"kind":"method_input"}),
+        json!({"kind":"method_input","method":12}),
+        json!({"kind":"method_input","method":"counterfactual/1","supported":true}),
+    ] {
+        assert!(serde_json::from_value::<EvaluationCriterion>(invalid).is_err());
+    }
+}
+
 #[test]
 fn exact_literal_arguments_scope_and_acceptance_survive_text_and_value_decoding() {
     let literal=strict_json_exact(br#"{"$serde_json::private::Number":"literal","$serde_json::private::RawValue":"literal","n":90071992547409931234567891,"decimal":0.12345678901234567890123456789}"#,Default::default()).unwrap();

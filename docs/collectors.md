@@ -289,6 +289,71 @@ operations retain source lineage, original observation times and coverage; absen
 pointers leave evaluation pending. Graph authors must select the operation from
 the acquisition's declared `for_each`, rather than infer fan-out from JSON shape.
 
+## Collected reasoning inputs
+
+A graph evaluation may use `{"kind":"method_input","method":"inductive/1"}`
+with exactly one input reference. This admits an already collected
+`EAL/typed-input/1` envelope against the installed method's input contract,
+quantity, unit and ordered time interval. The evaluation records
+`method_result_evaluated: false` and `scientific_adequacy_verified: false`.
+Admission supplies no conclusion, no proof of sampling or experimental design,
+and no validation of prose correspondence. Missing evidence, an absent causal
+model, an unknown method or a malformed input remains pending with a diagnostic.
+
+The ordinary `support-graph` collector can return that input for an EAL typed
+claim using this acquisition request input:
+
+```json
+{
+  "schema": "engarg.reasoning-input/1",
+  "case_digest": "CASE_SHA256",
+  "execution_plan_sha256": "PLAN_SHA256",
+  "requirement_id": "sample_input",
+  "output": {"step_id": "sample_envelope", "pointer": ""},
+  "premise_bindings": [
+    {
+      "premise_id": "sample_ground",
+      "input_pointer": "/trials",
+      "requirement_id": "sample_support",
+      "correspondence": {"kind": "identity_value", "source_input_index": 0, "source_pointer": ""}
+    }
+  ]
+}
+```
+
+The two digests must be exact lower-case SHA-256 identities and match the export
+context and pinned plan. `output` must exactly match the input reference of the
+selected method-input evaluation. That evaluation must be satisfied. The
+selected source or derived value must itself be the complete typed envelope;
+the request cannot supply replacement metadata or a replacement payload.
+Projection retains the original oldest observation time, immutable source and
+observation identities, and request/context correspondence. It replays pure
+derivations and checks projected acquisition values against retained originals.
+Premise bindings execute the union of the input requirement's and each named
+premise requirement's acquisition closures under the same deadline and request
+budget. Every premise criterion must be satisfied. `identity_value` compares the
+payload's selected formal operand with the actual selected requirement input,
+using the declared input index and a relative `source_pointer`. Comparison uses
+canonical exact JSON without coercion or implicit unit conversion. A payload
+claiming 90 successes cannot use a satisfied but different 10-success measurement.
+Missing evidence, a false criterion or unequal values cannot emit a method input.
+The combined observation retains the oldest original clock and all consulted
+source and observation identities. Input admission cannot certify its own premises.
+
+For a deductive `/premises/N` operand, `{"kind":"accepted_premise"}` instead
+requires a separately collected, satisfied criterion. The mapping from that
+criterion to the declared formula remains authored. Other modes require actual
+value identity. Independent premise support and named assumptions must also be
+dependencies of the EAL argument. A pointer's presence alone establishes neither
+truth nor correspondence with prose.
+
+EAL then checks the envelope against the claim's subject, quantity, unit, scope,
+interval and formal query, runs the selected kernel, and evaluates the claim's
+result predicate. A valid input whose computed result fails that predicate is
+retained as a measured result. It does not become supported merely because input
+admission succeeded. The earlier `engarg.support-acquisition/1` request continues
+to return its requirement-evaluation wrapper unchanged.
+
 ## Discovery dependencies
 
 A dependency binding without `role` retains its original record-selection
