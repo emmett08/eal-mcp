@@ -67,6 +67,15 @@ fn request(plan: &EvidenceExecutionPlan) -> Value {
     json!({"evidence_id":"review","environment":"engarg_case","tool":"support_graph","tool_version":"1","input":{"schema":"engarg.support-acquisition/1","case_digest":"a".repeat(64),"execution_plan_sha256":canonical_digest(plan).unwrap(),"requirement_id":"review"},"context":{"engarg_export_digest":"a".repeat(64)}})
 }
 #[test]
+fn capabilities_reports_the_optional_witness_without_configuration() {
+    let output = command(&["capabilities"], None);
+    assert!(output.status.success());
+    let value: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(value["schema"], "eal.collector-capabilities/1");
+    assert_eq!(value["coverage_proofs"], json!(["identifier_audit_v1"]));
+    assert_eq!(value["qualified_population_quantity"], true);
+}
+#[test]
 fn configured_discovery_emits_one_versioned_report_and_rejects_unknown_flags() {
     let temp = Directory::new();
     let config = temp.0.join("config.json");

@@ -73,6 +73,7 @@ fn acquisition(id: &str) -> AcquisitionStep {
         availability: SourceAvailability::Configured,
         reuse: ReusePolicy::FreshOrAcquire,
         max_age_seconds: Some(300),
+        coverage_proof: None,
     }
 }
 fn evaluation(id: &str, step: &str) -> RequirementEvaluation {

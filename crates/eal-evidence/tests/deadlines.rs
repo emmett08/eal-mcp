@@ -86,6 +86,7 @@ fn acquisition(id: &str) -> AcquisitionStep {
         availability: SourceAvailability::Configured,
         reuse: ReusePolicy::FreshOrAcquire,
         max_age_seconds: None,
+        coverage_proof: None,
     }
 }
 fn plan(acquisitions: Vec<AcquisitionStep>) -> EvidenceExecutionPlan {

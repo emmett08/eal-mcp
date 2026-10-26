@@ -342,6 +342,7 @@ impl NativeSources {
                 availability: Default::default(),
                 reuse: Default::default(),
                 max_age_seconds: None,
+                coverage_proof: None,
             },
             request.arguments.clone(),
         )?;

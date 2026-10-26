@@ -603,7 +603,7 @@ impl<E: SourceExecutor + 'static> EvidenceExecutor<E> {
                 .collect();
             for id in ready {
                 let step = acquisitions.remove(&id).expect("ready acquisition");
-                let prepared = prepare_arguments(&step, &steps);
+                let prepared = prepare_arguments(&step, &steps, &observations, deadline);
                 let upstream = acquisition_lineage(&step, &steps);
                 let freshness = minimum_freshness(&id, plan);
                 let continue_after_witness = requires_continuation(&id, plan);

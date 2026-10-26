@@ -6,6 +6,7 @@ pub mod discovery;
 mod evaluation;
 pub mod execution;
 mod freshness;
+mod identifier_audit;
 mod judgement;
 mod normalization;
 mod numeric;

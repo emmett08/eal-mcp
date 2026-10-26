@@ -406,6 +406,42 @@ does not itself qualify a protocol or establish an empirical witness.
 
 ## Shared support execution deadlines
 
+### Finite identifier audit coverage
+
+`eal-collector capabilities` reports the supported optional execution-plan
+proofs without loading a provider or contacting a model. The
+`identifier_audit_v1` proof covers a finite array of string identifiers and an
+exact count and distinctness check. It does not qualify arbitrary calculators.
+
+The source descriptor must explicitly identify the population and its whole
+enumeration quantity through `population_quantity` in a qualified
+`complete_enumeration` guarantee. The guarantee also identifies a measured
+completeness pointer. The calculator descriptor must carry an operator-qualified
+`identifier_audit` mapping and bounds. Both descriptors are bound to their
+qualified contract digests. The proof names these identities and the exact source,
+argument and result pointers. It also selects the scope identity and any input
+fields that the output must echo.
+
+During execution EAL compares the selected array with the raw qualified source
+observation, checks completeness and identity, then independently recomputes the
+count and string distinctness. A mismatch leaves the requirement pending. The
+result keeps both observation identities and the oldest source time. The
+calculator's own record remains a calculation, not a source enumeration or source
+authority. The proof establishes this observed transformation within the supplied
+operator qualifications. It does not independently establish the source's
+authority or the truth of its population definition.
+
+Coverage can reach only the checked output fields through at most one direct
+named projection. Further acquisitions and transformations of that proof-bearing
+result are rejected. Generic or unqualified transforms retain their earlier
+coverage behaviour. Source records cached before qualified quantity and coverage
+metadata were retained cannot satisfy this proof and need a new observation.
+
+The proof and qualification fields are optional and omitted from older plans and
+descriptors when absent, preserving their wire representation. An older collector
+does not accept a plan containing the new proof; callers must check its capabilities
+and use a compatible pinned runtime before submitting such a plan.
+
 `eal-collector support-graph --plan plan.json --config evidence.json --store sources`
 starts a monotonic budget on entry to the support facade. The default is 300 seconds.
 `--timeout-ms` selects an integer budget from 1 to 86400000 milliseconds. Input and

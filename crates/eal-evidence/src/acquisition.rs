@@ -56,6 +56,7 @@ pub(crate) struct PreparedAcquisition {
     pub arguments: Vec<Value>,
     pub truncated: bool,
     pub witness: Option<ResolvedWitness>,
+    pub coverage_proof: Option<crate::identifier_audit::AuditInputs>,
 }
 pub(crate) struct ResolvedWitness {
     pointer: String,
@@ -64,6 +65,8 @@ pub(crate) struct ResolvedWitness {
 pub(crate) fn prepare_arguments(
     step: &AcquisitionStep,
     steps: &BTreeMap<String, StepResult>,
+    observations: &BTreeMap<String, SourceRecord>,
+    deadline: Instant,
 ) -> Result<PreparedAcquisition, String> {
     let witness = step
         .for_each
@@ -100,7 +103,17 @@ pub(crate) fn prepare_arguments(
             .ok_or("argument binding destination disappeared")? =
             evaluation::referenced(&binding.output, steps)?;
     }
+    let coverage_proof = step
+        .coverage_proof
+        .as_ref()
+        .map(|proof| {
+            crate::identifier_audit::prepare(proof, step, &arguments, steps, observations, deadline)
+        })
+        .transpose()?;
     if let Some(binding) = &step.for_each {
+        if coverage_proof.is_some() {
+            return Err("coverage proof cannot use fan-out".into());
+        }
         let selected = evaluation::referenced(&binding.output, steps)?;
         let values = selected
             .as_array()
@@ -120,12 +133,14 @@ pub(crate) fn prepare_arguments(
             arguments,
             truncated: values.len() > binding.maximum_items,
             witness,
+            coverage_proof,
         })
     } else {
         Ok(PreparedAcquisition {
             arguments: vec![arguments],
             truncated: false,
             witness,
+            coverage_proof,
         })
     }
 }
@@ -340,6 +355,15 @@ pub(crate) async fn acquire_step<E: SourceExecutor + 'static>(
                     metrics.normalised_response_bytes +=
                         serde_json::to_vec(&record.value).map_or(0, |bytes| bytes.len());
                 }
+                if let Some(proof) = &prepared.coverage_proof
+                    && let Err(message) = proof.verify(&record, step)
+                {
+                    output.status = StepStatus::Unavailable;
+                    output.value = None;
+                    output.coverage = CoverageStatus::Unspecified;
+                    output.diagnostic = Some(message);
+                    return (output, vec![record], metrics);
+                }
                 output.source_ids.push(record.source_id.clone());
                 output.observation_ids.push(record.observation_id.clone());
                 output.observed_at = match output.observed_at {
@@ -350,7 +374,9 @@ pub(crate) async fn acquire_step<E: SourceExecutor + 'static>(
                     }
                     _ => Some(record.observed_at.clone()),
                 };
-                output.coverage = combine_coverage(&output.coverage, &record.coverage);
+                if prepared.coverage_proof.is_none() {
+                    output.coverage = combine_coverage(&output.coverage, &record.coverage);
+                }
                 if let Some(error) = refresh_error {
                     output.diagnostic = Some(format!(
                         "fresh acquisition failed; retained measurement remains available subject to per-requirement age: {error}"
