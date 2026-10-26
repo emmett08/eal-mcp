@@ -37,6 +37,9 @@ pub fn main() -> ExitCode {
         println!("{}", crate::RESPONSE_SCHEMA.trim_end());
         return ExitCode::SUCCESS;
     }
+    if let Some(result) = crate::debate_session::command(&arguments) {
+        return result;
+    }
     let options = match options::parse(&arguments) {
         Ok(options) => options,
         Err(error) => return failure("UsageError", &error, 2),

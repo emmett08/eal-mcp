@@ -5,6 +5,7 @@ pub mod bus;
 pub mod cli;
 pub mod contracts;
 pub mod coordinator;
+pub mod debate_session;
 pub mod gateway;
 pub mod host;
 pub mod lab_mcp;

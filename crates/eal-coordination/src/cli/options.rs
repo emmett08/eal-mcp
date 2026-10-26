@@ -9,6 +9,8 @@ lookup --call-id ID --finding-id ID\n\
 record --call-id ID --response FILE --execution-id ID --execution-mode MODE\n\
 export --output FILE\n\
 execute --execution-mode MODE --worker-argv JSON_ARRAY [--worker-environment FILE]\n\
+debate-session --run DIRECTORY (eal.debate/1 JSON lines on stdin/stdout)\n\
+debate-status --run DIRECTORY | debate-export --run DIRECTORY [--output FILE]\n\
 eal-coordinate --response-schema";
 
 pub struct Options {

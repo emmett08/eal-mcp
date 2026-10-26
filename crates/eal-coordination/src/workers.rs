@@ -156,6 +156,9 @@ impl CommandWorker {
         }
         let lease = self.lease.hold(timeout).map_err(WorkerError::Invalid)?;
         let timeout = timeout.saturating_sub(started.elapsed());
+        if timeout.is_zero() {
+            return Err(self.empty_failure(call_id, "timeout", started));
+        }
         self.execute_with_lease(context, call_id, timeout, should_stop, &lease)
     }
     fn execute_with_lease(

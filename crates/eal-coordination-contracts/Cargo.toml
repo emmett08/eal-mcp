@@ -1,0 +1,16 @@
+[package]
+name = "eal-coordination-contracts"
+description = "Pure directed-topology and bounded-round contracts for EAL coordination"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+eal-collector-contracts.workspace = true
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = { version = "1.0.145", features = ["arbitrary_precision", "raw_value"] }
+
+[lints]
+workspace = true
