@@ -16,6 +16,7 @@ pub mod persistent_mcp;
 pub mod profiles;
 pub mod protocol;
 pub mod state;
+pub mod ticket;
 pub mod workers;
 
 pub const RESPONSE_SCHEMA: &str =

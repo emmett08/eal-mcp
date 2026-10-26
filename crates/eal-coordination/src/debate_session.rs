@@ -179,15 +179,15 @@ fn run_session<R: BufRead, W: Write>(
 ) -> Result<(), String> {
     let mut journal = journal::Journal::new(directory)?;
     if let Err(error) = execute(&mut journal, input, output) {
-        journal.failed(&error)?;
+        let diagnostic = journal.failed(&error)?;
         let _ = emit(
             &mut journal,
             output,
             &ServerMessage::Failed {
-                message: error.clone(),
+                message: diagnostic.clone(),
             },
         );
-        return Err(error);
+        return Err(diagnostic);
     }
     Ok(())
 }

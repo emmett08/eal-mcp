@@ -109,9 +109,8 @@ impl<'de> Deserialize<'de> for ClientMessage {
                 result: take(&mut fields, "result")?,
             },
             _ => {
-                return Err(serde::de::Error::unknown_variant(
-                    &kind,
-                    &["start", "results"],
+                return Err(serde::de::Error::custom(
+                    "unknown client debate message kind",
                 ));
             }
         };
@@ -135,9 +134,8 @@ impl<'de> Deserialize<'de> for ServerMessage {
                 message: take(&mut fields, "message")?,
             },
             _ => {
-                return Err(serde::de::Error::unknown_variant(
-                    &kind,
-                    &["dispatch", "completed", "failed"],
+                return Err(serde::de::Error::custom(
+                    "unknown server debate message kind",
                 ));
             }
         };
@@ -175,10 +173,8 @@ fn take<T: DeserializeOwned, E: serde::de::Error>(
 }
 
 fn finish<T, E: serde::de::Error>(fields: Map<String, Value>, message: T) -> Result<T, E> {
-    if let Some(field) = fields.keys().next() {
-        return Err(E::custom(format!(
-            "unexpected debate envelope field {field:?}"
-        )));
+    if !fields.is_empty() {
+        return Err(E::custom("unexpected debate envelope field"));
     }
     Ok(message)
 }

@@ -336,7 +336,8 @@ payload's selected formal operand with the actual selected requirement input,
 using the declared input index and a relative `source_pointer`. Comparison uses
 canonical exact JSON without coercion or implicit unit conversion. A payload
 claiming 90 successes cannot use a satisfied but different 10-success measurement.
-Missing evidence, a false criterion or unequal values cannot emit a method input.
+Missing evidence or unequal values leave projection unavailable. A collected false
+criterion produces an admission refusal rather than a formal method input.
 The combined observation retains the oldest original clock and all consulted
 source and observation identities. Input admission cannot certify its own premises.
 
@@ -346,6 +347,18 @@ criterion to the declared formula remains authored. Other modes require actual
 value identity. Independent premise support and named assumptions must also be
 dependencies of the EAL argument. A pointer's presence alone establishes neither
 truth nor correspondence with prose.
+
+When every premise has a determinate collected evaluation and at least one is
+`not_satisfied`, the collector returns an ordinary observation with schema
+`engarg.reasoning-input-denied/1`. It names the method and rejected premise,
+requirement and evaluation identities, and carries no formal payload. Projection
+rechecks each criterion against its collected inputs and retains their original
+oldest clock and immutable lineage. The generated EAL `schema ==
+"EAL/typed-input/1"` predicate evaluates to a comparable false result, so the
+assessment remains complete while the formal kernel remains `not_run`. Pending
+acquisition, missing observations, stale evidence and operand mismatches continue
+to fail projection. An admission refusal therefore preserves a measured negative
+without treating an unavailable or unverified premise as admitted.
 
 EAL then checks the envelope against the claim's subject, quantity, unit, scope,
 interval and formal query, runs the selected kernel, and evaluates the claim's

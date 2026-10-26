@@ -40,6 +40,9 @@ pub fn main() -> ExitCode {
     if let Some(result) = crate::debate_session::command(&arguments) {
         return result;
     }
+    if let Some(result) = crate::ticket::command(&arguments) {
+        return result;
+    }
     let options = match options::parse(&arguments) {
         Ok(options) => options,
         Err(error) => return failure("UsageError", &error, 2),

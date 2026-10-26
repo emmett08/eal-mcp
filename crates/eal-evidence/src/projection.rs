@@ -9,9 +9,9 @@ use serde_json::json;
 
 mod reasoning;
 pub use reasoning::{
-    REASONING_INPUT_SCHEMA, ReasoningInputAcquisition, ReasoningPremiseBinding,
-    ReasoningPremiseCorrespondence, graph_request_requirements, project_graph_request,
-    validate_graph_request, validate_reasoning_envelope,
+    REASONING_INPUT_DENIED_SCHEMA, REASONING_INPUT_SCHEMA, ReasoningInputAcquisition,
+    ReasoningPremiseBinding, ReasoningPremiseCorrespondence, graph_request_requirements,
+    project_graph_request, validate_graph_request, validate_reasoning_envelope,
 };
 
 pub const SUPPORT_ACQUISITION_SCHEMA: &str = "engarg.support-acquisition/1";

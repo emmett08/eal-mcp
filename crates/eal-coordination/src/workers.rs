@@ -12,6 +12,14 @@ use std::{
     time::{Duration, Instant},
 };
 
+mod wire;
+
+#[derive(Clone, Copy)]
+enum WireProfile {
+    Eal,
+    Exact,
+}
+
 pub type StopCheck<'a> = dyn Fn() -> Result<bool, String> + Sync + 'a;
 #[derive(Clone)]
 pub struct CommandWorkerConfig {
@@ -144,9 +152,29 @@ impl CommandWorker {
         remaining: Duration,
         should_stop: Option<&StopCheck<'_>>,
     ) -> Result<WorkerResult, WorkerError> {
+        self.execute_profile(context, call_id, remaining, should_stop, WireProfile::Eal)
+    }
+    /// Preserve opaque application JSON while retaining the same supervision and receipts.
+    pub fn execute_exact(
+        &self,
+        context: &Value,
+        call_id: &str,
+        remaining: Duration,
+        should_stop: Option<&StopCheck<'_>>,
+    ) -> Result<WorkerResult, WorkerError> {
+        self.execute_profile(context, call_id, remaining, should_stop, WireProfile::Exact)
+    }
+    fn execute_profile(
+        &self,
+        context: &Value,
+        call_id: &str,
+        remaining: Duration,
+        should_stop: Option<&StopCheck<'_>>,
+        profile: WireProfile,
+    ) -> Result<WorkerResult, WorkerError> {
         let started = Instant::now();
         let timeout = remaining.min(Duration::from_secs(self.config.timeout_seconds));
-        self.validate_call(context, call_id, timeout)?;
+        self.validate_call(context, call_id, timeout, profile)?;
         if let Some(check) = should_stop {
             match check() {
                 Ok(true) => return Err(self.empty_failure(call_id, "cancelled", started)),
@@ -159,7 +187,7 @@ impl CommandWorker {
         if timeout.is_zero() {
             return Err(self.empty_failure(call_id, "timeout", started));
         }
-        self.execute_with_lease(context, call_id, timeout, should_stop, &lease)
+        self.execute_with_lease(context, call_id, timeout, should_stop, &lease, profile)
     }
     fn execute_with_lease(
         &self,
@@ -168,10 +196,14 @@ impl CommandWorker {
         remaining: Duration,
         should_stop: Option<&StopCheck<'_>>,
         lease: &AcquisitionLease,
+        profile: WireProfile,
     ) -> Result<WorkerResult, WorkerError> {
         let timeout = remaining.min(Duration::from_secs(self.config.timeout_seconds));
-        self.validate_call(context, call_id, timeout)?;
-        let input = context_bytes(context)?;
+        self.validate_call(context, call_id, timeout, profile)?;
+        let input = match profile {
+            WireProfile::Eal => context_bytes(context)?,
+            WireProfile::Exact => wire::context(context)?,
+        };
         let started = Instant::now();
         let cancellation = CancellationToken::default();
         let done = AtomicBool::new(false);
@@ -289,7 +321,10 @@ impl CommandWorker {
         }
         let mut response = None;
         if failure.is_none() {
-            match response_object(&stdout) {
+            match match profile {
+                WireProfile::Eal => response_object(&stdout),
+                WireProfile::Exact => wire::response(&stdout),
+            } {
                 Ok(parsed) if self.config.execution_mode == "software_test" => {
                     response = Some(parsed)
                 }
@@ -344,6 +379,7 @@ impl CommandWorker {
         context: &Value,
         call_id: &str,
         remaining: Duration,
+        profile: WireProfile,
     ) -> Result<(), WorkerError> {
         if !context.is_object() {
             return Err(WorkerError::Invalid(
@@ -365,7 +401,10 @@ impl CommandWorker {
                 "remaining_seconds must be positive".into(),
             ));
         }
-        context_bytes(context)?;
+        match profile {
+            WireProfile::Eal => context_bytes(context)?,
+            WireProfile::Exact => wire::context(context)?,
+        };
         Ok(())
     }
 }

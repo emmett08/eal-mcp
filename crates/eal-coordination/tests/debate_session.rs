@@ -403,3 +403,182 @@ fn deleted_frozen_configuration_is_detected_after_admission() {
     assert!(!output.status.success());
     assert!(String::from_utf8_lossy(&output.stderr).contains("No coordination run exists"));
 }
+
+#[test]
+fn oversized_unknown_fields_leave_bounded_inspectable_failure_diagnostics() {
+    for nested in [false, true] {
+        let directory = Directory::new();
+        let mut child = process(&directory.0);
+        let mut input = child.stdin.take().unwrap();
+        let mut output = BufReader::new(child.stdout.take().unwrap());
+        let mut start = serde_json::to_value(ClientMessage::Start { spec: spec("ring") }).unwrap();
+        let target = if nested {
+            &mut start["spec"]
+        } else {
+            &mut start
+        };
+        target
+            .as_object_mut()
+            .unwrap()
+            .insert("X".repeat(17 * 1024 * 1024), json!(null));
+        let mut bytes = serde_json::to_vec(&start).unwrap();
+        bytes.push(b'\n');
+        assert!(bytes.len() < eal_coordination_contracts::MAX_FRAME_BYTES);
+        input.write_all(&bytes).unwrap();
+        input.flush().unwrap();
+        let ServerMessage::Failed { message } = receive(&mut output) else {
+            panic!("expected a failed session");
+        };
+        assert!(message.starts_with("debate_session_rejected diagnostic_sha256="));
+        assert!(message.len() < 4096);
+        assert!(!message.contains("XXXX"));
+        drop(input);
+        assert!(!child.wait().unwrap().success());
+        assert!(
+            std::fs::metadata(directory.0.join("debate.sqlite"))
+                .unwrap()
+                .len()
+                < 1024 * 1024
+        );
+        assert_eq!(inspect(&directory.0, "debate-status")["status"], "failed");
+        let export = inspect(&directory.0, "debate-export");
+        let failure = export["events"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|event| event["kind"] == "session_failed")
+            .unwrap();
+        assert_eq!(failure["data"]["code"], "debate_session_rejected");
+        assert_eq!(
+            failure["data"]["diagnostic_sha256"].as_str().unwrap().len(),
+            64
+        );
+        assert_eq!(
+            std::fs::read(directory.0.join("frame-0000-in.bin")).unwrap(),
+            bytes
+        );
+    }
+}
+
+fn complete_ring(directory: &Path) {
+    let mut child = process(directory);
+    let mut input = child.stdin.take().unwrap();
+    let mut output = BufReader::new(child.stdout.take().unwrap());
+    send(&mut input, &ClientMessage::Start { spec: spec("ring") });
+    for round in 0..2 {
+        assert_eq!(dispatch(&mut output).round, round);
+        send(
+            &mut input,
+            &ClientMessage::Results {
+                result: RoundResult {
+                    round,
+                    responses: values(round),
+                },
+            },
+        );
+    }
+    assert!(matches!(
+        receive(&mut output),
+        ServerMessage::Completed {
+            calls: 8,
+            rounds: 2
+        }
+    ));
+    drop(input);
+    assert!(child.wait().unwrap().success());
+}
+
+#[test]
+fn changed_receipt_hash_identity_or_frame_reference_is_rejected_by_inspection() {
+    let directory = Directory::new();
+    complete_ring(&directory.0);
+    let database = rusqlite::Connection::open(directory.0.join("debate.sqlite")).unwrap();
+    let original: String = database
+        .query_row(
+            "SELECT result FROM effects WHERE effect_key = 'debate:0:0'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let decoded: Value = serde_json::from_str(&original).unwrap();
+    for (field, value) in [
+        ("payload_sha256", json!("0".repeat(64))),
+        ("participant", json!(3)),
+        ("round", json!(1)),
+        (
+            "response_frame",
+            json!({"index":2,"direction":"in","path":"frame-0002-in.bin","bytes":1,"sha256":"0".repeat(64),"complete":true}),
+        ),
+    ] {
+        let mut altered = decoded.clone();
+        altered[field] = value;
+        database
+            .execute(
+                "UPDATE effects SET result = ? WHERE effect_key = 'debate:0:0'",
+                [altered.to_string()],
+            )
+            .unwrap();
+        for operation in ["debate-status", "debate-export"] {
+            let output = Command::new(binary())
+                .args([operation, "--run"])
+                .arg(&directory.0)
+                .output()
+                .unwrap();
+            assert!(!output.status.success(), "{field}: {operation}");
+            assert!(String::from_utf8_lossy(&output.stderr).contains("response receipt differs"));
+        }
+        database
+            .execute(
+                "UPDATE effects SET result = ? WHERE effect_key = 'debate:0:0'",
+                [&original],
+            )
+            .unwrap();
+        assert_eq!(
+            inspect(&directory.0, "debate-status")["status"],
+            "completed"
+        );
+    }
+}
+
+#[test]
+fn changed_reservation_and_completion_event_are_rejected_by_inspection() {
+    let directory = Directory::new();
+    complete_ring(&directory.0);
+    let database = rusqlite::Connection::open(directory.0.join("debate.sqlite")).unwrap();
+    let original: String = database
+        .query_row(
+            "SELECT payload FROM effects WHERE effect_key = 'debate:0:0'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let mut altered: Value = serde_json::from_str(&original).unwrap();
+    altered["participant"] = json!(3);
+    database
+        .execute(
+            "UPDATE effects SET payload = ? WHERE effect_key = 'debate:0:0'",
+            [altered.to_string()],
+        )
+        .unwrap();
+    let output = Command::new(binary())
+        .args(["debate-status", "--run"])
+        .arg(&directory.0)
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("reservation differs"));
+    database
+        .execute(
+            "UPDATE effects SET payload = ? WHERE effect_key = 'debate:0:0'",
+            [&original],
+        )
+        .unwrap();
+    database.execute("UPDATE events SET content = '{\"rounds\":2,\"calls\":9}' WHERE kind = 'session_completed'", []).unwrap();
+    let output = Command::new(binary())
+        .args(["debate-status", "--run"])
+        .arg(&directory.0)
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("completion event differs"));
+}

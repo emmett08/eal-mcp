@@ -1,4 +1,5 @@
 //! Immutable wire frames and durable reservations for one external-host session.
+mod inspection;
 use crate::{
     ledger::{EffectStatus, canonical_json},
     state::State,
@@ -120,9 +121,16 @@ impl Journal {
         self.state
             .event("session_completed", &json!({"rounds":rounds,"calls":calls}))
     }
-    pub fn failed(&self, message: &str) -> Result<(), String> {
-        self.state
-            .event("session_failed", &json!({"message":message}))
+    pub fn failed(&self, message: &str) -> Result<String, String> {
+        // Exact rejected input already resides in a bounded immutable frame.
+        // Diagnostics must never copy arbitrary host content into the small index.
+        let diagnostic_sha256 = digest(message.as_bytes());
+        let summary = format!("debate_session_rejected diagnostic_sha256={diagnostic_sha256}");
+        self.state.event(
+            "session_failed",
+            &json!({"code":"debate_session_rejected","diagnostic_sha256":diagnostic_sha256,"diagnostic_bytes":message.len(),"message":summary}),
+        )?;
+        Ok(summary)
     }
 }
 fn key(round: usize, participant: usize) -> String {
@@ -152,7 +160,7 @@ fn open(directory: &Path) -> Result<(PathBuf, State), String> {
     let state = State::new(database)?;
     Ok((directory, state))
 }
-fn read_frame(directory: &Path, frame: &Value) -> Result<(), String> {
+fn read_frame(directory: &Path, frame: &Value) -> Result<Vec<u8>, String> {
     let index = frame["index"]
         .as_u64()
         .filter(|index| *index < MAX_FRAMES as u64)
@@ -194,7 +202,7 @@ fn read_frame(directory: &Path, frame: &Value) -> Result<(), String> {
     if bytes.len() as u64 != size || frame["sha256"].as_str() != Some(digest(&bytes).as_str()) {
         return Err("immutable journal frame content differs".into());
     }
-    Ok(())
+    Ok(bytes)
 }
 fn snapshot(directory: &Path) -> Result<Value, String> {
     let (directory, state) = open(directory)?;
@@ -205,9 +213,6 @@ fn snapshot(directory: &Path) -> Result<Value, String> {
         .collect::<Vec<_>>();
     if frames.len() > MAX_FRAMES {
         return Err("journal contains too many frames".into());
-    }
-    for frame in &frames {
-        read_frame(&directory, &frame["data"])?;
     }
     let config = match state.config() {
         Ok(config) => Some(config),
@@ -239,6 +244,7 @@ fn snapshot(directory: &Path) -> Result<Value, String> {
         0
     };
     let effects = state.effects()?;
+    inspection::validate(&directory, config.as_ref(), &events, &effects)?;
     let committed = effects
         .iter()
         .filter(|effect| effect["status"] == "committed")
@@ -300,6 +306,93 @@ mod tests {
             .count();
         assert_eq!(successful, 1);
         assert!(Journal::new(&directory).is_err());
+        let _ = std::fs::remove_dir_all(directory);
+    }
+}
+
+#[cfg(test)]
+mod interruption_tests {
+    use super::*;
+    use eal_coordination_contracts::{
+        ClientMessage, DebateConfig, RoundResult, SCHEMA_VERSION, ServerMessage, Topology,
+    };
+
+    fn frame(journal: &mut Journal, direction: &str, message: &impl serde::Serialize) -> Value {
+        let mut bytes = serde_json::to_vec(message).unwrap();
+        bytes.push(b'\n');
+        journal.frame(direction, &bytes, true).unwrap()
+    }
+
+    #[test]
+    fn interrupted_reservation_and_commit_prefixes_remain_inspectable() {
+        let directory =
+            std::env::temp_dir().join(format!("eal-session-prefix-{}", uuid::Uuid::new_v4()));
+        let mut journal = Journal::new(&directory).unwrap();
+        let spec = SessionSpec {
+            schema_version: SCHEMA_VERSION.into(),
+            debate: DebateConfig {
+                participants: 3,
+                rounds: 1,
+                topology: Topology::Ring {},
+                adaptation: Default::default(),
+            },
+            max_payload_bytes: 1024,
+        };
+        frame(
+            &mut journal,
+            "in",
+            &ClientMessage::Start { spec: spec.clone() },
+        );
+        journal.freeze(&spec, 6).unwrap();
+        let mut session = Session::new(spec).unwrap();
+        let dispatch = session.dispatch().unwrap();
+        let outgoing = frame(
+            &mut journal,
+            "out",
+            &ServerMessage::Dispatch {
+                dispatch: dispatch.clone(),
+            },
+        );
+        let partial = Dispatch {
+            round: 0,
+            calls: vec![dispatch.calls[0].clone()],
+        };
+        journal.reserve(&partial, &outgoing).unwrap();
+        assert_eq!(status(&directory).unwrap()["uncertain_calls"], 1);
+        for call in dispatch.calls.iter().skip(1) {
+            journal
+                .reserve(
+                    &Dispatch {
+                        round: 0,
+                        calls: vec![call.clone()],
+                    },
+                    &outgoing,
+                )
+                .unwrap();
+        }
+        let responses = (0..3)
+            .map(|participant| PeerValue {
+                participant,
+                round: 0,
+                payload: json!({"answer":participant}),
+            })
+            .collect::<Vec<_>>();
+        let incoming = frame(
+            &mut journal,
+            "in",
+            &ClientMessage::Results {
+                result: RoundResult {
+                    round: 0,
+                    responses: responses.clone(),
+                },
+            },
+        );
+        let first = &responses[0];
+        journal.state.complete_effect(&key(0,0), &json!({"participant":0,"round":0,"payload_sha256":digest(&serde_json::to_vec(&first.payload).unwrap()),"response_frame":incoming}), &[]).unwrap();
+        let current = status(&directory).unwrap();
+        assert_eq!(current["status"], "awaiting_results");
+        assert_eq!(current["committed_calls"], 1);
+        assert_eq!(current["uncertain_calls"], 2);
         let _ = std::fs::remove_dir_all(directory);
     }
 }

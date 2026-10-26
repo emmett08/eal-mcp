@@ -7,6 +7,7 @@ mod frame_budget;
 mod payload;
 mod protocol;
 mod session;
+pub mod ticket;
 pub mod topology;
 
 pub use protocol::{

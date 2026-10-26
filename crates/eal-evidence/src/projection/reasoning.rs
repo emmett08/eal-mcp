@@ -14,6 +14,9 @@ use serde_json::{Value, json};
 use std::collections::BTreeSet;
 
 pub const REASONING_INPUT_SCHEMA: &str = "engarg.reasoning-input/1";
+/// A collected refusal to admit a formal input whose empirical premise failed.
+/// This observation deliberately does not satisfy EAL's typed-input predicate.
+pub const REASONING_INPUT_DENIED_SCHEMA: &str = "engarg.reasoning-input-denied/1";
 
 /// The exact declared evaluation input is the only selectable value. The value
 /// must already contain the typed envelope; request metadata never supplies it.
@@ -262,7 +265,8 @@ pub fn graph_request_requirements(
 }
 
 /// Preserve the selected collected value, original clock and immutable lineage.
-/// Pending or rejected input admission cannot produce a method observation.
+/// Pending support cannot produce a method observation. A measured false
+/// premise produces a collected admission refusal, without a formal payload.
 pub fn project_graph_request(
     request: &AcquisitionRequest,
     plan: &EvidenceExecutionPlan,
@@ -323,6 +327,7 @@ pub fn project_graph_request(
         .and_then(|details| details["observations"].as_array())
         .cloned()
         .unwrap_or_default();
+    let mut denied_premises = Vec::new();
     for binding in &selected.premise_bindings {
         let formal = value["payload"]
             .pointer(&binding.input_pointer)
@@ -338,11 +343,25 @@ pub fn project_graph_request(
             .iter()
             .find(|evaluation| evaluation.requirement_id == binding.requirement_id)
             .ok_or("reasoning premise evidence has not been acquired")?;
-        if required.status != EvaluationStatus::Satisfied {
+        if required.status == EvaluationStatus::Pending {
             return Err(format!(
-                "reasoning premise evidence {} is unresolved or not satisfied",
+                "reasoning premise evidence {} remains unresolved",
                 binding.premise_id
             ));
+        }
+        let requirement = plan
+            .evaluations
+            .iter()
+            .find(|evaluation| evaluation.requirement_id == binding.requirement_id)
+            .ok_or("reasoning premise requirement is absent")?;
+        let replayed = crate::evaluation::evaluate(
+            requirement,
+            &report.steps,
+            &report.sources,
+            &report.evaluated_at,
+        );
+        if replayed.status != required.status {
+            return Err("reasoning premise evaluation differs from its collected inputs".into());
         }
         let mut premise_request = ordinary.clone();
         premise_request.input["requirement_id"] = json!(binding.requirement_id);
@@ -353,11 +372,6 @@ pub fn project_graph_request(
                 source_input_index,
                 source_pointer,
             } => {
-                let requirement = plan
-                    .evaluations
-                    .iter()
-                    .find(|evaluation| evaluation.requirement_id == binding.requirement_id)
-                    .ok_or("reasoning premise requirement is absent")?;
                 let reference = requirement
                     .inputs
                     .get(*source_input_index)
@@ -379,6 +393,14 @@ pub fn project_graph_request(
                 // Restriction to deductive /premises/N and the independent
                 // criterion is checked before IO. Prose mapping stays authored.
             }
+        }
+        if required.status == EvaluationStatus::NotSatisfied {
+            denied_premises.push(json!({
+                "premise_id":binding.premise_id,
+                "requirement_id":binding.requirement_id,
+                "evaluation_id":required.id,
+                "status":"not_satisfied"
+            }));
         }
         if premise_envelope
             .observed_at
@@ -408,7 +430,17 @@ pub fn project_graph_request(
             }
         }
     }
-    envelope.value = value.clone();
+    let premises_satisfied = denied_premises.is_empty();
+    envelope.value = if premises_satisfied {
+        value.clone()
+    } else {
+        json!({
+            "schema":REASONING_INPUT_DENIED_SCHEMA,
+            "method":method,
+            "reason":"premise_requirement_unsatisfied",
+            "denied_premises":denied_premises
+        })
+    };
     envelope.request = Some(request.acquisition());
     if let Some(details) = envelope.details.as_mut().and_then(Value::as_object_mut) {
         details.insert("observations".into(), json!(observations));
@@ -425,6 +457,7 @@ pub fn project_graph_request(
                 "premise_truth_verified": false,
                 "prose_correspondence_verified": false,
                 "input_contract_satisfied": true,
+                "formal_premises_satisfied": premises_satisfied,
                 "method_result_evaluated": false,
                 "scientific_adequacy_verified": false
             }),
