@@ -20,6 +20,8 @@ name = "mas-protocol-codec"
 path = "src/bin/codec.rs"
 
 [dependencies]
+eal-coordination-contracts.workspace = true
+eal-collector-contracts.workspace = true
 eal-core.workspace = true
 eal-aspic.workspace = true
 eal-runtime.workspace = true

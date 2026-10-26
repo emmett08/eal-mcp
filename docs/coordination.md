@@ -265,3 +265,5 @@ do not isolate shared filesystem permissions or authenticate measurements.
 Content identities detect inconsistent retained views under that trust model;
 they do not defend against a shared writer who can alter all databases. General
 model accuracy, latency, cost and production adequacy require separate evidence.
+
+For coordinator-owned graph routing over external-host application payloads, use the separate [debate-session protocol](debate-session.md). Its frozen session and wire-frame journal preserve participant identities and round barriers while the registered assessor/reviewer workflow retains its existing finding checks.

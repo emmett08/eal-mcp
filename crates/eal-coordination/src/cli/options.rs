@@ -1,6 +1,7 @@
 use std::{collections::BTreeMap, path::PathBuf};
 
-pub const USAGE: &str = "usage: eal-coordinate COMMAND --run DIRECTORY [OPTIONS]\n\
+pub const USAGE: &str = "ticket-run --spec FILE --run DIRECTORY | ticket-status --run DIRECTORY | ticket-export --run DIRECTORY [--output FILE] | ticket-cancel --run DIRECTORY\n\
+usage: eal-coordinate COMMAND --run DIRECTORY [OPTIONS]\n\
 start (--spec FILE | --demo FILE) [--task-id ID] [--runtime DIRECTORY] [--wall-seconds INTEGER]\n\
 status | resume | cancel\n\
 reserve --role assessor|reviewer --execution-mode actual_host_agent|provider|software_test [--context-out FILE]\n\
@@ -9,6 +10,8 @@ lookup --call-id ID --finding-id ID\n\
 record --call-id ID --response FILE --execution-id ID --execution-mode MODE\n\
 export --output FILE\n\
 execute --execution-mode MODE --worker-argv JSON_ARRAY [--worker-environment FILE]\n\
+debate-session --run DIRECTORY (eal.debate/1 JSON lines on stdin/stdout)\n\
+debate-status --run DIRECTORY | debate-export --run DIRECTORY [--output FILE]\n\
 eal-coordinate --response-schema";
 
 pub struct Options {

@@ -318,3 +318,43 @@ fn prelaunch_cancellation_does_not_wait_for_an_inherited_run_lease() {
     assert_eq!(error.evidence["supervisor_pid"], Value::Null);
     assert!(started.elapsed() < Duration::from_millis(250));
 }
+
+#[test]
+fn positive_budget_expiring_during_admission_retains_a_timeout_without_launching() {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    let fixture = Workspace::new();
+    let adapter = fixture.shell("printf x >> executed; printf '{}'");
+    let checks = AtomicUsize::new(0);
+    let slow_admission = || {
+        checks.fetch_add(1, Ordering::SeqCst);
+        std::thread::sleep(Duration::from_millis(40));
+        Ok(false)
+    };
+    let error = failure(adapter.execute(
+        &json!({}),
+        "admission-timeout",
+        Duration::from_millis(10),
+        Some(&slow_admission),
+    ));
+    assert_eq!(error.reason, "timeout");
+    assert_eq!(error.execution_id, "command:admission-timeout");
+    assert!(error.raw_response.is_empty());
+    assert_eq!(error.evidence["execution_error"], "timeout");
+    assert_eq!(error.evidence["supervisor_pid"], Value::Null);
+    assert_eq!(error.evidence["returncode"], Value::Null);
+    assert_eq!(checks.load(Ordering::SeqCst), 1);
+    assert!(!fixture.work.join("executed").exists());
+
+    let invalid = adapter.execute(
+        &json!({}),
+        "invalid-zero-budget",
+        Duration::ZERO,
+        Some(&slow_admission),
+    );
+    assert!(
+        matches!(invalid, Err(WorkerError::Invalid(message)) if message == "remaining_seconds must be positive")
+    );
+    assert_eq!(checks.load(Ordering::SeqCst), 1);
+    assert!(!fixture.work.join("executed").exists());
+}

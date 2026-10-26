@@ -934,7 +934,7 @@ async fn joined_premise_acquisition_compares_actual_values_and_preserves_the_old
 }
 
 #[tokio::test]
-async fn accepted_deductive_premise_requires_a_collected_satisfied_independent_criterion() {
+async fn accepted_deductive_premise_preserves_measured_refusal_without_admitting_formal_input() {
     for observed in [true, false] {
         let temp = tempfile::tempdir().unwrap();
         let runtime = runtime(Arc::new(Mock::default()), store(&temp));
@@ -977,10 +977,71 @@ async fn accepted_deductive_premise_requires_a_collected_satisfied_independent_c
             )
             .await
             .unwrap();
+        let projected = project_graph_request(&request, &plan, &report).unwrap();
+        assert_eq!(projected.observed_at.as_deref(), Some(AT));
+        assert_eq!(projected.request, Some(request.acquisition()));
         assert_eq!(
-            project_graph_request(&request, &plan, &report).is_ok(),
+            projected.details.as_ref().unwrap()["reasoning_input"]["formal_premises_satisfied"],
             observed
         );
+        if observed {
+            assert_eq!(projected.value["schema"], "EAL/typed-input/1");
+        } else {
+            assert_eq!(projected.value["schema"], REASONING_INPUT_DENIED_SCHEMA);
+            assert!(projected.value.get("payload").is_none());
+            assert_eq!(
+                projected.value["denied_premises"][0]["premise_id"],
+                "g-observed"
+            );
+            assert_eq!(
+                projected.value["denied_premises"][0]["requirement_id"],
+                "premise"
+            );
+        }
+        let assessment = assess_projected_deductive_input(&request, &projected);
+        assert_eq!(assessment["valid"], true, "{assessment}");
+        assert_eq!(assessment["complete"], true, "{assessment}");
+        assert_eq!(
+            assessment["claims"]["current"]["status"],
+            if observed { "supported" } else { "unsupported" },
+            "{assessment}"
+        );
+        if observed {
+            assert_eq!(
+                assessment["arguments"]["checked"]["reasoning_result"]["status"], "supported",
+                "{assessment}"
+            );
+        } else {
+            assert_eq!(
+                assessment["evidence"]["formal_record"]["availability_issues"],
+                json!(["predicate_not_met"]),
+                "{assessment}"
+            );
+            assert_eq!(
+                assessment["arguments"]["checked"]["reasoning_result"]["status"], "not_run",
+                "{assessment}"
+            );
+        }
+        let mut pending = report.clone();
+        pending
+            .evaluations
+            .iter_mut()
+            .find(|evaluation| evaluation.requirement_id == "premise")
+            .unwrap()
+            .status = EvaluationStatus::Pending;
+        assert!(project_graph_request(&request, &plan, &pending).is_err());
+        let mut changed = report.clone();
+        changed
+            .evaluations
+            .iter_mut()
+            .find(|evaluation| evaluation.requirement_id == "premise")
+            .unwrap()
+            .status = if observed {
+            EvaluationStatus::NotSatisfied
+        } else {
+            EvaluationStatus::Satisfied
+        };
+        assert!(project_graph_request(&request, &plan, &changed).is_err());
         let mut wrong = request.clone();
         wrong.input["premise_bindings"][0]["input_pointer"] = json!("/conclusion");
         assert!(validate_graph_request(&wrong, &plan).is_err());
@@ -988,6 +1049,75 @@ async fn accepted_deductive_premise_requires_a_collected_satisfied_independent_c
         wrong.input["premise_bindings"][0]["requirement_id"] = json!("input");
         assert!(validate_graph_request(&wrong, &plan).is_err());
     }
+}
+
+/// Evaluate the projection through the native EAL compiler and semantics, rather
+/// than only checking the collector envelope's JSON representation.
+fn assess_projected_deductive_input(
+    request: &AcquisitionRequest,
+    envelope: &eal_collector_contracts::ObservationEnvelope,
+) -> Value {
+    use eal_core::{ExecutionLimits, canonical, composition, evaluation};
+    let source = format!(
+        r#"
+language "EAL/3"
+environment dev {{
+  require engarg_export_digest == "{}"
+}}
+tool support_graph {{
+  version "1"
+}}
+evidence formal_record {{
+  tool support_graph
+  kind logical_case
+  environment dev
+  max_age 120
+  input {}
+  require schema == "EAL/typed-input/1"
+}}
+reasoning formal {{
+  method "deductive/1"
+  rationale "The formal conclusion requires the independently acquired premise."
+  require consistent_premises == true
+}}
+claim current {{
+  statement "The selected proposition follows from admitted premises."
+  environment dev
+  proposition {{
+    subject "catalogue-fixture"
+    quantity "proposition"
+    unit "1"
+    scope "fixture-v1"
+    valid_from "2026-10-25T11:00:00Z"
+    valid_until "2026-10-25T13:00:00Z"
+    query {{"premises":["p"],"conclusion":"p"}}
+    result entailed == true
+  }}
+}}
+argument checked = [evidence formal_record] via formal => current binding formal_record
+"#,
+        "f".repeat(64),
+        serde_json::to_string(&request.input).unwrap()
+    );
+    let program = composition::compile(&source, None, "", ExecutionLimits::default()).unwrap();
+    let context = &request.context;
+    let evidence = &program.evidence["formal_record"];
+    let tool = &program.tools[&evidence.tool];
+    let acquisition = json!({"tool":tool.name,"tool_version":tool.version,"input":evidence.input,"context":context});
+    let full = json!({"evidence_id":"formal_record","environment":evidence.environment,"tool":tool.name,"tool_version":tool.version,"input":evidence.input,"context":context});
+    let digest = |value: &Value| canonical::canonical_digest(value, &program.limits).unwrap();
+    let record = json!({
+        "evidence_id":"formal_record", "source_digest":program.source_digest,
+        "tool":tool.name, "tool_version":tool.version, "tool_binding_digest":"0".repeat(64),
+        "evidence_kind":evidence.kind, "environment":evidence.environment,
+        "environment_fingerprint":evaluation::environment_fingerprint(&evidence.environment,context,&program.limits).unwrap(),
+        "input_digest":digest(&evidence.input), "input":evidence.input, "context":context,
+        "acquisition_request_digest":digest(&acquisition), "acquisition_request":acquisition,
+        "request_digest":digest(&full), "collected_at":envelope.observed_at,
+        "run_id":"native-projection-test", "status":"ok",
+        "data_digest":digest(&envelope.value), "value":envelope.value
+    });
+    evaluation::evaluate_default(&program, &json!({"formal_record":record}), NOW, context).unwrap()
 }
 
 #[tokio::test]

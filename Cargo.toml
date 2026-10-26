@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/eal-parser", "crates/eal-core", "crates/eal-aspic", "crates/eal-runtime", "crates/eal-mcp", "crates/eal-coordination", "crates/eal-cli", "tools/eal-devtools", "crates/eal-collectors", "crates/eal-collector-contracts", "crates/eal-process", "crates/eal-adapters", "crates/eal-evidence"]
+members = ["crates/eal-parser", "crates/eal-core", "crates/eal-aspic", "crates/eal-runtime", "crates/eal-mcp", "crates/eal-coordination", "crates/eal-coordination-contracts", "crates/eal-cli", "tools/eal-devtools", "crates/eal-collectors", "crates/eal-collector-contracts", "crates/eal-process", "crates/eal-adapters", "crates/eal-evidence"]
 resolver = "2"
 exclude = ["vendor/rmcp", "experiments/eal-context-001"]
 
@@ -48,6 +48,7 @@ eal-aspic = { path = "crates/eal-aspic" }
 eal-runtime = { path = "crates/eal-runtime" }
 eal-mcp = { path = "crates/eal-mcp" }
 eal-coordination = { path = "crates/eal-coordination" }
+eal-coordination-contracts = { path = "crates/eal-coordination-contracts" }
 
 eal-process = { path = "crates/eal-process" }
 eal-adapters = { path = "crates/eal-adapters" }

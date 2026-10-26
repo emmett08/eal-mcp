@@ -516,6 +516,8 @@ dependencies = [
  "axum",
  "base64",
  "eal-aspic",
+ "eal-collector-contracts",
+ "eal-coordination-contracts",
  "eal-core",
  "eal-mcp",
  "eal-runtime",
@@ -530,6 +532,15 @@ dependencies = [
  "tokio",
  "tokio-util",
  "uuid",
+]
+
+[[package]]
+name = "eal-coordination-contracts"
+version = "0.1.0"
+dependencies = [
+ "eal-collector-contracts",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
