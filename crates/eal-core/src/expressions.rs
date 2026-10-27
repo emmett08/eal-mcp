@@ -1,4 +1,5 @@
 //! Closed, pure expression interpretation with explicit unknowns and strict scalars.
+mod construction;
 mod exact;
 mod formatting;
 mod functions;

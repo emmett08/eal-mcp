@@ -1,8 +1,8 @@
 //! Typed method-input correspondence and exact-rational physical unit conversion.
 use crate::ExecutionLimits;
 use crate::expressions::{
-    evaluate_expression, expression_errors_with_limits, format_expression, predicate_paths,
-    python_repr,
+    evaluate_expression_with_limits, expression_errors_with_limits, format_expression_with_limits,
+    predicate_paths, python_repr,
 };
 use crate::methods::MethodRegistry;
 use crate::semantic::{Predicate, Proposition};
@@ -369,6 +369,25 @@ pub fn check_result(
     trace: &Value,
     registry: &MethodRegistry,
 ) -> Value {
+    check_result_with_limits(
+        proposition,
+        method,
+        details,
+        trace,
+        registry,
+        &ExecutionLimits::default(),
+    )
+}
+
+/// Check native outputs under the resource policy of their owning programme.
+pub fn check_result_with_limits(
+    proposition: &Proposition,
+    method: &str,
+    details: &Value,
+    trace: &Value,
+    registry: &MethodRegistry,
+    limits: &ExecutionLimits,
+) -> Value {
     if let Some(expression) = &proposition.result.expression {
         let mut converted = details.clone();
         let mut observations = serde_json::Map::new();
@@ -385,7 +404,8 @@ pub fn check_result(
                 },
                 expression: None,
             };
-            let checked = check_result(&scalar, method, details, trace, registry);
+            let checked =
+                check_result_with_limits(&scalar, method, details, trace, registry, limits);
             let Some(actual) = checked.get("actual") else {
                 return checked;
             };
@@ -394,7 +414,7 @@ pub fn check_result(
                 return unsupported(trace, "Bound method output is missing");
             }
         }
-        let result = evaluate_expression(expression, &converted);
+        let result = evaluate_expression_with_limits(expression, &converted, limits);
         let Some(holds) = result.value.as_ref().and_then(Value::as_bool) else {
             return unsupported(
                 trace,
@@ -410,7 +430,7 @@ pub fn check_result(
         result["holds"] = json!(holds);
         result["actual"] = Value::Object(observations);
         result["output_unit"] = json!(proposition.unit);
-        let rendered = match format_expression(expression) {
+        let rendered = match format_expression_with_limits(expression, limits) {
             Ok(rendered) => rendered,
             Err(error) => return unsupported(trace, &error),
         };

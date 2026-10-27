@@ -2,6 +2,10 @@
 use crate::ExecutionLimits;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
+use std::io::Write;
+
+mod footprint;
+pub(crate) use footprint::{JsonFootprint, canonical_json_footprint};
 
 /// Python's shortest binary64 representation, including its exponent convention.
 /// Non-finite spellings are useful in diagnostics; canonical JSON rejects them.
@@ -70,7 +74,15 @@ pub fn canonical_json_bytes(value: &Value, limits: &ExecutionLimits) -> Result<V
     limits.validate()?;
     let mut output = Vec::new();
     let mut remaining = limits.json_nodes;
-    encode(value, 0, &mut remaining, limits, &mut output)?;
+    let mut maximum_depth = 0;
+    encode(
+        value,
+        0,
+        &mut remaining,
+        &mut maximum_depth,
+        limits,
+        &mut output,
+    )?;
     Ok(output)
 }
 
@@ -92,63 +104,80 @@ pub fn same_json(left: &Value, right: &Value, limits: &ExecutionLimits) -> bool 
     }
 }
 
-fn encode(
+fn encode<W: Write>(
     value: &Value,
     depth: usize,
     remaining: &mut usize,
+    maximum_depth: &mut usize,
     limits: &ExecutionLimits,
-    output: &mut Vec<u8>,
+    output: &mut W,
 ) -> Result<(), String> {
     if depth > limits.json_depth.min(crate::json::MAX_JSON_DEPTH) || *remaining == 0 {
         return Err("JSON resource limit exceeded".into());
     }
     *remaining -= 1;
+    *maximum_depth = (*maximum_depth).max(depth);
     match value {
-        Value::Null => output.extend_from_slice(b"null"),
-        Value::Bool(value) => output.extend_from_slice(if *value { b"true" } else { b"false" }),
-        Value::String(value) => output.extend_from_slice(
-            serde_json::to_string(value)
-                .expect("Rust strings serialise as JSON")
-                .as_bytes(),
-        ),
+        Value::Null => emit(output, b"null")?,
+        Value::Bool(value) => emit(output, if *value { b"true" } else { b"false" })?,
+        Value::String(value) => {
+            serde_json::to_writer(&mut *output, value).map_err(|error| error.to_string())?;
+        }
         Value::Number(number) => {
-            let raw = number.to_string();
+            let raw = number.as_str();
             if raw.contains(['.', 'e', 'E']) {
                 let value: f64 = raw.parse().map_err(|_| "JSON numbers must be finite")?;
                 if !value.is_finite() {
                     return Err("JSON numbers must be finite".into());
                 }
-                output.extend_from_slice(python_float_repr(value).as_bytes());
+                emit(output, python_float_repr(value).as_bytes())?;
             } else if raw == "-0" {
-                output.push(b'0');
+                emit(output, b"0")?;
             } else {
-                output.extend_from_slice(raw.as_bytes());
+                emit(output, raw.as_bytes())?;
             }
         }
         Value::Array(values) => {
-            output.push(b'[');
+            if values.len() > *remaining {
+                return Err("JSON resource limit exceeded".into());
+            }
+            emit(output, b"[")?;
             for (index, item) in values.iter().enumerate() {
                 if index != 0 {
-                    output.push(b',');
+                    emit(output, b",")?;
                 }
-                encode(item, depth + 1, remaining, limits, output)?;
+                encode(item, depth + 1, remaining, maximum_depth, limits, output)?;
             }
-            output.push(b']');
+            emit(output, b"]")?;
         }
         Value::Object(values) => {
-            output.push(b'{');
+            if values.len() > *remaining {
+                return Err("JSON resource limit exceeded".into());
+            }
+            emit(output, b"{")?;
             let mut keys: Vec<_> = values.keys().collect();
             keys.sort();
             for (index, key) in keys.into_iter().enumerate() {
                 if index != 0 {
-                    output.push(b',');
+                    emit(output, b",")?;
                 }
-                output.extend_from_slice(serde_json::to_string(key).expect("JSON key").as_bytes());
-                output.push(b':');
-                encode(&values[key], depth + 1, remaining, limits, output)?;
+                serde_json::to_writer(&mut *output, key).map_err(|error| error.to_string())?;
+                emit(output, b":")?;
+                encode(
+                    &values[key],
+                    depth + 1,
+                    remaining,
+                    maximum_depth,
+                    limits,
+                    output,
+                )?;
             }
-            output.push(b'}');
+            emit(output, b"}")?;
         }
     }
     Ok(())
+}
+
+fn emit<W: Write>(output: &mut W, bytes: &[u8]) -> Result<(), String> {
+    output.write_all(bytes).map_err(|error| error.to_string())
 }

@@ -21,7 +21,6 @@ pub(super) fn call(
         "all_values" | "any_values" => values.len() == 1,
         "exact_scale" => values.len() == 5,
         "exact_compare" => values.len() == 4,
-        "object" => values.len().is_multiple_of(2),
         "min" | "max" => !values.is_empty(),
         _ => {
             return Err(format!(
@@ -36,7 +35,6 @@ pub(super) fn call(
     match name {
         "literal" => Ok(values[0].clone()),
         "quantity" => quantity(&values),
-        "object" => object(values),
         "count" => count(&values[0]),
         "at" => at(&values),
         "flatten" => flatten(&values[0], limits),
@@ -64,27 +62,6 @@ pub(super) fn call(
         "abs" => absolute(&values[0]),
         _ => unreachable!("closed function catalogue checked above"),
     }
-}
-
-/// Construct an explicit JSON object; duplicate names and physical quantities
-/// cannot be silently coerced into untyped JSON.
-fn object(values: Vec<RuntimeValue>) -> Result<RuntimeValue, String> {
-    let mut fields = serde_json::Map::new();
-    let mut values = values.into_iter();
-    while let Some(key) = values.next() {
-        let RuntimeValue::Json(Value::String(key)) = key else {
-            return Err("object keys must be strings".into());
-        };
-        let Some(RuntimeValue::Json(value)) = values.next() else {
-            return Err(
-                "object values must be JSON; quantities require explicit unit fields".into(),
-            );
-        };
-        if fields.insert(key, value).is_some() {
-            return Err("object keys must be unique".into());
-        }
-    }
-    Ok(RuntimeValue::Json(Value::Object(fields)))
 }
 
 fn quantity(values: &[RuntimeValue]) -> Result<RuntimeValue, String> {

@@ -222,7 +222,7 @@ fn compute_argument(
         let checks: Vec<_> = method
             .predicates
             .iter()
-            .map(|p| predicate(p, &outcome["details"]))
+            .map(|p| predicate(p, &outcome["details"], &program.limits))
             .collect();
         let usable = checks.iter().all(|(ok, _)| *ok);
         outcome["predicates"] = json!(
@@ -307,12 +307,13 @@ fn compute_argument(
             computation["bound_observation_digest"] = json!(digest);
         }
         if computation["status"] == "supported" {
-            *trace = propositions::check_result(
+            *trace = propositions::check_result_with_limits(
                 claim.proposition.as_ref().unwrap(),
                 &method.method,
                 &computation["details"],
                 trace,
                 registry,
+                &program.limits,
             );
         } else {
             trace["status"] = json!("unsupported");
@@ -326,7 +327,7 @@ fn compute_argument(
     let checks: Vec<_> = method
         .predicates
         .iter()
-        .map(|p| predicate(p, &computation["details"]))
+        .map(|p| predicate(p, &computation["details"], &program.limits))
         .collect();
     let usable = checks.iter().all(|(ok, _)| *ok)
         && binding

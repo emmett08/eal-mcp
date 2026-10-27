@@ -1,6 +1,6 @@
 //! Assess an acquisition closure without equating negative data with failed acquisition.
 use super::evidence::assess_resolved_evidence_record;
-use super::{AvailabilityIssue, EvidenceVerdict, assess_environment};
+use super::{AvailabilityIssue, EvidenceVerdict, assess_environment_with_limits};
 use crate::semantic::Program;
 use chrono::{DateTime, Utc};
 use serde_json::{Value, json};
@@ -66,35 +66,39 @@ fn assess_record_set(
                 .get(&binding.evidence)
                 .is_none_or(|verdict| !verdict.data_available)
         });
-        let verdict = if let Some(binding) = unavailable {
-            blocked(format!(
-                "Dependency {} is unavailable, stale or invalid",
-                binding.evidence
-            ))
-        } else {
-            match crate::acquisition::resolve_input(program, &name, records) {
-                Ok(resolved) => {
-                    let environment = program
-                        .environments
-                        .get(&evidence.environment)
-                        .ok_or("Unknown evidence environment")?;
-                    let matched = assess_environment(environment, context)?["status"] == "matched";
-                    assess_resolved_evidence_record(
-                        program,
-                        &name,
-                        records.get(&name),
-                        instant,
-                        context,
-                        matched,
-                        binding_digests.and_then(|v| v.get(&name)),
-                        binding_digests.is_some(),
-                        check_time,
-                        &resolved,
-                    )?
+        let verdict =
+            if let Some(binding) = unavailable {
+                blocked(format!(
+                    "Dependency {} is unavailable, stale or invalid",
+                    binding.evidence
+                ))
+            } else {
+                match crate::acquisition::resolve_input(program, &name, records) {
+                    Ok(resolved) => {
+                        let environment = program
+                            .environments
+                            .get(&evidence.environment)
+                            .ok_or("Unknown evidence environment")?;
+                        let matched =
+                            assess_environment_with_limits(environment, context, &program.limits)?
+                                ["status"]
+                                == "matched";
+                        assess_resolved_evidence_record(
+                            program,
+                            &name,
+                            records.get(&name),
+                            instant,
+                            context,
+                            matched,
+                            binding_digests.and_then(|v| v.get(&name)),
+                            binding_digests.is_some(),
+                            check_time,
+                            &resolved,
+                        )?
+                    }
+                    Err(reason) => blocked(reason),
                 }
-                Err(reason) => blocked(reason),
-            }
-        };
+            };
         results.insert(name, verdict);
     }
     Ok(results)
