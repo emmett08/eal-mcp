@@ -183,9 +183,11 @@ fn config(url: String) -> EvidenceConfig {
             coverage: vec![CoverageGuarantee {
                 strength: LogicalStrength::ExistentialWitness,
                 population: None,
+                population_quantity: None,
                 completeness_pointer: None,
                 sample_size_pointer: None,
             }],
+            identifier_audit: None,
             time: TimeSemantics {
                 historical_intervals: false,
                 historical_input: None,
@@ -244,6 +246,7 @@ fn graph(config: &EvidenceConfig) -> EvidenceExecutionPlan {
             availability: SourceAvailability::Configured,
             reuse: ReusePolicy::FreshOrAcquire,
             max_age_seconds: None,
+            coverage_proof: None,
         }],
         derivations: vec![],
         evaluations: [("strict", 20), ("loose", 30)]

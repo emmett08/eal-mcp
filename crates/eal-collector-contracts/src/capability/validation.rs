@@ -350,9 +350,50 @@ impl MeasurementSemantics {
                     && guarantee.sample_size_pointer.is_none())
                 || (guarantee.strength == LogicalStrength::CompleteEnumeration
                     && (guarantee.population.is_none() || guarantee.completeness_pointer.is_none()))
+                || guarantee.population_quantity.as_ref().is_some_and(|name| {
+                    guarantee.strength != LogicalStrength::CompleteEnumeration
+                        || !self
+                            .quantities
+                            .iter()
+                            .any(|quantity| quantity.name == *name)
+                })
             {
                 return Err(
                     "Complete enumeration requires an explicit population and completeness output"
+                        .into(),
+                );
+            }
+        }
+        if let Some(audit) = &self.identifier_audit {
+            let pointers = [
+                &audit.argument_items_pointer,
+                &audit.argument_complete_pointer,
+                &audit.argument_identity_pointer,
+                &audit.item_id_pointer,
+                &audit.result_count_pointer,
+                &audit.result_distinct_pointer,
+                &audit.result_complete_pointer,
+                &audit.result_identity_pointer,
+            ];
+            if !self.support_types.contains(&SupportType::Calculation)
+                || !self
+                    .coverage
+                    .iter()
+                    .any(|g| g.strength == LogicalStrength::ExactCalculation)
+                || pointers
+                    .iter()
+                    .any(|value| value.is_empty() || !pointer(value))
+                || audit.echoes.len() > 32
+                || audit
+                    .echoes
+                    .iter()
+                    .any(|(a, b)| a.is_empty() || b.is_empty() || !pointer(a) || !pointer(b))
+                || !(1..=100_000).contains(&audit.maximum_items)
+                || audit.minimum_id_chars > audit.maximum_id_chars
+                || audit.maximum_id_chars > 4096
+            {
+                return Err(
+                    "Identifier audit requires bounded qualified input and output correspondence"
                         .into(),
                 );
             }

@@ -70,9 +70,11 @@ fn capability(id: &str) -> CapabilityDescriptor {
             coverage: vec![CoverageGuarantee {
                 strength: LogicalStrength::ExistentialWitness,
                 population: None,
+                population_quantity: None,
                 completeness_pointer: None,
                 sample_size_pointer: None,
             }],
+            identifier_audit: None,
             time: TimeSemantics {
                 historical_intervals: true,
                 historical_input: None,
@@ -213,6 +215,7 @@ fn a_bounded_witness_search_cannot_supply_population_absence() {
     inventory.semantics.as_mut().unwrap().coverage = vec![CoverageGuarantee {
         strength: LogicalStrength::CompleteEnumeration,
         population: Some("all-service-instances".into()),
+        population_quantity: None,
         completeness_pointer: Some("/complete".into()),
         sample_size_pointer: None,
     }];
@@ -650,6 +653,12 @@ fn qualified_provenance_and_source_identity_share_one_pure_contract() {
     use eal_collector_contracts::execution::SourceIdentity;
     let mut descriptor = capability("provenance");
     let provenance = descriptor.qualified_provenance().unwrap();
+    assert!(provenance.get("qualified_quantities").is_none());
+    assert!(provenance.get("qualified_coverage").is_none());
+    assert!(provenance.get("qualified_identifier_audit").is_none());
+    let encoded = serde_json::to_value(descriptor.semantics.as_ref().unwrap()).unwrap();
+    assert!(encoded.get("identifier_audit").is_none());
+    assert!(encoded["coverage"][0].get("population_quantity").is_none());
     assert_eq!(
         provenance["qualified_contract_sha256"],
         descriptor.measurement_identity().unwrap()

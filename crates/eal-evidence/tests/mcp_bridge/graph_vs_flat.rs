@@ -54,6 +54,7 @@ async fn graph_vs_flat_retains_observed_request_byte_and_elapsed_measurements() 
             availability: SourceAvailability::Configured,
             reuse: ReusePolicy::FreshOrAcquire,
             max_age_seconds: None,
+            coverage_proof: None,
         }],
         derivations: vec![],
         evaluations: thresholds

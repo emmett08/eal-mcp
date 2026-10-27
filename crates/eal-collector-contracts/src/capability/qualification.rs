@@ -38,6 +38,22 @@ impl CapabilityDescriptor {
                 .collect(),
         };
         let mut value = json!({"provider":self.provider.id,"capability":self.id,"capability_version":self.version,"qualification_reference":semantics.qualification_reference,"input_schema_sha256":self.input_schema_sha256,"output_schema_sha256":self.output_schema_sha256,"qualified_contract_sha256":identity});
+        // This executor-owned metadata is retained with observations. It binds
+        // population coverage to the qualified quantity and output pointers.
+        if semantics
+            .coverage
+            .iter()
+            .any(|entry| entry.population_quantity.is_some())
+        {
+            value["qualified_quantities"] = serde_json::to_value(&semantics.quantities)
+                .map_err(|_| "cannot encode qualified quantities")?;
+            value["qualified_coverage"] = serde_json::to_value(&semantics.coverage)
+                .map_err(|_| "cannot encode qualified coverage")?;
+        }
+        if let Some(audit) = &semantics.identifier_audit {
+            value["qualified_identifier_audit"] = serde_json::to_value(audit)
+                .map_err(|_| "cannot encode qualified identifier audit")?;
+        }
         value.as_object_mut().expect("provenance object").extend(
             serde_json::to_value(claims)
                 .map_err(|_| "cannot encode qualified support claims")?

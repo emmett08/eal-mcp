@@ -12,6 +12,10 @@ pub const PLAN_SCHEMA: &str = "eal.evidence-execution-plan/1";
 mod dependency;
 pub use dependency::DependencyRole;
 
+#[path = "execution_coverage_proof.rs"]
+mod coverage_proof;
+pub use coverage_proof::CoverageProof;
+
 #[derive(Clone, Debug, Serialize, Deserialize, schemars::JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct EvidenceExecutionPlan {
@@ -84,6 +88,9 @@ pub struct AcquisitionStep {
     /// Original acquisition contract age limit; independent of source identity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub max_age_seconds: Option<u64>,
+    /// Optional independently checked, operation-specific coverage proof.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub coverage_proof: Option<CoverageProof>,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, schemars::JsonSchema)]
@@ -417,7 +424,7 @@ impl SourceIdentity {
 impl EvidenceExecutionPlan {
     // Physical collectors can expose discovery quantities through pure projections.
     // Arithmetic, joins and fan-out must never disguise record selection as metadata.
-    fn discovery_source_scope(&self, id: &str) -> Result<&Value, String> {
+    fn discovery_source(&self, id: &str) -> Result<&AcquisitionStep, String> {
         let mut current = id;
         let mut visited = BTreeSet::new();
         while visited.insert(current) && visited.len() <= 4096 {
@@ -430,7 +437,7 @@ impl EvidenceExecutionPlan {
                 {
                     return Err("discovery metadata cannot originate from a fan-out or selection-dependent source".into());
                 }
-                return Ok(&source.source.scope);
+                return Ok(source);
             }
             let derived = self
                 .derivations
@@ -453,6 +460,10 @@ impl EvidenceExecutionPlan {
             current = &derived.inputs[0].step_id;
         }
         Err("discovery dependency lineage is cyclic or exceeds its node bound".into())
+    }
+
+    fn discovery_source_scope(&self, id: &str) -> Result<&Value, String> {
+        Ok(&self.discovery_source(id)?.source.scope)
     }
 
     /// Validate graph references and finite resource limits before performing IO.
@@ -498,6 +509,9 @@ impl EvidenceExecutionPlan {
             }
             if !step.arguments.is_object() {
                 return Err("acquisition arguments require a JSON object".into());
+            }
+            if let Some(proof) = &step.coverage_proof {
+                proof.validate(step, self.discovery_source(proof.source_step_id())?)?;
             }
             let mut references: Vec<_> = step
                 .bindings
@@ -615,6 +629,11 @@ impl EvidenceExecutionPlan {
                     "execution graph references an unknown step, itself or an invalid JSON pointer"
                         .into(),
                 );
+            }
+        }
+        for step in &self.acquisitions {
+            if let Some(proof) = &step.coverage_proof {
+                proof.validate_consumers(step, self)?;
             }
         }
         let mut admitted = BTreeSet::new();

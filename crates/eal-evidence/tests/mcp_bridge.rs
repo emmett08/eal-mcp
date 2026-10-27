@@ -192,16 +192,19 @@ impl Fixture {
                     CoverageGuarantee {
                         strength: LogicalStrength::ExistentialWitness,
                         population: None,
+                        population_quantity: None,
                         completeness_pointer: None,
                         sample_size_pointer: None,
                     },
                     CoverageGuarantee {
                         strength: LogicalStrength::CompleteEnumeration,
                         population: Some("instances".into()),
+                        population_quantity: None,
                         completeness_pointer: Some("/complete".into()),
                         sample_size_pointer: None,
                     },
                 ],
+                identifier_audit: None,
                 time: TimeSemantics {
                     historical_intervals: false,
                     historical_input: None,
@@ -615,6 +618,7 @@ async fn qualified_statistical_sample_is_measured_before_shared_requirement_eval
     descriptor.semantics.as_mut().unwrap().coverage = vec![CoverageGuarantee {
         strength: LogicalStrength::StatisticalEstimate,
         population: Some("requests".into()),
+        population_quantity: None,
         completeness_pointer: None,
         sample_size_pointer: Some("/payload/sample_size".into()),
     }];
@@ -646,6 +650,7 @@ async fn qualified_statistical_sample_is_measured_before_shared_requirement_eval
             availability: SourceAvailability::Configured,
             reuse: ReusePolicy::FreshOrAcquire,
             max_age_seconds: None,
+            coverage_proof: None,
         }],
         derivations: vec![],
         evaluations: vec![RequirementEvaluation {

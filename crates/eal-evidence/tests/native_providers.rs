@@ -95,6 +95,7 @@ async fn native_coverage_preserves_enumeration_and_statistics() {
         .push(CoverageGuarantee {
             strength: LogicalStrength::StatisticalEstimate,
             population: Some("resources".into()),
+            population_quantity: None,
             completeness_pointer: None,
             sample_size_pointer: Some("/n".into()),
         });
@@ -204,9 +205,11 @@ fn configured(transport: NativeTransport) -> NativeProviderConfig {
                 coverage: vec![CoverageGuarantee {
                     strength: LogicalStrength::CompleteEnumeration,
                     population: Some("resources".into()),
+                    population_quantity: None,
                     completeness_pointer: Some("/complete".into()),
                     sample_size_pointer: None,
                 }],
+                identifier_audit: None,
                 time: TimeSemantics {
                     historical_intervals: false,
                     historical_input: None,
@@ -274,6 +277,7 @@ fn step(config: &NativeProviderConfig) -> AcquisitionStep {
         availability: Default::default(),
         reuse: Default::default(),
         max_age_seconds: None,
+        coverage_proof: None,
     }
 }
 fn deadline() -> Instant {

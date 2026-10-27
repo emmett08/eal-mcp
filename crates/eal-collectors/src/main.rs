@@ -18,6 +18,18 @@ async fn main() {
 }
 
 async fn run(arguments: Vec<String>) -> Result<(), String> {
+    if arguments.as_slice() == ["capabilities"] {
+        let bytes = serde_json::to_vec(&serde_json::json!({
+            "schema":"eal.collector-capabilities/1",
+            "coverage_proofs":["identifier_audit_v1"],
+            "qualified_population_quantity":true
+        }))
+        .map_err(|_| "cannot encode collector capabilities")?;
+        std::io::stdout()
+            .write_all(&bytes)
+            .map_err(|_| "cannot write collector capabilities")?;
+        return Ok(());
+    }
     if arguments.first().map(String::as_str) == Some("prepare-native-provider") {
         let prepared = eal_collectors::evidence::prepare_native_provider(&arguments[1..])?;
         let bytes =

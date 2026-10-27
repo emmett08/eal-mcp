@@ -135,6 +135,7 @@ fn acquisition(id: &str, value: Value) -> AcquisitionStep {
         availability: SourceAvailability::Configured,
         reuse: ReusePolicy::FreshOrAcquire,
         max_age_seconds: None,
+        coverage_proof: None,
     }
 }
 fn reference(id: &str, pointer: &str) -> OutputReference {
@@ -1208,12 +1209,14 @@ fn completeness_and_statistical_sample_are_retained_as_distinct_measured_propert
         CoverageGuarantee {
             strength: LogicalStrength::CompleteEnumeration,
             population: Some("requests".into()),
+            population_quantity: None,
             completeness_pointer: Some("/complete".into()),
             sample_size_pointer: None,
         },
         CoverageGuarantee {
             strength: LogicalStrength::StatisticalEstimate,
             population: Some("requests".into()),
+            population_quantity: None,
             completeness_pointer: None,
             sample_size_pointer: Some("/sample_size".into()),
         },
