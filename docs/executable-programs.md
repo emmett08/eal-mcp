@@ -99,6 +99,13 @@ and rendering. These are per-value allowances; evaluation can retain several
 separately admitted operands at once. Expression node and depth budgets bound the
 expression tree independently.
 
+Method source values, authored computational inputs and computed result values
+use the same per-value JSON allowances. General evidence retains arbitrary
+integers and bounded logs without a separate hidden scalar or container policy.
+The selected method's schema additionally restricts its computational payload;
+for example, finite statistical inputs still obey their declared numeric and
+sample-size bounds. Other supporting observations do not become that payload.
+
 `equal(left,right)` compares complete JSON values using the same typed identity.
 `exact_sum`, `exact_mean`, `exact_min`, `exact_max` and `exact_count` operate on an
 array of selected inputs (a sole selected array supplies its elements). They

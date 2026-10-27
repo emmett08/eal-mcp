@@ -17,8 +17,8 @@ pub fn validate_query_with_limits(
         return vec![format!("Unknown registered reasoning method {method:?}")];
     };
     let mut errors = schema_errors_with_limits(query, &contract.query_schema, "query", limits);
-    match canonical::canonical_json_bytes(query, limits) {
-        Ok(bytes) if bytes.len() > contract.max_input_bytes => {
+    match canonical::canonical_json_footprint(query, limits) {
+        Ok(footprint) if footprint.bytes > contract.max_input_bytes => {
             errors.push("Method query exceeds its input byte limit".into());
         }
         Err(error) => errors.push(error),

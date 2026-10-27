@@ -98,45 +98,6 @@ pub fn result(ok: bool, reason: &str, details: Value) -> Value {
     json!({"status":if ok{super::MethodResultStatus::Supported}else{super::MethodResultStatus::Unsupported},"reasons":[reason],"details":details})
 }
 
-pub fn check_json(value: &Value) -> Result<(), String> {
-    let mut pending = vec![(value, 0)];
-    let mut count = 0;
-    while let Some((item, depth)) = pending.pop() {
-        count += 1;
-        if count > 100_000 || depth > 64 {
-            return Err("Evidence exceeds JSON node or depth limits".into());
-        }
-        match item {
-            Value::Null | Value::Bool(_) => {}
-            Value::String(s) => {
-                if s.chars().count() > 4096 {
-                    return Err("Evidence strings are limited to 4096 characters".into());
-                }
-            }
-            Value::Number(_) => {
-                number(item, "Evidence number")?;
-            }
-            Value::Array(a) => {
-                if a.len() > 10_000 {
-                    return Err("Evidence list exceeds entry limit".into());
-                }
-                pending.extend(a.iter().map(|v| (v, depth + 1)));
-            }
-            Value::Object(o) => {
-                if o.len() > 10_000 {
-                    return Err("Evidence object exceeds member limit".into());
-                }
-                for (k, v) in o {
-                    if k.chars().count() > 4096 {
-                        return Err("Evidence object keys must be bounded strings".into());
-                    }
-                    pending.push((v, depth + 1));
-                }
-            }
-        }
-    }
-    Ok(())
-}
 pub fn numeric_compare(left: &Value, right: &Value) -> Result<Ordering, String> {
     numbers::compare(left, right).ok_or_else(|| "Incomparable numerical values".into())
 }

@@ -82,8 +82,8 @@ version = "1"
 path = "observations/report.json"
 ```
 
-Omitting `inherit_env` inherits the complete current environment; an empty list
-inherits none. The optional `env` table overlays the selected environment.
+Omitting `inherit_env`, or supplying an empty list, inherits no process
+environment variables. The optional `env` table overlays the selected environment.
 `pinned_files` accepts up to 32 distinct `{path, sha256}` entries for command
 dependencies. Relative files stay within the workspace. Absolute pinned paths
 are explicit operator grants. Regular-file checks, no-follow opens and before/
