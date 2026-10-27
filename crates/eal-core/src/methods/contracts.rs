@@ -274,6 +274,7 @@ fn source_fingerprint() -> &'static str {
             include_str!("builtin-contracts.json"),
             include_str!("../expressions/numbers.rs"),
             include_str!("../canonical.rs"),
+            include_str!("../canonical/footprint.rs"),
             include_str!("../limits.rs"),
             include_str!("optional.rs"),
             include_str!("optional/api_load.rs"),

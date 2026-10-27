@@ -1,5 +1,5 @@
 //! Select registered computational evidence and bind results to its exact payload.
-use super::validation::{check_json, result};
+use super::validation::result;
 use super::{MethodRegistry, schema_errors_with_limits};
 use crate::{ExecutionLimits, canonical};
 use serde_json::{Value, json};
@@ -107,7 +107,7 @@ fn assess(
         return Err("Premise entries must be objects".into());
     }
     for entry in evidence {
-        check_json(&entry["value"])?;
+        canonical::canonical_json_footprint(&entry["value"], limits)?;
     }
     let kinds: Vec<_> = evidence
         .iter()
@@ -180,8 +180,8 @@ fn evaluate_payload(
     support_available: bool,
     limits: &ExecutionLimits,
 ) -> Result<Value, String> {
-    let encoded = canonical::canonical_json_bytes(payload, limits)?;
-    if encoded.len() > contract.max_input_bytes {
+    let input = canonical::canonical_json_footprint(payload, limits)?;
+    if input.bytes > contract.max_input_bytes {
         return Err("Method input exceeds byte limit".into());
     }
     let errors = schema_errors_with_limits(payload, &contract.input_schema, "$", limits);
@@ -265,7 +265,7 @@ fn evaluate_payload(
                 errors.join("; ")
             ));
         }
-        if canonical::canonical_json_bytes(&output["details"], limits)?.len()
+        if canonical::canonical_json_footprint(&output["details"], limits)?.bytes
             > contract.max_output_bytes
         {
             return Err("Method output exceeds byte limit".into());

@@ -253,3 +253,139 @@ fn tiny_standard_error_survives_variance_underflow() {
     assert!(se > 0.0);
     assert!((se / 5e-201 - 1.0).abs() < 1e-14);
 }
+
+fn structured_sources(value: Value, limits: &eal_core::ExecutionLimits) -> Value {
+    eal_core::methods::assess_mode_with_limits(
+        "structured/1",
+        &[json!({"id":"measurement","kind":"observation","value":value})],
+        &[],
+        default_registry(),
+        limits,
+    )
+}
+
+#[test]
+fn structured_support_preserves_large_logs_and_arbitrary_integers() {
+    let integer: Value = serde_json::from_str(&format!("1{}", "0".repeat(400))).unwrap();
+    for value in [json!({"log":"x".repeat(5000)}), json!({"counter":integer})] {
+        let output = structured_sources(value, &eal_core::ExecutionLimits::default());
+        assert_eq!(output["status"], "supported", "{output}");
+        assert_eq!(output["details"]["mechanically_proved"], false);
+    }
+}
+
+#[test]
+fn method_support_sources_honour_raised_json_limits() {
+    let mut nested = json!(true);
+    for _ in 0..70 {
+        nested = json!([nested]);
+    }
+    let limits = eal_core::ExecutionLimits {
+        json_depth: 80,
+        json_nodes: 120_000,
+        ..Default::default()
+    };
+    for value in [
+        nested,
+        json!((0..11).map(|_| vec![true; 9999]).collect::<Vec<_>>()),
+    ] {
+        let output = structured_sources(value, &limits);
+        assert_eq!(output["status"], "supported", "{output}");
+    }
+}
+
+#[test]
+fn method_support_sources_honour_lowered_json_limits() {
+    for (value, limits) in [
+        (
+            json!(vec![true; 100]),
+            eal_core::ExecutionLimits {
+                json_nodes: 50,
+                ..Default::default()
+            },
+        ),
+        (
+            json!({"outer":{"inner":true}}),
+            eal_core::ExecutionLimits {
+                json_depth: 1,
+                ..Default::default()
+            },
+        ),
+        (
+            json!({"log":"x".repeat(600)}),
+            eal_core::ExecutionLimits {
+                record_bytes: 512,
+                ..Default::default()
+            },
+        ),
+    ] {
+        let output = structured_sources(value, &limits);
+        assert_eq!(output["status"], "unsupported", "{output}");
+    }
+}
+
+#[test]
+fn authored_method_inputs_and_native_results_respect_record_byte_budget() {
+    let schema = json!({"type":"object","properties":{"log":{"type":"string"}},"required":["log"],"additionalProperties":false});
+    let contract = MethodContract::native(
+        "example/log/1",
+        "log",
+        schema.clone(),
+        schema.clone(),
+        schema,
+        NativeMethodIdentity {
+            version: "test-log/1".into(),
+            artifact_sha256: "d".repeat(64),
+        },
+        |_, _| Ok(json!({"log":"x".repeat(600)})),
+    );
+    let registry = default_registry().with_method(contract).unwrap();
+    let limits = eal_core::ExecutionLimits {
+        record_bytes: 512,
+        ..Default::default()
+    };
+    assert!(
+        !eal_core::methods::validate_query_with_limits(
+            "example/log/1",
+            &json!({"log":"x".repeat(600)}),
+            &registry,
+            &limits,
+        )
+        .is_empty()
+    );
+    for input in [json!({"log":"x".repeat(600)}), json!({"log":""})] {
+        let output = eal_core::methods::assess_input_with_limits(
+            "example/log/1",
+            &input,
+            &registry,
+            &limits,
+        );
+        assert_eq!(output["status"], "unsupported", "{output}");
+    }
+}
+
+#[test]
+fn computational_methods_restrict_the_selected_payload_without_coercing_other_sources() {
+    let output = eal_core::methods::assess_mode_with_limits(
+        "deductive/1",
+        &[
+            json!({"id":"logic","kind":"logical_case","value":{"premises":["p"],"conclusion":"p"}}),
+            json!({"id":"log","kind":"observation","value":{"text":"x".repeat(5000)}}),
+        ],
+        &[],
+        default_registry(),
+        &Default::default(),
+    );
+    assert_eq!(output["status"], "supported", "{output}");
+    assert_eq!(output["details"]["entailed"], true);
+    assert_eq!(output["evidence_id"], "logic");
+    let invalid = assess_mode(
+        "causal/1",
+        &[
+            json!({"id":"e","kind":"experiment","value":{"assignment":"randomised","treatment":[1e101,1e101],"control":[0,0]}}),
+        ],
+        &[],
+        default_registry(),
+    );
+    assert_eq!(invalid["status"], "unsupported");
+}
