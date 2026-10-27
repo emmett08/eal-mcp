@@ -121,12 +121,7 @@ impl CoverageProof {
         ];
         if destinations.iter().collect::<BTreeSet<_>>().len() != 3
             || source_pointers.iter().collect::<BTreeSet<_>>().len() != 3
-            || step
-                .bindings
-                .iter()
-                .filter(|binding| binding.role.is_selection())
-                .count()
-                != 3
+            || step.bindings.len() != 3
             || destinations
                 .iter()
                 .zip(source_pointers)

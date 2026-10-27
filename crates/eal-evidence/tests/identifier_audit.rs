@@ -223,6 +223,31 @@ fn witness_comparison_cannot_launder_unverified_audit_output() {
     );
 }
 
+#[test]
+fn mixed_discovery_lineage_cannot_enter_the_audit_coverage_proof() {
+    let mut raw = serde_json::to_value(plan()).unwrap();
+    let source = raw["acquisitions"][0]["source"].clone();
+    raw["acquisitions"].as_array_mut().unwrap().push(json!({
+        "id":"other-source", "source":source, "arguments":{"snapshot":"demo"}
+    }));
+    raw["acquisitions"][1]["arguments"]["metadata"] = Value::Null;
+    raw["acquisitions"][1]["bindings"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!({
+            "output":{"step_id":"other-source","pointer":"/snapshot"},
+            "argument_pointer":"/metadata",
+            "role":{"kind":"discovery","scope_bindings":{"/snapshot":"/snapshot"}}
+        }));
+    let mixed: EvidenceExecutionPlan = serde_json::from_value(raw).unwrap();
+    assert!(
+        mixed
+            .validate()
+            .unwrap_err()
+            .contains("three exact selection bindings")
+    );
+}
+
 #[tokio::test]
 async fn a_forged_identifier_pointer_cannot_change_the_qualified_operation() {
     let mut plan = plan();
