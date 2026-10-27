@@ -181,6 +181,44 @@ fn store(temp: &tempfile::TempDir) -> SourceStore {
 }
 
 #[tokio::test]
+async fn failed_acquisition_diagnostic_survives_dependent_projections() {
+    let temp = tempfile::tempdir().unwrap();
+    let mock = Arc::new(Mock::default());
+    mock.fail.store(true, Ordering::SeqCst);
+    let mut plan = plan(
+        vec![acquisition("measure", json!({"value": 25}))],
+        vec![evaluation("threshold", "final-projection", json!(30))],
+    );
+    plan.derivations = vec![
+        DerivationStep {
+            id: "first-projection".into(),
+            inputs: vec![reference("measure", "")],
+            operation: DerivationOperation::Extract {
+                pointer: "/value".into(),
+            },
+        },
+        DerivationStep {
+            id: "final-projection".into(),
+            inputs: vec![reference("first-projection", "")],
+            operation: DerivationOperation::Extract { pointer: "".into() },
+        },
+    ];
+    let report = runtime(mock, store(&temp))
+        .execute(&plan, Some(NOW))
+        .await
+        .unwrap();
+    assert_eq!(report.evaluations[0].status, EvaluationStatus::Pending);
+    let diagnostic = report.evaluations[0].diagnostic.as_deref().unwrap();
+    assert!(diagnostic.contains("first-projection"), "{diagnostic}");
+    assert!(diagnostic.contains("measure"), "{diagnostic}");
+    assert!(
+        diagnostic.contains("independent source failure"),
+        "{diagnostic}"
+    );
+    assert!(report.steps["final-projection"].value.is_none());
+}
+
+#[tokio::test]
 async fn one_measurement_serves_independent_thresholds_and_later_requirement_ids() {
     let temp = tempfile::tempdir().unwrap();
     let mock = Arc::new(Mock::default());

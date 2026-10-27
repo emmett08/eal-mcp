@@ -16,10 +16,22 @@ pub(crate) fn referenced(
     let step = steps
         .get(&reference.step_id)
         .ok_or("step result is unavailable")?;
-    let value = step
-        .value
-        .as_ref()
-        .ok_or("upstream source or derivation is unavailable")?;
+    let value = step.value.as_ref().ok_or_else(|| {
+        // Retain the failing dependency instead of replacing its diagnostic at
+        // each projection. Bound repeated wrapping through a long graph.
+        let prefix = format!("upstream step '{}' is unavailable: ", reference.step_id);
+        let diagnostic = step
+            .diagnostic
+            .as_deref()
+            .unwrap_or("source or derivation did not produce a value");
+        const MAXIMUM_DIAGNOSTIC_CHARS: usize = 4096;
+        let mut chars = prefix.chars().chain(diagnostic.chars());
+        let mut bounded: String = chars.by_ref().take(MAXIMUM_DIAGNOSTIC_CHARS).collect();
+        if chars.next().is_some() {
+            bounded.push('…');
+        }
+        bounded
+    })?;
     value
         .pointer(&reference.pointer)
         .cloned()
@@ -384,4 +396,27 @@ pub(crate) fn evaluate(
         Err(diagnostic) => result.diagnostic = Some(diagnostic),
     }
     result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::execution::StepStatus;
+
+    #[test]
+    fn dependency_diagnostics_remain_bounded_for_unicode_messages() {
+        let failed = StepResult::unavailable("source", StepStatus::Failed, "故".repeat(8192));
+        let steps = BTreeMap::from([("source".into(), failed)]);
+        let diagnostic = referenced(
+            &OutputReference {
+                step_id: "source".into(),
+                pointer: "".into(),
+            },
+            &steps,
+        )
+        .unwrap_err();
+        assert!(diagnostic.starts_with("upstream step 'source' is unavailable: 故"));
+        assert_eq!(diagnostic.chars().count(), 4097);
+        assert!(diagnostic.ends_with('…'));
+    }
 }
