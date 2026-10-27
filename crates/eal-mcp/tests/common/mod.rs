@@ -19,6 +19,7 @@ pub fn assert_inventory(actual: Value, registered: bool) {
             "eal_plan",
             "eal_collect",
             "eal_collect_claim",
+            "eal_execute",
             "eal_reason",
             "eal_compile_aspic",
             "eal_explain",

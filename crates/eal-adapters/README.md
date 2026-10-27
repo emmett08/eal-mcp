@@ -6,7 +6,7 @@ The EAL language core has no dependency on this package.
 
 Command execution always uses the independent process supervisor.
 Set `EAL_COMMAND_SUPERVISOR` to an absolute companion path or install the companion beside the application or on an absolute PATH directory.
-The available companion names are `eal-process-supervisor`, the compatibility alias `eal-command-supervisor` and the packaged EngArg facade `engarg-process-supervisor`.
+The available companion names are `eal-process-supervisor` and the packaged EngArg facade `engarg-process-supervisor`.
 During `cargo test`, integration harnesses in a Cargo `deps` directory also locate the packaged companion in its parent profile directory.
 Missing or invalid companions fail explicitly.
 Cancellation drops the command ownership token and asks the sole supervisor implementation to stop and reap descendants.
@@ -29,7 +29,6 @@ Neither selector establishes provenance, response completeness, deployment curre
 
 EngArg owns its case digests, evidence-need mappings and review obligations.
 Its old known-tool and scoped commands delegate here during migration and are removed at EngArg 0.11.
-The runtime `eal-command-supervisor` executable alias is removed in EAL 0.2 after installations migrate to `eal-process-supervisor`.
 
 `profiles` owns compatibility adapter identifiers, required input names, observation predicates,
 credential forwarding names, fixed child environment, versions and execution allowances.

@@ -66,7 +66,7 @@ fn native_descriptors_bind_to_current_cli_registry_and_eal_predicates() {
             ("executable".into(), "/operator/external-cli".into()),
             (
                 "supervisor".into(),
-                "/operator/eal-command-supervisor".into(),
+                "/operator/eal-process-supervisor".into(),
             ),
         ]);
         let binding = descriptor.binding(&parameters, &selected).unwrap();
@@ -202,7 +202,7 @@ fn a_custom_laboratory_catalogue_preserves_typed_input_and_measured_negatives() 
         .unwrap()
         .parent()
         .unwrap()
-        .join("eal-command-supervisor");
+        .join("eal-process-supervisor");
     assert!(
         supervisor.is_file(),
         "Build runtime companion binaries before this test"

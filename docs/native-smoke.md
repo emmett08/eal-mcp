@@ -24,13 +24,16 @@ workspace. Reports state the original observation time and installed prefix.
 
 ## Preservation contract
 
-Application acceptance checks all ten groups across
+Application acceptance checks all eleven groups across
 CLI validation and discovery, durable collection and reuse, model-context
 projection, SDK stdio, authenticated HTTP and restricted historical packet
 retrieval. HTTP controls check missing and incorrect bearer credentials, foreign
 Origin and foreign Host. The bearer check rejects an entire credential-bearing
 semantic response and preserves clean results unchanged. Installed operation
 contract checks compare every advertised operation through text and SDK calls.
+The installed `eal-tool-run` companion must reject an incomplete invocation with
+empty stdout. This admission check requires no Docker image; isolated package
+execution has separate tool-runtime tests.
 
 Coordination acceptance executes four complete software-worker runs, two through
 the JSON mailbox and two through the native persistent MCP mailbox. It checks
@@ -53,7 +56,7 @@ cached views and explicit supervisor options.
 ## Process ownership
 
 Every selected native command receives an explicit environment with `PATH` empty.
-Command checks reuse `eal-command-supervisor`, with a 60-second monotonic deadline
+Command checks reuse `eal-process-supervisor`, with a 60-second monotonic deadline
 and a 16 MiB combined output allowance. The HTTP server guard owns its process
 group, independently drains each stream with a 4 MiB ceiling, and bounds the
 complete server lifetime to 180 seconds. Startup has a 20-second deadline. Normal

@@ -54,6 +54,7 @@ pub fn compile(
                     );
                 }
                 program.language = syntax.language.clone();
+                program.profile = syntax.profile.clone();
                 program.source_digest = digest;
                 program.authored = Some(syntax);
                 program.root_origin = origin.into();
@@ -99,6 +100,7 @@ pub fn relower(program: &s::Program) -> Result<s::Program> {
                     result.authored = Some(authored.clone());
                     result.root_origin = program.root_origin.clone();
                     result.language = program.language.clone();
+                    result.profile = authored.profile.clone();
                     result.source_digest = program.source_digest.clone();
                     Ok(result)
                 })

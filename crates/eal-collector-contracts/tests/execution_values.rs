@@ -3,17 +3,11 @@ use eal_collector_contracts::{execution::*, strict_json_exact};
 use serde_json::{Value, json};
 
 #[test]
-fn method_input_admission_has_a_closed_distinct_wire_contract() {
-    let value = json!({"kind":"method_input","method":"counterfactual/1"});
-    let decoded: EvaluationCriterion = serde_json::from_value(value.clone()).unwrap();
-    assert_eq!(serde_json::to_value(decoded).unwrap(), value);
-    for invalid in [
-        json!({"kind":"method_input"}),
-        json!({"kind":"method_input","method":12}),
-        json!({"kind":"method_input","method":"counterfactual/1","supported":true}),
-    ] {
-        assert!(serde_json::from_value::<EvaluationCriterion>(invalid).is_err());
-    }
+fn authored_method_queries_are_not_an_acquisition_criterion() {
+    let retired = json!({"kind":"method_input","method":"counterfactual/1"});
+    assert!(serde_json::from_value::<EvaluationCriterion>(retired).is_err());
+    let schema = serde_json::to_value(schemars::schema_for!(EvaluationCriterion)).unwrap();
+    assert!(!schema.to_string().contains("method_input"));
 }
 
 #[test]
@@ -45,7 +39,7 @@ fn exact_literal_arguments_scope_and_acceptance_survive_text_and_value_decoding(
 }
 
 #[test]
-fn scoped_retained_judgement_wire_preserves_exact_scope_and_legacy_missing_scope() {
+fn scoped_retained_judgement_preserves_exact_scope_and_pending_scope() {
     use eal_collector_contracts::capability::SubjectScope;
     use std::collections::BTreeMap;
     let scope = SubjectScope {

@@ -17,6 +17,7 @@ fn cases() -> Vec<(&'static str, Value)> {
             json!({"source":"source","context":{},"claim":"outcome"}),
         ),
         ("reason", json!({"source":"source","context":{}})),
+        ("execute", json!({"source":"source","context":{}})),
         (
             "compile_aspic",
             json!({"source":"source","context":{},"collection_id":"collection","goal":"outcome"}),

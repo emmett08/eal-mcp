@@ -16,12 +16,9 @@ impl Checker<'_> {
         }
         for value in p.evidence.values() {
             self.identifier(&value.kind, &value.name);
-            self.reference(
-                &value.tool,
-                p.tools.contains_key(&value.tool),
-                "tool",
-                &value.name,
-            );
+            if let Some(tool) = &value.tool {
+                self.reference(tool, p.tools.contains_key(tool), "tool", &value.name);
+            }
             self.reference(
                 &value.environment,
                 p.environments.contains_key(&value.environment),
@@ -195,6 +192,9 @@ impl Checker<'_> {
             } else {
                 None
             };
+            let authored_query = p.profile.as_deref() == Some("execution/1")
+                && proposition.is_some()
+                && value.binding.is_none();
             if relation.is_some() {
                 for message in crate::scope_transfer::transfer_errors(p, value) {
                     self.error("invalid_scope_transfer", message, Some(&value.name));
@@ -222,6 +222,17 @@ impl Checker<'_> {
                                 "Binding must select the method's computational evidence",
                                 Some(&value.name),
                             );
+                        }
+                    }
+                } else if authored_query {
+                    if let Some(contract) = contract {
+                        for message in crate::methods::schema_errors_with_limits(
+                            &proposition.query,
+                            &contract.input_schema,
+                            "query",
+                            &p.limits,
+                        ) {
+                            self.error("authored_method_input", message, Some(&value.name));
                         }
                     }
                 } else {
@@ -261,12 +272,24 @@ impl Checker<'_> {
                 .iter()
                 .filter_map(|id| p.evidence.get(id).map(|e| e.kind.clone()))
                 .collect();
-            for message in crate::methods::validate_mode_with_limits(
-                &method.method,
-                &kinds,
-                self.registry,
-                &p.limits,
-            ) {
+            let mode_errors = if authored_query {
+                if contract.is_none() {
+                    vec![format!(
+                        "Unknown registered reasoning method {:?}",
+                        method.method
+                    )]
+                } else {
+                    Vec::new()
+                }
+            } else {
+                crate::methods::validate_mode_with_limits(
+                    &method.method,
+                    &kinds,
+                    self.registry,
+                    &p.limits,
+                )
+            };
+            for message in mode_errors {
                 self.error("reasoning_evidence_contract", message, Some(&value.name));
             }
             if let Some(expected) = expected {

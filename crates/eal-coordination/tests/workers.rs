@@ -63,7 +63,7 @@ fn supervisor() -> PathBuf {
         .parent()
         .unwrap()
         .to_path_buf();
-    let path = directory.join("eal-command-supervisor");
+    let path = directory.join("eal-process-supervisor");
     assert!(
         path.is_file(),
         "Build native workspace companions before integration tests"

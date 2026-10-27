@@ -7,6 +7,7 @@ license.workspace = true
 description = "Typed EAL/3 lexical syntax and structural validation"
 
 [dependencies]
+eal-collector-contracts.workspace = true
 eal-parser.workspace = true
 serde.workspace = true
 serde_json = { version = "1.0.145", features = ["arbitrary_precision", "raw_value"] }

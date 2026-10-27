@@ -75,7 +75,7 @@ impl EvidenceBridge {
                             "Cannot configure evidence HTTP client",
                         )
                     })?;
-                eal_mcp::client::create_http_target_with_client(
+                eal_mcp_client::client::create_http_target_with_client(
                     url,
                     token_env.as_deref(),
                     &environment,

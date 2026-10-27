@@ -36,8 +36,7 @@ impl Workspace {
         std::fs::write(self.0.join(name), text).unwrap();
     }
     fn service(&self) -> ReasoningService {
-        let supervisor =
-            Supervisor::new(PathBuf::from(env!("CARGO_BIN_EXE_eal-command-supervisor")));
+        let supervisor = Supervisor::new(companion::path());
         let worker = WorkerCommand::new(
             vec![env!("CARGO_BIN_EXE_eal-method-worker").into()],
             BTreeMap::new(),
@@ -188,3 +187,6 @@ fn unselected_invalid_names_and_import_escapes_fail_before_observation_writes() 
     );
     assert!(service.reason(SOURCE, &json!([]), None, Some(NOW)).is_err());
 }
+
+#[path = "common/companion.rs"]
+mod companion;

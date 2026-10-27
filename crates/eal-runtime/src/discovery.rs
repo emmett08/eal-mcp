@@ -19,6 +19,13 @@ fn guide() -> &'static Value {
 pub fn describe_language(registry: &MethodRegistry) -> Result<Value, String> {
     let mut guide = guide().clone();
     guide["implementation_version"] = json!(env!("CARGO_PKG_VERSION"));
+    guide["execution_profiles"] = json!(["execution/1"]);
+    guide["execution_features"] = json!([
+        "evidence_bindings",
+        "pure_derivations",
+        "direct_tool_bindings",
+        "execute"
+    ]);
     guide["method_registry_fingerprint"] = json!(registry.fingerprint());
     guide["typed_bindings"] = propositions::describe_bindings(registry);
     guide["native_capabilities"] = json!({"language_reference":true,"authored_assessment":true,"registered_assessment":true,

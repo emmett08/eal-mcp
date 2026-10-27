@@ -24,14 +24,26 @@ pub struct Tool {
     pub name: String,
     pub version: String,
 }
+/// A dependency from a normalised acquired value into a later tool input.
+/// Pointers follow RFC 6901; they never address executor metadata.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InputBinding {
+    pub target: String,
+    pub evidence: String,
+    pub source: String,
+}
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Evidence {
     pub name: String,
-    pub tool: String,
+    pub tool: Option<String>,
+    #[serde(default, with = "crate::expressions::optional_serde")]
+    pub derivation: Option<Expression>,
     pub kind: String,
     pub environment: String,
     pub max_age: f64,
     pub input: Value,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub bindings: Vec<InputBinding>,
     pub predicates: Vec<Predicate>,
 }
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -163,6 +175,8 @@ pub struct Diagnostic {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Program {
     pub language: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub profile: Option<String>,
     pub source_digest: String,
     pub environments: IndexMap<String, Environment>,
     pub tools: IndexMap<String, Tool>,
@@ -195,6 +209,7 @@ impl Program {
     pub fn empty(language: String, source_digest: String, limits: ExecutionLimits) -> Self {
         Self {
             language,
+            profile: None,
             source_digest,
             limits,
             environments: IndexMap::new(),

@@ -182,10 +182,10 @@ pub fn proposition_errors_with_limits(
             ));
             return errors;
         };
-        errors.extend(crate::methods::schema_errors_with_limits(
+        errors.extend(crate::methods::validate_query_with_limits(
+            method,
             &proposition.query,
-            &contract.query_schema,
-            "query",
+            registry,
             limits,
         ));
         if let Some(expression) = &proposition.result.expression {

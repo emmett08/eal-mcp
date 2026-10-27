@@ -129,6 +129,14 @@ pub enum Field {
         property: JsonProperty,
         value: JsonValue,
     },
+    Derive {
+        expression: Expression,
+    },
+    InputBinding {
+        target: String,
+        evidence: String,
+        source: String,
+    },
     Require {
         expression: Expression,
     },
@@ -152,6 +160,8 @@ pub enum Field {
 impl Field {
     pub fn name(&self) -> &'static str {
         match self {
+            Self::InputBinding { .. } => "bind",
+            Self::Derive { .. } => "derive",
             Self::Text { property, .. } => match property {
                 TextProperty::Version => "version",
                 TextProperty::Statement => "statement",
@@ -348,5 +358,7 @@ pub struct Declaration {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Program {
     pub language: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub profile: Option<String>,
     pub declarations: Vec<Declaration>,
 }

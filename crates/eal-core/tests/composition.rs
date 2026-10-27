@@ -168,7 +168,10 @@ fn trusted_imports_keep_source_identity_and_replay_without_io() {
         ExecutionLimits::default(),
     )
     .unwrap();
-    assert_eq!(p.evidence["library.first"].tool, "library.collector");
+    assert_eq!(
+        p.evidence["library.first"].tool.as_deref(),
+        Some("library.collector")
+    );
     assert_eq!(p.source_files["library.first"], "λ.eal");
     assert_eq!(p.imports.len(), 1);
     let replay = composition::relower(&p).unwrap();
@@ -268,7 +271,10 @@ fn unused_pattern_imports_are_captured_and_checked_before_application() {
         "{:?}",
         applied.lowering_diagnostics
     );
-    assert_eq!(applied.evidence["one.lib.first"].tool, "one.lib.collector");
+    assert_eq!(
+        applied.evidence["one.lib.first"].tool.as_deref(),
+        Some("one.lib.collector")
+    );
     assert_eq!(applied.source_files["one.lib.first"], "library.eal");
 }
 

@@ -62,7 +62,7 @@ impl Drop for Workspace {
 }
 
 fn supervisor() -> Supervisor {
-    Supervisor::new(PathBuf::from(env!("CARGO_BIN_EXE_eal-command-supervisor")))
+    Supervisor::new(companion::path())
 }
 fn request(
     workspace: &Workspace,
@@ -902,3 +902,6 @@ fn collector_output_budget_and_later_assessment_record_budget_are_independent() 
     );
     assert_ne!(assessment["claims"]["ready"]["status"], "supported");
 }
+
+#[path = "common/companion.rs"]
+mod companion;

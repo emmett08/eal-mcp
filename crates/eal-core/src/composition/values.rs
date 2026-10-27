@@ -237,11 +237,37 @@ pub(super) fn entity(
             };
             Entity::Evidence(s::Evidence {
                 name: name.clone(),
-                tool: f.text("tool")?,
+                tool: if values
+                    .iter()
+                    .any(|field| matches!(field, Field::Derive { .. }))
+                {
+                    None
+                } else {
+                    f.optional("tool")
+                },
+                derivation: values.iter().find_map(|field| match field {
+                    Field::Derive { expression } => Some(expression.clone()),
+                    _ => None,
+                }),
                 kind: f.text("kind")?,
                 environment: f.text("environment")?,
                 max_age,
                 input,
+                bindings: values
+                    .iter()
+                    .filter_map(|field| match field {
+                        Field::InputBinding {
+                            target,
+                            evidence,
+                            source,
+                        } => Some(s::InputBinding {
+                            target: target.clone(),
+                            evidence: evidence.clone(),
+                            source: source.clone(),
+                        }),
+                        _ => None,
+                    })
+                    .collect(),
                 predicates: f.predicates(),
             })
         }

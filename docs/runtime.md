@@ -3,30 +3,31 @@
 `eal-runtime` supplies the native runtime beneath the production CLI,
 catalogues and transports. It keeps IO, clock lookup and process execution out
 of `eal-core` and `eal-aspic`. The shared `ReasoningService` implements validation,
-formatting, evidence planning, collection, stored-collection assessment,
+formatting, evidence planning, collection, executable-program assessment, stored-collection assessment,
 supervised ASPIC compilation, durable explanation, catalogue revision history
 and registered assessment. See [applications](applications.md) for production
 commands and MCP exposure, and [packets](packets.md) for bounded projections.
 
 ## Build and use
 
-Build the workspace so the command and its two companions are available together:
+Build the workspace so the commands and their companions are available together:
 
 ```sh
 cargo build --release --workspace --locked
 ```
 
-For the complete application installation, install all three packages into the
+For the complete application installation, install these packages into the
 same prefix:
 
 ```sh
 cargo install --path crates/eal-process --locked
 cargo install --path crates/eal-runtime --locked
+cargo install --path crates/eal-tool-runtime --locked
 cargo install --path crates/eal-cli --locked
 cargo install --path crates/eal-mcp --locked
 ```
 
-The development driver preserves the `eal-command-supervisor` installed alias until EAL 0.2 and uses `eal-process-supervisor` when that alias is absent.
+The development driver uses the canonical `eal-process-supervisor` companion from the same installation.
 It finds the supervisor and `eal-method-worker`
 beside its own executable. Operator options `--supervisor` and `--method-worker`
 can supply other executable paths, resolved before their identities are captured.

@@ -212,7 +212,9 @@ async fn stateless_http_official_client_negotiates_published_and_legacy_protocol
             .await
             .unwrap();
         assert_eq!(client.peer_info().unwrap().protocol_version, version);
-        assert_eq!(client.list_tools(None).await.unwrap().tools.len(), 11);
+        let listed = client.list_tools(None).await.unwrap();
+        assert_eq!(listed.tools.len(), 12);
+        assert!(listed.tools.iter().any(|tool| tool.name == "eal_execute"));
         let result = client
             .call_tool(call("eal_validate", &json!({"source":""})))
             .await

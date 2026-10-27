@@ -481,6 +481,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "toml",
+ "url",
 ]
 
 [[package]]
@@ -548,6 +549,7 @@ name = "eal-core"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "eal-collector-contracts",
  "eal-parser",
  "indexmap",
  "num-bigint",
@@ -587,16 +589,8 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "chrono",
- "eal-adapters",
  "eal-collector-contracts",
- "eal-core",
- "eal-mcp",
- "eal-process",
- "getrandom 0.4.3",
- "hmac",
- "num-bigint",
- "num-rational",
- "num-traits",
+ "eal-mcp-client",
  "reqwest",
  "rmcp",
  "rustix",
@@ -616,6 +610,7 @@ dependencies = [
  "eal-aspic",
  "eal-collector-contracts",
  "eal-core",
+ "eal-mcp-client",
  "eal-runtime",
  "http",
  "indexmap",
@@ -629,6 +624,20 @@ dependencies = [
  "tokio-util",
  "toml",
  "tower",
+ "url",
+]
+
+[[package]]
+name = "eal-mcp-client"
+version = "0.1.0"
+dependencies = [
+ "eal-collector-contracts",
+ "eal-core",
+ "jsonschema",
+ "reqwest",
+ "rmcp",
+ "serde_json",
+ "tokio",
  "url",
 ]
 
@@ -657,21 +666,43 @@ name = "eal-runtime"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "eal-adapters",
  "eal-aspic",
  "eal-collector-contracts",
  "eal-core",
+ "eal-mcp-client",
  "eal-process",
  "getrandom 0.4.3",
  "hmac",
  "indexmap",
+ "reqwest",
+ "rmcp",
  "rusqlite",
  "rustix",
  "serde",
  "serde_json",
  "sha2",
  "signal-hook",
+ "tokio",
  "toml",
  "uuid",
+]
+
+[[package]]
+name = "eal-tool-runtime"
+version = "0.1.0"
+dependencies = [
+ "eal-collector-contracts",
+ "eal-process",
+ "jsonschema",
+ "rustix",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tar",
+ "tempfile",
+ "tokio",
+ "toml",
 ]
 
 [[package]]

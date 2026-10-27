@@ -1,0 +1,21 @@
+[package]
+name = "eal-mcp-client"
+description = "Bounded official-SDK MCP clients without server or acquisition dependencies"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+eal-core.workspace = true
+eal-collector-contracts.workspace = true
+rmcp.workspace = true
+tokio.workspace = true
+reqwest.workspace = true
+url.workspace = true
+jsonschema.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true

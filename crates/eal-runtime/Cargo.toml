@@ -8,14 +8,15 @@ license.workspace = true
 repository.workspace = true
 
 [[bin]]
-name = "eal-command-supervisor"
-path = "src/bin/command_supervisor.rs"
-
-[[bin]]
 name = "eal-method-worker"
 path = "src/bin/method_worker.rs"
 
 [dependencies]
+eal-adapters.workspace = true
+tokio.workspace = true
+reqwest.workspace = true
+rmcp.workspace = true
+eal-mcp-client.workspace = true
 eal-process.workspace = true
 eal-core.workspace = true
 eal-collector-contracts.workspace = true

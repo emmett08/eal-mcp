@@ -1,5 +1,5 @@
 #!/bin/sh
-# Regenerate the checked-in recognisers from the unchanged EAL/3 grammar.
+# Regenerate the checked-in recognisers from the authoritative EAL/3 grammar.
 set -eu
 
 project_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)

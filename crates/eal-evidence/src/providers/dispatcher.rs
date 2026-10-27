@@ -1,13 +1,10 @@
-//! Native and MCP providers share one source identity and execution pipeline.
+//! Combine optional native and MCP discovery without acquiring observations.
 use super::NativeSources;
 use crate::{
     BridgeError, BridgeErrorKind, EvidenceBridge, EvidenceConfig,
     discovery::{self, DiscoveryGap, DiscoveryReport},
-    execution::{ResolvedAcquisition, SourceExecutor, SourceFuture, SourceObservation},
-    plan::AcquisitionStep,
 };
 use eal_collector_contracts::capability::{CAPABILITY_CATALOGUE_SCHEMA, CapabilityCatalogue};
-use serde_json::Value;
 use std::{collections::BTreeMap, time::Instant};
 
 #[derive(Clone)]
@@ -83,41 +80,5 @@ impl EvidenceSources {
         report.metrics.elapsed_ms =
             u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
         Ok(report)
-    }
-}
-impl SourceExecutor for EvidenceSources {
-    fn bind<'a>(
-        &'a self,
-        step: &'a AcquisitionStep,
-        arguments: Value,
-    ) -> SourceFuture<'a, ResolvedAcquisition> {
-        if self.native.contains(&step.source.capability_id) {
-            self.native.bind(step, arguments)
-        } else {
-            self.bridge.bind(step, arguments)
-        }
-    }
-    fn bind_until<'a>(
-        &'a self,
-        step: &'a AcquisitionStep,
-        arguments: Value,
-        deadline: Instant,
-    ) -> SourceFuture<'a, ResolvedAcquisition> {
-        if self.native.contains(&step.source.capability_id) {
-            self.native.bind_until(step, arguments, deadline)
-        } else {
-            self.bridge.bind_until(step, arguments, deadline)
-        }
-    }
-    fn execute<'a>(
-        &'a self,
-        request: &'a ResolvedAcquisition,
-        deadline: Instant,
-    ) -> SourceFuture<'a, SourceObservation> {
-        if self.native.contains(&request.source.capability_id) {
-            self.native.execute(request, deadline)
-        } else {
-            self.bridge.execute(request, deadline)
-        }
     }
 }

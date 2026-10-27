@@ -10,12 +10,18 @@ pub const OPERATOR_ENVIRONMENT_POLICY: &str = "eal.operator-environment/1";
 pub enum ToolKind {
     Command,
     JsonFile,
+    McpStdio,
+    McpHttp,
+    HttpGet,
 }
 impl ToolKind {
     pub fn as_str(self) -> &'static str {
         match self {
             Self::Command => "command",
             Self::JsonFile => "json_file",
+            Self::McpStdio => "mcp_stdio",
+            Self::McpHttp => "mcp_http",
+            Self::HttpGet => "http_get",
         }
     }
 }
@@ -52,6 +58,7 @@ pub struct BindingSpec {
     pub pinned_files: Vec<PinnedFile>,
     pub parallel_safe: bool,
     pub inherit_env: Option<Vec<String>>,
+    pub direct: Option<crate::DirectBinding>,
 }
 impl BindingSpec {
     pub fn validate(&self) -> Result<(), String> {
@@ -76,7 +83,7 @@ impl BindingSpec {
             );
         }
         match self.kind {
-            ToolKind::Command => {
+            ToolKind::Command | ToolKind::McpStdio => {
                 if self.path.is_some()
                     || self.argv.is_empty()
                     || self.argv.len() > 256
@@ -85,6 +92,19 @@ impl BindingSpec {
                     })
                 {
                     return Err("EAL_BINDING_COMMAND: command requires resolved bounded argv and does not use path".into());
+                }
+            }
+            ToolKind::McpHttp | ToolKind::HttpGet => {
+                if self.path.is_some()
+                    || !self.argv.is_empty()
+                    || !self.env.is_empty()
+                    || self.inherit_env.is_some()
+                    || !self.pinned_files.is_empty()
+                {
+                    return Err(
+                        "EAL_BINDING_HTTP: network bindings have no command or file settings"
+                            .into(),
+                    );
                 }
             }
             ToolKind::JsonFile => {
@@ -99,6 +119,18 @@ impl BindingSpec {
                     return Err("EAL_BINDING_FILE: json_file requires a resolved path and has no command settings".into());
                 }
             }
+        }
+        let direct = matches!(
+            self.kind,
+            ToolKind::McpStdio | ToolKind::McpHttp | ToolKind::HttpGet
+        );
+        if direct != self.direct.is_some() {
+            return Err(
+                "EAL_DIRECT_BINDING: transport settings required only for direct operations".into(),
+            );
+        }
+        if let Some(settings) = &self.direct {
+            settings.validate(self.kind)?;
         }
         if self.env.keys().any(|name| !crate::environment_name(name))
             || self.env.values().any(|value| value.contains('\0'))
@@ -227,6 +259,8 @@ pub struct RegistryBinding {
     pub parallel_safe: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub inherit_env: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub direct: Option<crate::DirectBinding>,
 }
 fn default_timeout() -> f64 {
     30.0
@@ -248,6 +282,7 @@ impl RegistryBinding {
             pinned_files: self.pinned_files.clone(),
             parallel_safe: self.parallel_safe,
             inherit_env: self.inherit_env.clone(),
+            direct: self.direct.clone(),
         }
     }
     pub fn validate(&self, name: &str) -> Result<(), String> {
@@ -258,6 +293,8 @@ impl RegistryBinding {
 #[derive(Clone, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct RegistryDocument {
+    #[serde(default)]
+    pub context: BTreeMap<String, serde_json::Value>,
     #[serde(default)]
     pub tools: BTreeMap<String, RegistryBinding>,
 }

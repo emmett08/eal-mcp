@@ -1,4 +1,5 @@
 //! Strict one-request text adapter to the official MCP client.
+mod package;
 use crate::{
     client::{self, ClientTarget, StdioTarget},
     settings::{ServerSettings, parse_server_settings},
@@ -108,6 +109,7 @@ async fn run(
     environ: BTreeMap<String, String>,
     token: &mut Option<String>,
 ) -> Result<Value, String> {
+    let (argv, package_request) = package::prepare(argv)?;
     let mut service_args = vec![];
     let mut url = None;
     let mut timeout = 120.0;
@@ -140,15 +142,20 @@ async fn run(
     }
     let cwd = std::env::current_dir().map_err(|e| e.to_string())?;
     let settings = parse_server_settings(&service_args, &environ, &cwd)?;
-    let mut raw = Vec::new();
-    std::io::stdin()
-        .take((MAX_REQUEST_BYTES + 1) as u64)
-        .read_to_end(&mut raw)
-        .map_err(|e| e.to_string())?;
-    if raw.len() > MAX_REQUEST_BYTES {
-        return Err("Host input exceeds its configured byte limit".into());
-    }
-    let text = String::from_utf8(raw).map_err(|_| "Host input must be strict UTF-8")?;
+    let text = match package_request {
+        Some(request) => request,
+        None => {
+            let mut raw = Vec::new();
+            std::io::stdin()
+                .take((MAX_REQUEST_BYTES + 1) as u64)
+                .read_to_end(&mut raw)
+                .map_err(|e| e.to_string())?;
+            if raw.len() > MAX_REQUEST_BYTES {
+                return Err("Host input exceeds its configured byte limit".into());
+            }
+            String::from_utf8(raw).map_err(|_| "Host input must be strict UTF-8")?
+        }
+    };
     let target = if url.is_some() || settings.transport == "http" {
         *token = crate::auth::read_bearer_token(settings.token_env.as_deref(), &environ)?;
         client::create_http_target(
@@ -184,7 +191,7 @@ pub async fn main() -> ExitCode {
     };
     if argv.iter().any(|s| s == "--help" || s == "-h") {
         println!(
-            "Send one JSON request through MCP.\nUsage: eal-host [--url HTTP_URL] [--timeout SECONDS] [eal-mcp settings]\nSettings: --config --workspace --registry --database --methods --limits --known-entry --token-env"
+            "Execute EAL through MCP.\nUsage: eal-host run CASE.eal --tools tools.toml --workspace RUN [--context JSON_FILE] [--claim CLAIM] [--now UTC]\nOr send one JSON request on stdin: eal-host [--url HTTP_URL] [--timeout SECONDS] [eal-mcp settings]\nSettings: --config --workspace --registry --database --methods --limits --known-entry --token-env"
         );
         return ExitCode::SUCCESS;
     }

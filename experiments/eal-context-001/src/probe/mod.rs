@@ -85,7 +85,7 @@ pub fn run(args: &[String]) -> Result<Value, String> {
             "eal",
             "eal-host",
             "eal-mcp",
-            "eal-command-supervisor",
+            "eal-process-supervisor",
             "eal-method-worker",
         ] {
             binaries.insert(

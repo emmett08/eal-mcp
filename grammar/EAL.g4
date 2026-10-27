@@ -1,7 +1,7 @@
 grammar EAL;
 
 // EAL/3. Recognition is independent of binding, lowering and evaluation.
-program : NL* 'language' STRING lineEnd (declaration NL*)* EOF ;
+program : NL* 'language' STRING ('profile' STRING)? lineEnd (declaration NL*)* EOF ;
 declaration
     : contextDecl | moduleDecl | importDecl | environmentDecl | toolDecl
     | evidenceDecl | assumptionDecl | reasoningDecl | claimDecl | argumentDecl
@@ -26,13 +26,15 @@ toolDecl : 'tool' qualifiedName '{' NL* versionField* '}' ;
 versionField : 'version' STRING lineEnd ;
 evidenceDecl : 'evidence' qualifiedName '{' NL* evidenceField* '}' ;
 evidenceField
-    : toolField | kindField | environmentField | maxAgeField | inputField | predicate
+    : toolField | deriveField | kindField | environmentField | maxAgeField | inputField | inputBindingField | predicate
     ;
 toolField : 'tool' qualifiedName lineEnd ;
 kindField : 'kind' identifier lineEnd ;
 environmentField : 'environment' qualifiedName lineEnd ;
 maxAgeField : 'max_age' signedNumber lineEnd ;
 inputField : 'input' jsonValue lineEnd ;
+inputBindingField : 'bind' STRING 'from' qualifiedName STRING lineEnd ;
+deriveField : 'derive' expression lineEnd ;
 assumptionDecl : 'assumption' qualifiedName '{' NL* assumptionField* '}' ;
 assumptionField
     : statementField | environmentField | validateField | validFromField | validUntilField
@@ -137,7 +139,7 @@ identifier
     | 'result' | 'binding' | 'query' | 'method' | 'pattern' | 'apply'
     | 'strict' | 'rank' | 'contrary' | 'reviewed' | 'to' | 'context' | 'via'
     | 'module' | 'import' | 'as' | 'transfer' | 'from' | 'assuming'
-    | 'decreases' | 'when' | 'else' | 'head' | 'tail' | 'prefer' | 'over'
+    | 'derive' | 'bind' | 'profile' | 'decreases' | 'when' | 'else' | 'head' | 'tail' | 'prefer' | 'over'
     ;
 lineEnd : NL+ | EOF ;
 ID : [a-zA-Z_] [a-zA-Z_0-9]* ;

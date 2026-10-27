@@ -8,7 +8,7 @@ process.
 
 ## Installation
 
-Build all binaries for development, or install all four packages into the same
+Build all binaries for development, or install the application packages into the same
 prefix:
 
 ```sh
@@ -16,13 +16,15 @@ cargo build --release --workspace --locked
 
 cargo install --path crates/eal-process --locked
 cargo install --path crates/eal-runtime --locked
+cargo install --path crates/eal-tool-runtime --locked
 cargo install --path crates/eal-cli --locked
 cargo install --path crates/eal-mcp --locked
 cargo install --path crates/eal-coordination --locked
 ```
 
 The process package installs `eal-process-supervisor`.
-The runtime package installs its `eal-command-supervisor` compatibility alias and `eal-method-worker`;
+The tool runtime package installs `eal-tool-run` for portable verified implementations.
+The runtime package installs `eal-method-worker`;
 the CLI package installs `eal`, `eal-aspic-solve` and the development drivers.
 The MCP package installs `eal-mcp` and `eal-host`; coordination installs
 `eal-coordinate`, `eal-mas-server` and `mas-protocol-codec`. Runtime commands resolve their companion

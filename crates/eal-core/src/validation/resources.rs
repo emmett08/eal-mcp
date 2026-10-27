@@ -29,6 +29,11 @@ pub fn structural_value_count(program: &Program, limit: usize) -> Result<usize, 
             expression_bound(expression, program, limit)?;
         }
     }
+    for evidence in program.evidence.values() {
+        if let Some(expression) = &evidence.derivation {
+            expression_bound(expression, program, limit)?;
+        }
+    }
     std::thread::scope(|scope| {
         let worker = std::thread::Builder::new()
             .name("eal-ir-bound".into())

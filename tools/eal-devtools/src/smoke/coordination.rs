@@ -397,7 +397,6 @@ pub fn run(options: &Options) -> Result<Value> {
             "eal-mas-server",
             "mas-protocol-codec",
             "eal-process-supervisor",
-            "eal-command-supervisor",
             "eal-method-worker",
         ],
     )?;

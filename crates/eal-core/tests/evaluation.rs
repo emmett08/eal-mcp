@@ -8,7 +8,7 @@ const NOW: &str = "2026-09-23T12:00:00Z";
 
 fn observation(program: &Program, context: &Value) -> Value {
     let evidence = &program.evidence["observed"];
-    let tool = &program.tools[&evidence.tool];
+    let tool = &program.tools[evidence.tool.as_ref().unwrap()];
     let acquisition = json!({"tool":tool.name,"tool_version":tool.version,"input":evidence.input,"context":context});
     let request = json!({"evidence_id":"observed","environment":evidence.environment,"tool":tool.name,"tool_version":tool.version,"input":evidence.input,"context":context});
     let digest = |value: &Value| canonical::canonical_digest(value, &program.limits).unwrap();
@@ -37,8 +37,8 @@ fn complete_negative_predicate_differs_from_missing_or_malformed_observation() {
     for (value, complete, issues) in [
         (json!({"passed":true}), true, json!([])),
         (json!({"passed":false}), true, json!(["predicate_not_met"])),
-        (json!({}), false, json!(["invalid_observation"])),
-        (json!({"passed":1}), false, json!(["invalid_observation"])),
+        (json!({}), false, json!(["predicate_unresolved"])),
+        (json!({"passed":1}), false, json!(["predicate_unresolved"])),
     ] {
         let mut record = records["observed"].clone();
         record["data_digest"] =
@@ -56,6 +56,7 @@ fn complete_negative_predicate_differs_from_missing_or_malformed_observation() {
         )
         .unwrap();
         assert_eq!(verdict.complete, complete);
+        assert!(verdict.data_available);
         assert_eq!(verdict.entry["availability_issues"], issues);
     }
     let verdict = evaluation::assess_evidence_record(
@@ -63,6 +64,7 @@ fn complete_negative_predicate_differs_from_missing_or_malformed_observation() {
     )
     .unwrap();
     assert!(!verdict.complete);
+    assert!(!verdict.data_available);
     assert_eq!(
         verdict.entry["availability_issues"],
         json!(["missing_observation", "out_of_scope"])
@@ -86,6 +88,7 @@ fn current_binding_is_checked_separately_from_record_self_consistency() {
     )
     .unwrap();
     assert!(!verdict.complete);
+    assert!(!verdict.data_available);
     assert_eq!(
         verdict.entry["availability_issues"],
         json!(["invalid_observation"])

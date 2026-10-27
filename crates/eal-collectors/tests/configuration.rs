@@ -251,3 +251,29 @@ fn non_utf8_operator_paths_are_rejected_without_replacement() {
     let admitted = admit(ProviderConfig::Github(selected)).unwrap();
     assert_eq!(admitted.selected().command().unwrap().executable, path);
 }
+
+#[test]
+fn tempo_rejects_command_environment_flags_and_keeps_named_http_credentials() {
+    let options = [
+        "tempo",
+        "--inventory",
+        "/operator/inventory.json",
+        "--url",
+        "https://tempo.example/api/search",
+        "--kind",
+        "Application",
+        "--name",
+        "service",
+        "--token-env",
+        "TEMPO_TOKEN",
+        "--tenant-env",
+        "TEMPO_TENANT",
+    ]
+    .map(str::to_owned)
+    .to_vec();
+    assert!(Config::parse(options.clone()).is_ok());
+    let mut irrelevant = options;
+    irrelevant.extend(["--inherit-env".into(), "PATH".into()]);
+    let error = Config::parse(irrelevant).unwrap_err();
+    assert!(error.contains("not a Tempo option"), "{error}");
+}

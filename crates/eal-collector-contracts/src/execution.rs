@@ -219,6 +219,10 @@ pub struct RequirementEvaluation {
     pub required_coverage: RequiredCoverage,
     #[serde(default)]
     pub applicability: Vec<OutputReference>,
+    /// Explicit observations or independently derived predicates that establish
+    /// the declared coverage. Names and provider assertions imply no coverage.
+    #[serde(default)]
+    pub coverage: Vec<OutputReference>,
     #[serde(default)]
     pub challenges: Vec<OutputReference>,
 }
@@ -238,11 +242,6 @@ pub enum RequiredCoverage {
 #[derive(Clone, Debug, Serialize, schemars::JsonSchema)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
 pub enum EvaluationCriterion {
-    /// Admit a collected typed method input, without asserting a method result
-    /// or the empirical adequacy of its model and correspondence.
-    MethodInput {
-        method: String,
-    },
     Equals {
         #[serde(deserialize_with = "crate::deserialize_value_exact")]
         #[schemars(with = "Value")]
@@ -260,7 +259,7 @@ pub enum EvaluationCriterion {
     AnyTrue,
     Judgement {
         criterion: String,
-        /// Missing scope preserves the legacy unresolved judgement gate.
+        /// Missing scope represents an unresolved judgement obligation.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         scope: Option<crate::capability::SubjectScope>,
     },
@@ -287,9 +286,6 @@ impl<'de> Deserialize<'de> for EvaluationCriterion {
                 .ok_or_else(|| D::Error::custom(format!("evaluation criterion requires {name}")))
         };
         let result = match kind.as_str() {
-            "method_input" => Self::MethodInput {
-                method: serde_json::from_value(take("method")?).map_err(D::Error::custom)?,
-            },
             "equals" => Self::Equals {
                 expected: take("expected")?,
             },
@@ -675,6 +671,7 @@ impl EvidenceExecutionPlan {
                 .iter()
                 .chain(&evaluation.applicability)
                 .chain(&evaluation.challenges)
+                .chain(&evaluation.coverage)
             {
                 if !nodes.contains_key(reference.step_id.as_str())
                     || !valid_pointer(&reference.pointer)
@@ -684,9 +681,7 @@ impl EvidenceExecutionPlan {
             }
             if matches!(
                 evaluation.criterion,
-                EvaluationCriterion::Equals { .. }
-                    | EvaluationCriterion::Numeric { .. }
-                    | EvaluationCriterion::MethodInput { .. }
+                EvaluationCriterion::Equals { .. } | EvaluationCriterion::Numeric { .. }
             ) && evaluation.inputs.len() != 1
             {
                 return Err("scalar evaluation requires exactly one input".into());
@@ -698,13 +693,6 @@ impl EvidenceExecutionPlan {
                 scope.validate()?;
             }
             match &evaluation.criterion {
-                EvaluationCriterion::MethodInput { method }
-                    if !identifier(method) || !method.contains('/') =>
-                {
-                    return Err(
-                        "method input admission requires a versioned method identity".into(),
-                    );
-                }
                 EvaluationCriterion::Judgement { criterion, .. } if criterion.trim().is_empty() => {
                     return Err("judgement requires an explicit criterion".into());
                 }

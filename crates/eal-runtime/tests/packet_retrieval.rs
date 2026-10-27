@@ -98,9 +98,7 @@ impl Workspace {
                 method_registry: methods,
                 method_executor: None,
                 scheduler: CollectionScheduler::default(),
-                supervisor: Supervisor::new(PathBuf::from(env!(
-                    "CARGO_BIN_EXE_eal-command-supervisor"
-                ))),
+                supervisor: Supervisor::new(companion::path()),
                 limits: ExecutionLimits::default(),
                 lease_timeout: Duration::from_secs(1),
             })
@@ -419,3 +417,6 @@ fn invalid_assessment_packet_limits_are_rejected_before_acquisition() {
             .is_empty()
     );
 }
+
+#[path = "common/companion.rs"]
+mod companion;

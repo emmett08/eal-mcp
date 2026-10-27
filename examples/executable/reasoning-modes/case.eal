@@ -1,0 +1,233 @@
+// Synthetic conformance cases; stated applicability and review records are fixtures.
+language "EAL/3" profile "execution/1"
+environment fixture {
+ require true == true
+}
+tool instrument {
+ version "1"
+}
+evidence measured {
+ tool instrument
+ kind observation
+ environment fixture
+ max_age 3600
+ input {"scenario":"positive"}
+ require true == true
+}
+evidence inductive_input {
+ derive result
+ kind sample
+ environment fixture
+ max_age 3600
+ input {"result":null}
+ bind "/result" from measured "/sample"
+ require true == true
+}
+evidence abductive_input {
+ derive result
+ kind hypotheses
+ environment fixture
+ max_age 3600
+ input {"result":null}
+ bind "/result" from measured "/hypotheses"
+ require true == true
+}
+evidence causal_input {
+ derive result
+ kind experiment
+ environment fixture
+ max_age 3600
+ input {"result":null}
+ bind "/result" from measured "/experiment"
+ require true == true
+}
+evidence counterfactual_input {
+ derive result
+ kind causal_model
+ environment fixture
+ max_age 3600
+ input {"result":null}
+ bind "/result" from measured "/model"
+ require true == true
+}
+evidence analogical_input {
+ derive result
+ kind analogy
+ environment fixture
+ max_age 3600
+ input {"result":null}
+ bind "/result" from measured "/analogy"
+ require true == true
+}
+evidence applicability_review {
+ derive result
+ kind review
+ environment fixture
+ max_age 3600
+ input {"result":null}
+ bind "/result" from measured "/applicability"
+ require scope == "synthetic-methods-v1"
+ require verdict == "supported"
+}
+assumption applicable {
+ statement "The supplied synthetic data, models and correspondence are applicable to these finite conformance cases; no empirical scientific claim is made."
+ environment fixture
+ validate applicability_review
+}
+evidence fault {
+ derive result
+ kind observation
+ environment fixture
+ max_age 3600
+ input {"result":null}
+ bind "/result" from measured "/challenge"
+ require active == true
+}
+objection applicability_challenge = [evidence fault] -x> assumption applicable
+reasoning deductive_method {
+ method "deductive/1"
+ rationale "The named bounded method computes this explicitly scoped result under the supplied synthetic applicability condition."
+}
+claim deductive_claim {
+ statement "The deductive calculation satisfies its declared result predicate for the identified synthetic case."
+ environment fixture
+ proposition {
+  subject "synthetic deductive case"
+  quantity "proposition"
+  unit "1"
+  scope "synthetic-methods-v1"
+  valid_from "2026-01-01T00:00:00Z"
+  valid_until "2030-01-01T00:00:00Z"
+  query {"premises":["sample_good","effect_positive"],"conclusion":{"and":["sample_good","effect_positive"]}}
+  result entailed == true
+ }
+}
+argument deductive_argument = [premises inductive_claim, causal_claim, assumptions applicable] via deductive_method => deductive_claim
+reasoning inductive_method {
+ method "inductive/1"
+ rationale "The named bounded method computes this explicitly scoped result under the supplied synthetic applicability condition."
+}
+claim inductive_claim {
+ statement "The inductive calculation satisfies its declared result predicate for the identified synthetic case."
+ environment fixture
+ proposition {
+  subject "synthetic inductive case"
+  quantity "probability"
+  unit "1"
+  scope "synthetic-methods-v1"
+  valid_from "2026-01-01T00:00:00Z"
+  valid_until "2030-01-01T00:00:00Z"
+  query {"confidence":0.95}
+  result lower > 0.8
+ }
+}
+argument inductive_argument = [evidence inductive_input, assumptions applicable] via inductive_method => inductive_claim binding inductive_input
+reasoning abductive_method {
+ method "abductive/1"
+ rationale "The named bounded method computes this explicitly scoped result under the supplied synthetic applicability condition."
+}
+claim abductive_claim {
+ statement "The abductive calculation satisfies its declared result predicate for the identified synthetic case."
+ environment fixture
+ proposition {
+  subject "synthetic abductive case"
+  quantity "probability"
+  unit "1"
+  scope "synthetic-methods-v1"
+  valid_from "2026-01-01T00:00:00Z"
+  valid_until "2030-01-01T00:00:00Z"
+  query {"observed":"alarm","candidates":[{"name":"fault","prior":0.2,"likelihood":0.8},{"name":"normal","prior":0.8,"likelihood":0.1}]}
+  result best_posterior > 0.6
+ }
+}
+argument abductive_argument = [evidence abductive_input, assumptions applicable] via abductive_method => abductive_claim binding abductive_input
+reasoning causal_method {
+ method "causal/1"
+ rationale "The named bounded method computes this explicitly scoped result under the supplied synthetic applicability condition."
+}
+claim causal_claim {
+ statement "The causal calculation satisfies its declared result predicate for the identified synthetic case."
+ environment fixture
+ proposition {
+  subject "synthetic causal case"
+  quantity "dimensionless"
+  unit "1"
+  scope "synthetic-methods-v1"
+  valid_from "2026-01-01T00:00:00Z"
+  valid_until "2030-01-01T00:00:00Z"
+  query {"assignment":"randomised"}
+  result estimate == 8
+ }
+}
+argument causal_argument = [evidence causal_input, assumptions applicable] via causal_method => causal_claim binding causal_input
+reasoning counterfactual_method {
+ method "counterfactual/1"
+ rationale "The named bounded method computes this explicitly scoped result under the supplied synthetic applicability condition."
+}
+claim counterfactual_claim {
+ statement "The counterfactual calculation satisfies its declared result predicate for the identified synthetic case."
+ environment fixture
+ proposition {
+  subject "synthetic counterfactual case"
+  quantity "dimensionless"
+  unit "1"
+  scope "synthetic-methods-v1"
+  valid_from "2026-01-01T00:00:00Z"
+  valid_until "2030-01-01T00:00:00Z"
+  query {"variables":{"x":{"intercept":1,"coefficients":{},"noise":0},"y":{"intercept":3,"coefficients":{"x":2},"noise":0}},"intervention":{"variable":"x","value":4},"outcome":"y"}
+  result difference == 6
+ }
+}
+argument counterfactual_argument = [evidence counterfactual_input, assumptions applicable] via counterfactual_method => counterfactual_claim binding counterfactual_input
+reasoning analogical_method {
+ method "analogical/1"
+ rationale "The named bounded method computes this explicitly scoped result under the supplied synthetic applicability condition."
+}
+claim analogical_claim {
+ statement "The analogical calculation satisfies its declared result predicate for the identified synthetic case."
+ environment fixture
+ proposition {
+  subject "synthetic analogical case"
+  quantity "dimensionless"
+  unit "1"
+  scope "synthetic-methods-v1"
+  valid_from "2026-01-01T00:00:00Z"
+  valid_until "2030-01-01T00:00:00Z"
+  query {"relevant_features":["protocol","maximum_load"],"source":{"protocol":"v2","maximum_load":80},"target":{"protocol":"v2","maximum_load":80}}
+  result match_fraction == 1
+ }
+}
+argument analogical_argument = [evidence analogical_input, assumptions applicable] via analogical_method => analogical_claim binding analogical_input
+evidence practical_review {
+ derive result
+ kind scoped_review
+ environment fixture
+ max_age 3600
+ input {"result":null,"criterion":"choose feasible minimum-cost option","target":"option-B","scope":"synthetic-options-v1"}
+ bind "/result" from measured "/review"
+ require reviewer == "synthetic-reviewer"
+ require criterion == "choose feasible minimum-cost option"
+ require target == "option-B"
+ require scope == "synthetic-options-v1"
+ require verdict == "supported"
+ require count(reasons) > 0
+ require count(provenance.options) == 2
+}
+reasoning practical_method {
+ method "structured/1"
+ rationale "The identified synthetic reviewer recommends B for the explicit capacity constraint and minimum-cost objective; this is scoped judgement, not a universal practical reasoner."
+}
+claim practical_claim {
+ statement "Within the supplied two-option fixture, the identified review supports selecting B under the stated constraint and objective."
+ environment fixture
+}
+argument practical_argument = [evidence practical_review, assumptions applicable] via practical_method => practical_claim
+reasoning composition {
+ method "structured/1"
+ rationale "Every named finite result is required; shared observations do not become independent evidence."
+}
+claim all_modes {
+ statement "All seven explicitly scoped synthetic reasoning cases satisfy their declared results."
+ environment fixture
+}
+argument all_modes_argument = [premises deductive_claim, inductive_claim, abductive_claim, causal_claim, counterfactual_claim, analogical_claim, practical_claim] via composition => all_modes

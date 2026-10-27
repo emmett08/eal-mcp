@@ -11,7 +11,7 @@ use eal_collector_contracts::{
         TransportKind, canonical_identity, schema_identity,
     },
 };
-use eal_mcp::{
+use eal_mcp_client::{
     client::{ClientTarget, StdioTarget},
     persistent_mcp::{McpError, PersistentMcp, ToolDiscovery, ToolListLimits, ToolSchemaPins},
 };
@@ -142,7 +142,7 @@ fn elapsed(start: Instant) -> u64 {
 }
 fn protocol_error(error_value: McpError) -> BridgeError {
     match error_value {
-        McpError::Rejected(message) if message.contains("schema identity changed") => error(
+        McpError::Rejected(message) if message.starts_with("MCP tool schema identity") => error(
             BridgeErrorKind::SchemaDrift,
             "MCP tool schema changed after qualification",
         ),

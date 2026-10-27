@@ -52,9 +52,7 @@ impl Workspace {
                 method_registry: default_registry().clone(),
                 method_executor: None,
                 scheduler: CollectionScheduler::default(),
-                supervisor: Supervisor::new(PathBuf::from(env!(
-                    "CARGO_BIN_EXE_eal-command-supervisor"
-                ))),
+                supervisor: Supervisor::new(companion::path()),
                 limits: ExecutionLimits::default(),
                 lease_timeout: Duration::from_secs(1),
             })
@@ -354,3 +352,6 @@ fn a_catalogue_from_another_service_cannot_be_used_as_authority() {
             .contains("same service")
     );
 }
+
+#[path = "common/companion.rs"]
+mod companion;

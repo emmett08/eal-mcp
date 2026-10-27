@@ -38,7 +38,7 @@ argument propagate = [premises working] via measured => downstream
 pub fn observation(source: &str, name: &str, context: &Value, value: Value) -> Value {
     let program = composition::compile(source, None, "", ExecutionLimits::default()).unwrap();
     let evidence = &program.evidence[name];
-    let tool = &program.tools[&evidence.tool];
+    let tool = &program.tools[evidence.tool.as_ref().unwrap()];
     let acquisition = json!({"tool":tool.name,"tool_version":tool.version,"input":evidence.input,"context":context});
     let full = json!({"evidence_id":name,"environment":evidence.environment,"tool":tool.name,"tool_version":tool.version,"input":evidence.input,"context":context});
     json!({"schema":"EAL/observation-record/1","evidence_id":name,"source_digest":program.source_digest,

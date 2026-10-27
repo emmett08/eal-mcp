@@ -1,4 +1,5 @@
 //! Check scoped observation correspondence, freshness and declared predicates.
+mod scoped_review;
 use super::{
     entry, environment_context, environment_fingerprint, general_number, name_repr, py_repr,
 };
@@ -15,6 +16,9 @@ use std::collections::BTreeSet;
 pub struct EvidenceVerdict {
     pub entry: Value,
     pub complete: bool,
+    /// The observation passed record integrity, scope and the selected time checks.
+    /// Authored support predicates do not determine whether its fields are usable data.
+    pub data_available: bool,
 }
 #[derive(Clone, Debug)]
 pub(crate) struct PredicateCheck {
@@ -158,7 +162,8 @@ pub fn assess_environment(environment: &Environment, context: &Value) -> Result<
     ))
 }
 
-/// Assess one retained record. Integrity fields are correspondence checks, not signatures.
+/// Assess an independent retained record. Bound acquisitions require the complete
+/// dependency set; callers must use `assess_evidence_records` for those records.
 #[allow(clippy::too_many_arguments)]
 pub fn assess_evidence_record(
     program: &Program,
@@ -169,6 +174,46 @@ pub fn assess_evidence_record(
     environment_matched: bool,
     expected_tool_binding_digest: Option<&Value>,
     check_current_binding: bool,
+) -> Result<EvidenceVerdict, String> {
+    let evidence = program
+        .evidence
+        .get(name)
+        .ok_or_else(|| format!("Unknown evidence {name}"))?;
+    if !evidence.bindings.is_empty() {
+        return Ok(super::acquisitions::blocked(
+            "Bound acquisition assessment requires its parent observations".into(),
+        ));
+    }
+    assess_resolved_evidence_record(
+        program,
+        name,
+        record,
+        instant,
+        context,
+        environment_matched,
+        expected_tool_binding_digest,
+        check_current_binding,
+        true,
+        &crate::acquisition::ResolvedInput {
+            input: evidence.input.clone(),
+            dependencies: json!([]),
+        },
+    )
+}
+
+/// Assess one retained record. Integrity fields are correspondence checks, not signatures.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn assess_resolved_evidence_record(
+    program: &Program,
+    name: &str,
+    record: Option<&Value>,
+    instant: DateTime<Utc>,
+    context: &Value,
+    environment_matched: bool,
+    expected_tool_binding_digest: Option<&Value>,
+    check_current_binding: bool,
+    check_time: bool,
+    resolved: &crate::acquisition::ResolvedInput,
 ) -> Result<EvidenceVerdict, String> {
     let evidence = program
         .evidence
@@ -190,17 +235,26 @@ pub fn assess_evidence_record(
         return Ok(EvidenceVerdict {
             entry: json!({"status":"unavailable","reasons":reasons,"availability_issues":issues}),
             complete: false,
+            data_available: false,
         });
     };
-    let tool = program
-        .tools
-        .get(&evidence.tool)
-        .ok_or_else(|| format!("Unknown tool {}", evidence.tool))?;
+    let tool = evidence
+        .tool
+        .as_ref()
+        .map(|name| {
+            program
+                .tools
+                .get(name)
+                .ok_or_else(|| format!("Unknown tool {name}"))
+        })
+        .transpose()?;
+    let tool_name = tool.map(|tool| &tool.name);
+    let tool_version = tool.map(|tool| &tool.version);
     let expected = vec![
         ("evidence_id", json!(name)),
         ("source_digest", json!(program.source_digest)),
-        ("tool", json!(tool.name)),
-        ("tool_version", json!(tool.version)),
+        ("tool", json!(tool_name)),
+        ("tool_version", json!(tool_version)),
         ("evidence_kind", json!(evidence.kind)),
         ("environment", json!(evidence.environment)),
         (
@@ -214,7 +268,7 @@ pub fn assess_evidence_record(
         (
             "input_digest",
             json!(canonical::canonical_digest(
-                &evidence.input,
+                &resolved.input,
                 &program.limits
             )?),
         ),
@@ -227,10 +281,72 @@ pub fn assess_evidence_record(
             issues.insert("invalid_observation");
         }
     }
+    if !evidence.bindings.is_empty()
+        && !record.get("dependencies").is_some_and(|actual| {
+            canonical::same_json(actual, &resolved.dependencies, &program.limits)
+        })
+    {
+        reasons.push("Record dependencies differ from the selected parent observations".into());
+        issues.insert("invalid_observation");
+    }
+    if !evidence.bindings.is_empty() {
+        let lineage_time = record["computed_at"]
+            .as_str()
+            .and_then(|time| validation::parse_time(time).ok());
+        let mut expected_time = lineage_time;
+        for parent in resolved.dependencies.as_array().into_iter().flatten() {
+            let measured = parent["collected_at"]
+                .as_str()
+                .and_then(|time| validation::parse_time(time).ok());
+            expected_time = expected_time
+                .zip(measured)
+                .map(|(computed, measured)| computed.min(measured));
+        }
+        if evidence.kind == "scoped_review" {
+            expected_time = expected_time
+                .zip(scoped_review::review_time(record))
+                .map(|(retained, reviewed)| retained.min(reviewed));
+        }
+        let retained_time = record["collected_at"]
+            .as_str()
+            .and_then(|time| validation::parse_time(time).ok());
+        if expected_time.is_none()
+            || expected_time != retained_time
+            || (check_time
+                && evidence.derivation.is_none()
+                && lineage_time.is_some_and(|time| time > instant))
+        {
+            reasons.push(
+                "Bound observation does not preserve the oldest input measurement time".into(),
+            );
+            issues.insert("invalid_observation");
+        }
+    }
     let binding_digest = record
         .get("tool_binding_digest")
         .cloned()
         .unwrap_or(Value::Null);
+    if evidence.derivation.is_some() {
+        let expected = crate::acquisition::derivation_digest(program, name)?;
+        if binding_digest != expected {
+            reasons.push("Derivation identity differs from the declared expression".into());
+            issues.insert("invalid_observation");
+        }
+        let expression = evidence.derivation.as_ref().expect("checked derivation");
+        let recomputed = expressions::evaluate_expression_with_limits(
+            expression,
+            &resolved.input,
+            &program.limits,
+        );
+        if recomputed.value.as_ref().is_none_or(|value| {
+            !record
+                .get("value")
+                .is_some_and(|actual| canonical::same_json(actual, value, &program.limits))
+        }) {
+            reasons.push("Derived value differs from the declared pure expression".into());
+            issues.insert("invalid_observation");
+        }
+    }
     let digest_valid = binding_digest.as_str().is_some_and(|s| {
         s.len() == 64
             && s.bytes()
@@ -244,12 +360,12 @@ pub fn assess_evidence_record(
         reasons.push("Current operator tool binding differs from the collected binding".into());
         issues.insert("invalid_observation");
     }
-    let acquisition = json!({"tool":tool.name,"tool_version":tool.version,"input":evidence.input,"context":context});
-    let full_request = json!({"evidence_id":name,"environment":evidence.environment,"tool":tool.name,"tool_version":tool.version,"input":evidence.input,"context":context});
+    let acquisition = json!({"tool":tool_name,"tool_version":tool_version,"input":resolved.input,"context":context});
+    let full_request = json!({"evidence_id":name,"environment":evidence.environment,"tool":tool_name,"tool_version":tool_version,"input":resolved.input,"context":context});
     for (key, wanted, message) in [
         (
             "input",
-            &evidence.input,
+            &resolved.input,
             "Record input differs from the declared evidence input",
         ),
         (
@@ -310,10 +426,10 @@ pub fn assess_evidence_record(
             .num_microseconds()
             .ok_or("Observation duration is outside supported range")? as f64
             / 1_000_000.0;
-        if age < 0.0 {
+        if check_time && age < 0.0 {
             reasons.push("Observation is dated after the assessment time".into());
             issues.insert("invalid_observation");
-        } else if age > evidence.max_age {
+        } else if check_time && age > evidence.max_age {
             reasons.push(format!(
                 "Observation age {}s exceeds max_age {}s",
                 general_number(age),
@@ -350,7 +466,18 @@ pub fn assess_evidence_record(
             issues.insert("invalid_observation");
         }
     }
-    let mut complete = reasons.is_empty();
+    if evidence.kind == "scoped_review" {
+        scoped_review::assess(
+            evidence,
+            record,
+            instant,
+            check_time,
+            &mut reasons,
+            &mut issues,
+        );
+    }
+    let data_available = reasons.is_empty();
+    let mut complete = data_available;
     let mut failures = vec![];
     let available = if complete {
         let outcomes: Vec<_> = evidence
@@ -367,7 +494,7 @@ pub fn assess_evidence_record(
         reasons = outcomes.iter().map(|o| o.reason.clone()).collect();
         complete = outcomes.iter().all(|o| o.comparable);
         if outcomes.iter().any(|o| !o.comparable) {
-            issues.insert("invalid_observation");
+            issues.insert("predicate_unresolved");
         }
         if outcomes.iter().any(|o| o.comparable && !o.holds) {
             issues.insert("predicate_not_met");
@@ -376,12 +503,13 @@ pub fn assess_evidence_record(
     } else {
         false
     };
-    let mut result = json!({"status":if available{"available"}else{"unavailable"},"reasons":reasons,"availability_issues":issues,"tool":tool.name,"tool_version":tool.version,"tool_binding_digest":binding_digest,"run_id":record.get("run_id").unwrap_or(&Value::Null)});
+    let mut result = json!({"status":if available{"available"}else{"unavailable"},"reasons":reasons,"availability_issues":issues,"tool":tool_name,"tool_version":tool_version,"tool_binding_digest":binding_digest,"run_id":record.get("run_id").unwrap_or(&Value::Null)});
     if !failures.is_empty() {
         result["predicate_failures"] = json!(failures);
     }
     Ok(EvidenceVerdict {
         entry: result,
         complete,
+        data_available,
     })
 }

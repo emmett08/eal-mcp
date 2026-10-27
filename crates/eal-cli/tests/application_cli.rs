@@ -37,7 +37,7 @@ impl Workspace {
     fn run(&self, args: &[&str]) -> Output {
         let eal = Path::new(env!("CARGO_BIN_EXE_eal"));
         let binaries = eal.parent().unwrap();
-        let supervisor = binaries.join("eal-command-supervisor");
+        let supervisor = binaries.join("eal-process-supervisor");
         let worker = binaries.join("eal-method-worker");
         assert!(
             supervisor.is_file() && worker.is_file(),

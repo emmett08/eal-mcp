@@ -171,7 +171,7 @@ native scenarios across all supported semantics, query modes and preference
 policies. It independently validates the published JSON schema and consumer
 size/count policy, then requires rejection of seven forged graphs. Its report
 identifies the executable hash and distinguishes freshly generated views from
-explicitly supplied cached views. The sibling `eal-command-supervisor` bounds
+explicitly supplied cached views. The sibling `eal-process-supervisor` bounds
 each child process. `--supervisor FILE` can select it explicitly.
 
 Consumer imports are limited to 4 MiB, 4,096 arguments and 65,536 defeat

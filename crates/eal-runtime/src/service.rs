@@ -1,4 +1,5 @@
 //! Shared, host-configured operations for durable collection and assessment.
+mod execution;
 use crate::{
     acquisition::ToolRegistry, collection::EvidenceRuntime, identity::CollectionIdentityValidator,
     lease::WorkspaceAcquisition, methods::MethodExecutor, process::Supervisor,
@@ -156,12 +157,16 @@ impl ReasoningService {
 
     /// Bounded source-only imports remain inside the selected workspace.
     pub fn parse_resolver(&self, relative: &str) -> Result<String, String> {
-        let path = self
-            .workspace
+        let root = self
+            .registry_path
+            .as_ref()
+            .and_then(|path| path.parent())
+            .unwrap_or(&self.workspace);
+        let path = root
             .join(relative)
             .canonicalize()
             .map_err(|e| e.to_string())?;
-        if !path.starts_with(&self.workspace)
+        if !path.starts_with(root)
             || path.extension() != Some(std::ffi::OsStr::new("eal"))
             || !path.is_file()
         {
@@ -334,11 +339,21 @@ impl ReasoningService {
         now: Option<&str>,
     ) -> Result<Value, String> {
         let program = self.parse(source)?;
-        let records = self.records(&program, context, collection_id)?;
+        self.reason_program(&program, context, collection_id, now)
+    }
+
+    fn reason_program(
+        &self,
+        program: &Program,
+        context: &Value,
+        collection_id: Option<&str>,
+        now: Option<&str>,
+    ) -> Result<Value, String> {
+        let records = self.records(program, context, collection_id)?;
         let now = now.map(str::to_owned).unwrap_or_else(utc_now);
-        let bindings = self.current_binding_digests(&program)?;
+        let bindings = self.current_binding_digests(program)?;
         let mut assessment = evaluation::evaluate(
-            &program,
+            program,
             &records,
             &now,
             context,

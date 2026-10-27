@@ -3,7 +3,7 @@
 [tools.production_resources]
 kind = "command"
 version = "1"
-argv = ["/opt/eal/bin/eal-collector", "kubernetes", "--executable", "/usr/local/bin/kubectl", "--supervisor", "/opt/eal/bin/eal-command-supervisor", "--inventory", "/etc/eal/production-clusters.json", "--resource", "applications.argoproj.io", "--kind", "Application", "--namespace", "argocd", "--name", "catalog-sync-operator", "--timeout-seconds", "90", "--max-bytes", "4194304", "--inherit-env", "KUBECONFIG", "--inherit-env", "HOME", "--inherit-env", "PATH"]
+argv = ["/opt/eal/bin/eal-collector", "kubernetes", "--executable", "/usr/local/bin/kubectl", "--supervisor", "/opt/eal/bin/eal-process-supervisor", "--inventory", "/etc/eal/production-clusters.json", "--resource", "applications.argoproj.io", "--kind", "Application", "--namespace", "argocd", "--name", "catalog-sync-operator", "--timeout-seconds", "90", "--max-bytes", "4194304", "--inherit-env", "KUBECONFIG", "--inherit-env", "HOME", "--inherit-env", "PATH"]
 timeout_seconds = 100
 max_output_bytes = 4194304
 inherit_env = ["KUBECONFIG", "HOME", "PATH"]
@@ -11,7 +11,7 @@ parallel_safe = false
 # Enable after substituting the SHA-256 values reported by sha256sum.
 # pinned_files = [
 #   { path = "/opt/eal/bin/eal-collector", sha256 = "REPLACE_WITH_COLLECTOR_SHA256" },
-#   { path = "/opt/eal/bin/eal-command-supervisor", sha256 = "REPLACE_WITH_SUPERVISOR_SHA256" },
+#   { path = "/opt/eal/bin/eal-process-supervisor", sha256 = "REPLACE_WITH_SUPERVISOR_SHA256" },
 #   { path = "/usr/local/bin/kubectl", sha256 = "REPLACE_WITH_KUBECTL_SHA256" },
 #   { path = "/etc/eal/production-clusters.json", sha256 = "REPLACE_WITH_APPROVED_INVENTORY_SHA256" }
 # ]
@@ -32,13 +32,13 @@ parallel_safe = false
 [tools.github_commit]
 kind = "command"
 version = "1"
-argv = ["/opt/eal/bin/eal-collector", "github", "--executable", "/usr/local/bin/gh", "--supervisor", "/opt/eal/bin/eal-command-supervisor", "--repository", "REPLACE_OWNER/REPLACE_REPOSITORY", "--commit", "REPLACE_WITH_EXACT_COMMIT_SHA", "--inherit-env", "GH_TOKEN"]
+argv = ["/opt/eal/bin/eal-collector", "github", "--executable", "/usr/local/bin/gh", "--supervisor", "/opt/eal/bin/eal-process-supervisor", "--repository", "REPLACE_OWNER/REPLACE_REPOSITORY", "--commit", "REPLACE_WITH_EXACT_COMMIT_SHA", "--inherit-env", "GH_TOKEN"]
 timeout_seconds = 40
 max_output_bytes = 1048576
 inherit_env = ["GH_TOKEN"]
 parallel_safe = false
 # pinned_files = [
 #   { path = "/opt/eal/bin/eal-collector", sha256 = "REPLACE_WITH_COLLECTOR_SHA256" },
-#   { path = "/opt/eal/bin/eal-command-supervisor", sha256 = "REPLACE_WITH_SUPERVISOR_SHA256" },
+#   { path = "/opt/eal/bin/eal-process-supervisor", sha256 = "REPLACE_WITH_SUPERVISOR_SHA256" },
 #   { path = "/usr/local/bin/gh", sha256 = "REPLACE_WITH_GH_SHA256" }
 # ]

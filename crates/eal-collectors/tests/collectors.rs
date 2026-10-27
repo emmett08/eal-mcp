@@ -74,7 +74,7 @@ fn supervisor() -> PathBuf {
         .unwrap()
         .parent()
         .unwrap()
-        .join("eal-command-supervisor");
+        .join("eal-process-supervisor");
     assert!(
         path.is_file(),
         "Build eal-process binaries before focused collector tests"

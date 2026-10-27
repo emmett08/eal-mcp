@@ -105,6 +105,18 @@ pub trait EALVisitor<'input>: ParseTreeVisitor<'input,EALParserContextType>{
 	fn visit_inputField(&mut self, ctx: &InputFieldContext<'input>) { self.visit_children(ctx) }
 
 	/**
+	 * Visit a parse tree produced by {@link EALParser#inputBindingField}.
+	 * @param ctx the parse tree
+	 */
+	fn visit_inputBindingField(&mut self, ctx: &InputBindingFieldContext<'input>) { self.visit_children(ctx) }
+
+	/**
+	 * Visit a parse tree produced by {@link EALParser#deriveField}.
+	 * @param ctx the parse tree
+	 */
+	fn visit_deriveField(&mut self, ctx: &DeriveFieldContext<'input>) { self.visit_children(ctx) }
+
+	/**
 	 * Visit a parse tree produced by {@link EALParser#assumptionDecl}.
 	 * @param ctx the parse tree
 	 */
@@ -592,6 +604,22 @@ pub trait EALVisitorCompat<'input>:ParseTreeVisitorCompat<'input, Node= EALParse
 	 * @param ctx the parse tree
 	 */
 		fn visit_inputField(&mut self, ctx: &InputFieldContext<'input>) -> Self::Return {
+			self.visit_children(ctx)
+		}
+
+	/**
+	 * Visit a parse tree produced by {@link EALParser#inputBindingField}.
+	 * @param ctx the parse tree
+	 */
+		fn visit_inputBindingField(&mut self, ctx: &InputBindingFieldContext<'input>) -> Self::Return {
+			self.visit_children(ctx)
+		}
+
+	/**
+	 * Visit a parse tree produced by {@link EALParser#deriveField}.
+	 * @param ctx the parse tree
+	 */
+		fn visit_deriveField(&mut self, ctx: &DeriveFieldContext<'input>) -> Self::Return {
 			self.visit_children(ctx)
 		}
 
@@ -1158,6 +1186,16 @@ where
 
 	fn visit_inputField(&mut self, ctx: &InputFieldContext<'input>){
 		let result = <Self as EALVisitorCompat>::visit_inputField(self, ctx);
+        *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
+	}
+
+	fn visit_inputBindingField(&mut self, ctx: &InputBindingFieldContext<'input>){
+		let result = <Self as EALVisitorCompat>::visit_inputBindingField(self, ctx);
+        *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
+	}
+
+	fn visit_deriveField(&mut self, ctx: &DeriveFieldContext<'input>){
+		let result = <Self as EALVisitorCompat>::visit_deriveField(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
 	}
 

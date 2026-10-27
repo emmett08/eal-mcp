@@ -1,5 +1,7 @@
 //! Pure wire models for describing and configuring operator-selected collectors.
 mod binding;
+mod direct_binding;
+pub use direct_binding::{DirectBinding, ResponseFormat};
 pub mod capability;
 mod catalogue;
 mod command;
@@ -10,6 +12,7 @@ mod profile;
 mod request;
 mod retained_judgement;
 mod schema;
+pub mod scoped_review;
 mod sensitive_json;
 mod toml_diagnostic;
 

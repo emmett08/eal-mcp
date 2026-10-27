@@ -431,7 +431,7 @@ fn unchanged_source_keeps_distinct_immutable_method_registry_revisions() {
         .catalogue()
         .register("source.eal", Default::default())
         .unwrap();
-    let supervisor = Supervisor::new(env!("CARGO_BIN_EXE_eal-command-supervisor").into());
+    let supervisor = Supervisor::new(companion::path());
     let worker = WorkerCommand::new(
         vec![env!("CARGO_BIN_EXE_eal-method-worker").into()],
         Default::default(),
@@ -504,7 +504,7 @@ fn nested_default_entry_ids_can_refresh_and_assess_registered_claims() {
             method_registry: methods::default_registry().clone(),
             method_executor: None,
             scheduler: CollectionScheduler::default(),
-            supervisor: Supervisor::new(env!("CARGO_BIN_EXE_eal-command-supervisor").into()),
+            supervisor: Supervisor::new(companion::path()),
             limits: ExecutionLimits::default(),
             lease_timeout: Duration::from_secs(1),
         })
@@ -537,3 +537,6 @@ fn nested_default_entry_ids_can_refresh_and_assess_registered_claims() {
     assert_eq!(result["source_digest"], entry["source_digest"]);
     assert_eq!(result["collected_count"], 1);
 }
+
+#[path = "common/companion.rs"]
+mod companion;

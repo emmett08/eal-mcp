@@ -53,7 +53,7 @@ impl Fixture {
         fs::copy(std::env::current_exe().unwrap(), binaries.join("eal-mcp")).unwrap();
         for name in [
             "eal-coordinate",
-            "eal-command-supervisor",
+            "eal-process-supervisor",
             "eal-method-worker",
         ] {
             symlink("eal-mcp", binaries.join(name)).unwrap();

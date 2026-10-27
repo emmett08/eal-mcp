@@ -98,9 +98,7 @@ impl Fixture {
                 method_registry: methods::default_registry().clone(),
                 method_executor: None,
                 scheduler: CollectionScheduler::new(2).unwrap(),
-                supervisor: Supervisor::new(PathBuf::from(env!(
-                    "CARGO_BIN_EXE_eal-command-supervisor"
-                ))),
+                supervisor: Supervisor::new(companion::path()),
                 limits: ExecutionLimits::default(),
                 lease_timeout: Duration::from_secs(3),
             })
@@ -500,3 +498,6 @@ fn a_future_observation_cannot_become_reusable_by_rebinding_it_at_an_earlier_ass
         "unresolved"
     );
 }
+
+#[path = "common/companion.rs"]
+mod companion;

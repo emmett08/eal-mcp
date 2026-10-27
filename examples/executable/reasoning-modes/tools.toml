@@ -1,0 +1,7 @@
+[tools.instrument]
+kind = "command"
+version = "1"
+argv = ["python3", "tools/observations.py"]
+inherit_env = ["PATH"]
+timeout_seconds = 10
+max_output_bytes = 65536

@@ -1,4 +1,5 @@
 //! Typed EAL/3 syntax, composition, validation and authored reasoning with explicit inputs.
+pub mod acquisition;
 mod ast;
 pub mod canonical;
 pub mod composition;

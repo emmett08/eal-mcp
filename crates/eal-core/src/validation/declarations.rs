@@ -125,6 +125,7 @@ impl Checker<'_> {
                         .cloned();
                     (
                         p.evidence.values().any(|value| !value.max_age.is_finite())
+                            || differs!(profile)
                             || differs!(environments)
                             || differs!(tools)
                             || differs!(evidence)
@@ -146,6 +147,16 @@ impl Checker<'_> {
                 self.error("stale_pattern_expansion","Stored arguments or diagnostics differ from the declared patterns and applications; lower the edited program again",changed.as_deref());
             }
         }
+        if p.profile
+            .as_deref()
+            .is_some_and(|profile| profile != "execution/1")
+        {
+            self.error(
+                "unsupported_profile",
+                "Supported execution profile is execution/1",
+                None,
+            );
+        }
         if p.language != "EAL/3" {
             self.detail(
                 "unsupported_language",
@@ -166,7 +177,8 @@ impl Checker<'_> {
             }
             match crate::composition::pattern_metadata(pattern, &p.limits) {
                 Ok(entries) => {
-                    for (name, local, span) in entries {
+                    for (name, mut local, span) in entries {
+                        local.profile = p.profile.clone();
                         let mut checker = Checker {
                             program: &local,
                             registry: self.registry,
@@ -175,6 +187,7 @@ impl Checker<'_> {
                         };
                         checker.predicates();
                         checker.tools_and_evidence();
+                        checker.acquisition_bindings();
                         checker.assumptions();
                         checker.reasoning_and_claims();
                         self.problems

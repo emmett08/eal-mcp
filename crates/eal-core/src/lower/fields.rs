@@ -17,7 +17,7 @@ impl Builder<'_> {
                 wrapper_id
             };
             let field = self.field(field_id)?;
-            if field.name() != "require" && !seen.insert(field.name()) {
+            if !matches!(field.name(), "require" | "bind") && !seen.insert(field.name()) {
                 return Err(self.error(
                     field_id,
                     "DUPLICATE_FIELD",
@@ -45,7 +45,7 @@ impl Builder<'_> {
         };
         let required: &[&str] = match kind {
             "tool" => &["version"],
-            "evidence" => &["tool", "kind", "environment", "max_age"],
+            "evidence" => &["kind", "environment", "max_age"],
             "assumption" => &["statement", "environment", "validate"],
             "reasoning" => &["method", "rationale"],
             "claim" => &["statement", "environment"],
@@ -78,6 +78,17 @@ impl Builder<'_> {
                     missing.join(", ")
                 ),
             ));
+        }
+        if kind == "evidence" {
+            let derive = seen.contains("derive");
+            let tool = seen.contains("tool") || !derive && self.defaults.contains_key("tool");
+            if tool == derive {
+                return Err(self.error(
+                    id,
+                    "EVIDENCE_SOURCE",
+                    "Evidence requires exactly one tool or derive field",
+                ));
+            }
         }
         if kind == "evidence"
             && !fields
@@ -142,6 +153,33 @@ impl Builder<'_> {
                 property: JsonProperty::Query,
                 value: self.json(self.child(id, "jsonValue")?)?,
             },
+            "derive" => {
+                if !self.execution_profile {
+                    return Err(self.error(
+                        id,
+                        "EXECUTION_PROFILE",
+                        "Derivations require profile execution/1",
+                    ));
+                }
+                Field::Derive {
+                    expression: self.expression(self.child(id, "expression")?)?,
+                }
+            }
+            "bind" => {
+                if !self.execution_profile {
+                    return Err(self.error(
+                        id,
+                        "EXECUTION_PROFILE",
+                        "Input bindings require profile execution/1",
+                    ));
+                }
+                let strings = self.string_tokens(id);
+                Field::InputBinding {
+                    target: self.decode_string(strings[0])?,
+                    evidence: self.name(id)?,
+                    source: self.decode_string(strings[1])?,
+                }
+            }
             "require" => Field::Require {
                 expression: self.expression(self.child(id, "expression")?)?,
             },

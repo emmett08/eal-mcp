@@ -88,6 +88,16 @@ pub trait EALBaseVisitor<'input>:
             self.visit_children(ctx)
         }
 
+	// Visit a parse tree produced by EALParser#inputBindingField.
+	fn visit_inputbindingfield(&mut self, ctx: &InputBindingFieldContext<'input>) {
+            self.visit_children(ctx)
+        }
+
+	// Visit a parse tree produced by EALParser#deriveField.
+	fn visit_derivefield(&mut self, ctx: &DeriveFieldContext<'input>) {
+            self.visit_children(ctx)
+        }
+
 	// Visit a parse tree produced by EALParser#assumptionDecl.
 	fn visit_assumptiondecl(&mut self, ctx: &AssumptionDeclContext<'input>) {
             self.visit_children(ctx)

@@ -9,12 +9,10 @@ Runtime acquisition leases implement that capability while acquisition and lock 
 The last inherited handle remains alive until supervised descendants have stopped.
 
 Install `eal-process-supervisor` with the application.
-The runtime retains `eal-command-supervisor` as a delegating executable compatibility alias until EAL 0.2.
 The implementation fails when the companion is missing or incompatible and never falls back to unsupervised execution.
 Handwritten code forbids unsafe Rust.
 
-During EAL 0.1, runtime discovery preserves an existing `eal-command-supervisor` path when both executable names are installed.
-This keeps explicit coordination companion identity compatible while deployments install the canonical companion.
+Discovery selects only the canonical companion name from the installed package.
 
 `StreamLimits` adds separate stdout and stderr budgets through
 `Supervisor::run_with_stream_limits` and its cancellation variant.

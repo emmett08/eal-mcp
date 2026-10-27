@@ -39,18 +39,11 @@ pub(super) fn validate(response: &StageResult, previous: &[Artifact]) -> Result<
         .outcome
         .as_ref()
         .ok_or("completed execution requires an outcome")?;
-    let entry = identifier(outcome, "entry_id")?;
     let assessment_id = identifier(outcome, "assessment_id")?;
     let collection_id = identifier(outcome, "collection_id")?;
-    let initial_collection = identifier(outcome, "initial_collection_id")?;
     let source_digest = identifier(outcome, "source_digest")?;
-    if source_digest.len() != 64
-        || !source_digest
-            .bytes()
-            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
-    {
-        return Err("execution source_digest must be a lowercase SHA-256 digest".into());
-    }
+    let executable_digest = identifier(outcome, "executable_digest")?;
+    let claim = identifier(outcome, "claim")?;
     let status = identifier(outcome, "claim_status")?;
     if !["supported", "contested", "unsupported"].contains(&status) {
         return Err("execution claim status is outside the EAL assessment contract".into());
@@ -59,44 +52,43 @@ pub(super) fn validate(response: &StageResult, previous: &[Artifact]) -> Result<
     if source.sha256 != source_digest {
         return Err("executed source identity differs from the exported ticket source".into());
     }
-    let bundle = json(previous, "bundle")?;
-    let source_bytes = artifacts::read(&source.path, MAX_ARTIFACT_BYTES)?;
-    if bundle["source"].as_str().map(str::as_bytes) != Some(source_bytes.as_slice()) {
-        return Err("exported bundle and source artifact differ".into());
-    }
-    let registration = json(&response.artifacts, "source_registration")?;
-    let collection = result(&response.artifacts, "collection")?;
-    let registered = result(&response.artifacts, "registered_assessment")?;
-    let assessment = result(&response.artifacts, "assessment")?;
-    if registration["entry_id"] != entry
-        || registered["entry_id"] != entry
-        || registered["schema"] != "EAL/registered-assessment/1"
+    let receipt = json(previous, "build")?;
+    let tools = artifact(previous, "tools")?;
+    if receipt["schema"] != "engarg.executable-package/1"
+        || receipt["files"]["case.eal"] != source.sha256
+        || receipt["files"]["tools.toml"] != tools.sha256
+        || receipt["claims"]["current_claim"] != claim
+        || receipt["executable_digest"] != executable_digest
     {
-        return Err("registered ticket entry identity differs across execution artifacts".into());
+        return Err(
+            "package build identity differs from its exported source, tools or selected claim"
+                .into(),
+        );
     }
-    for artifact in [&registration, &collection, &registered, &assessment] {
+    let execution = result(&response.artifacts, "execution")?;
+    let collection = json(&response.artifacts, "collection")?;
+    let assessment = json(&response.artifacts, "assessment")?;
+    if execution["schema"] != "EAL/execution/1"
+        || execution["claim"] != claim
+        || execution["collection"] != collection
+        || execution["assessment"] != assessment
+        || execution["executable_digest"] != executable_digest
+    {
+        return Err(
+            "retained collection or assessment differs from its EAL execution envelope".into(),
+        );
+    }
+    for artifact in [&execution, &collection, &assessment] {
         if artifact["source_digest"] != source_digest {
             return Err("EAL execution artifact has a different source digest".into());
         }
     }
-    if collection["collection_id"] != initial_collection
-        || registered["collection_id"] != collection_id
+    if collection["collection_id"] != collection_id
         || assessment["collection_id"] != collection_id
-        || registered["assessment_id"] != assessment_id
         || assessment["assessment_id"] != assessment_id
-    {
-        return Err("collection or assessment identities differ across execution artifacts".into());
-    }
-    let claim = registered["claim"]
-        .as_str()
-        .ok_or("registered assessment lacks its selected claim")?;
-    if bundle["claim_names"]["current_claim"] != claim
         || assessment["claims"][claim]["status"] != status
-        || registered["status"] != status
     {
-        return Err(
-            "selected claim or status differs across exported and assessed artifacts".into(),
-        );
+        return Err("selected claim or collection and assessment identities differ across execution artifacts".into());
     }
     if outcome["valid"] != true
         || outcome["complete"] != true
@@ -105,6 +97,17 @@ pub(super) fn validate(response: &StageResult, previous: &[Artifact]) -> Result<
     {
         return Err("completed ticket requires the same valid complete native assessment".into());
     }
+    let tools_bytes = artifacts::read(&tools.path, MAX_ARTIFACT_BYTES)?;
+    let manifest = eal_collector_contracts::RegistryDocument::from_toml(
+        std::str::from_utf8(&tools_bytes).map_err(|_| "ticket tools require UTF-8")?,
+    )?;
+    let context = serde_json::to_value(manifest.context).map_err(|error| error.to_string())?;
+    let fingerprint =
+        eal_core::canonical::canonical_digest(&context, &eal_core::ExecutionLimits::default())?;
+    if collection["context"] != context || assessment["context_fingerprint"] != fingerprint {
+        return Err("execution context differs from the operator's packaged tool context".into());
+    }
+    let source_bytes = artifacts::read(&source.path, MAX_ARTIFACT_BYTES)?;
     let source_text =
         std::str::from_utf8(&source_bytes).map_err(|_| "ticket source requires UTF-8")?;
     let program = eal_core::composition::compile(
@@ -114,15 +117,23 @@ pub(super) fn validate(response: &StageResult, previous: &[Artifact]) -> Result<
         eal_core::ExecutionLimits::default(),
     )
     .map_err(|error| error.to_string())?;
+    if eal_core::semantic_format::executable_digest(&program, eal_core::methods::default_registry())
+        .map_err(|error| error.to_string())?
+        != executable_digest
+    {
+        return Err("execution semantics differ from the exported EAL program".into());
+    }
     let plan = eal_core::planning::EvidencePlanner::new(&program)?.plan(claim)?;
-    let initial_records = collection["records"]
+    let records = collection["records"]
         .as_object()
-        .ok_or("initial collection lacks its records")?;
+        .ok_or("collection lacks its records")?;
     let evaluated = assessment["evidence"]
         .as_object()
         .ok_or("assessment lacks its evidence verdicts")?;
     for evidence in plan.evidence_ids() {
-        if !initial_records.contains_key(&evidence)
+        if !records
+            .get(&evidence)
+            .is_some_and(|record| record["status"] == "ok")
             || !evaluated.get(&evidence).is_some_and(evidence_is_measured)
         {
             return Err("selected ticket claim has an absent collection record or unresolved final measurement".into());

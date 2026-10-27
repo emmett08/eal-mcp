@@ -43,7 +43,7 @@ For the example paths, calculate dependency hashes with these commands.
 ```sh
 sha256sum /etc/eal/production-clusters.json
 sha256sum /opt/eal/bin/eal-collector
-sha256sum /opt/eal/bin/eal-command-supervisor
+sha256sum /opt/eal/bin/eal-process-supervisor
 sha256sum /usr/local/bin/kubectl
 sha256sum /usr/local/bin/gh
 ```

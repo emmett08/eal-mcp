@@ -31,6 +31,48 @@ pub fn semantic_ir(program: &s::Program) -> Result<Value> {
     })
 }
 
+/// Fingerprint the checked executable meaning, independently of source bytes,
+/// locations, import paths and retained authoring syntax. This is supplementary
+/// identity: it never substitutes for the source digest on historical records.
+pub fn executable_digest(
+    program: &s::Program,
+    registry: &methods::MethodRegistry,
+) -> Result<String> {
+    check(program, registry)?;
+    let full = semantic_ir(program)?;
+    let mut executable = serde_json::Map::new();
+    executable.insert(
+        "schema".into(),
+        Value::String("EAL/executable-program/1".into()),
+    );
+    for key in [
+        "language",
+        "profile",
+        "environments",
+        "tools",
+        "evidence",
+        "assumptions",
+        "reasoning",
+        "claims",
+        "arguments",
+        "objections",
+        "formal",
+    ] {
+        if let Some(value) = full.get(key) {
+            executable.insert(key.into(), value.clone());
+        }
+    }
+    if let Some(Value::Array(directives)) = executable.get_mut("formal") {
+        for directive in directives {
+            if let Some(fields) = directive.as_object_mut() {
+                fields.remove("source_file");
+            }
+        }
+    }
+    crate::canonical::canonical_digest(&Value::Object(executable), &program.limits)
+        .map_err(|error| fail("EXECUTABLE_DIGEST", error))
+}
+
 fn semantic_view(program: &s::Program) -> Result<Value> {
     let mut value = serde_json::to_value(program)
         .map_err(|error| fail("FORMAT_INVALID_IR", error.to_string()))?;
@@ -288,7 +330,6 @@ fn direct_syntax(program: &s::Program) -> Result<crate::Program> {
     }
     for value in program.evidence.values() {
         let mut fields = vec![
-            name(N::Tool, &value.tool),
             F::Kind {
                 value: value.kind.clone(),
             },
@@ -301,6 +342,22 @@ fn direct_syntax(program: &s::Program) -> Result<crate::Program> {
                 value: expressions::json_to_literal(&value.input),
             },
         ];
+        if let Some(tool) = &value.tool {
+            fields.insert(0, name(N::Tool, tool));
+        }
+        if let Some(expression) = &value.derivation {
+            fields.insert(
+                0,
+                F::Derive {
+                    expression: expression.clone(),
+                },
+            );
+        }
+        fields.extend(value.bindings.iter().map(|binding| F::InputBinding {
+            target: binding.target.clone(),
+            evidence: binding.evidence.clone(),
+            source: binding.source.clone(),
+        }));
         fields.extend(predicates(&value.predicates));
         push(D::Evidence {
             name: value.name.clone(),
@@ -463,6 +520,7 @@ fn direct_syntax(program: &s::Program) -> Result<crate::Program> {
     }
     Ok(crate::Program {
         language: program.language.clone(),
+        profile: program.profile.clone(),
         declarations,
     })
 }

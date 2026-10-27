@@ -68,14 +68,31 @@ fn lower_owned(syntax: &SyntaxDocument) -> Result<Program> {
     let mut builder = Builder {
         syntax,
         defaults: BTreeMap::new(),
+        execution_profile: false,
     };
     let root = syntax.root;
     let language = builder.string(root)?;
     if language != "EAL/3" {
         return Err(builder.error(root, "LANGUAGE", "Source must declare EAL/3"));
     }
+    let profile = if builder.has_token(root, "profile") {
+        let tokens = builder.string_tokens(root);
+        let profile = builder.decode_string(tokens[1])?;
+        if profile != "execution/1" {
+            return Err(builder.error(
+                root,
+                "EXECUTION_PROFILE",
+                "Supported execution profile is execution/1",
+            ));
+        }
+        builder.execution_profile = true;
+        Some(profile)
+    } else {
+        None
+    };
     Ok(Program {
         language,
+        profile,
         declarations: builder.block(root)?,
     })
 }
@@ -83,6 +100,7 @@ fn lower_owned(syntax: &SyntaxDocument) -> Result<Program> {
 struct Builder<'a> {
     syntax: &'a SyntaxDocument,
     defaults: BTreeMap<String, Field>,
+    execution_profile: bool,
 }
 
 impl Builder<'_> {
@@ -139,6 +157,17 @@ impl Builder<'_> {
                 .token(child)
                 .is_some_and(|token| token.text == value)
         })
+    }
+
+    fn string_tokens(&self, id: NodeId) -> Vec<NodeId> {
+        self.syntax
+            .children(id)
+            .filter(|&child| {
+                self.syntax
+                    .token(child)
+                    .is_some_and(|token| token.kind == "STRING")
+            })
+            .collect()
     }
 
     fn string_token(&self, id: NodeId) -> Result<NodeId> {

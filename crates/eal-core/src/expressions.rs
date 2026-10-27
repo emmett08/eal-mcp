@@ -1,10 +1,12 @@
 //! Closed, pure expression interpretation with explicit unknowns and strict scalars.
+mod exact;
 mod formatting;
 mod functions;
 mod interchange;
 pub mod numbers;
 mod quantity;
 mod runtime;
+mod selection;
 mod typing;
 
 use std::str::FromStr;
@@ -21,7 +23,7 @@ pub use interchange::{
 };
 pub use quantity::Quantity;
 pub use runtime::{evaluate_expression, evaluate_expression_with_limits};
-pub use typing::{expression_errors, expression_errors_with_limits};
+pub use typing::{derivation_errors_with_limits, expression_errors, expression_errors_with_limits};
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct ExpressionResult {
