@@ -209,7 +209,7 @@ impl CoverageProof {
                 .iter()
                 .any(|input| input.step_id == step.id)
             {
-                if derivation.inputs.len() != 1 || derivation.inputs[0].pointer != "" {
+                if derivation.inputs.len() != 1 || !derivation.inputs[0].pointer.is_empty() {
                     return Err(
                         "audit coverage supports only a whole-result direct projection".into(),
                     );
