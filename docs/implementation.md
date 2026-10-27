@@ -1,9 +1,17 @@
-# Implementation and operating boundaries
+# Keep language meaning separate from acquisition
 
 EAL/4 is implemented in Rust. The workspace uses Rust 1.90.0 and edition 2024.
-The production applications share one runtime service and explicit execution
-budgets. Language evaluation, external acquisition and durable coordination
-have separate owners.
+The architecture follows the path of an assessment. Pure libraries interpret
+source and supplied observations. The runtime obtains those observations and
+retains their identities. Applications expose the same service to engineers and
+MCP clients. This dependency direction lets a new transport change acquisition
+without changing what an argument means.
+
+Each boundary has one owner and a contract narrow enough for its consumer. The
+process supervisor knows argv and bytes rather than claims. Collector contracts
+know requests and observations rather than databases. A method sees its admitted
+computational input rather than a network client. The table identifies where a
+change belongs.
 
 | Component | Implemented responsibility | Operating boundary |
 | --- | --- | --- |
@@ -11,6 +19,8 @@ have separate owners.
 | `eal-core` | Composition, validation, typed expressions, authored assessment, planning and formatting | Supplied observations, explicit context and assessment time |
 | `eal-aspic` | Finite argument construction, preferences, defeats, extensions, queries and checked graph export | Explicit finite budgets with typed incomplete results |
 | `eal-process` | Bounded subprocess protocol, client and independent companion | Exact argv, explicit environment and retained ownership capability |
+| `eal-collector-contracts`, `eal-coordination-contracts` | Pure wire identities, schemas and admission contracts | No runtime, language parser or external effects |
+| `eal-tool-runtime` | Verified tool package admission and isolated build/execution | Pinned operator-selected toolchain and process ownership |
 | `eal-adapters` | Optional transport, retained artifact and specialised source/trace acquisition | Operator scope and shared collector contracts |
 | `eal-runtime` | Acquisition, private storage, reuse, catalogues, packets and supervised methods | Trusted operator configuration and POSIX process/filesystem facilities |
 | `eal-mcp` | Operator and registered catalogues, stdio, Streamable HTTP and the text host | Closed schemas, admission limits and configured authentication |
@@ -23,10 +33,9 @@ have separate owners.
 ## Language and authored assessment
 
 EAL/4 has one source-level semantic contract. Evidence bindings, pure derivations
-and authored method queries belong to that contract. Every imported module must
-declare EAL/4; older roots and modules fail before collection with a migration
-diagnostic. The language header contains no semantic selector. See
-[the language reference](language-v4.md).
+and authored method queries belong to that contract. Every imported module declares EAL/4. Older roots and modules fail before
+collection, so source migration covers the complete import closure. The language
+header has no semantic selector. See [the language reference](language-v4.md).
 
 Composition handles qualified modules, trusted imports, inherited context and
 closed pattern expansion. Static checks cover reference kinds, method
@@ -39,9 +48,9 @@ conversions at their respective boundaries. Missing observations and expression
 errors have explicit representations. Typed bindings check acquisition
 correspondence, canonical identities and unit conversions.
 
-The default registry contains eight reasoning methods. The engineering profile
+The default registry contains eight reasoning methods. The engineering set
 adds API-load criteria, reachability, RMS and sampled negative evidence.
-The ASPIC profile adds finite argumentation. Custom native callbacks carry
+The ASPIC set adds finite argumentation. Custom native callbacks carry
 host-declared implementation identities. Runtime method workers add process
 deadlines and resource enforcement.
 
@@ -65,9 +74,10 @@ configured visualiser. Consumer and browser behaviour need their own checks.
 
 ## Acquisition and evidence identity
 
-The runtime registry binds names and versions to command collectors or
-JSON-file observations. Source input supplies evidence parameters through a
-strict JSON request. Operator configuration selects executable arguments,
+The operator manifest binds names and versions to commands, retained JSON files,
+MCP operations or read-only HTTP requests. Source input supplies the evidence
+parameters. Each adapter normalises its response to the same observation
+contract, as described in [direct tools](direct-tools.md). Operator configuration selects executable arguments,
 environment inheritance, optional file pins, deadlines and output bounds.
 Collector results preserve request identity, scoped context and measurement time.
 
@@ -95,7 +105,7 @@ selected claims, registered assessment and revision-bound history. Bounded
 packets preserve statuses, qualifications, omissions and retrieval identities.
 Raw observations remain in operator-accessible durable records.
 
-The MCP service exposes eleven operator tools or four registered-source tools.
+The MCP service exposes thirteen operator tools or four registered-source tools.
 Registered callers select configured claims under fixed entry context.
 Host, Origin and bearer policy precede HTTP dispatch. Cancellation retains
 blocking-operation ownership until the admitted work completes. The SDK codec
@@ -125,3 +135,16 @@ Bundled method workers receive an empty environment on every entry point.
 Unrelated ambient variables therefore neither reach pure algorithms nor alter
 their execution identity. The development command retains its bounded,
 workspace-relative limits input and its existing command syntax.
+
+
+## Extend a contract at its owner
+
+Use [interface contracts](interface-contracts.md) to locate admission and dispatch
+ownership before widening a public request. New methods belong behind the
+[method contract](method-execution.md), and new external measurements use the
+[collector contract](collector-contracts.md). The runtime selects each strategy
+and retains its declared identity. Its callers need no provider-specific branch.
+
+[Development](development.md) gives the checks for a change, including the
+installed paths that cross process boundaries. Return to the
+[documentation path](index.md) for the operational sequence.
