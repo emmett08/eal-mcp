@@ -558,3 +558,48 @@ fn incomplete_local_method_never_creates_a_compiled_formal_snapshot() {
         "{error}"
     );
 }
+
+#[test]
+fn native_dependency_and_unresolved_predicate_issues_survive_formal_export() {
+    let limits = ExecutionLimits::default();
+    let context = json!({"site":"bench"});
+    for dependency in [false, true] {
+        let (source, records, evidence, issue) = if dependency {
+            let source = format!(
+                "{}\nevidence derived {{\n derive parent\n kind calculation\n environment lab\n max_age 60\n input {{\"parent\":null}}\n bind \"/parent\" from observed \"\"\n require passed == true\n}}\n",
+                native_case::SOURCE.replace("[evidence observed]", "[evidence derived]")
+            );
+            (source, json!({}), "derived", "dependency_unavailable")
+        } else {
+            let record =
+                native_case::observation(native_case::SOURCE, "observed", &context, json!({}));
+            (
+                native_case::SOURCE.into(),
+                json!({"observed":record}),
+                "observed",
+                "predicate_unresolved",
+            )
+        };
+        let compiled = compile_eal_aspic(
+            &source,
+            &records,
+            CompileOptions::new("working", native_case::NOW, &context),
+        )
+        .unwrap()
+        .to_dict()
+        .unwrap();
+        assert_eq!(
+            compiled["source_map"]["evidence"][evidence]["availability_issues"],
+            json!([issue])
+        );
+        assert_eq!(compiled["claim_status"], "unsupported");
+        let view = export_aspic_view(&compiled, &limits).unwrap();
+        let unavailable = view["unavailable_evidence"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|item| item["name"] == evidence)
+            .unwrap();
+        assert_eq!(unavailable["availability_issues"], json!([issue]));
+    }
+}

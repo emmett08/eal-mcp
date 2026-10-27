@@ -1,6 +1,6 @@
 //! Assess an acquisition closure without equating negative data with failed acquisition.
 use super::evidence::assess_resolved_evidence_record;
-use super::{EvidenceVerdict, assess_environment};
+use super::{AvailabilityIssue, EvidenceVerdict, assess_environment};
 use crate::semantic::Program;
 use chrono::{DateTime, Utc};
 use serde_json::{Value, json};
@@ -103,7 +103,7 @@ fn assess_record_set(
 pub(super) fn blocked(reason: String) -> EvidenceVerdict {
     EvidenceVerdict {
         entry: json!({"status":"unavailable", "reasons":[reason],
-            "availability_issues":["dependency_unavailable"]}),
+            "availability_issues":[AvailabilityIssue::DependencyUnavailable]}),
         complete: false,
         data_available: false,
     }

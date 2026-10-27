@@ -1,10 +1,11 @@
 use super::shape::{
-    bounded, digest, host_limits, identifier, ids, record_identifier, scalar, state,
+    bounded, digest, host_limits, identifier, ids, predicate_path, record_identifier, scalar, state,
 };
 use super::{AssessmentPacketBuilder, CLAIM_STATES, prefix};
 use chrono::{DateTime, Utc};
 use eal_core::{
     canonical::canonical_digest,
+    evaluation::{AvailabilityIssue, PredicateIssue},
     methods::{MethodResultStatus, default_registry},
     validation::parse_time,
 };
@@ -163,17 +164,7 @@ impl AssessmentPacketBuilder {
             .map(|value| {
                 value
                     .as_str()
-                    .filter(|s| {
-                        [
-                            "out_of_scope",
-                            "missing_observation",
-                            "invalid_observation",
-                            "tool_error",
-                            "stale_observation",
-                            "predicate_not_met",
-                        ]
-                        .contains(s)
-                    })
+                    .filter(|s| AvailabilityIssue::parse(s).is_some())
                     .ok_or("Evidence availability issues contain an unknown value")
             })
             .collect::<Result<_, _>>()?;
@@ -191,17 +182,11 @@ impl AssessmentPacketBuilder {
         let safe: Vec<_> = failures
             .iter()
             .filter_map(|f| {
-                let path = bounded(f.get("path"))?;
+                let path = predicate_path(f.get("path"))?;
                 let issue = f.get("issue")?.as_str()?;
-                [
-                    "missing_field",
-                    "incompatible_type",
-                    "non_finite",
-                    "incomparable",
-                    "not_met",
-                ]
-                .contains(&issue)
-                .then(|| json!({"path": path, "issue": issue}))
+                PredicateIssue::parse(issue)
+                    .is_some()
+                    .then(|| json!({"path": path, "issue": issue}))
             })
             .collect();
         let retained = safe.len().min(self.limits.max_availability_issues);

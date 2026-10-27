@@ -308,7 +308,7 @@ impl MethodRegistry {
         + 'static,
     ) -> Result<Self, String> {
         if default_identifiers().contains(identifier) {
-            return Err("Original built-in methods retain their native execution profiles".into());
+            return Err("Original built-in methods retain their native execution contracts".into());
         }
         let mut contract = self
             .get(identifier)
@@ -341,7 +341,7 @@ impl MethodRegistry {
     /// Return a detached registry; existing registered contracts never change.
     pub fn with_method(&self, contract: MethodContract) -> Result<Self, String> {
         if contract.builtin_mode.is_some() {
-            return Err("Extensions cannot define built-in execution profiles".into());
+            return Err("Extensions cannot define built-in execution contracts".into());
         }
         if compiled_identifiers().contains(contract.identifier.as_str()) {
             return Err("Built-in method identities are reserved".into());

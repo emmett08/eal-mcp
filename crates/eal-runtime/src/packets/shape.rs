@@ -60,6 +60,14 @@ pub(crate) fn bounded(value: Option<&Value>) -> Option<Value> {
         })
         .map(|s| Value::String(s.into()))
 }
+/// An empty path identifies a whole authored predicate expression.
+pub(crate) fn predicate_path(value: Option<&Value>) -> Option<Value> {
+    if value.and_then(Value::as_str) == Some("") {
+        Some(Value::String(String::new()))
+    } else {
+        bounded(value)
+    }
+}
 pub(crate) fn record_identifier(value: &Value) -> Option<Value> {
     value
         .as_str()

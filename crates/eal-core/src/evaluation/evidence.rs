@@ -1,4 +1,5 @@
 //! Check scoped observation correspondence, freshness and declared predicates.
+use crate::evaluation::{AvailabilityIssue, PredicateIssue};
 mod scoped_review;
 use super::{
     entry, environment_context, environment_fingerprint, general_number, name_repr, py_repr,
@@ -25,7 +26,7 @@ pub(crate) struct PredicateCheck {
     pub holds: bool,
     pub comparable: bool,
     pub reason: String,
-    pub issue: Option<&'static str>,
+    pub issue: Option<PredicateIssue>,
 }
 
 pub(crate) fn predicate_check(predicate: &Predicate, value: &Value) -> PredicateCheck {
@@ -41,9 +42,9 @@ pub(crate) fn predicate_check(predicate: &Predicate, value: &Value) -> Predicate
                     evaluated.reason
                 },
                 issue: Some(match evaluated.issue.as_deref() {
-                    Some("missing_field") => "missing_field",
-                    Some("invalid_expression") => "invalid_expression",
-                    _ => "incompatible_type",
+                    Some("missing_field") => PredicateIssue::MissingField,
+                    Some("invalid_expression") => PredicateIssue::InvalidExpression,
+                    _ => PredicateIssue::IncompatibleType,
                 }),
             };
         };
@@ -54,7 +55,7 @@ pub(crate) fn predicate_check(predicate: &Predicate, value: &Value) -> Predicate
                     holds: false,
                     comparable: false,
                     reason,
-                    issue: Some("invalid_expression"),
+                    issue: Some(PredicateIssue::InvalidExpression),
                 };
             }
         };
@@ -62,7 +63,11 @@ pub(crate) fn predicate_check(predicate: &Predicate, value: &Value) -> Predicate
             holds,
             comparable: true,
             reason: format!("{} {}", text, if holds { "holds" } else { "does not hold" }),
-            issue: if holds { None } else { Some("not_met") },
+            issue: if holds {
+                None
+            } else {
+                Some(PredicateIssue::NotMet)
+            },
         };
     }
     let mut actual = value;
@@ -72,7 +77,7 @@ pub(crate) fn predicate_check(predicate: &Predicate, value: &Value) -> Predicate
                 holds: false,
                 comparable: false,
                 reason: format!("Field {} is missing", name_repr(&predicate.path)),
-                issue: Some("missing_field"),
+                issue: Some(PredicateIssue::MissingField),
             };
         };
         actual = child;
@@ -95,7 +100,7 @@ pub(crate) fn predicate_check(predicate: &Predicate, value: &Value) -> Predicate
                 "Field {} has an incompatible type",
                 name_repr(&predicate.path)
             ),
-            issue: Some("incompatible_type"),
+            issue: Some(PredicateIssue::IncompatibleType),
         };
     }
     if actual.is_number()
@@ -108,7 +113,7 @@ pub(crate) fn predicate_check(predicate: &Predicate, value: &Value) -> Predicate
             holds: false,
             comparable: false,
             reason: format!("Field {} is not finite", name_repr(&predicate.path)),
-            issue: Some("non_finite"),
+            issue: Some(PredicateIssue::NonFinite),
         };
     }
     let expression = expressions::predicate_expression(predicate);
@@ -122,7 +127,7 @@ pub(crate) fn predicate_check(predicate: &Predicate, value: &Value) -> Predicate
                 name_repr(&predicate.path),
                 predicate.operator
             ),
-            issue: Some("incomparable"),
+            issue: Some(PredicateIssue::Incomparable),
         };
     };
     PredicateCheck {
@@ -136,7 +141,11 @@ pub(crate) fn predicate_check(predicate: &Predicate, value: &Value) -> Predicate
             if holds { "holds" } else { "does not hold" },
             py_repr(actual)
         ),
-        issue: if holds { None } else { Some("not_met") },
+        issue: if holds {
+            None
+        } else {
+            Some(PredicateIssue::NotMet)
+        },
     }
 }
 pub(crate) fn predicate(predicate: &Predicate, value: &Value) -> (bool, String) {
@@ -227,11 +236,11 @@ pub(super) fn assess_resolved_evidence_record(
             "Environment {} does not match supplied context",
             name_repr(&evidence.environment)
         ));
-        issues.insert("out_of_scope");
+        issues.insert(AvailabilityIssue::OutOfScope);
     }
     let Some(record) = record.filter(|v| v.is_object()) else {
         reasons.push("No evidence record is available".into());
-        issues.insert("missing_observation");
+        issues.insert(AvailabilityIssue::MissingObservation);
         return Ok(EvidenceVerdict {
             entry: json!({"status":"unavailable","reasons":reasons,"availability_issues":issues}),
             complete: false,
@@ -278,7 +287,7 @@ pub(super) fn assess_resolved_evidence_record(
             reasons.push(format!(
                 "Record {key} does not match the declared evidence request"
             ));
-            issues.insert("invalid_observation");
+            issues.insert(AvailabilityIssue::InvalidObservation);
         }
     }
     if !evidence.bindings.is_empty()
@@ -287,7 +296,7 @@ pub(super) fn assess_resolved_evidence_record(
         })
     {
         reasons.push("Record dependencies differ from the selected parent observations".into());
-        issues.insert("invalid_observation");
+        issues.insert(AvailabilityIssue::InvalidObservation);
     }
     if !evidence.bindings.is_empty() {
         let lineage_time = record["computed_at"]
@@ -319,7 +328,7 @@ pub(super) fn assess_resolved_evidence_record(
             reasons.push(
                 "Bound observation does not preserve the oldest input measurement time".into(),
             );
-            issues.insert("invalid_observation");
+            issues.insert(AvailabilityIssue::InvalidObservation);
         }
     }
     let binding_digest = record
@@ -330,7 +339,7 @@ pub(super) fn assess_resolved_evidence_record(
         let expected = crate::acquisition::derivation_digest(program, name)?;
         if binding_digest != expected {
             reasons.push("Derivation identity differs from the declared expression".into());
-            issues.insert("invalid_observation");
+            issues.insert(AvailabilityIssue::InvalidObservation);
         }
         let expression = evidence.derivation.as_ref().expect("checked derivation");
         let recomputed = expressions::evaluate_expression_with_limits(
@@ -344,7 +353,7 @@ pub(super) fn assess_resolved_evidence_record(
                 .is_some_and(|actual| canonical::same_json(actual, value, &program.limits))
         }) {
             reasons.push("Derived value differs from the declared pure expression".into());
-            issues.insert("invalid_observation");
+            issues.insert(AvailabilityIssue::InvalidObservation);
         }
     }
     let digest_valid = binding_digest.as_str().is_some_and(|s| {
@@ -354,11 +363,11 @@ pub(super) fn assess_resolved_evidence_record(
     });
     if !digest_valid {
         reasons.push("Record requires a tool binding configuration digest".into());
-        issues.insert("invalid_observation");
+        issues.insert(AvailabilityIssue::InvalidObservation);
     }
     if check_current_binding && Some(&binding_digest) != expected_tool_binding_digest {
         reasons.push("Current operator tool binding differs from the collected binding".into());
-        issues.insert("invalid_observation");
+        issues.insert(AvailabilityIssue::InvalidObservation);
     }
     let acquisition = json!({"tool":tool_name,"tool_version":tool_version,"input":resolved.input,"context":context});
     let full_request = json!({"evidence_id":name,"environment":evidence.environment,"tool":tool_name,"tool_version":tool_version,"input":resolved.input,"context":context});
@@ -384,7 +393,7 @@ pub(super) fn assess_resolved_evidence_record(
             .is_some_and(|actual| canonical::same_json(actual, wanted, &program.limits))
         {
             reasons.push(message.into());
-            issues.insert("invalid_observation");
+            issues.insert(AvailabilityIssue::InvalidObservation);
         }
     }
     if record
@@ -394,17 +403,17 @@ pub(super) fn assess_resolved_evidence_record(
     {
         reasons
             .push("Record acquisition request digest does not match the declared request".into());
-        issues.insert("invalid_observation");
+        issues.insert(AvailabilityIssue::InvalidObservation);
     }
     if record.get("request_digest").and_then(Value::as_str)
         != Some(canonical::canonical_digest(&full_request, &program.limits)?.as_str())
     {
         reasons.push("Record request digest does not match the declared evidence request".into());
-        issues.insert("invalid_observation");
+        issues.insert(AvailabilityIssue::InvalidObservation);
     }
     if record["status"] != "ok" {
         reasons.push("Tool execution did not produce an ok observation".into());
-        issues.insert("tool_error");
+        issues.insert(AvailabilityIssue::ToolError);
     }
     if record
         .get("run_id")
@@ -415,7 +424,7 @@ pub(super) fn assess_resolved_evidence_record(
         })
     {
         reasons.push("Record requires a nonempty run_id".into());
-        issues.insert("invalid_observation");
+        issues.insert(AvailabilityIssue::InvalidObservation);
     }
     if let Some(collected) = record
         .get("collected_at")
@@ -428,18 +437,18 @@ pub(super) fn assess_resolved_evidence_record(
             / 1_000_000.0;
         if check_time && age < 0.0 {
             reasons.push("Observation is dated after the assessment time".into());
-            issues.insert("invalid_observation");
+            issues.insert(AvailabilityIssue::InvalidObservation);
         } else if check_time && age > evidence.max_age {
             reasons.push(format!(
                 "Observation age {}s exceeds max_age {}s",
                 general_number(age),
                 general_number(evidence.max_age)
             ));
-            issues.insert("stale_observation");
+            issues.insert(AvailabilityIssue::StaleObservation);
         }
     } else {
         reasons.push("Record collected_at must be an ISO-8601 timestamp with timezone".into());
-        issues.insert("invalid_observation");
+        issues.insert(AvailabilityIssue::InvalidObservation);
     }
     let value_bytes: Result<Vec<u8>, String> = record
         .get("value")
@@ -458,12 +467,12 @@ pub(super) fn assess_resolved_evidence_record(
             let digest = format!("{:x}", Sha256::digest(bytes));
             if record.get("data_digest").and_then(Value::as_str) != Some(&digest) {
                 reasons.push("Record data_digest does not match its JSON value".into());
-                issues.insert("invalid_observation");
+                issues.insert(AvailabilityIssue::InvalidObservation);
             }
         }
         Err(error) => {
             reasons.push(format!("Invalid observation value: {error}"));
-            issues.insert("invalid_observation");
+            issues.insert(AvailabilityIssue::InvalidObservation);
         }
     }
     if evidence.kind == "scoped_review" {
@@ -494,10 +503,10 @@ pub(super) fn assess_resolved_evidence_record(
         reasons = outcomes.iter().map(|o| o.reason.clone()).collect();
         complete = outcomes.iter().all(|o| o.comparable);
         if outcomes.iter().any(|o| !o.comparable) {
-            issues.insert("predicate_unresolved");
+            issues.insert(AvailabilityIssue::PredicateUnresolved);
         }
         if outcomes.iter().any(|o| o.comparable && !o.holds) {
-            issues.insert("predicate_not_met");
+            issues.insert(AvailabilityIssue::PredicateNotMet);
         }
         outcomes.iter().all(|o| o.holds)
     } else {

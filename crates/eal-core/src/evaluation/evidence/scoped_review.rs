@@ -1,4 +1,5 @@
 //! Review identity and original clock are admission conditions, not support predicates.
+use crate::evaluation::AvailabilityIssue;
 use crate::{semantic::Evidence, validation};
 use chrono::{DateTime, Utc};
 use serde_json::Value;
@@ -16,7 +17,7 @@ pub(super) fn assess(
     instant: DateTime<Utc>,
     check_time: bool,
     reasons: &mut Vec<String>,
-    issues: &mut BTreeSet<&'static str>,
+    issues: &mut BTreeSet<AvailabilityIssue>,
 ) {
     // Identity comes from the declaration, never from bound reviewer output.
     let reviewed =
@@ -28,7 +29,7 @@ pub(super) fn assess(
         Ok(reviewed) => reviewed,
         Err(reason) => {
             reasons.push(format!("Invalid scoped review: {reason}"));
-            issues.insert("invalid_observation");
+            issues.insert(AvailabilityIssue::InvalidObservation);
             return;
         }
     };
@@ -39,24 +40,24 @@ pub(super) fn assess(
     {
         reasons
             .push("Scoped review observation must preserve the original reviewed_at clock".into());
-        issues.insert("invalid_observation");
+        issues.insert(AvailabilityIssue::InvalidObservation);
     }
     if check_time {
         let Some(microseconds) = (instant - reviewed).num_microseconds() else {
             reasons.push("Scoped review age is outside the supported range".into());
-            issues.insert("invalid_observation");
+            issues.insert(AvailabilityIssue::InvalidObservation);
             return;
         };
         let age = microseconds as f64 / 1_000_000.0;
         if age < 0.0 {
             reasons.push("Scoped review is dated after the assessment time".into());
-            issues.insert("invalid_observation");
+            issues.insert(AvailabilityIssue::InvalidObservation);
         } else if age > evidence.max_age {
             reasons.push(format!(
                 "Scoped review age {age}s exceeds max_age {}s",
                 evidence.max_age
             ));
-            issues.insert("stale_observation");
+            issues.insert(AvailabilityIssue::StaleObservation);
         }
     }
 }

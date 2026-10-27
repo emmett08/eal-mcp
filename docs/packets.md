@@ -131,6 +131,15 @@ opaque observation IDs. Evidence requirements are `met` for available evidence,
 `not_met` when the sole issue is `predicate_not_met` and no availability issues
 were omitted, and `unresolved` otherwise. Unknown or non-string availability
 issues fail packet admission instead of disappearing during projection.
+Evaluation, packet projection and model-context admission share the core's closed
+issue vocabulary. `dependency_unavailable` preserves a missing, invalid or stale
+upstream dependency; `predicate_unresolved` preserves a predicate that could not
+be decided. Neither means a measured negative. Scoped-review and pure-derivation
+integrity failures retain `invalid_observation`, with original-age failures
+retaining `stale_observation`. Predicate diagnostics include `invalid_expression`;
+an empty diagnostic path identifies the whole authored expression without copying
+its source text into the packet.
+
 An availability-issue omission counter applies to the whole packet.
 When it is positive, every unavailable entry remains `unresolved` because the
 packet cannot identify which entries lost qualifications. This conservative

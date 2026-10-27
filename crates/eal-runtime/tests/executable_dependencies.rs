@@ -521,3 +521,105 @@ fn unresolved_parent_predicate_does_not_block_valid_bound_data() {
         assert!(!checked["confirmation"].data_available);
     }
 }
+
+#[test]
+fn native_dependency_review_and_derivation_failures_survive_packets_and_model_context() {
+    use eal_runtime::{model_context::ModelContextBuilder, packets::AssessmentPacketBuilder};
+    for scenario in [
+        "missing",
+        "missing_records",
+        "stale",
+        "derivation",
+        "predicate",
+        "expression",
+        "review",
+    ] {
+        let mut source = SOURCE.replace(
+            "[evidence audit, confirmation]",
+            "[evidence measured, audit, confirmation]",
+        );
+        match scenario {
+            "derivation" => source = source.replace("count(items)", "exact_mean(items)"),
+            "predicate" => source = source.replace("require count == 3", "require absent == 3"),
+            "expression" => {
+                source =
+                    source.replace("require count == 3", "require count / (count - count) == 3")
+            }
+            "review" => {
+                source = source.replace("kind observation", "kind scoped_review").replace(
+                    "input {}", "input {\"criterion\":\"finite inventory\",\"target\":\"count_matches\",\"scope\":{\"site\":\"bench\"}}",
+                );
+            }
+            _ => {}
+        }
+        let case = Case::new(
+            &source,
+            snapshot(),
+            if scenario == "stale" { 4000 } else { 0 },
+            scenario != "missing",
+        );
+        let records = if scenario == "missing_records" {
+            json!({})
+        } else {
+            case.collect()["records"].clone()
+        };
+        let mut assessed = case.assess(&records);
+        assert_eq!(
+            assessed["claims"]["count_matches"]["status"], "unsupported",
+            "{scenario}: {assessed}"
+        );
+        let (target, expected) = match scenario {
+            "predicate" | "expression" => ("audit", "predicate_unresolved"),
+            "derivation" => ("audit", "invalid_observation"),
+            "review" => ("measured", "invalid_observation"),
+            _ => ("audit", "dependency_unavailable"),
+        };
+        assert!(
+            assessed["evidence"][target]["availability_issues"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|issue| issue == expected),
+            "{scenario}: {assessed}"
+        );
+        if scenario == "missing_records" {
+            assert_eq!(
+                assessed["evidence"]["measured"]["availability_issues"],
+                json!(["missing_observation"])
+            );
+        }
+        assessed["assessment_id"] = json!(
+            case.runtime
+                .store()
+                .put("assessment", &assessed, None)
+                .unwrap()
+        );
+        let packet = AssessmentPacketBuilder::default()
+            .build(&assessed, None, None)
+            .unwrap();
+        assert!(
+            packet["evidence"][target]["availability_issues"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|issue| issue == expected),
+            "{scenario}: {packet}"
+        );
+        if scenario == "expression" {
+            assert_eq!(
+                packet["evidence"]["audit"]["predicate_failures"][0],
+                json!({"path":"","issue":"invalid_expression"})
+            );
+        }
+        let context = ModelContextBuilder::new()
+            .build(&json!({
+                "assessment_id":assessed["assessment_id"], "assessed_at":Utc::now().to_rfc3339(),
+                "claim":"count_matches", "status":"unsupported", "packet":packet,
+            }))
+            .unwrap();
+        assert_eq!(
+            context["evidence"][target]["requirements"], "unresolved",
+            "{scenario}: {context}"
+        );
+    }
+}

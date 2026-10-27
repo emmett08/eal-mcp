@@ -988,6 +988,8 @@
             "items": {
               "enum": [
                 "predicate_not_met",
+                "predicate_unresolved",
+                "dependency_unavailable",
                 "missing_observation",
                 "stale_observation",
                 "tool_error",

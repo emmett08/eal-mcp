@@ -12,9 +12,11 @@ mod acquisitions;
 mod arguments;
 mod evidence;
 mod graph;
+mod issues;
 pub use acquisitions::{assess_acquisition_inputs, assess_evidence_records};
 pub(crate) use evidence::predicate;
 pub use evidence::{EvidenceVerdict, assess_environment, assess_evidence_record};
+pub use issues::{AvailabilityIssue, PredicateIssue};
 
 /// Select an explicitly supplied environment context without inferring a transfer.
 pub fn environment_context(name: &str, context: &Value) -> Result<Value, String> {
