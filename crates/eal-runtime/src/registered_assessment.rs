@@ -7,6 +7,7 @@ use eal_core::{canonical, semantic::Program, validation};
 use serde_json::{Value, json};
 use std::{collections::BTreeMap, sync::Arc};
 
+mod dependency_reuse;
 mod persistence;
 mod reuse;
 
@@ -100,10 +101,33 @@ impl RegisteredAssessmentHost {
             .unwrap_or_else(|| (self.clock)());
         let mut instant = validation::parse_time(&now)?;
         let selected = self.select(entry_id, claim, options.context)?;
+        let dependent = selected
+            .names
+            .iter()
+            .any(|name| !selected.program.evidence[name].bindings.is_empty());
+        if dependent
+            && options.reuse == ReusePolicy::Compatible
+            && let Some(collection_id) = self.reuse_dependency_collection(&selected, instant)?
+        {
+            let assessed_at = options
+                .now
+                .map(str::to_owned)
+                .unwrap_or_else(|| (self.clock)());
+            return self.finish_assessment(
+                entry_id,
+                claim,
+                &selected,
+                &collection_id,
+                &assessed_at,
+                selected.names.len(),
+                0,
+                packet_limits,
+            );
+        }
         let mut reused = BTreeMap::new();
         let mut bindings = json!({});
         let mut executions = json!({});
-        if options.reuse == ReusePolicy::Compatible {
+        if options.reuse == ReusePolicy::Compatible && !dependent {
             bindings = self.service.current_binding_digests(&selected.program)?;
             executions = self.service.current_execution_digests(&selected.program)?;
             for name in &selected.names {
@@ -191,16 +215,41 @@ impl RegisteredAssessmentHost {
             .now
             .map(str::to_owned)
             .unwrap_or_else(|| (self.clock)());
+        self.finish_assessment(
+            entry_id,
+            claim,
+            &selected,
+            &collection_id,
+            &assessed_at,
+            reused.len(),
+            fresh.len(),
+            packet_limits,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn finish_assessment(
+        &self,
+        entry_id: &str,
+        claim: &str,
+        selected: &Selection,
+        collection_id: &str,
+        assessed_at: &str,
+        reused_count: usize,
+        collected_count: usize,
+        packet_limits: PacketLimits,
+    ) -> Result<Value, String> {
+        self.check_source(entry_id, selected)?;
         let assessment = self.service.reason(
             &selected.source,
             &selected.context,
-            Some(&collection_id),
-            Some(&assessed_at),
+            Some(collection_id),
+            Some(assessed_at),
         )?;
         if assessment["source_digest"] != selected.program.source_digest {
             return Err("Registered source changed during assessment".into());
         }
-        self.check_source(entry_id, &selected)?;
+        self.check_source(entry_id, selected)?;
         let assessment_id = assessment["assessment_id"]
             .as_str()
             .ok_or("Assessment has no durable identity")?;
@@ -211,7 +260,7 @@ impl RegisteredAssessmentHost {
             json!({"schema":"EAL/registered-assessment/1","entry_id":entry_id,"claim":claim,
             "source_digest":selected.program.source_digest,"context_fingerprint":assessment["context_fingerprint"],
             "collection_id":collection_id,"assessment_id":assessment_id,"assessed_at":assessment["assessed_at"],
-            "status":assessment["claims"][claim]["status"],"reused_count":reused.len(),"collected_count":fresh.len(),
+            "status":assessment["claims"][claim]["status"],"reused_count":reused_count,"collected_count":collected_count,
             "packet":packet,"full_explanation":packet["full_explanation"]}),
         )
     }

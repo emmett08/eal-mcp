@@ -35,8 +35,9 @@ impl ClaimClosure {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PlannedCall {
     pub evidence_id: String,
-    pub tool: String,
-    pub tool_version: String,
+    pub tool: Option<String>,
+    pub tool_version: Option<String>,
+    pub derived: bool,
     pub evidence_kind: String,
     pub environment: String,
 }
@@ -57,7 +58,7 @@ impl EvidencePlan {
     }
     /// Maximum collector invocations before host-approved observation reuse.
     pub fn estimated_calls(&self) -> usize {
-        self.calls.len()
+        self.calls.iter().filter(|call| !call.derived).count()
     }
 }
 
@@ -200,6 +201,15 @@ impl<'a> EvidencePlanner<'a> {
                 _ => unreachable!("the planner only schedules claims, arguments and objections"),
             }
         }
+        let selected = self
+            .program
+            .evidence
+            .keys()
+            .filter(|name| closure.evidence.contains(*name))
+            .cloned()
+            .collect::<Vec<_>>();
+        let ordered = crate::acquisition::dependency_order(self.program, &selected)?;
+        closure.evidence.extend(ordered);
         let calls = self
             .program
             .evidence
@@ -208,7 +218,11 @@ impl<'a> EvidencePlanner<'a> {
             .map(|(name, evidence)| PlannedCall {
                 evidence_id: name.clone(),
                 tool: evidence.tool.clone(),
-                tool_version: self.program.tools[&evidence.tool].version.clone(),
+                tool_version: evidence
+                    .tool
+                    .as_ref()
+                    .map(|tool| self.program.tools[tool].version.clone()),
+                derived: evidence.derivation.is_some(),
                 evidence_kind: evidence.kind.clone(),
                 environment: evidence.environment.clone(),
             })

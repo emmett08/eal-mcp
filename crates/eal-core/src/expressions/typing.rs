@@ -66,6 +66,25 @@ pub fn expression_errors_with_limits(
     schema: Option<&Value>,
     limits: &ExecutionLimits,
 ) -> Vec<String> {
+    typed_expression_errors(expression, schema, limits, "boolean")
+}
+
+/// Validate a pure derivation without claiming a type for unknown acquired fields.
+/// Concrete results must still be JSON objects at execution time.
+pub fn derivation_errors_with_limits(
+    expression: &Expression,
+    schema: Option<&Value>,
+    limits: &ExecutionLimits,
+) -> Vec<String> {
+    typed_expression_errors(expression, schema, limits, "object")
+}
+
+fn typed_expression_errors(
+    expression: &Expression,
+    schema: Option<&Value>,
+    limits: &ExecutionLimits,
+    expected: &str,
+) -> Vec<String> {
     if let Err(message) = expression_budget(expression, limits) {
         return vec![message];
     }
@@ -74,8 +93,15 @@ pub fn expression_errors_with_limits(
     }
     let mut errors = Vec::new();
     let types = types(expression, schema, limits, &mut errors);
-    if types.is_some() && !exact(&types, "boolean") {
-        errors.push("A required condition must produce a Boolean".into());
+    if types.is_some() && !exact(&types, expected) {
+        errors.push(
+            if expected == "boolean" {
+                "A required condition must produce a Boolean"
+            } else {
+                "A derivation must produce a JSON object"
+            }
+            .into(),
+        );
     }
     if errors.is_empty() {
         dimensions(expression, schema, &mut errors);
@@ -238,8 +264,17 @@ fn types(
                 return Some(BTreeSet::new());
             }
             let count_ok = match name.as_str() {
-                "literal" | "count" | "sum" | "all" | "any" | "abs" => arguments.len() == 1,
-                "quantity" => arguments.len() == 2,
+                "literal" | "count" | "sum" | "all" | "any" | "abs" | "flatten" | "distinct" => {
+                    arguments.len() == 1
+                }
+                "quantity" | "at" | "contains" | "equal" => arguments.len() == 2,
+                "exact_sum" | "exact_mean" | "exact_min" | "exact_max" | "exact_count" => {
+                    arguments.len() == 1
+                }
+                "all_values" | "any_values" => arguments.len() == 1,
+                "exact_scale" => arguments.len() == 5,
+                "exact_compare" => arguments.len() == 4,
+                "object" => arguments.len().is_multiple_of(2),
                 "min" | "max" => !arguments.is_empty(),
                 _ => {
                     errors.push(format!(
@@ -260,6 +295,75 @@ fn types(
                 .iter()
                 .map(|argument| types(argument, schema, limits, errors))
                 .collect();
+            if name == "all_values" || name == "any_values" {
+                if actual[0].is_some() && !exact(&actual[0], "array") {
+                    errors.push("Boolean evaluation requires an array of selected inputs".into());
+                }
+                return set("boolean");
+            }
+            if name.starts_with("exact_") {
+                if [
+                    "exact_sum",
+                    "exact_mean",
+                    "exact_min",
+                    "exact_max",
+                    "exact_count",
+                ]
+                .contains(&name.as_str())
+                    && actual[0].is_some()
+                    && !exact(&actual[0], "array")
+                {
+                    errors.push("Exact aggregation requires an array of selected inputs".into());
+                }
+                let text_start = if name == "exact_scale" {
+                    Some(1)
+                } else if name == "exact_compare" {
+                    Some(2)
+                } else {
+                    None
+                };
+                if let Some(start) = text_start {
+                    for value in &actual[start..] {
+                        if value.is_some() && !exact(value, "string") {
+                            errors
+                                .push("Exact factors, units and operators must be strings".into());
+                        }
+                    }
+                }
+                return set(if name == "exact_compare" {
+                    "boolean"
+                } else {
+                    "object"
+                });
+            }
+            if name == "equal" {
+                if actual.iter().any(|value| exact(value, "quantity")) {
+                    errors.push("equal requires JSON values, not implicit quantities".into());
+                }
+                return set("boolean");
+            }
+            if name == "object" {
+                let mut keys = BTreeSet::new();
+                for (index, pair) in arguments.chunks_exact(2).enumerate() {
+                    if actual[index * 2].is_some() && !exact(&actual[index * 2], "string") {
+                        errors.push("object keys must be strings".into());
+                    }
+                    if exact(&actual[index * 2 + 1], "quantity") {
+                        errors.push(
+                            "object values must be JSON; quantities require explicit unit fields"
+                                .into(),
+                        );
+                    }
+                    if let Expression::Literal {
+                        value: JsonValue::String(key),
+                    } = &pair[0]
+                        && !keys.insert(key)
+                    {
+                        errors.push("object keys must be unique".into());
+                    }
+                }
+                return set("object");
+            }
             if name == "quantity" {
                 if actual[0].is_some() && !exact(&actual[0], "number") {
                     errors.push("quantity requires a finite number".into());
@@ -279,14 +383,24 @@ fn types(
                 }
                 return set("quantity");
             }
-            if matches!(name.as_str(), "count" | "sum" | "all" | "any")
-                && actual[0].is_some()
+            if matches!(
+                name.as_str(),
+                "count" | "sum" | "all" | "any" | "at" | "flatten" | "contains" | "distinct"
+            ) && actual[0].is_some()
                 && !exact(&actual[0], "array")
             {
                 errors.push(format!("{name} requires an array"));
             }
+            if name == "at" && actual[1].is_some() && !exact(&actual[1], "number") {
+                errors.push("at requires a nonnegative integer index".into());
+            }
+            if name == "contains" && exact(&actual[1], "quantity") {
+                errors.push("contains requires a JSON search value".into());
+            }
             match name.as_str() {
-                "all" | "any" => set("boolean"),
+                "all" | "any" | "contains" | "distinct" => set("boolean"),
+                "flatten" => set("array"),
+                "at" => None,
                 "count" | "sum" => set("number"),
                 "min" | "max" | "abs" => {
                     if actual

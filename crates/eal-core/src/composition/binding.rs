@@ -99,8 +99,11 @@ impl Lowerer<'_> {
         let mut value = record.value.clone();
         match &mut value {
             Entity::Evidence(v) => {
-                v.tool = self.scalar(&v.tool, record);
+                v.tool = v.tool.as_ref().map(|tool| self.scalar(tool, record));
                 v.environment = self.scalar(&v.environment, record);
+                for binding in &mut v.bindings {
+                    binding.evidence = self.scalar(&binding.evidence, record);
+                }
             }
             Entity::Claim(v) => v.environment = self.scalar(&v.environment, record),
             Entity::Assumption(v) => {

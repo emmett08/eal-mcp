@@ -19,7 +19,7 @@ use std::{
     sync::Arc,
     time::{Duration, Instant},
 };
-const SOURCE: &str = "language \"EAL/3\"\nenvironment lab {\n require true\n}\ntool reader {\n version \"1\"\n}\nevidence reading {\n tool reader\n kind test\n environment lab\n max_age 3600\n input {}\n require passed == true\n}\nreasoning measured {\n method \"structured/1\"\n rationale \"The supplied report supports this bounded claim.\"\n}\nclaim works {\n statement \"The supplied synthetic test passed.\"\n environment lab\n}\nargument support = [evidence reading] via measured => works\n";
+const SOURCE: &str = "language \"EAL/4\"\nenvironment lab {\n require true\n}\ntool reader {\n version \"1\"\n}\nevidence reading {\n tool reader\n kind test\n environment lab\n max_age 3600\n input {}\n require passed == true\n}\nreasoning measured {\n method \"structured/1\"\n rationale \"The supplied report supports this bounded claim.\"\n}\nclaim works {\n statement \"The supplied synthetic test passed.\"\n environment lab\n}\nargument support = [evidence reading] via measured => works\n";
 struct Fixture {
     path: PathBuf,
     server: ServerSpec,

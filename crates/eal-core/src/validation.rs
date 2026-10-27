@@ -5,6 +5,7 @@ use crate::semantic::{Diagnostic, Program};
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
+mod acquisition;
 mod declarations;
 mod directives;
 mod graph;
@@ -71,6 +72,7 @@ pub fn validate(program: &Program, registry: &MethodRegistry) -> Vec<Diagnostic>
     }
     checker.predicates();
     checker.tools_and_evidence();
+    checker.acquisition_bindings();
     checker.assumptions();
     checker.reasoning_and_claims();
     checker.arguments();

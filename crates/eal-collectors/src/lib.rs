@@ -10,6 +10,7 @@ mod kubernetes;
 mod process;
 pub mod reports;
 mod request;
+pub mod review;
 mod tempo;
 mod timing;
 

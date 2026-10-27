@@ -1,6 +1,6 @@
 # Implementation and operating boundaries
 
-EAL/3 is implemented in Rust. The workspace uses Rust 1.90.0 and edition 2024.
+EAL/4 is implemented in Rust. The workspace uses Rust 1.90.0 and edition 2024.
 The production applications share one runtime service and explicit execution
 budgets. Language evaluation, external acquisition and durable coordination
 have separate owners.
@@ -21,6 +21,12 @@ have separate owners.
 | `eal-context-experiment` | Context-history, rehearsal, comparison and allocation calculations | Separate experiment crate and explicit synthetic or measured scope |
 
 ## Language and authored assessment
+
+EAL/4 has one source-level semantic contract. Evidence bindings, pure derivations
+and authored method queries belong to that contract. Every imported module must
+declare EAL/4; older roots and modules fail before collection with a migration
+diagnostic. The language header contains no semantic selector. See
+[the language reference](language-v4.md).
 
 Composition handles qualified modules, trusted imports, inherited context and
 closed pattern expansion. Static checks cover reference kinds, method

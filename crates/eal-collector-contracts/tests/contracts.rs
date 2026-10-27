@@ -42,7 +42,7 @@ fn catalogue_versions_and_template_authority_are_checked() {
                 ("executable".into(), "/operator/kubectl".into()),
                 (
                     "supervisor".into(),
-                    "/operator/eal-command-supervisor".into(),
+                    "/operator/eal-process-supervisor".into(),
                 ),
             ]),
         )

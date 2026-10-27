@@ -13,12 +13,14 @@ impl EvidenceBridge {
                 "Evidence arguments and scope must be objects",
             ));
         }
-        eal_mcp::guard::validate_schema(arguments, &descriptor.input_schema).map_err(|_| {
-            error(
-                BridgeErrorKind::Configuration,
-                "Evidence arguments differ from the selected capability schema",
-            )
-        })?;
+        eal_mcp_client::schema::validate_schema(arguments, &descriptor.input_schema).map_err(
+            |_| {
+                error(
+                    BridgeErrorKind::Configuration,
+                    "Evidence arguments differ from the selected capability schema",
+                )
+            },
+        )?;
         eal_collector_contracts::capability::validate_scope_input(
             descriptor,
             &scope

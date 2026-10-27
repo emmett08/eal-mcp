@@ -20,7 +20,7 @@ fn run(command: &str, source: &[u8]) -> Output {
 fn runs_with_an_empty_executable_search_path() {
     let output = run(
         "parse",
-        b"language \"EAL/3\"\nclaim c {\nstatement \"Scoped claim\"\nenvironment e\n}\n",
+        b"language \"EAL/4\"\nclaim c {\nstatement \"Scoped claim\"\nenvironment e\n}\n",
     );
     assert!(
         output.status.success(),
@@ -29,14 +29,14 @@ fn runs_with_an_empty_executable_search_path() {
     );
     let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
     assert!(json.is_object());
-    let formatted = run("format", b"language \"EAL/3\"\n");
+    let formatted = run("format", b"language \"EAL/4\"\n");
     assert!(formatted.status.success());
-    assert_eq!(formatted.stdout, b"language \"EAL/3\"\n");
+    assert_eq!(formatted.stdout, b"language \"EAL/4\"\n");
 }
 
 #[test]
 fn lexical_errors_fail_with_no_success_output() {
-    let output = run("recognise", b"language \"EAL/3\"\n@\n");
+    let output = run("recognise", b"language \"EAL/4\"\n@\n");
     assert_eq!(output.status.code(), Some(1));
     assert!(output.stdout.is_empty());
     assert!(!output.stderr.is_empty());
@@ -59,7 +59,7 @@ fn rejects_non_utf8_input() {
 #[test]
 fn formatting_reports_expansion_limits_without_partial_output() {
     let source = format!(
-        "language \"EAL/3\"\nenvironment e {{\nrequire {}x\n}}\n",
+        "language \"EAL/4\"\nenvironment e {{\nrequire {}x\n}}\n",
         "not ".repeat(63)
     );
     assert!(run("parse", source.as_bytes()).status.success());
@@ -74,7 +74,7 @@ fn source_files_are_bounded_before_parsing_and_operator_aliases_resolve_once() {
     let directory = std::env::temp_dir().join(format!("eal-syntax-files-{}", std::process::id()));
     std::fs::create_dir(&directory).unwrap();
     let path = directory.join("source.eal");
-    let mut source = b"language \"EAL/3\"\n".to_vec();
+    let mut source = b"language \"EAL/4\"\n".to_vec();
     source.resize(1024 * 1024, b' ');
     std::fs::write(&path, &source).unwrap();
     let output = Command::new(env!("CARGO_BIN_EXE_eal-syntax"))
@@ -100,7 +100,7 @@ fn source_files_are_bounded_before_parsing_and_operator_aliases_resolve_once() {
     assert!(String::from_utf8_lossy(&output.stderr).contains("input limit"));
     #[cfg(unix)]
     {
-        std::fs::write(&path, b"language \"EAL/3\"\n").unwrap();
+        std::fs::write(&path, b"language \"EAL/4\"\n").unwrap();
         let alias = directory.join("source-alias");
         std::os::unix::fs::symlink(&path, &alias).unwrap();
         assert!(

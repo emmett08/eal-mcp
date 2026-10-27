@@ -121,7 +121,7 @@ pub(crate) fn pointer(value: &str) -> bool {
     true
 }
 pub(crate) fn approved_http(url: &str) -> Result<(), String> {
-    eal_mcp::client::validate_http_url(url)?;
+    eal_mcp_client::client::validate_http_url(url)?;
     let parsed = reqwest::Url::parse(url).map_err(|_| "Invalid approved evidence URL")?;
     let loopback = parsed
         .host_str()

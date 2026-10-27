@@ -9,12 +9,10 @@ Runtime acquisition leases implement that capability while acquisition and lock 
 The last inherited handle remains alive until supervised descendants have stopped.
 
 Install `eal-process-supervisor` with the application.
-The runtime retains `eal-command-supervisor` as a delegating executable compatibility alias until EAL 0.2.
 The implementation fails when the companion is missing or incompatible and never falls back to unsupervised execution.
 Handwritten code forbids unsafe Rust.
 
-During EAL 0.1, runtime discovery preserves an existing `eal-command-supervisor` path when both executable names are installed.
-This keeps explicit coordination companion identity compatible while deployments install the canonical companion.
+Discovery selects only the canonical companion name from the installed package.
 
 `StreamLimits` adds separate stdout and stderr budgets through
 `Supervisor::run_with_stream_limits` and its cancellation variant.
@@ -28,3 +26,19 @@ Their optional `stream_limits` field is mandatory for that request version.
 Earlier companions reject those unknown fields before launching a collector.
 Response framing remains unchanged.
 Applications using version 2 must install the companion from the same release.
+
+## Duplex protocol sessions
+
+Protocol version 3 forwards a bounded bidirectional byte stream for MCP and
+other interactive protocols. The same companion owns the child process group,
+Linux subreaper, signal handling and inherited acquisition descriptor. It checks
+an independent session deadline and cumulative input, stdout and stderr bounds.
+The protocol client owns one socket. Closing it, cancelling the session or losing
+the host process makes the companion stop descendants before releasing the lease.
+The SDK supplies MCP protocol interpretation; the supervisor interprets no JSON-RPC.
+
+`Supervisor::duplex` returns the raw stream and an explicit RAII process owner.
+The owner requests cleanup without killing the companion prematurely. If cleanup
+exceeds the short notification allowance, the companion and its lease remain alive
+and a reaper retains exit ownership. Unsupported or absent companions fail without
+launching an unsupervised server.

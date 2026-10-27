@@ -2,11 +2,9 @@
 mod cli;
 use std::{collections::BTreeSet, path::PathBuf, time::Duration};
 
-pub const HELP: &str = "eal-collector capabilities\n\
+pub const HELP: &str = "eal-collector review-json --inputs FILE\n\
 eal-collector prepare-native-provider --input ABSOLUTE\n\
-eal-collector evidence-reconcile --store ABSOLUTE --source-id SHA256\n\
 eal-collector evidence-discover --config ABSOLUTE [--configured-only] [--request-budget N] [--byte-budget N] [--timeout-secs N] [--pages-per-connection N]\n\
-eal-collector support-graph --plan ABSOLUTE --config ABSOLUTE --store ABSOLUTE\n\
 eal-collector describe [--catalogue-version 1|2|3]\n\
 eal-collector describe-api PROVIDER --contract-version 2 --measurement ID --config ABSOLUTE --config-sha256 SHA256\n\
 eal-collector kubernetes|github|tempo|openapi|datadog|prometheus|loki [OPTIONS]\n\

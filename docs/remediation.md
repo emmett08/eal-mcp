@@ -1,6 +1,6 @@
 # EngArg and EAL remediation
 
-The [cross-repository ledger](https://github.com/emmett08/engarg/blob/main/docs/REMEDIATION.md) maps all 21 review findings to their implementation owners and regression sources.
+The [cross-repository ledger](https://github.com/emmett08/engarg/blob/main/docs/REMEDIATION.md) records current execution ownership and the removal of replaced paths. Earlier remediation findings and acceptance records remain in Git history.
 The paired pull requests record combined acceptance and exact tested commit identities.
 The original programme started at `7bd9948ed242b1173b8331a5c4cee4a158a42722`.
 The boundary follow-up starts at the merged programme revision `b48a48d`.
@@ -33,10 +33,10 @@ The language core retains its existing pure boundary.
 MCP request admission and schemas share [one operation declaration](remediation-operations.md).
 
 The [collector contract](collector-contracts.md), [native collector guide](collectors.md) and [runtime guide](runtime.md) describe the current boundaries and compatibility windows.
-The runtime's installed supervisor alias remains during migration to EAL 0.2.
+The installed process companion is `eal-process-supervisor`; the legacy alias is removed.
 Explicit native version 1 descriptors remain supported until collectors 1.0.
 Historical observations preserve their recorded age.
-The paired EngArg v1/v2 readers preserve source and identity while current execution safeguards remain mandatory.
+EngArg emits current executable packages; frozen historical source reconstruction is removed. Existing observations retain their original identity and clocks.
 
 ## EAL field ownership inventory
 
@@ -47,7 +47,7 @@ This inventory covers the runtime and its transport boundary in addition to EngA
 | Field family | Owner and representation | Admission or correspondence check |
 | --- | --- | --- |
 | Source declaration names and references | Core AST records and composed `semantic::Program` retain authored strings. `SupportKind`, `TargetKind` and declaration variants are typed | Core validation checks identifier grammar, duplicates, referenced declaration kinds, dependencies and imported namespaces before evaluation |
-| Language, catalogue, request, export and packet schema versions | Versioned wire strings and package-owned constants. Native `ContractVersion` is an enum | The applicable loader dispatches supported versions. Current model-context admission rejects unknown packet versions. Historical export interpretation belongs to the paired frozen EngArg readers |
+| Language, catalogue, request, export and packet schema versions | Versioned wire strings and package-owned constants. Native `ContractVersion` is an enum | The applicable loader dispatches supported versions. Current model-context admission rejects unknown packet versions. Unsupported program/package versions are rejected; explicit revision creates a new current package |
 | Collector, executable-tool and environment-variable names | Contract `CollectorId`, `ToolId` and `EnvironmentName` provide checked names. Request wire fields retain their string encoding | Catalogue/profile and binding admission enforce the applicable identifier and environment-name rules. Native adapters add their declared selector limits |
 | Tool versions and reasoning-method IDs | Tool versions remain contract-selected text. `MethodRegistry` owns versioned method identifiers and immutable `MethodContract` records | Tool binding version must match the source. Method registration validates versioned identity, schemas and implementation metadata. Unknown methods fail static admission |
 | Binding kind, provider, scope and native version | `ToolKind`, `ProviderConfig`, `Provider`, `ResourceScope` and `ContractVersion` select finite variants | Direct binding invariants and `Config::new` validate combinations before acquisition. CLI conversion delegates to those same boundaries |
@@ -86,6 +86,6 @@ the conservative treatment of other unavailable entries in the same packet.
 
 Release acceptance requires Rust 1.90 formatting, workspace Clippy with warnings denied, workspace tests and debug/release binary builds.
 Installed application and coordination smoke checks use the actual companions.
-The application checks exercise all 15 operations through both text and MCP entry points.
+The application checks exercise the current operation inventory through both text and MCP entry points.
 The shared registry corpus also runs through actual runtime admission and the paired EngArg exporter.
 EAL workflow execution remains manual.

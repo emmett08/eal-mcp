@@ -92,7 +92,7 @@ fn ir_traversal_handles_the_configured_language_nesting_boundary() {
         .stack_size(2 * 1024 * 1024)
         .spawn(|| {
             let source = format!(
-                "language \"EAL/3\"\n{}{}",
+                "language \"EAL/4\"\n{}{}",
                 "module m {\n".repeat(127),
                 "}\n".repeat(127)
             );

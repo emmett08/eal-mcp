@@ -1,0 +1,34 @@
+language "EAL/4"
+environment test {
+ require true
+}
+tool reader {
+ version "1"
+}
+evidence sample {
+ tool reader
+ kind sample
+ environment test
+ max_age 3600
+ input {}
+ require trials == 100
+}
+reasoning calculation {
+ method "inductive/1"
+ rationale "The supplied finite sample gives a Wilson bound."
+}
+claim result {
+ statement "The sample lower bound exceeds 0.8."
+ environment test
+ proposition {
+  subject "sample"
+  quantity "probability"
+  unit "1"
+  scope "finite sample"
+  valid_from "2026-01-01T00:00:00Z"
+  valid_until "2027-01-01T00:00:00Z"
+  query {"confidence":0.95}
+  result lower > 0.8
+ }
+}
+argument proof = [evidence sample] via calculation => result binding sample

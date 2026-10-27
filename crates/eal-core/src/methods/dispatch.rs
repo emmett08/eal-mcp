@@ -127,8 +127,60 @@ fn assess(
     };
     let empty = json!({});
     let payload = selected.map(|e| &e["value"]).unwrap_or(&empty);
+    let available = !evidence.is_empty()
+        || premises
+            .iter()
+            .any(|p| matches!(p["status"].as_str(), Some("supported" | "contested")));
+    let mut output = evaluate_payload(contract, payload, available, limits)?;
+    if let Some(entry) = selected {
+        output["evidence_id"] = entry["id"].clone();
+        output["input_digest"] = Value::String(canonical::canonical_digest(payload, limits)?);
+    }
+    Ok(output)
+}
+
+/// Evaluate explicit program data without pretending that it was acquired evidence.
+/// Empirical support and applicability are checked by the argument evaluator.
+pub fn assess_input_with_limits(
+    method: &str,
+    payload: &Value,
+    registry: &MethodRegistry,
+    limits: &ExecutionLimits,
+) -> Value {
+    let assessed = (|| {
+        let contract = registry.get(method).ok_or("Unknown registered method")?;
+        if contract.evidence_kind.is_none() {
+            return Err("An authored method input requires a computational method".into());
+        }
+        let mut output = evaluate_payload(contract, payload, false, limits)?;
+        output["input_digest"] = Value::String(canonical::canonical_digest(payload, limits)?);
+        Ok(output)
+    })();
+    let mut output = assessed.unwrap_or_else(|error: String| {
+        result(
+            false,
+            &format!("Method evaluation failed: {error}"),
+            json!({}),
+        )
+    });
+    output["method"] = json!(method);
+    output["input_origin"] = json!("authored_program");
+    if let Some(reasons) = output["reasons"].as_array_mut() {
+        for reason in reasons {
+            let text = reason.as_str().unwrap_or("");
+            *reason = json!(format!("Method {method}: {text}"));
+        }
+    }
+    output
+}
+
+fn evaluate_payload(
+    contract: &super::MethodContract,
+    payload: &Value,
+    support_available: bool,
+    limits: &ExecutionLimits,
+) -> Result<Value, String> {
     let encoded = canonical::canonical_json_bytes(payload, limits)?;
-    let input_digest = canonical::canonical_digest(payload, limits)?;
     if encoded.len() > contract.max_input_bytes {
         return Err("Method input exceeds byte limit".into());
     }
@@ -139,11 +191,8 @@ fn assess(
             errors.join("; ")
         ));
     }
-    let mut output = if contract.builtin_mode.as_deref() == Some("structured") {
-        let available = !evidence.is_empty()
-            || premises
-                .iter()
-                .any(|p| matches!(p["status"].as_str(), Some("supported" | "contested")));
+    let output = if contract.builtin_mode.as_deref() == Some("structured") {
+        let available = support_available;
         result(
             available,
             if available {
@@ -172,7 +221,17 @@ fn assess(
             output["method_contract"] = contract.describe();
             output
         } else {
-            compute_builtin(mode, payload)?
+            let work = super::work::required(mode, payload);
+            if work > limits.method_work {
+                json!({
+                    "status":super::MethodResultStatus::Incomplete,
+                    "reasons":[format!("Native calculation requires {work} work units; method_work allowance is {}", limits.method_work)],
+                    "details":{},
+                    "resource":{"kind":"method_work","required":work,"allowance":limits.method_work}
+                })
+            } else {
+                compute_builtin(mode, payload)?
+            }
         }
     } else if let Some(callback) = &contract.implementation {
         let mut output = match callback.call(payload, limits) {
@@ -211,10 +270,6 @@ fn assess(
         {
             return Err("Method output exceeds byte limit".into());
         }
-    }
-    if let Some(entry) = selected {
-        output["evidence_id"] = entry["id"].clone();
-        output["input_digest"] = Value::String(input_digest);
     }
     Ok(output)
 }

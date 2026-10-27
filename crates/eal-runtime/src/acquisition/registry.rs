@@ -1,9 +1,18 @@
 use super::{AcquisitionError, AcquisitionResult, ToolBinding};
 use std::{collections::BTreeMap, path::Path};
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct ToolRegistry {
+    pub context: serde_json::Value,
     pub bindings: BTreeMap<String, ToolBinding>,
+}
+impl Default for ToolRegistry {
+    fn default() -> Self {
+        Self {
+            context: serde_json::json!({}),
+            bindings: BTreeMap::new(),
+        }
+    }
 }
 impl ToolRegistry {
     pub fn new(bindings: BTreeMap<String, ToolBinding>) -> Result<Self, AcquisitionError> {
@@ -13,19 +22,35 @@ impl ToolRegistry {
             }
             validate_binding(binding)?;
         }
-        Ok(Self { bindings })
+        Ok(Self {
+            bindings,
+            context: serde_json::json!({}),
+        })
     }
     pub fn load(path: impl AsRef<Path>) -> Result<Self, AcquisitionError> {
+        Self::load_snapshot(path).map(|(registry, _)| registry)
+    }
+    /// Registry and digest describe exactly the same bounded byte snapshot.
+    pub(crate) fn load_snapshot(
+        path: impl AsRef<Path>,
+    ) -> Result<(Self, String), AcquisitionError> {
+        use sha2::{Digest, Sha256};
         let path = super::files::resolve(path.as_ref())?;
         let contents =
             super::files::read_regular(&path, 1024 * 1024, "The registry must be a regular file")?;
         let text = std::str::from_utf8(&contents)
             .map_err(|_| AcquisitionError::invalid("The registry must contain UTF-8 TOML"))?;
-        Self::from_toml(text)
+        let mut registry = Self::from_toml(text)?;
+        for binding in registry.bindings.values_mut() {
+            binding.package_root = path.parent().map(Path::to_path_buf);
+        }
+        Ok((registry, format!("{:x}", Sha256::digest(&contents))))
     }
     pub fn from_toml(text: &str) -> Result<Self, AcquisitionError> {
         let document = eal_collector_contracts::RegistryDocument::from_toml(text)
             .map_err(AcquisitionError::invalid)?;
+        let context = serde_json::to_value(&document.context)
+            .map_err(|_| AcquisitionError::invalid("Invalid manifest context"))?;
         let bindings = document
             .tools
             .into_iter()
@@ -44,11 +69,15 @@ impl ToolRegistry {
                         pinned_files: raw.pinned_files,
                         parallel_safe: raw.parallel_safe,
                         inherit_env: raw.inherit_env,
+                        direct: raw.direct,
+                        package_root: None,
                     },
                 )
             })
             .collect();
-        Self::new(bindings)
+        let mut registry = Self::new(bindings)?;
+        registry.context = context;
+        Ok(registry)
     }
 
     pub fn binding_for(&self, name: &str, version: &str) -> Result<&ToolBinding, AcquisitionError> {
@@ -65,6 +94,21 @@ impl ToolRegistry {
         }
         Ok(binding)
     }
+    /// Admit operator configuration without invoking a command or remote source.
+    /// The digest checks pinned implementation files; credentials stay private.
+    pub(crate) fn admit_binding(
+        &self,
+        name: &str,
+        version: &str,
+        workspace: &Path,
+        secret: &[u8],
+        limits: &eal_core::ExecutionLimits,
+    ) -> Result<String, AcquisitionError> {
+        let binding = self.binding_for(name, version)?;
+        binding.preflight(workspace)?;
+        binding.binding_digest_with_limits(secret, Some(workspace), limits)
+    }
+
     pub fn acquire(
         &self,
         binding: &ToolBinding,
@@ -107,6 +151,7 @@ pub(super) fn validate_binding(binding: &ToolBinding) -> Result<(), AcquisitionE
         pinned_files: binding.pinned_files.clone(),
         parallel_safe: binding.parallel_safe,
         inherit_env: binding.inherit_env.clone(),
+        direct: binding.direct.clone(),
     }
     .validate()
     .map_err(AcquisitionError::invalid)

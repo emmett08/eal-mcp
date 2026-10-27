@@ -34,7 +34,7 @@ fn canonical_order_and_literal_reserved_keys_preserve_user_payloads() {
 
 #[test]
 fn semantic_spans_are_flat_without_rewriting_nested_input_objects() {
-    let source = r#"language "EAL/3"
+    let source = r#"language "EAL/4"
 environment lab { require true
 }
 tool sensor { version "1"

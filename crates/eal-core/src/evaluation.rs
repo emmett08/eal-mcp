@@ -8,11 +8,15 @@ use crate::{
 use chrono::{DateTime, SecondsFormat, Timelike, Utc};
 use serde_json::{Value, json};
 
+mod acquisitions;
 mod arguments;
 mod evidence;
 mod graph;
+mod issues;
+pub use acquisitions::{assess_acquisition_inputs, assess_evidence_records};
 pub(crate) use evidence::predicate;
 pub use evidence::{EvidenceVerdict, assess_environment, assess_evidence_record};
+pub use issues::{AvailabilityIssue, PredicateIssue};
 
 /// Select an explicitly supplied environment context without inferring a transfer.
 pub fn environment_context(name: &str, context: &Value) -> Result<Value, String> {
@@ -168,18 +172,16 @@ fn evaluate_owned(
     for (name, environment) in &program.environments {
         result["environments"][name] = assess_environment(environment, context)?;
     }
-    for (name, evidence) in &program.evidence {
-        result["evidence"][name] = assess_evidence_record(
-            program,
-            name,
-            records.get(name),
-            instant,
-            context,
-            status(&result, "environments", &evidence.environment) == "matched",
-            binding_digests.and_then(|v| v.get(name)),
-            binding_digests.is_some(),
-        )?
-        .entry;
+    let selected = program.evidence.keys().cloned().collect::<Vec<_>>();
+    for (name, verdict) in assess_evidence_records(
+        program,
+        &selected,
+        records,
+        instant,
+        context,
+        binding_digests,
+    )? {
+        result["evidence"][&name] = verdict.entry;
     }
     assess_local_declarations(program, instant, &mut result)?;
     let sources = arguments::assess_source_claims(program, records, &mut result, registry)?;

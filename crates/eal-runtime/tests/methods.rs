@@ -27,7 +27,7 @@ impl Drop for Workspace {
     }
 }
 fn executor(path: &Workspace) -> MethodExecutor {
-    let supervisor = Supervisor::new(PathBuf::from(env!("CARGO_BIN_EXE_eal-command-supervisor")));
+    let supervisor = Supervisor::new(companion::path());
     let worker = WorkerCommand::new(
         vec![env!("CARGO_BIN_EXE_eal-method-worker").into()],
         BTreeMap::new(),
@@ -327,3 +327,6 @@ fn fifo_executables_are_rejected_without_waiting_for_a_writer() {
     );
     task.join().unwrap();
 }
+
+#[path = "common/companion.rs"]
+mod companion;

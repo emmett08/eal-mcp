@@ -204,7 +204,6 @@ impl Fixture {
                         sample_size_pointer: None,
                     },
                 ],
-                identifier_audit: None,
                 time: TimeSemantics {
                     historical_intervals: false,
                     historical_input: None,
@@ -602,112 +601,6 @@ async fn actual_credential_scope_invalidates_reuse_without_exposing_values() {
     drop(second);
     fixture.close().await;
 }
-
-#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn qualified_statistical_sample_is_measured_before_shared_requirement_evaluation() {
-    use eal_evidence::{
-        execution::{EvaluationStatus, EvidenceExecutor, ExecutionLimits},
-        plan::*,
-        storage::SourceStore,
-    };
-    let fixture = Fixture::start().await;
-    fixture.server.result.lock().unwrap()["measurement"]["payload"] =
-        json!({"estimate":25,"sample_size":120});
-    let mut config = fixture.config();
-    let descriptor = &mut config.local_catalogues[0].capabilities[0];
-    descriptor.semantics.as_mut().unwrap().coverage = vec![CoverageGuarantee {
-        strength: LogicalStrength::StatisticalEstimate,
-        population: Some("requests".into()),
-        population_quantity: None,
-        completeness_pointer: None,
-        sample_size_pointer: Some("/payload/sample_size".into()),
-    }];
-    let source = SourceIdentity {
-        provider_id: descriptor.provider.id.clone(),
-        capability_id: descriptor.id.clone(),
-        capability_version: descriptor.version.clone(),
-        input_schema_sha256: descriptor.input_schema_sha256.clone(),
-        output_schema_sha256: descriptor.output_schema_sha256.clone(),
-        qualified_contract_sha256: descriptor.measurement_identity().unwrap(),
-        configuration_sha256: "0".repeat(64),
-        authentication_scope_sha256: "0".repeat(64),
-        scope: scope(),
-        historical_interval: None,
-    };
-    let bridge = Arc::new(EvidenceBridge::new(config, BTreeMap::new()).unwrap());
-    let temp = tempfile::tempdir().unwrap();
-    let store = SourceStore::open(&temp.path().join("sources"), 10, 1_048_576).unwrap();
-    let executor =
-        EvidenceExecutor::new(bridge.clone(), store, ExecutionLimits::default()).unwrap();
-    let plan = EvidenceExecutionPlan {
-        schema: PLAN_SCHEMA.into(),
-        acquisitions: vec![AcquisitionStep {
-            id: "estimate".into(),
-            source,
-            arguments: args(),
-            bindings: vec![],
-            for_each: None,
-            availability: SourceAvailability::Configured,
-            reuse: ReusePolicy::FreshOrAcquire,
-            max_age_seconds: None,
-            coverage_proof: None,
-        }],
-        derivations: vec![],
-        evaluations: vec![RequirementEvaluation {
-            id: "evaluation".into(),
-            requirement_id: "latency".into(),
-            inputs: vec![OutputReference {
-                step_id: "estimate".into(),
-                pointer: "/payload/estimate".into(),
-            }],
-            criterion: EvaluationCriterion::Numeric {
-                comparison: NumericComparison::AtMost,
-                threshold: json!(30),
-                value_unit: "ms".into(),
-                threshold_unit: "ms".into(),
-            },
-            max_age_seconds: Some(60),
-            required_coverage: RequiredCoverage::Statistical,
-            applicability: vec![],
-            challenges: vec![],
-        }],
-        scheduling: SchedulingPolicy::default(),
-    };
-    let first = executor
-        .execute(&plan, Some("2026-10-24T12:00:10Z"))
-        .await
-        .unwrap();
-    assert_eq!(first.evaluations[0].status, EvaluationStatus::Satisfied);
-    assert_eq!(
-        first.sources.values().next().unwrap().coverage,
-        eal_evidence::execution::CoverageStatus::Statistical { sample_size: 120 }
-    );
-    let again = executor
-        .execute(&plan, Some("2026-10-24T12:00:11Z"))
-        .await
-        .unwrap();
-    assert_eq!(again.metrics.source_requests, 0);
-    assert!(again.metrics.reported_provider_requests > 0, "{again:?}");
-    assert_eq!(fixture.server.calls.load(Ordering::SeqCst), 1);
-    assert_eq!(
-        again.evaluations[0].observed_at.as_deref(),
-        Some("2026-10-24T12:00:00Z")
-    );
-    fixture.server.result.lock().unwrap()["measurement"]["payload"]["sample_size"] = json!(0);
-    let mut refresh = plan.clone();
-    refresh.acquisitions[0].reuse = ReusePolicy::Refresh;
-    let invalid = executor
-        .execute(&refresh, Some("2026-10-24T12:00:12Z"))
-        .await
-        .unwrap();
-    assert_eq!(invalid.evaluations[0].status, EvaluationStatus::Pending);
-    drop(executor);
-    drop(bridge);
-    fixture.close().await;
-}
-
-#[path = "mcp_bridge/graph_vs_flat.rs"]
-mod graph_vs_flat;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn capability_rate_limit_is_shared_by_bridge_clones_and_rejects_before_another_sdk_call() {

@@ -1,11 +1,11 @@
 {
   "languages": [
-    "EAL/3"
+    "EAL/4"
   ],
-  "source_syntax": "EAL/3",
+  "source_syntax": "EAL/4",
   "syntax": {
     "notation": "Capitalised placeholders denote values. Fields end at newlines and may appear in any order. Square brackets are literal lists/support groups. Names are unique within lexical modules and argument blocks; dotted names identify lowered declarations. Forward references are allowed. Strings use JSON quoting; comments use // or /* */.",
-    "program": "language \"EAL/3\"\nDECLARATIONS",
+    "program": "language \"EAL/4\"\nDECLARATIONS",
     "context": "context environment ENV, tool TOOL, max_age SECONDS, kind KIND {\nDECLARATIONS\n}",
     "module": "module NAME {\nDECLARATIONS\n}",
     "import": "import \"WORKSPACE_SOURCE.eal\" as ALIAS",
@@ -15,7 +15,7 @@
     "scope_transfer": "reasoning NAME {\nmethod \"structured/1\"\nrationale \"CONDITIONAL_RELATION\"\ntransfer from SOURCE_ENV to TARGET_ENV assuming ASSUMPTION reviewed \"REVIEW\"\n}",
     "environment": "environment NAME {\nrequire CONTEXT.FIELD OP SCALAR\n}",
     "tool": "tool NAME {\nversion \"VERSION\"\n}",
-    "evidence": "evidence NAME {\ntool TOOL\nkind KIND\nenvironment ENV\nmax_age SECONDS\ninput JSON\nrequire VALUE.FIELD OP SCALAR\n}",
+    "evidence": "evidence NAME {\ntool TOOL\nkind KIND\nenvironment ENV\nmax_age SECONDS\ninput JSON_OBJECT\nbind \"/target/path\" from SOURCE_EVIDENCE \"/source/path\"\nrequire VALUE.FIELD OP SCALAR\n}",
     "assumption": "assumption NAME {\nstatement \"TEXT\"\nenvironment ENV\nvalidate EVIDENCE\nvalid_from \"TIME\"\nvalid_until \"TIME\"\n}",
     "reasoning": "reasoning NAME {\nmethod \"VERSIONED_METHOD_ID\"\nrationale \"TEXT\"\nbacking [EVIDENCE_LIST]\nrequire OUTPUT.FIELD OP SCALAR\n}",
     "claim": "claim NAME {\nstatement \"TEXT\"\nenvironment ENV\nproposition {\nsubject \"ENTITY\"\nquantity \"QUANTITY\"\nunit \"UNIT\"\nscope \"SCOPE\"\nvalid_from \"TIME\"\nvalid_until \"TIME\"\nquery JSON\nresult OUTPUT.FIELD OP SCALAR\n}\n}",
@@ -25,7 +25,7 @@
     "apply": "apply ARGUMENT = PATTERN(PARAM=REFERENCE, ...)",
     "formal_relations": "strict ARGUMENT reviewed \"REVIEW_REFERENCE\"\nrank EVIDENCE_OR_ASSUMPTION_OR_ARGUMENT INTEGER reviewed \"REVIEW_REFERENCE\"\nprefer FALLIBLE_ELEMENT over FALLIBLE_ELEMENT reviewed \"REVIEW_REFERENCE\"\ncontrary CLAIM to CLAIM reviewed \"REVIEW_REFERENCE\". These are ASPIC+ formalisation directives. reason validates them; compile-aspic applies their effects. Ranks are integers 0-1000; claim contraries are directed.",
     "scope_defaults": "Multiple declarations retain distinct identities, inputs and predicates. Nearest context wins; explicit fields override defaults. Defaults are restricted by declaration type: tool version; evidence environment/tool/kind/input/max_age; assumption environment/validate/dates; claim environment; reasoning method; proposition subject/quantity/unit/scope/dates/query. Required fields are checked after inheritance. Contexts group metadata; modules and block arguments introduce lexical namespaces.",
-    "optional_fields": "Evidence input, reasoning backing, claim proposition, assumption validity dates, each support group and binding are optional. Evidence/environment require predicates; arguments/objections require nonempty support. All proposition fields are required.",
+    "optional_fields": "Evidence input, reasoning backing, claim proposition, assumption validity dates, each support group and argument binding are optional. Evidence/environment require predicates; arguments/objections require nonempty support. All proposition fields are required. In EAL/4 a complete, schema-valid authored proposition.query may supply method input without an observation binding; empirical inputs and their applicability still need explicit evidence and assumptions.",
     "nested_derivations": "Block arguments contain local declarations and finish with a support flow. Compound patterns contain multiple routes, local definitions and nested applications. Premises still reference claims, retaining acyclic engineering derivations. Recursive template expansion is separate from logical self-support: recursive calls must consume a guarded tail of a finite typed list.",
     "abstraction": "Patterns have closed typed parameters. Data references name typed parameters or local declarations; helper pattern calls are resolved lexically. Expansion preserves dependency identities and qualifies generated names by application. Forward references are allowed; invalid bindings are diagnosed.",
     "operators": [
@@ -44,8 +44,25 @@
       "/",
       "%"
     ],
-    "expressions": "Pure functions: field, literal, count, sum, min, max, abs, all, any, quantity. Boolean operands are strict; missing data remains unknown under negation. Numerical operations require finite values; quantity arithmetic checks registered dimensions and rational unit scales. Invalid operations are never masked by Boolean composition.",
-    "lists": "Comma-separated identifiers retain their order. Computational methods need output predicates and typed claims need an evidence binding on each supporting argument."
+    "expressions": "Pure functions: field, literal, object, count, sum, min, max, abs, all, any, quantity, at, flatten, contains, distinct, equal, all_values, any_values, exact_sum, exact_mean, exact_min, exact_max, exact_count, exact_scale, exact_compare. Boolean operands are strict; missing data remains unknown under negation. Numerical operations require finite values; quantity arithmetic checks registered dimensions and rational unit scales. Invalid operations are never masked by Boolean composition. All functions obey interpreter JSON and expression budgets.",
+    "lists": "Comma-separated identifiers retain their order. Computational methods need output predicates. Typed claims bind an acquired or derived input object, or in EAL/4 supply a complete authored query. Bound fields and authored query fields must agree exactly wherever they overlap.",
+    "executable_semantics": "EAL/4 includes explicit source-to-input bindings, pure derived evidence and authored complete typed method queries. All imports declare EAL/4 and use the same interpretation. Older source versions must be migrated before execution.",
+    "derived_evidence": "evidence NAME {\nderive OBJECT_EXPRESSION\nkind KIND\nenvironment ENV\nmax_age SECONDS\ninput JSON_OBJECT\nbind \"/target/path\" from SOURCE_EVIDENCE \"/source/path\"\nrequire VALUE.FIELD OP SCALAR\n}",
+    "input_binding": "A repeatable bind copies one exact JSON value from an admitted upstream observation into an existing input location. Both paths are RFC 6901 JSON pointers; an empty pointer identifies the root. The dependency graph must be acyclic. Missing, stale or failed dependencies prevent downstream execution. Derived evidence has derive instead of tool, must return an object and inherits dependency provenance and the oldest dependency observation time.",
+    "collection_functions": {
+      "object": "object(\"key\", value, ...): unique string keys, JSON object result",
+      "at": "at(array, index): zero-based nonnegative integer index; absent index is an error",
+      "flatten": "flatten(array): one level only; preserves scalar members",
+      "contains_distinct_equal": "contains(array, value), distinct(array), equal(left, right): exact typed JSON identity; object key order is immaterial, strings are case-sensitive, integers and floating values remain distinct",
+      "selected_values": "all_values/any_values and exact aggregates take an array of selected values. A sole selected array is unwrapped once; otherwise each selected value is retained. Boolean helpers require Boolean values; empty all is true and empty any is false."
+    },
+    "exact_numbers": {
+      "domain": "Decimal JSON numbers or eal.exact-number/1 records. Arithmetic uses bounded rational values, without a binary floating conversion. Records contain schema, numerator and denominator integer strings, and an optional unit.",
+      "aggregates": "exact_sum/mean/min/max(selected_values) require nonempty numeric values with compatible units. exact_count(selected_values) allows empty values and returns unit \"1\".",
+      "scale": "exact_scale(value, numerator_string, denominator_string, from_unit, to_unit) requires the declared source unit and a nonzero denominator.",
+      "compare": "exact_compare(value, threshold, operator, unit) supports <, <=, ==, !=, >=, > with explicit unit agreement; conversions are never inferred."
+    },
+    "scoped_review": "Evidence kind scoped_review reserves strict review admission: authored input declares expected criterion,target,scope; the complete value requires matching identity, nonblank reviewer, supported|rejected|inconclusive verdict, nonempty text reasons and original UTC reviewed_at. The original review clock is retained through projections and descendants; malformed or stale reviews cannot provide usable bound input. Generic kind review has no reserved admission contract."
   },
   "methods": {
     "structured/1": {
@@ -190,10 +207,10 @@
   },
   "environment_contexts": "Supply flat context for one shared environment, or {$environments: {ENV: CONTEXT}} for explicit separate contexts. Scope transfer still requires a reviewed relation and validated target assumption.",
   "optional_compilation": {
-    "profile": "EAL/3-compiled-aspic/5",
+    "profile": "EAL/4-compiled-aspic/5",
     "cli": "compile-aspic SOURCE --context JSON --collection COLLECTION_ID --goal CLAIM [--now TIME]",
     "mcp": "eal_compile_aspic(source, context, collection_id, goal, now?)",
-    "input": "Validated EAL/3 source, matching stored observation collection, declared goal claim and explicit or current assessment time",
+    "input": "Validated EAL/4 source, matching stored observation collection, declared goal claim and explicit or current assessment time",
     "meaning": "Check EAL observations and local methods, then translate available evidence, locally usable argument routes, assumptions and targeted objections into a bounded ASPIC+ theory with explicit source mapping; reviewed EAL argumentation relations supply optional strict rules, ranks and directed claim contraries; ordinary EAL reasoning is unchanged",
     "output": [
       "profile",
@@ -215,7 +232,7 @@
     "output": "aspic-view/3 JSON for the separate Vue/TypeScript visualisation app: arguments, direct derivations, grounded labels, selected extensions and query mode, explicit preferences and execution budgets, defeat witnesses, typed unavailable-evidence issues and supplied source locations",
     "meaning": "Recompute the bounded formal result and require exact agreement before exporting. The separate app imports JSON locally; neither export nor viewing collects evidence or authenticates supplied provenance"
   },
-  "composition": "Default EAL/3 computes the least-information fixed point of authored conjunctive support, alternative derivations and objection attacks. Objections can depend on claim subarguments; targeting an objection expresses defence. Attack cycles may remain undecided. Default assessment does not construct ASPIC+ rule arguments or preference-sensitive defeat. The separate opt-in compiler constructs a bounded ASPIC+ snapshot from checked EAL declarations. Rejected acceptance does not assert falsity.",
+  "composition": "Default EAL/4 computes the least-information fixed point of authored conjunctive support, alternative derivations and objection attacks. Objections can depend on claim subarguments; targeting an objection expresses defence. Attack cycles may remain undecided. Default assessment does not construct ASPIC+ rule arguments or preference-sensitive defeat. The separate opt-in compiler constructs a bounded ASPIC+ snapshot from checked EAL declarations. Rejected acceptance does not assert falsity.",
   "statuses": {
     "valid": "Static language well-formedness only",
     "incomplete": "A host budget or timeout prevented a complete calculation; no false or accepted conclusion is manufactured",
@@ -228,8 +245,7 @@
     "describe",
     "validate",
     "plan",
-    "collect_claim|collect",
-    "reason",
+    "execute",
     "packet|explain"
   ],
   "registered_workflow": [
@@ -244,8 +260,8 @@
     "meaning": "A decision-focused projection retains bounded authored statements and explicit prose_verified qualifications for selected and premise claims, checked method outputs, assumption applicability times and bounded field-level evidence failures. Formal support does not verify authored prose. Statement truncation and other omissions mark the summary incomplete. Complete source, acquisition values and trace identities remain in host state. Numeric method results are exposed through declared output contracts, not by copying raw tool records."
   },
   "registered_assessment": "The developer registers exact EAL source and selected claims once. Later sessions identify an entry and claim; the host plans all relevant argument routes, reuses eligible observations at their original age, collects missing evidence, evaluates the declared methods and returns a bounded packet. Model-facing registered MCP calls require a trusted launcher --known-entry allowlist and use registered context. A text-only model can receive this packet from ModelContextAdapter without tool or native reasoning calls.",
-  "acquisition_plan": "eal_plan(source, claim) computes the complete potentially decisive evidence closure, including alternative arguments, transitive premises, backing, assumption validation, objections and defences. eal_collect_claim runs that plan with operator-granted tools.",
-  "tool_binding": "A sibling operator-owned TOML registry chooses command or json_file, bounded execution, optional parallel_safe and command environment inheritance. Registered claims use those bindings through the host. Only operator-declared independent read-only calls may overlap.",
+  "acquisition_plan": "eal_plan(source, claim) computes the complete potentially decisive evidence closure, including bindings, alternative arguments, transitive premises, backing, assumption validation, objections and defences. eal_execute collects and assesses this program with operator-granted tools; separate collect/reason calls remain available.",
+  "tool_binding": "An operator-owned tools.toml maps logical EAL tool names directly to command, mcp_stdio, mcp_http, http_get or json_file adapters, with explicit response projection, bounded execution and environment inheritance. Paths resolve relative to that TOML file. Tool bindings grant acquisition, not epistemic authority. Only operator-declared independent read-only calls may overlap. Capability discovery and saved entry catalogues are optional conveniences.",
   "source_identity": "Collections bind exact root source bytes, imported-source digests and context. Imports contain EAL source only and resolve inside the operator workspace. Registered assessment creates a new collection for a revision and can reuse matching observations at their original age. Reasoning refuses a mismatched collection.",
   "observation_import": {
     "required_envelope_fields": [
@@ -265,5 +281,20 @@
   },
   "time": "Timezone-aware ISO-8601; applicability intervals are [valid_from, valid_until). Evidence age is usable through max_age inclusively. New ingestion does not refresh original observation time.",
   "interpretation": "Statements and rationales are prose. Typed bindings check represented correspondence and numerical predicates, not empirical truth. Model premises, scope, sampling and causal assumptions require their own grounds. Reusing an observation does not create independent evidence.",
-  "example": "language \"EAL/3\"\nenvironment bench {\n  require site == \"bench\"\n}\ntool collector {\n  version \"1\"\n}\ncontext environment bench, tool collector, max_age 3600 {\n  evidence observation {\n    kind test\n    require passed == true\n  }\n  reasoning measured {\n    method \"structured/1\"\n    rationale \"The observation supports only the stated test result in this environment.\"\n  }\n  claim checked {\n    statement \"The supplied test passes at the bench.\"\n  }\n  argument measurement = [evidence observation] via measured => checked\n}\n"
+  "example": "language \"EAL/4\"\nenvironment bench {\n  require site == \"bench\"\n}\ntool collector {\n  version \"1\"\n}\ncontext environment bench, tool collector, max_age 3600 {\n  evidence observation {\n    kind test\n    require passed == true\n  }\n  reasoning measured {\n    method \"structured/1\"\n    rationale \"The observation supports only the stated test result in this environment.\"\n  }\n  claim checked {\n    statement \"The supplied test passes at the bench.\"\n  }\n  argument measurement = [evidence observation] via measured => checked\n}\n",
+  "execution": {
+    "cli": "eal-host run SOURCE.eal --tools tools.toml --workspace RUN [--context CONTEXT.json] [--claim CLAIM] [--now TIME]",
+    "mcp": "eal_execute(source, context, claim?, now?)",
+    "meaning": "Compile one executable EAL program, collect its dependency closure with operator-granted tools, retain observations and assess its declared claims through the same EAL service. A supported result remains conditional on represented observations, models, scope and assumptions."
+  },
+  "preparation": {
+    "cli": "eal-host prepare SOURCE.eal --tools tools.toml --workspace RUN [--claim CLAIM] [--output-tools prepared.tools.toml]",
+    "mcp": "eal_prepare(source, context, claim?)",
+    "meaning": "Bounded discovery of operator-configured MCP interfaces produces server and schema pins plus an inspectable receipt. It invokes no source operation and creates no observations or assessment. The optional generated TOML is sufficient to execute without its receipt. Existing pins are checked before an operation is called; observation metadata retains the actual server, operation and schema identities even for unpinned execution.",
+    "limits": {
+      "tools": 128,
+      "discovery_seconds": 120
+    },
+    "identity_limit": "Advertised server implementation identity and canonical interface hashes establish correspondence, not independent remote binary attestation or evidence truth."
+  }
 }

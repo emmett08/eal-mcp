@@ -23,6 +23,8 @@ pub struct ToolBinding {
     pub pinned_files: Vec<PinnedFile>,
     pub parallel_safe: bool,
     pub inherit_env: Option<Vec<String>>,
+    pub direct: Option<eal_collector_contracts::DirectBinding>,
+    pub(crate) package_root: Option<PathBuf>,
 }
 impl std::fmt::Debug for ToolBinding {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -37,6 +39,70 @@ impl std::fmt::Debug for ToolBinding {
     }
 }
 impl ToolBinding {
+    /// Check operator-owned configuration without invoking a source.
+    pub fn preflight(&self, workspace: &Path) -> Result<(), AcquisitionError> {
+        super::registry::validate_binding(self)?;
+        super::normalization::preflight(self, workspace)?;
+        let environment = self.effective_environment()?;
+        match self.kind {
+            ToolKind::McpHttp => {
+                let direct = self.direct.as_ref().expect("validated direct settings");
+                eal_mcp_client::client::create_http_target(
+                    direct.url.as_deref().unwrap(),
+                    direct.token_env.as_deref(),
+                    &environment,
+                )
+                .map_err(AcquisitionError::invalid)?;
+            }
+            ToolKind::HttpGet => {
+                let direct = self.direct.as_ref().expect("validated direct settings");
+                let url = reqwest::Url::parse(direct.url.as_deref().unwrap())
+                    .map_err(|_| AcquisitionError::invalid("Invalid HTTP URL"))?;
+                eal_adapters::http::JsonClient::new(
+                    &url.origin().ascii_serialization(),
+                    &direct.headers_env,
+                    direct.token_env.as_deref(),
+                    std::time::Instant::now(),
+                    std::time::Duration::from_secs_f64(self.timeout_seconds),
+                    self.max_output_bytes,
+                )
+                .map_err(|error| AcquisitionError::invalid(error.to_string()))?;
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+
+    /// Validate a complete literal input against configured schemas before any source runs.
+    /// Inputs with upstream bindings are checked after those values are resolved.
+    pub(crate) fn preflight_input(
+        &self,
+        request: &Value,
+        workspace: &Path,
+    ) -> Result<(), AcquisitionError> {
+        if self.direct.is_some() {
+            super::normalization::input(self, request, workspace)?;
+        }
+        Ok(())
+    }
+
+    pub fn package_root<'a>(&'a self, workspace: &'a Path) -> &'a Path {
+        self.package_root.as_deref().unwrap_or(workspace)
+    }
+    pub fn resolved_argv(&self, workspace: &Path) -> Result<Vec<String>, AcquisitionError> {
+        let mut argv = self.argv.clone();
+        if let Some(command) = argv.first_mut()
+            && !Path::new(command).is_absolute()
+            && command.contains('/')
+        {
+            *command = files::bounded_path(self.package_root(workspace), command)?
+                .to_str()
+                .ok_or("Executable path is not Unicode")?
+                .to_owned();
+        }
+        Ok(argv)
+    }
+
     pub fn command(name: impl Into<String>, version: impl Into<String>, argv: Vec<String>) -> Self {
         Self {
             name: name.into(),
@@ -49,7 +115,9 @@ impl ToolBinding {
             env: BTreeMap::new(),
             pinned_files: Vec::new(),
             parallel_safe: false,
-            inherit_env: None,
+            inherit_env: Some(Vec::new()),
+            direct: None,
+            package_root: None,
         }
     }
     pub fn json_file(
@@ -59,6 +127,7 @@ impl ToolBinding {
     ) -> Self {
         Self {
             kind: ToolKind::JsonFile,
+            inherit_env: None,
             path: Some(path.into()),
             ..Self::command(name, version, Vec::new())
         }
@@ -78,22 +147,19 @@ impl ToolBinding {
                     );
                 }
             }
-        } else {
-            for (name, value) in std::env::vars_os() {
-                let name = name.into_string().map_err(|_| {
-                    AcquisitionError::invalid(
-                        "Process environment must contain valid Unicode scalar values",
-                    )
-                })?;
-                let value = value.into_string().map_err(|_| {
-                    AcquisitionError::invalid(
-                        "Process environment must contain valid Unicode scalar values",
-                    )
-                })?;
-                current.insert(name, value);
-            }
         }
         current.extend(self.env.clone());
+        if let Some(direct) = &self.direct {
+            for name in direct.token_env.iter().chain(direct.headers_env.values()) {
+                let value = std::env::var(name).map_err(|_| {
+                    AcquisitionError::invalid("Configured HTTP credential is unavailable")
+                })?;
+                if value.is_empty() {
+                    return Err("Configured HTTP credential is empty".into());
+                }
+                current.insert(name.clone(), value);
+            }
+        }
         Ok(current)
     }
     pub fn process_environment_digest(
@@ -113,7 +179,7 @@ impl ToolBinding {
         effective_env: Option<&BTreeMap<String, String>>,
         limits: &ExecutionLimits,
     ) -> Result<Option<String>, AcquisitionError> {
-        if self.kind != ToolKind::Command {
+        if self.kind == ToolKind::JsonFile {
             return Ok(None);
         }
         let environment = match effective_env {
@@ -141,6 +207,7 @@ impl ToolBinding {
         limits: &ExecutionLimits,
     ) -> Result<String, AcquisitionError> {
         super::registry::validate_binding(self)?;
+        let workspace = self.package_root.as_deref().or(workspace);
         if !self.pinned_files.is_empty() && workspace.is_none() {
             return Err("Pinned collector files require a workspace".into());
         }
@@ -161,6 +228,10 @@ impl ToolBinding {
         let mut identity = json!({"name":self.name,"kind":self.kind.as_str(),"version":self.version,
             "argv":self.argv,"path":self.path,"timeout_seconds":self.timeout_seconds,
             "max_output_bytes":self.max_output_bytes,"env":self.env,"pinned_files":self.pinned_files});
+        if let Some(direct) = &self.direct {
+            identity["direct"] = serde_json::to_value(direct)
+                .map_err(|_| AcquisitionError::invalid("Cannot encode direct binding"))?;
+        }
         if let Some(inherited) = &self.inherit_env {
             let mut sorted = inherited.clone();
             sorted.sort();

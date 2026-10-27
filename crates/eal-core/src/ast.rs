@@ -129,6 +129,14 @@ pub enum Field {
         property: JsonProperty,
         value: JsonValue,
     },
+    Derive {
+        expression: Expression,
+    },
+    InputBinding {
+        target: String,
+        evidence: String,
+        source: String,
+    },
     Require {
         expression: Expression,
     },
@@ -152,6 +160,8 @@ pub enum Field {
 impl Field {
     pub fn name(&self) -> &'static str {
         match self {
+            Self::InputBinding { .. } => "bind",
+            Self::Derive { .. } => "derive",
             Self::Text { property, .. } => match property {
                 TextProperty::Version => "version",
                 TextProperty::Statement => "statement",
@@ -344,8 +354,9 @@ pub struct Declaration {
     pub value: DeclarationKind,
 }
 
-/// Authored EAL/3 syntax with inherited-field checks, before any source IO or expansion.
+/// Authored EAL/4 syntax with inherited-field checks, before any source IO or expansion.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Program {
     pub language: String,
     pub declarations: Vec<Declaration>,

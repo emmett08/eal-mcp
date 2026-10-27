@@ -9,7 +9,8 @@ impl Program {
     /// Output size and token limits are unchecked. Use [`Self::format_with_limits`]
     /// when the result must be accepted under an operator's parser limits.
     pub fn format(&self) -> String {
-        let mut output = format!("language {}\n", quote(&self.language));
+        let mut output = format!("language {}", quote(&self.language));
+        output.push('\n');
         for declaration in &self.declarations {
             declaration_source(&mut output, declaration, 0);
         }
@@ -197,9 +198,14 @@ fn field_source(value: &Field) -> String {
         Field::Name { value, .. } | Field::Kind { value } => value.clone(),
         Field::MaxAge { value } => value.0.clone(),
         Field::Json { value, .. } => json(value),
-        Field::Require { expression: value } | Field::Result { expression: value } => {
-            expression(value)
-        }
+        Field::InputBinding {
+            target,
+            evidence,
+            source,
+        } => format!("{} from {} {}", quote(target), evidence, quote(source)),
+        Field::Require { expression: value }
+        | Field::Result { expression: value }
+        | Field::Derive { expression: value } => expression(value),
         Field::Backing { references: values } => format!("[{}]", references(values)),
         Field::Transfer {
             source,

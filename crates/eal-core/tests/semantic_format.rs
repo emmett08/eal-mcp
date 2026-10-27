@@ -6,7 +6,7 @@ fn compile(source: &str) -> eal_core::semantic::Program {
     composition::compile(source, None, "", ExecutionLimits::default()).unwrap()
 }
 
-const PLAIN: &str = r#"language "EAL/3"
+const PLAIN: &str = r#"language "EAL/4"
 environment lab {
 require site == "bench"
 }
@@ -73,12 +73,12 @@ fn payload_keys_named_span_remain_semantic() {
 
 #[test]
 fn captured_imports_format_without_a_source_resolver() {
-    let imported = r#"language "EAL/3"
+    let imported = r#"language "EAL/4"
 environment lab {
 require site == "bench"
 }
 "#;
-    let source = r#"language "EAL/3"
+    let source = r#"language "EAL/4"
 import "support.eal" as support
 claim result {
 statement "A bounded imported condition."
@@ -124,7 +124,7 @@ fn direct_templates_require_authored_syntax() {
 
 #[test]
 fn formatted_output_obeys_source_budgets() {
-    let source = "language \"EAL/3\"\nenvironment lab{\nrequire ok\n}\n";
+    let source = "language \"EAL/4\"\nenvironment lab{\nrequire ok\n}\n";
     let mut program = compile(source);
     assert!(semantic_format::format_default(&program).unwrap().len() > source.len());
     program.limits.source_bytes = source.len();
@@ -135,7 +135,7 @@ fn formatted_output_obeys_source_budgets() {
     let error = semantic_format::format_default(&program).unwrap_err();
     assert!(error.to_string().contains("FORMAT_RESOURCE"), "{error}");
     let source = format!(
-        "language \"EAL/3\"\nenvironment lab {{\nrequire {}ok\n}}\n",
+        "language \"EAL/4\"\nenvironment lab {{\nrequire {}ok\n}}\n",
         "not ".repeat(127)
     );
     let program = compile(&source);

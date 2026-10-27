@@ -165,6 +165,26 @@ fn enter_inputField(&mut self, _ctx: &InputFieldContext<'input>) { }
  */
 fn exit_inputField(&mut self, _ctx: &InputFieldContext<'input>) { }
 /**
+ * Enter a parse tree produced by {@link EALParser#inputBindingField}.
+ * @param ctx the parse tree
+ */
+fn enter_inputBindingField(&mut self, _ctx: &InputBindingFieldContext<'input>) { }
+/**
+ * Exit a parse tree produced by {@link EALParser#inputBindingField}.
+ * @param ctx the parse tree
+ */
+fn exit_inputBindingField(&mut self, _ctx: &InputBindingFieldContext<'input>) { }
+/**
+ * Enter a parse tree produced by {@link EALParser#deriveField}.
+ * @param ctx the parse tree
+ */
+fn enter_deriveField(&mut self, _ctx: &DeriveFieldContext<'input>) { }
+/**
+ * Exit a parse tree produced by {@link EALParser#deriveField}.
+ * @param ctx the parse tree
+ */
+fn exit_deriveField(&mut self, _ctx: &DeriveFieldContext<'input>) { }
+/**
  * Enter a parse tree produced by {@link EALParser#assumptionDecl}.
  * @param ctx the parse tree
  */

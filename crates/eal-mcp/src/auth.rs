@@ -1,36 +1,12 @@
 //! Opaque bearer authentication and explicit HTTP Host/Origin admission.
-use crate::settings::{ServerSettings, environment_name};
+use crate::settings::ServerSettings;
 use sha2::{
     Digest, Sha256,
     digest::{CtOutput, Output},
 };
 use std::collections::{BTreeMap, BTreeSet};
 
-pub fn validate_bearer_token(token: &str) -> Result<(), String> {
-    if token.is_empty() || !token.bytes().all(|c| (33..=126).contains(&c)) {
-        Err("HTTP bearer token must contain only non-whitespace printable ASCII characters".into())
-    } else {
-        Ok(())
-    }
-}
-pub fn read_bearer_token(
-    name: Option<&str>,
-    environ: &BTreeMap<String, String>,
-) -> Result<Option<String>, String> {
-    let Some(name) = name else {
-        return Ok(None);
-    };
-    if !environment_name(name) {
-        return Err("token_env must name an environment variable".into());
-    }
-    let token = environ.get(name).filter(|s| !s.is_empty()).ok_or_else(|| {
-        format!("HTTP bearer token environment variable {name} is missing or empty")
-    })?;
-    validate_bearer_token(token).map_err(|_| {
-        format!("HTTP bearer token environment variable {name} contains invalid characters")
-    })?;
-    Ok(Some(token.clone()))
-}
+pub use eal_mcp_client::authentication::{read_bearer_token, validate_bearer_token};
 #[derive(Clone)]
 pub struct BearerTokenVerifier {
     digest: Output<Sha256>,

@@ -1,6 +1,6 @@
 [package]
 name = "eal-cli"
-description = "Development commands for EAL/3 authored and finite formal reasoning"
+description = "Development commands for EAL/4 authored and finite formal reasoning"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

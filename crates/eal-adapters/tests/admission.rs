@@ -144,23 +144,87 @@ fn retained_artifacts_accept_directory_aliases_but_reject_relative_and_leaf_esca
     assert!(retained::import_artifacts(&[artifact("leaf.json".into(), bytes)], &alias).is_err());
 }
 
+fn review_request() -> AcquisitionRequest {
+    serde_json::from_value(json!({"evidence_id":"lab","environment":"bench","tool":"lab.review","tool_version":"1",
+        "input":{"criterion":"calibration applicable","target":"meter-A","scope":{"run":"A"}},"context":{"scope":"B"}})).unwrap()
+}
+fn review_value(verdict: &str) -> serde_json::Value {
+    json!({"criterion":"calibration applicable","target":"meter-A","scope":{"run":"A"},
+        "reviewer":"lab-reviewer","verdict":verdict,"reasons":["The retained calibration episode has the stated limit."],
+        "reviewed_at":"2024-01-02T00:00:00Z","evidence_refs":["calibration-record-A"]})
+}
 #[test]
-fn retained_review_preserves_false_and_exact_request_identity() {
-    let request:AcquisitionRequest=serde_json::from_value(json!({"evidence_id":"lab","environment":"bench","tool":"lab.review","tool_version":"1","input":{"run":"A"},"context":{"scope":"B"}})).unwrap();
-    let review = retained::Review {
-        request: request.acquisition(),
-        observed_at: "2024-01-02T00:00:00Z".into(),
-        value: json!({"accepted":false,"reason":"measured negative"}),
-    };
-    let (value, observed) = retained::import_review(&request, vec![review]).unwrap();
-    assert_eq!(value["accepted"], false);
-    assert_eq!(observed, "2024-01-02T00:00:00Z");
-    let other = retained::Review {
-        request: json!({"tool":"lab.review","tool_version":"1","input":{"run":"different"},"context":{"scope":"B"}}),
-        observed_at: "2024-01-02T00:00:00Z".into(),
-        value: json!({"accepted":true}),
-    };
-    assert!(retained::import_review(&request, vec![other]).is_err());
+fn scoped_reviews_preserve_every_verdict_and_original_review_time() {
+    let request = review_request();
+    for verdict in ["supported", "rejected", "inconclusive"] {
+        let review = retained::Review {
+            request: request.acquisition(),
+            value: review_value(verdict),
+        };
+        let (value, observed) = retained::import_review(&request, vec![review]).unwrap();
+        assert_eq!(value["verdict"], verdict);
+        assert_eq!(observed, "2024-01-02T00:00:00Z");
+        assert!(value.get("accepted").is_none());
+    }
+}
+#[test]
+fn scoped_reviews_reject_missing_identity_reasons_scope_and_duplicate_requests() {
+    let request = review_request();
+    for (field, replacement) in [
+        ("scope", json!({"run":"other"})),
+        ("target", json!("other")),
+        ("criterion", json!("other")),
+        ("reviewer", json!("")),
+        ("verdict", json!("true")),
+        ("reasons", json!([])),
+        ("reviewed_at", json!("2024-02-30T00:00:00Z")),
+    ] {
+        let mut value = review_value("supported");
+        value[field] = replacement;
+        assert!(
+            retained::import_review(
+                &request,
+                vec![retained::Review {
+                    request: request.acquisition(),
+                    value
+                }]
+            )
+            .is_err(),
+            "{field}"
+        );
+    }
+    assert!(
+        retained::import_review(
+            &request,
+            vec![retained::Review {
+                request: request.acquisition(),
+                value: json!({"accepted":true})
+            }]
+        )
+        .is_err()
+    );
+    let records = (0..2)
+        .map(|_| retained::Review {
+            request: request.acquisition(),
+            value: review_value("supported"),
+        })
+        .collect();
+    assert!(retained::import_review(&request, records).is_err());
+    let mut different = request.acquisition();
+    different["context"] = json!({"scope":"different"});
+    assert!(
+        retained::import_review(
+            &request,
+            vec![retained::Review {
+                request: different,
+                value: review_value("supported")
+            }]
+        )
+        .is_err()
+    );
+    let mut unscoped = request;
+    unscoped.input["scope"] = json!(null);
+    assert!(retained::import_review(&unscoped, vec![]).is_err());
 }
 
 #[test]

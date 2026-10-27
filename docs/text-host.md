@@ -14,7 +14,7 @@ Integer budgets reject decimal and exponent spellings before numerical conversio
 Registered source selection and request admission precede acquisition leases.
 See [operation contract ownership](remediation-operations.md).
 
-The default transport launches the installed sibling `eal-mcp` executable with explicit resolved settings. It removes every `EAL_MCP_*` variable from the child environment, so the child does not reload a configuration file or apply those variables again. Install `eal-mcp`, `eal-host`, `eal-command-supervisor`, and `eal-method-worker` together.
+The default transport launches the installed sibling `eal-mcp` executable with explicit resolved settings. It removes every `EAL_MCP_*` variable from the child environment, so the child does not reload a configuration file or apply those variables again. Install `eal-mcp`, `eal-host`, `eal-process-supervisor`, and `eal-method-worker` together. Add `eal-tool-run` for bindings to portable verified tool packages.
 
 Registered clients can use operation `get_known_packet` with `entry_id`,
 `assessment_id` and `claim` to recover a stored packet. Operations

@@ -28,7 +28,7 @@ impl Drop for Directory {
     }
 }
 fn source(count: usize, padding: usize) -> String {
-    let mut s="language \"EAL/3\"\nenvironment lab {\nrequire site == \"bench\"\n}\ntool runner {\nversion \"1\"\n}\n".to_owned();
+    let mut s="language \"EAL/4\"\nenvironment lab {\nrequire site == \"bench\"\n}\ntool runner {\nversion \"1\"\n}\n".to_owned();
     for i in 0..count {
         let input = if i + 1 == count && padding != 0 {
             format!("input {{\"payload\":\"{}\"}}\n", "x".repeat(padding))

@@ -4,7 +4,7 @@ mod native_case;
 use serde_json::{Value, json};
 
 fn typed_missing() -> Value {
-    let source = r#"language "EAL/3"
+    let source = r#"language "EAL/4"
 environment lab {
  require site == "bench"
 }

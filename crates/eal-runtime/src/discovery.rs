@@ -18,7 +18,16 @@ fn guide() -> &'static Value {
 /// Listed MCP operations describe the interface available through configured servers.
 pub fn describe_language(registry: &MethodRegistry) -> Result<Value, String> {
     let mut guide = guide().clone();
+    guide["source_syntax"] = json!(eal_core::LANGUAGE);
+    guide["languages"] = json!([eal_core::LANGUAGE]);
     guide["implementation_version"] = json!(env!("CARGO_PKG_VERSION"));
+    guide["execution_features"] = json!([
+        "evidence_bindings",
+        "pure_derivations",
+        "direct_tool_bindings",
+        "interface_preparation",
+        "execute"
+    ]);
     guide["method_registry_fingerprint"] = json!(registry.fingerprint());
     guide["typed_bindings"] = propositions::describe_bindings(registry);
     guide["native_capabilities"] = json!({"language_reference":true,"authored_assessment":true,"registered_assessment":true,

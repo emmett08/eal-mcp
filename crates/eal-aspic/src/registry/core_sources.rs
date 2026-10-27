@@ -173,6 +173,14 @@ pub(super) const SOURCES: &[(&str, &str)] = &[
         include_str!("../../../eal-core/src/methods/probabilistic.rs"),
     ),
     (
+        "eal-core/methods/query.rs",
+        include_str!("../../../eal-core/src/methods/query.rs"),
+    ),
+    (
+        "eal-core/methods/work.rs",
+        include_str!("../../../eal-core/src/methods/work.rs"),
+    ),
+    (
         "eal-core/methods/schema.rs",
         include_str!("../../../eal-core/src/methods/schema.rs"),
     ),

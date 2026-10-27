@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::path::PathBuf;
 
-pub const TICKET_SCHEMA: &str = "eal.ticket/1";
-pub const STAGE_REQUEST_SCHEMA: &str = "eal.ticket-stage/1";
-pub const STAGE_RESULT_SCHEMA: &str = "eal.ticket-stage-result/1";
+pub const TICKET_SCHEMA: &str = "eal.ticket/2";
+pub const STAGE_REQUEST_SCHEMA: &str = "eal.ticket-stage/2";
+pub const STAGE_RESULT_SCHEMA: &str = "eal.ticket-stage-result/2";
 
 /// A usable measurement can refute its predicate while completing an investigation.
 /// Acquisition failure, expiry and missing observations remain unresolved outcomes.
@@ -49,14 +49,9 @@ impl Stage {
     pub const fn required_artifacts(self) -> &'static [&'static str] {
         match self {
             Self::Author => &["analysis"],
-            Self::Integrate => &["analysis_ready", "planning", "connections", "registration"],
-            Self::Export => &["source", "tools", "bundle"],
-            Self::Execute => &[
-                "source_registration",
-                "collection",
-                "assessment",
-                "registered_assessment",
-            ],
+            Self::Integrate => &["analysis_ready", "integration"],
+            Self::Export => &["source", "tools", "build"],
+            Self::Execute => &["execution", "collection", "assessment"],
         }
     }
 }

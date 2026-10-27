@@ -4,7 +4,7 @@ use eal_core::{ExecutionLimits, canonical, composition, evaluation};
 use serde_json::{Value, json};
 
 pub const NOW: &str = "2026-10-24T12:00:00Z";
-pub const SOURCE: &str = r#"language "EAL/3"
+pub const SOURCE: &str = r#"language "EAL/4"
 environment lab {
  require site == "bench"
 }
@@ -38,7 +38,7 @@ argument propagate = [premises working] via measured => downstream
 pub fn observation(source: &str, name: &str, context: &Value, value: Value) -> Value {
     let program = composition::compile(source, None, "", ExecutionLimits::default()).unwrap();
     let evidence = &program.evidence[name];
-    let tool = &program.tools[&evidence.tool];
+    let tool = &program.tools[evidence.tool.as_ref().unwrap()];
     let acquisition = json!({"tool":tool.name,"tool_version":tool.version,"input":evidence.input,"context":context});
     let full = json!({"evidence_id":name,"environment":evidence.environment,"tool":tool.name,"tool_version":tool.version,"input":evidence.input,"context":context});
     json!({"schema":"EAL/observation-record/1","evidence_id":name,"source_digest":program.source_digest,
@@ -65,7 +65,7 @@ pub fn theory() -> Value {
 pub fn typed_case() -> Value {
     let payload = theory();
     let source = format!(
-        r#"language "EAL/3"
+        r#"language "EAL/4"
 environment lab {{
  require site == "bench"
 }}

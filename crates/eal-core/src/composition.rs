@@ -592,7 +592,7 @@ impl<'a> Lowerer<'a> {
             }
             self.generated.clear();
         }
-        let mut program = s::Program::empty("EAL/3".into(), String::new(), self.limits.clone());
+        let mut program = s::Program::empty("EAL/4".into(), String::new(), self.limits.clone());
         let records: Vec<_> = self
             .records
             .values()

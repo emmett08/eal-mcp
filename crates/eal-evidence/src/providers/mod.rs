@@ -1,4 +1,4 @@
-//! One graph dispatcher for qualified MCP, command, HTTP and retained sources.
+//! Optional native and MCP candidate discovery for authoring.
 mod config;
 mod dispatcher;
 mod native;

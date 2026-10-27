@@ -12,7 +12,27 @@ fn language_guide_retains_executable_example_and_native_registry_identity() {
         guide["method_registry_fingerprint"],
         methods::default_registry().fingerprint()
     );
-    assert_eq!(guide["languages"], json!(["EAL/3"]));
+    assert_eq!(guide["languages"], json!(["EAL/4"]));
+    assert_eq!(guide["source_syntax"], "EAL/4");
+    assert!(guide.get("execution_profiles").is_none());
+    assert!(
+        guide["execution_features"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|feature| feature == "evidence_bindings")
+    );
+    assert!(
+        guide["execution_features"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|feature| feature == "interface_preparation")
+    );
+    assert_eq!(
+        guide["preparation"]["mcp"],
+        "eal_prepare(source, context, claim?)"
+    );
     assert_eq!(guide["implementation_version"], env!("CARGO_PKG_VERSION"));
     assert_eq!(
         guide["registered_workflow"],

@@ -30,7 +30,7 @@ impl Fixture {
         let counter = work.join("calls");
         let mut artifacts = Vec::new();
         let mut responses = Vec::new();
-        let source_text = r#"language "EAL/3"
+        let source_text = r#"language "EAL/4"
 environment lab {
   require true
 }
@@ -69,6 +69,25 @@ argument selected_support = [evidence observation] via measured => selected_clai
 argument unused_support = [evidence unused] via measured => stronger_target
 "#;
         let source_digest = format!("{:x}", Sha256::digest(source_text.as_bytes()));
+        let program = eal_core::composition::compile(
+            source_text,
+            None,
+            "ticket.eal",
+            eal_core::ExecutionLimits::default(),
+        )
+        .unwrap();
+        let executable_digest = eal_core::semantic_format::executable_digest(
+            &program,
+            eal_core::methods::default_registry(),
+        )
+        .unwrap();
+        let context_fingerprint =
+            eal_core::canonical::canonical_digest(&json!({}), &Default::default()).unwrap();
+        let collection = json!({"source_digest":source_digest,"context":{},"collection_id":"collection_fixture","records":{"observation":{"status":"ok","value":{"passed":false}}}});
+        let assessment = json!({"source_digest":source_digest,"context_fingerprint":context_fingerprint,"collection_id":"collection_fixture","assessment_id":"assessment_fixture","valid":true,"complete":true,"claims":{"selected_claim":{"status":"unsupported"}},"evidence":{"observation":{"status":"unavailable","availability_issues":["predicate_not_met"]},"unused":{"status":"unavailable","availability_issues":["missing_observation"]}}});
+        let execution = json!({"is_error":false,"result":{"schema":"EAL/execution/1","source_digest":source_digest,"executable_digest":executable_digest,"claim":"selected_claim","collection":collection,"assessment":assessment}});
+        let tools = "[tools.runner]\nkind='command'\nversion='1'\nargv=['unused']\n";
+        let tools_digest = format!("{:x}", Sha256::digest(tools.as_bytes()));
         let precise=eal_collector_contracts::strict_json_exact(br#"{"precision":1.0000000000000000000001,"literal":{"$serde_json::private::Number":"1"}}"#,Default::default()).unwrap();
         for stage in Stage::ALL {
             let stage_artifacts = stage
@@ -76,15 +95,14 @@ argument unused_support = [evidence unused] via measured => stronger_target
                 .iter()
                 .map(|kind| {
                     let path = work.join(format!("{kind}.json"));
-                    let data=match *kind {
-                        "bundle"=>json!({"source":source_text,"claim_names":{"current_claim":"selected_claim"}}),
-                        "source_registration"=>json!({"entry_id":"registered_ticket","source_digest":source_digest}),
-                        "collection"=>json!({"is_error":false,"result":{"source_digest":source_digest,"collection_id":"initial_collection","records":{"observation":{"status":"error"},"unused":{"status":"error"}}}}),
-                        "registered_assessment"=>json!({"is_error":false,"result":{"schema":"EAL/registered-assessment/1","entry_id":"registered_ticket","source_digest":source_digest,"collection_id":"final_collection","assessment_id":"assessment_fixture","claim":"selected_claim","status":"unsupported"}}),
-                        "assessment"=>json!({"is_error":false,"result":{"source_digest":source_digest,"collection_id":"final_collection","assessment_id":"assessment_fixture","valid":true,"complete":true,"claims":{"selected_claim":{"status":"unsupported"}},"evidence":{"observation":{"status":"unavailable","availability_issues":["predicate_not_met"]},"unused":{"status":"unavailable","availability_issues":["missing_observation"]}}}}),
-                        _=>json!({"artifact":kind}),
+                    let data = match *kind {
+                        "build" => json!({"schema":"engarg.executable-package/1","files":{"case.eal":source_digest,"tools.toml":tools_digest},"executable_digest":executable_digest,"claims":{"current_claim":"selected_claim"}}),
+                        "collection" => collection.clone(),
+                        "assessment" => assessment.clone(),
+                        "execution" => execution.clone(),
+                        _ => json!({"artifact":kind}),
                     };
-                    let bytes=if *kind=="source" {source_text.as_bytes().to_vec()}else{serde_json::to_vec(&data).unwrap()};
+                    let bytes = match *kind { "source"=>source_text.as_bytes().to_vec(),"tools"=>tools.as_bytes().to_vec(),_=>serde_json::to_vec(&data).unwrap() };
                     std::fs::write(&path, &bytes).unwrap();
                     Artifact {
                         kind: (*kind).into(),
@@ -110,7 +128,7 @@ argument unused_support = [evidence unused] via measured => stronger_target
                     stage_artifacts
                 },
                 outcome: Some(if stage == Stage::Execute {
-                    let mut summary=json!({"complete":true,"valid":true,"claim_status":"unsupported","entry_id":"registered_ticket","source_digest":source_digest,"collection_id":"final_collection","initial_collection_id":"initial_collection","assessment_id":"assessment_fixture"});
+                    let mut summary=json!({"complete":true,"valid":true,"claim_status":"unsupported","claim":"selected_claim","source_digest":source_digest,"executable_digest":executable_digest,"collection_id":"collection_fixture","assessment_id":"assessment_fixture"});
                     summary["precision"]=precise["precision"].clone(); summary["literal"]=precise["literal"].clone(); summary
                 } else {
                     json!({"reason":"fixture"})
@@ -376,12 +394,12 @@ fn invalid_claim_status_and_cross_artifact_execution_identities_are_rejected() {
             r#""claim_status":"banana""#,
         ),
         (
-            r#""collection_id":"final_collection""#,
+            r#""collection_id":"collection_fixture""#,
             r#""collection_id":"different_collection""#,
         ),
         (
-            r#""initial_collection_id":"initial_collection""#,
-            r#""initial_collection_id":"different_initial""#,
+            r#""claim":"selected_claim""#,
+            r#""claim":"stronger_target""#,
         ),
     ] {
         let fixture = Fixture::new(None, None, false);
@@ -427,4 +445,40 @@ fn oversized_execution_receipt_keeps_a_small_inspectable_failure_index() {
             .len()
             < 1024 * 1024
     );
+}
+
+#[test]
+fn rehashed_collection_payload_cannot_replace_the_retained_execution_result() {
+    let fixture = Fixture::new(None, None, false);
+    let collection = fixture
+        .artifacts
+        .iter()
+        .find(|artifact| artifact.kind == "collection")
+        .unwrap();
+    let mut value: Value =
+        serde_json::from_slice(&std::fs::read(&collection.path).unwrap()).unwrap();
+    value["records"]["observation"]["value"]["passed"] = json!(true);
+    let bytes = serde_json::to_vec(&value).unwrap();
+    std::fs::write(&collection.path, &bytes).unwrap();
+    let replacement = Artifact {
+        sha256: format!("{:x}", Sha256::digest(&bytes)),
+        bytes: bytes.len() as u64,
+        ..collection.clone()
+    };
+    let script_path = fixture.work.join("worker.sh");
+    let script = std::fs::read_to_string(&script_path).unwrap();
+    let before = serde_json::to_string(collection).unwrap();
+    let after = serde_json::to_string(&replacement).unwrap();
+    assert!(script.contains(&before));
+    let script = script.replace(&before, &after);
+    std::fs::write(&script_path, &script).unwrap();
+    let mut spec: TicketSpec =
+        serde_json::from_slice(&std::fs::read(&fixture.spec).unwrap()).unwrap();
+    spec.inputs[0].sha256 = format!("{:x}", Sha256::digest(script.as_bytes()));
+    spec.inputs[0].bytes = script.len() as u64;
+    std::fs::write(&fixture.spec, serde_json::to_vec(&spec).unwrap()).unwrap();
+    let (output, result) = fixture.execute("ticket-run");
+    assert!(!output.status.success());
+    assert_eq!(result["status"], "failed");
+    assert_eq!(result["stages"].as_array().unwrap().len(), 4);
 }

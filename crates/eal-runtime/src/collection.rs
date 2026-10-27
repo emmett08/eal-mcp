@@ -1,4 +1,5 @@
 //! Durable acquisition under an explicitly selected operator registry.
+mod dependencies;
 mod size;
 
 use crate::{
@@ -42,15 +43,38 @@ pub fn acquisition_request(
         .evidence
         .get(evidence_id)
         .ok_or("Undeclared evidence identifier")?;
-    let tool = program
-        .tools
-        .get(&evidence.tool)
-        .ok_or("Undeclared evidence tool")?;
+    if !evidence.bindings.is_empty() {
+        return Err("Bound acquisition request requires parent observations".into());
+    }
+    request_for_input(program, evidence_id, context, &evidence.input)
+}
+
+fn request_for_input(
+    program: &Program,
+    evidence_id: &str,
+    context: &Value,
+    input: &Value,
+) -> Result<Value, String> {
+    let evidence = program
+        .evidence
+        .get(evidence_id)
+        .ok_or("Undeclared evidence identifier")?;
+    let tool = evidence
+        .tool
+        .as_ref()
+        .map(|name| program.tools.get(name).ok_or("Undeclared evidence tool"))
+        .transpose()?;
+    let tool_name = tool.map(|tool| &tool.name);
+    let version = tool.map(|tool| &tool.version);
     canonical::canonical_digest(context, &program.limits)?;
     let context = evaluation::environment_context(&evidence.environment, context)?;
-    Ok(
-        json!({"tool":tool.name,"tool_version":tool.version,"input":evidence.input,"context":context}),
-    )
+    Ok(json!({"tool":tool_name,"tool_version":version,"input":input,"context":context}))
+}
+
+/// One admitted selection shared by collection and interface preparation.
+pub(crate) struct AdmittedPlan {
+    pub evidence_ids: Vec<String>,
+    pub binding_digests: BTreeMap<String, String>,
 }
 
 #[derive(Clone)]
@@ -102,6 +126,16 @@ impl EvidenceRuntime {
         context: &Value,
         evidence_ids: Option<&[String]>,
     ) -> Result<Vec<String>, String> {
+        self.admit_plan(program, context, evidence_ids)
+            .map(|plan| plan.evidence_ids)
+    }
+
+    pub(crate) fn admit_plan(
+        &self,
+        program: &Program,
+        context: &Value,
+        evidence_ids: Option<&[String]>,
+    ) -> Result<AdmittedPlan, String> {
         let diagnostics = validation::validate(program, &self.method_registry);
         if !diagnostics.is_empty() {
             return Err(format!(
@@ -137,6 +171,7 @@ impl EvidenceRuntime {
         {
             return Err("evidence_ids must be unique declared evidence identifiers".into());
         }
+        let names = eal_core::acquisition::dependency_order(program, &names)?;
         if names.len() > program.limits.collection_evidence {
             return Err(format!(
                 "Collection exceeds {} evidence requests",
@@ -144,10 +179,10 @@ impl EvidenceRuntime {
             ));
         }
         let mut output_allowance = 0usize;
+        let mut binding_digests = BTreeMap::new();
         for name in &names {
             let declaration = &program.evidence[name];
-            let version = &program.tools[&declaration.tool].version;
-            let acquisition = acquisition_request(program, name, context)?;
+            let acquisition = request_for_input(program, name, context, &declaration.input)?;
             let request = full_request(name, &declaration.environment, &acquisition);
             if size::json_size(&request, true, &program.limits)?.saturating_add(1)
                 > acquisition::MAX_REQUEST_BYTES
@@ -158,13 +193,43 @@ impl EvidenceRuntime {
                     acquisition::MAX_REQUEST_BYTES
                 ));
             }
-            let Ok(binding) = self.registry.binding_for(&declaration.tool, version) else {
+            let Some(tool_name) = &declaration.tool else {
                 continue;
             };
+            let version = &program.tools[tool_name].version;
+            // An absent source is unavailable evidence. A present but invalid
+            // operator binding is a configuration error for the complete plan.
+            if !self.registry.bindings.contains_key(tool_name) {
+                continue;
+            }
+            if let std::collections::btree_map::Entry::Vacant(entry) =
+                binding_digests.entry(tool_name.clone())
+            {
+                let digest = self
+                    .registry
+                    .admit_binding(
+                        tool_name,
+                        version,
+                        &self.workspace,
+                        self.store.binding_key(),
+                        &program.limits,
+                    )
+                    .map_err(|error| error.to_string())?;
+                entry.insert(digest);
+            }
+            let binding = self
+                .registry
+                .binding_for(tool_name, version)
+                .map_err(|error| error.to_string())?;
+            if declaration.bindings.is_empty() {
+                binding
+                    .preflight_input(&request, &self.workspace)
+                    .map_err(|error| error.to_string())?;
+            }
             if !(1..=MAX_COLLECTION_OUTPUT_BYTES).contains(&binding.max_output_bytes) {
                 return Err(format!(
                     "Tool {} has an invalid output allowance",
-                    quoted(&declaration.tool, program)?
+                    quoted(tool_name, program)?
                 ));
             }
             output_allowance = output_allowance.saturating_add(binding.max_output_bytes);
@@ -174,7 +239,10 @@ impl EvidenceRuntime {
                 ));
             }
         }
-        Ok(names)
+        Ok(AdmittedPlan {
+            evidence_ids: names,
+            binding_digests,
+        })
     }
 
     pub fn collect(
@@ -193,21 +261,7 @@ impl EvidenceRuntime {
         lease: Option<Arc<AcquisitionLease>>,
     ) -> Result<Value, String> {
         let names = self.preflight(program, context, evidence_ids)?;
-        let records = self.scheduler.run(
-            &names,
-            |name| {
-                let declaration = &program.evidence[name];
-                self.registry
-                    .binding_for(&declaration.tool, &program.tools[&declaration.tool].version)
-                    .is_ok_and(|binding| binding.parallel_safe)
-            },
-            |name| {
-                // Each acquisition owns a separate strong reference. Its supervisor
-                // receives only an explicitly inherited descriptor from that lease.
-                let task_lease = lease.clone();
-                self.collect_one(program, name, context, task_lease.as_deref())
-            },
-        )?;
+        let records = self.collect_dependencies(program, context, &names, lease)?;
         let collection =
             json!({"source_digest":program.source_digest,"context":context,"records":records});
         if size::collection_size(&collection, &program.limits)? > MAX_COLLECTION_BYTES {
@@ -226,38 +280,81 @@ impl EvidenceRuntime {
         program: &Program,
         name: &str,
         context: &Value,
+        parents: &Value,
         lease: Option<&AcquisitionLease>,
     ) -> Result<Value, String> {
         let declaration = &program.evidence[name];
         let context = evaluation::environment_context(&declaration.environment, context)?;
-        let declared_tool = &program.tools[&declaration.tool];
+        let declared_tool = declaration.tool.as_ref().map(|name| &program.tools[name]);
+        let tool_version = declared_tool.map(|tool| &tool.version);
+        let resolved = self.resolve_dependencies(program, name, parents, &context);
+        let input = resolved
+            .as_ref()
+            .map(|value| &value.input)
+            .unwrap_or(&declaration.input);
         let run_id = Uuid::new_v4().to_string();
         let started = utc_now();
         let mut record = json!({"schema":OBSERVATION_SCHEMA,"evidence_id":name,"source_digest":program.source_digest,
-            "tool":declaration.tool,"tool_version":declared_tool.version,"evidence_kind":declaration.kind,
+            "tool":declaration.tool,"tool_version":tool_version,"evidence_kind":declaration.kind,
             "environment":declaration.environment,
             "environment_fingerprint":evaluation::environment_fingerprint(&declaration.environment,&context,&program.limits)?,
             "collected_at":started,"started_at":started,"run_id":run_id,
-            "input_digest":canonical::canonical_digest(&declaration.input,&program.limits)?,"input":declaration.input,
+            "input_digest":canonical::canonical_digest(input,&program.limits)?,"input":input,
             "context":context,"status":"error"});
+        if let Ok(resolved) = &resolved
+            && !declaration.bindings.is_empty()
+        {
+            record["dependencies"] = resolved.dependencies.clone();
+        }
         let (mut stdout, mut stderr) = (Vec::new(), Vec::new());
         let acquired = (|| -> Result<(), AcquisitionError> {
+            let resolved = resolved
+                .as_ref()
+                .map_err(|error| AcquisitionError::invalid(error.clone()))?;
+            let acquisition = request_for_input(program, name, &context, &resolved.input)?;
+            let request = full_request(name, &declaration.environment, &acquisition);
+            if size::json_size(&request, true, &program.limits)?.saturating_add(1)
+                > acquisition::MAX_REQUEST_BYTES
+            {
+                return Err("Resolved acquisition request exceeds the byte limit".into());
+            }
+            record["request_digest"] =
+                json!(canonical::canonical_digest(&request, &program.limits)?);
+            record["acquisition_request"] = acquisition.clone();
+            record["acquisition_request_digest"] =
+                json!(canonical::canonical_digest(&acquisition, &program.limits)?);
+            if let Some(expression) = &declaration.derivation {
+                record["tool_binding_digest"] =
+                    json!(eal_core::acquisition::derivation_digest(program, name)?);
+                record["execution_kind"] = json!("derivation");
+                let outcome = eal_core::expressions::evaluate_expression_with_limits(
+                    expression,
+                    &resolved.input,
+                    &program.limits,
+                );
+                let value = outcome
+                    .value
+                    .ok_or_else(|| AcquisitionError::invalid(outcome.reason))?;
+                if !value.is_object() {
+                    return Err("Derived observation must produce a JSON object".into());
+                }
+                record["data_digest"] =
+                    json!(canonical::canonical_digest(&value, &program.limits)?);
+                record["value"] = value;
+                record["collected_at"] = json!(utc_now());
+                record["status"] = json!("ok");
+                return Ok(());
+            }
+            let declared_tool = declared_tool.ok_or("Evidence requires a tool or derivation")?;
             let binding = self
                 .registry
-                .binding_for(&declaration.tool, &declared_tool.version)?;
+                .binding_for(&declared_tool.name, &declared_tool.version)?;
             let before = binding.binding_digest_with_limits(
                 self.store.binding_key(),
                 Some(&self.workspace),
                 &program.limits,
             )?;
             record["tool_binding_digest"] = json!(before);
-            let acquisition = acquisition_request(program, name, &context)?;
-            let request = full_request(name, &declaration.environment, &acquisition);
-            record["request_digest"] =
-                json!(canonical::canonical_digest(&request, &program.limits)?);
-            record["acquisition_request"] = acquisition.clone();
-            record["acquisition_request_digest"] =
-                json!(canonical::canonical_digest(&acquisition, &program.limits)?);
             let result = acquisition::acquire_with_limits(
                 binding,
                 &request,
@@ -320,6 +417,8 @@ impl EvidenceRuntime {
         })();
         if let Err(error) = acquired {
             record["error"] = error.as_record();
+        } else {
+            dependencies::retain_measurement_time(&mut record, parents, declaration)?;
         }
         store_observation(&self.store, &mut record, &stdout, &stderr)?;
         Ok(record)
@@ -329,25 +428,33 @@ impl EvidenceRuntime {
         let mut current = json!({});
         let mut resolved: BTreeMap<(&str, &str), Option<String>> = BTreeMap::new();
         for (name, evidence) in &program.evidence {
-            let digest = program.tools.get(&evidence.tool).and_then(|tool| {
-                resolved
-                    .entry((&tool.name, &tool.version))
-                    .or_insert_with(|| {
-                        self.registry
-                            .binding_for(&tool.name, &tool.version)
-                            .ok()
-                            .and_then(|binding| {
-                                binding
-                                    .binding_digest_with_limits(
-                                        self.store.binding_key(),
-                                        Some(&self.workspace),
-                                        &program.limits,
-                                    )
+            let digest = if evidence.derivation.is_some() {
+                eal_core::acquisition::derivation_digest(program, name).ok()
+            } else {
+                evidence
+                    .tool
+                    .as_ref()
+                    .and_then(|name| program.tools.get(name))
+                    .and_then(|tool| {
+                        resolved
+                            .entry((&tool.name, &tool.version))
+                            .or_insert_with(|| {
+                                self.registry
+                                    .binding_for(&tool.name, &tool.version)
                                     .ok()
+                                    .and_then(|binding| {
+                                        binding
+                                            .binding_digest_with_limits(
+                                                self.store.binding_key(),
+                                                Some(&self.workspace),
+                                                &program.limits,
+                                            )
+                                            .ok()
+                                    })
                             })
+                            .clone()
                     })
-                    .clone()
-            });
+            };
             current[name] = json!(digest);
         }
         current
@@ -355,21 +462,25 @@ impl EvidenceRuntime {
     pub fn current_execution_digests(&self, program: &Program) -> Value {
         let mut current = json!({});
         for (name, evidence) in &program.evidence {
-            let digest = program.tools.get(&evidence.tool).and_then(|tool| {
-                self.registry
-                    .binding_for(&tool.name, &tool.version)
-                    .ok()
-                    .and_then(|binding| {
-                        binding
-                            .process_environment_digest_with_limits(
-                                self.store.binding_key(),
-                                None,
-                                &program.limits,
-                            )
-                            .ok()
-                            .flatten()
-                    })
-            });
+            let digest = evidence
+                .tool
+                .as_ref()
+                .and_then(|name| program.tools.get(name))
+                .and_then(|tool| {
+                    self.registry
+                        .binding_for(&tool.name, &tool.version)
+                        .ok()
+                        .and_then(|binding| {
+                            binding
+                                .process_environment_digest_with_limits(
+                                    self.store.binding_key(),
+                                    None,
+                                    &program.limits,
+                                )
+                                .ok()
+                                .flatten()
+                        })
+                });
             current[name] = json!(digest);
         }
         current
@@ -380,21 +491,9 @@ fn quoted(name: &str, program: &Program) -> Result<String, String> {
     eal_core::expressions::diagnostic_repr(&json!(name), &program.limits)
 }
 pub(crate) fn full_request(name: &str, environment: &str, acquisition: &Value) -> Value {
-    eal_collector_contracts::AcquisitionRequest {
-        evidence_id: name.into(),
-        environment: environment.into(),
-        tool: acquisition["tool"]
-            .as_str()
-            .expect("validated acquisition tool")
-            .into(),
-        tool_version: acquisition["tool_version"]
-            .as_str()
-            .expect("validated acquisition version")
-            .into(),
-        input: acquisition["input"].clone(),
-        context: acquisition["context"].clone(),
-    }
-    .to_value()
+    json!({"evidence_id":name, "environment":environment,
+        "tool":acquisition["tool"], "tool_version":acquisition["tool_version"],
+        "input":acquisition["input"], "context":acquisition["context"]})
 }
 
 pub fn store_observation(

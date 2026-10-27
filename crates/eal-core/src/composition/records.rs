@@ -95,8 +95,13 @@ impl Entity {
         let mut add = |name: &str, kind: &str, many| refs.push((name.into(), kind.into(), many));
         match self {
             Self::Evidence(v) => {
-                add(&v.tool, "tool", false);
+                if let Some(tool) = &v.tool {
+                    add(tool, "tool", false);
+                }
                 add(&v.environment, "environment", false);
+                for binding in &v.bindings {
+                    add(&binding.evidence, "evidence", false);
+                }
             }
             Self::Claim(v) => add(&v.environment, "environment", false),
             Self::Assumption(v) => {

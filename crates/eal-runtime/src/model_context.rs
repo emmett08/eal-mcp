@@ -1,5 +1,8 @@
 //! Compact checked packets for model input without opaque observation identities.
-use crate::packets::shape::{bounded, digest, identifier, preflight, record_identifier, scalar};
+use crate::packets::shape::{
+    bounded, digest, identifier, predicate_path, preflight, record_identifier, scalar,
+};
+use eal_core::evaluation::{AvailabilityIssue, PredicateIssue};
 use serde_json::{Map, Value, json};
 use std::collections::BTreeSet;
 
@@ -299,17 +302,8 @@ fn check_group(kind: &str, value: &Value) -> Result<(), String> {
                 "availability_issues" => value.as_array().is_some_and(|v| {
                     v.len() <= 128
                         && v.iter().all(|i| {
-                            i.as_str().is_some_and(|s| {
-                                [
-                                    "out_of_scope",
-                                    "missing_observation",
-                                    "invalid_observation",
-                                    "tool_error",
-                                    "stale_observation",
-                                    "predicate_not_met",
-                                ]
-                                .contains(&s)
-                            })
+                            i.as_str()
+                                .is_some_and(|s| AvailabilityIssue::parse(s).is_some())
                         })
                 }),
                 "age_status" => value.as_str().is_some_and(|s| {
@@ -454,17 +448,10 @@ fn check_group(kind: &str, value: &Value) -> Result<(), String> {
                             && (reference["observation_id"].is_null()
                                 || record_identifier(&reference["observation_id"]).is_some())
                     } else {
-                        bounded(reference.get("path")).is_some()
-                            && reference["issue"].as_str().is_some_and(|s| {
-                                [
-                                    "missing_field",
-                                    "incompatible_type",
-                                    "non_finite",
-                                    "incomparable",
-                                    "not_met",
-                                ]
-                                .contains(&s)
-                            })
+                        predicate_path(reference.get("path")).is_some()
+                            && reference["issue"]
+                                .as_str()
+                                .is_some_and(|s| PredicateIssue::parse(s).is_some())
                     };
                     if !valid {
                         return Err("Model context requires projected references".into());

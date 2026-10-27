@@ -62,7 +62,7 @@ impl Drop for Workspace {
 }
 
 fn supervisor() -> Supervisor {
-    Supervisor::new(PathBuf::from(env!("CARGO_BIN_EXE_eal-command-supervisor")))
+    Supervisor::new(companion::path())
 }
 fn request(
     workspace: &Workspace,
@@ -454,7 +454,7 @@ fn in_place_key_changes_and_sidecar_links_are_checked_before_every_operation() {
     }
 }
 
-const SOURCE: &str = r#"language "EAL/3"
+const SOURCE: &str = r#"language "EAL/4"
 environment lab { require true
 }
 tool collector { version "1"
@@ -790,7 +790,7 @@ fn maximum_configured_source_budget_does_not_overflow_small_import_reads() {
     let workspace = Workspace::new();
     workspace.write(
         "library.eal",
-        b"language \"EAL/3\"\nenvironment imported { require true\n}\n",
+        b"language \"EAL/4\"\nenvironment imported { require true\n}\n",
     );
     let service = service(
         &workspace,
@@ -800,7 +800,7 @@ fn maximum_configured_source_budget_does_not_overflow_small_import_reads() {
         },
     );
     let program = service
-        .parse("language \"EAL/3\"\nimport \"library.eal\" as lib\n")
+        .parse("language \"EAL/4\"\nimport \"library.eal\" as lib\n")
         .unwrap();
     assert!(program.environments.contains_key("lib.imported"));
 }
@@ -811,19 +811,19 @@ fn service_import_base_is_workspace_root_and_nested_imports_keep_definition_orig
     fs::create_dir(workspace.0.join("nested")).unwrap();
     workspace.write(
         "dependency.eal",
-        b"language \"EAL/3\"\nenvironment root { require true\n}\n",
+        b"language \"EAL/4\"\nenvironment root { require true\n}\n",
     );
     workspace.write(
         "nested/dependency.eal",
-        b"language \"EAL/3\"\nenvironment nested { require true\n}\n",
+        b"language \"EAL/4\"\nenvironment nested { require true\n}\n",
     );
     workspace.write(
         "nested/library.eal",
-        b"language \"EAL/3\"\nimport \"dependency.eal\" as data\n",
+        b"language \"EAL/4\"\nimport \"dependency.eal\" as data\n",
     );
     let service = service(&workspace, ExecutionLimits::default());
     let nested = service
-        .parse("language \"EAL/3\"\nimport \"nested/library.eal\" as lib\n")
+        .parse("language \"EAL/4\"\nimport \"nested/library.eal\" as lib\n")
         .unwrap();
     assert!(nested.environments.contains_key("lib.data.nested"));
     assert_eq!(
@@ -832,7 +832,7 @@ fn service_import_base_is_workspace_root_and_nested_imports_keep_definition_orig
     );
     let source_file = workspace.write(
         "nested/main.eal",
-        b"language \"EAL/3\"\nimport \"dependency.eal\" as data\n",
+        b"language \"EAL/4\"\nimport \"dependency.eal\" as data\n",
     );
     let root = service
         .parse(&fs::read_to_string(source_file).unwrap())
@@ -902,3 +902,6 @@ fn collector_output_budget_and_later_assessment_record_budget_are_independent() 
     );
     assert_ne!(assessment["claims"]["ready"]["status"], "supported");
 }
+
+#[path = "common/companion.rs"]
+mod companion;

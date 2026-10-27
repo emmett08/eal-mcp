@@ -156,7 +156,7 @@ pub fn evaluate_expression_with_limits(
                     arithmetic_values(binary_symbol(*operator), &values[0], &values[1])?
                 }
             }
-            Expression::Call { name, .. } => super::functions::call(name, values)?,
+            Expression::Call { name, .. } => super::functions::call(name, values, limits)?,
             _ => unreachable!(),
         };
         Ok(result.into_result())

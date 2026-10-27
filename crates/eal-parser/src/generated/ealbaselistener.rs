@@ -204,6 +204,30 @@ pub trait EALBaseListener<'input>:
      * Enter a parse tree produced by \{@link EALBaseParser#s}.
      * @param ctx the parse tree
      */
+    fn enter_inputbindingfield(&mut self, _ctx: &InputBindingFieldContext<'input>) {}
+    /**
+     * Exit a parse tree produced by \{@link  EALBaseParser#s}.
+     * @param ctx the parse tree
+     */
+    fn exit_inputbindingfield(&mut self, _ctx: &InputBindingFieldContext<'input>) {}
+
+
+    /**
+     * Enter a parse tree produced by \{@link EALBaseParser#s}.
+     * @param ctx the parse tree
+     */
+    fn enter_derivefield(&mut self, _ctx: &DeriveFieldContext<'input>) {}
+    /**
+     * Exit a parse tree produced by \{@link  EALBaseParser#s}.
+     * @param ctx the parse tree
+     */
+    fn exit_derivefield(&mut self, _ctx: &DeriveFieldContext<'input>) {}
+
+
+    /**
+     * Enter a parse tree produced by \{@link EALBaseParser#s}.
+     * @param ctx the parse tree
+     */
     fn enter_assumptiondecl(&mut self, _ctx: &AssumptionDeclContext<'input>) {}
     /**
      * Exit a parse tree produced by \{@link  EALBaseParser#s}.

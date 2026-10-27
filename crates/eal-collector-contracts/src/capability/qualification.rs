@@ -50,10 +50,6 @@ impl CapabilityDescriptor {
             value["qualified_coverage"] = serde_json::to_value(&semantics.coverage)
                 .map_err(|_| "cannot encode qualified coverage")?;
         }
-        if let Some(audit) = &semantics.identifier_audit {
-            value["qualified_identifier_audit"] = serde_json::to_value(audit)
-                .map_err(|_| "cannot encode qualified identifier audit")?;
-        }
         value.as_object_mut().expect("provenance object").extend(
             serde_json::to_value(claims)
                 .map_err(|_| "cannot encode qualified support claims")?

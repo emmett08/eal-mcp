@@ -1,4 +1,5 @@
-//! Typed EAL/3 syntax, composition, validation and authored reasoning with explicit inputs.
+//! Typed EAL/4 syntax, composition, validation and authored reasoning with explicit inputs.
+pub mod acquisition;
 mod ast;
 pub mod canonical;
 pub mod composition;
@@ -17,6 +18,9 @@ pub mod semantic;
 pub mod semantic_format;
 mod semantic_spans;
 pub mod validation;
+
+/// The one supported source language and imported-module semantic contract.
+pub const LANGUAGE: &str = "EAL/4";
 
 pub use limits::ExecutionLimits;
 

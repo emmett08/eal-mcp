@@ -129,7 +129,7 @@ pub(crate) fn normalise_decoded(
                 "MCP result omitted the configured measurement pointer",
             )
         })?;
-    eal_mcp::guard::validate_schema(&value, &descriptor.output_schema).map_err(|_| {
+    eal_mcp_client::schema::validate_schema(&value, &descriptor.output_schema).map_err(|_| {
         error(
             BridgeErrorKind::Protocol,
             "MCP measurement differs from its qualified output schema",

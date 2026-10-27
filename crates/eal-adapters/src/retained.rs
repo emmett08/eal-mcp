@@ -1,5 +1,7 @@
-//! Generic pinned artifact and retained correspondence import mechanics.
+//! Pinned artifact imports retain original measurement identities and clocks.
+mod review;
 use crate::Error;
+pub use review::{REVIEW_INPUT_SCHEMA, Review, ReviewInputs, import_review};
 use serde::Deserialize;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -10,7 +12,6 @@ use std::{
 const MAX_FILE_BYTES: usize = 1_048_576;
 const MAX_ARTIFACT_BYTES: usize = 4_194_304;
 const MAX_ARTIFACTS: usize = 16;
-const MAX_REVIEWS: usize = 4096;
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Artifact {
@@ -18,14 +19,6 @@ pub struct Artifact {
     pub sha256: String,
     pub observed_at: String,
     pub source: String,
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct Review {
-    pub request: Value,
-    pub observed_at: String,
-    pub value: Value,
 }
 
 fn invalid(message: &str) -> Error {
@@ -195,31 +188,4 @@ pub fn import_artifacts(artifacts: &[Artifact], base: &Path) -> Result<(Value, S
         "interpretation":"retained_artifacts_require_independent_review"}),
         oldest.expect("nonempty artifacts validated").1,
     ))
-}
-pub fn import_review(
-    request: &eal_collector_contracts::AcquisitionRequest,
-    reviews: Vec<Review>,
-) -> Result<(Value, String), Error> {
-    if reviews.len() > MAX_REVIEWS {
-        return Err(invalid("invalid retained review count"));
-    }
-    let mut matched = None;
-    for retained in reviews {
-        let correspondence = retained.request;
-        if correspondence == request.acquisition() {
-            if matched.is_some() {
-                return Err(invalid(
-                    "retained review repeats the exact acquisition request",
-                ));
-            }
-            timestamp(&retained.observed_at)?;
-            if !retained.value.is_object() || retained.value["accepted"].as_bool().is_none() {
-                return Err(invalid(
-                    "retained review value requires an authored boolean accepted decision",
-                ));
-            }
-            matched = Some((retained.value, retained.observed_at));
-        }
-    }
-    matched.ok_or_else(|| invalid("no retained review matches the exact request and context"))
 }

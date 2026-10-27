@@ -38,6 +38,19 @@ fn export_is_detached_and_budget_capture_can_only_tighten_host_policy() {
             .unwrap_err()
             .contains("host policy")
     );
+    let mut smaller_work = input.clone();
+    smaller_work["source_map"]["execution_limits"]["method_work"] = json!(128);
+    let view = export_aspic_view(&smaller_work, &ExecutionLimits::default()).unwrap();
+    assert_eq!(view["execution_limits"]["method_work"], 128);
+    let host = ExecutionLimits {
+        method_work: 127,
+        ..ExecutionLimits::default()
+    };
+    assert!(
+        export_aspic_view(&smaller_work, &host)
+            .unwrap_err()
+            .contains("host policy")
+    );
 }
 
 #[test]

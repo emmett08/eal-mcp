@@ -40,7 +40,7 @@ impl Workspace {
                 .unwrap(),
         );
         let server = ServerSpec::from_value(&json!({"workspace":self.0,"registry":null,"database":null,"methods":methods,"limits":null}), &self.0).unwrap();
-        self.write("source.eal", b"language \"EAL/3\"\nenvironment lab {\nrequire true\n}\nclaim ready {\nstatement \"A bounded registered claim.\"\nenvironment lab\n}\n");
+        self.write("source.eal", b"language \"EAL/4\"\nenvironment lab {\nrequire true\n}\nclaim ready {\nstatement \"A bounded registered claim.\"\nenvironment lab\n}\n");
         let knowledge = profiles::knowledge_with_host(&server, &host).unwrap();
         knowledge
             .catalogue

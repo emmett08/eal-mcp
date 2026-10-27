@@ -16,6 +16,8 @@ const OPERATOR: &[&str] = &[
     "eal_plan",
     "eal_collect",
     "eal_collect_claim",
+    "eal_execute",
+    "eal_prepare",
     "eal_reason",
     "eal_compile_aspic",
     "eal_explain",
@@ -37,11 +39,19 @@ pub fn run(options: &Options) -> Result<Value> {
             "eal-mcp",
             "eal-host",
             "eal-process-supervisor",
-            "eal-command-supervisor",
             "eal-method-worker",
+            "eal-tool-run",
         ],
     )?;
     let mut checks = Vec::new();
+    let runner = h.process(&h.prefix.join("eal-tool-run"), &[], None, 1)?;
+    ensure(
+        runner.stdout.is_empty()
+            && String::from_utf8_lossy(&runner.stderr)
+                .contains("usage: eal-tool-run --package tool.toml"),
+        "Portable tool runner did not reject an incomplete invocation",
+    )?;
+    checks.push("installed portable tool runner argument admission");
     ensure(
         h.cli(&["validate", "case.eal"])?["valid"] == true,
         "CLI validation failed",
@@ -342,11 +352,11 @@ pub fn run(options: &Options) -> Result<Value> {
         });
         server.finish()?;
     }
-    checks.push("all fifteen operations through installed text and MCP entry points with valid, missing, unknown, wrong-type, null, empty-identifier and oversized requests");
+    checks.push("all seventeen operations through installed text and MCP entry points with valid, missing, unknown, wrong-type, null, empty-identifier and oversized requests");
     checks
         .push("all installed native children ran with PATH empty; HTTP servers emitted no stdout");
     ensure(
-        checks.len() == 10,
+        checks.len() == 11,
         "Application acceptance group count changed",
     )?;
     h.finish(json!({"check_groups":checks.len(),"checks":checks}))

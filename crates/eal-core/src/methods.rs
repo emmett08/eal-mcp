@@ -5,16 +5,21 @@ mod logical;
 mod numerical;
 pub mod optional;
 mod probabilistic;
+mod query;
 mod schema;
 mod structural;
 mod validation;
+mod work;
 
 pub use contracts::{
     MethodContract, MethodError, MethodImplementation, MethodRegistry, MethodResultStatus,
     NativeMethodIdentity, default_registry, is_method_identifier,
 };
 pub use dispatch::{
-    assess_mode, assess_mode_with_limits, evidence_kind, validate_mode, validate_mode_with_limits,
+    assess_input_with_limits, assess_mode, assess_mode_with_limits, evidence_kind, validate_mode,
+    validate_mode_with_limits,
 };
 pub use optional::{engineering_registry, optional_registry};
 pub use schema::{schema_errors, schema_errors_with_limits, validate_schema};
+
+pub use query::{validate_query, validate_query_with_limits};

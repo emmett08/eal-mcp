@@ -87,7 +87,7 @@ fn pinned_files_are_rechecked_and_relative_imports_remain_workspace_bound() {
 fn file_adapter_retains_raw_bytes_errors_and_truncation_metadata() {
     let workspace = Workspace::new();
     workspace.write("observation.json", b"{\"value\":true}");
-    let supervisor = Supervisor::new(PathBuf::from(env!("CARGO_BIN_EXE_eal-command-supervisor")));
+    let supervisor = Supervisor::new(companion::path());
     let mut binding = ToolBinding::json_file("reader", "1", "observation.json");
     let result = acquire(
         &binding,
@@ -153,7 +153,7 @@ fn relative_symlinks_cannot_escape_but_absolute_operator_pins_are_supported() {
 #[test]
 fn command_environment_and_execution_metadata_are_bounded_and_secret_free() {
     let workspace = Workspace::new();
-    let supervisor = Supervisor::new(PathBuf::from(env!("CARGO_BIN_EXE_eal-command-supervisor")));
+    let supervisor = Supervisor::new(companion::path());
     let mut binding = ToolBinding::command(
         "reader",
         "1",
@@ -274,3 +274,6 @@ fn public_regular_file_reader_checks_path_identity_before_opening() {
         .contains("canonical parent")
     );
 }
+
+#[path = "common/companion.rs"]
+mod companion;

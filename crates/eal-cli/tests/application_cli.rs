@@ -7,7 +7,7 @@ use std::{
     sync::atomic::{AtomicUsize, Ordering},
 };
 
-const SOURCE: &str = "language \"EAL/3\"\nenvironment lab {\n require site == \"bench\"\n}\ntool reader {\n version \"1\"\n}\nevidence reading {\n tool reader\n kind test\n environment lab\n max_age 3600\n input {\"sample\":1}\n require ok == true\n}\nreasoning measured {\n method \"structured/1\"\n rationale \"The supplied report supports the selected test result.\"\n}\nclaim works {\n statement \"The supplied test passed at this bench.\"\n environment lab\n}\nargument result = [evidence reading] via measured => works\n";
+const SOURCE: &str = "language \"EAL/4\"\nenvironment lab {\n require site == \"bench\"\n}\ntool reader {\n version \"1\"\n}\nevidence reading {\n tool reader\n kind test\n environment lab\n max_age 3600\n input {\"sample\":1}\n require ok == true\n}\nreasoning measured {\n method \"structured/1\"\n rationale \"The supplied report supports the selected test result.\"\n}\nclaim works {\n statement \"The supplied test passed at this bench.\"\n environment lab\n}\nargument result = [evidence reading] via measured => works\n";
 const NOW: &str = "2026-09-23T12:00:00Z";
 static NEXT: AtomicUsize = AtomicUsize::new(0);
 struct Workspace(PathBuf);
@@ -37,7 +37,7 @@ impl Workspace {
     fn run(&self, args: &[&str]) -> Output {
         let eal = Path::new(env!("CARGO_BIN_EXE_eal"));
         let binaries = eal.parent().unwrap();
-        let supervisor = binaries.join("eal-command-supervisor");
+        let supervisor = binaries.join("eal-process-supervisor");
         let worker = binaries.join("eal-method-worker");
         assert!(
             supervisor.is_file() && worker.is_file(),

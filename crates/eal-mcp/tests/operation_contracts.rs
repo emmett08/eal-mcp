@@ -17,6 +17,8 @@ fn cases() -> Vec<(&'static str, Value)> {
             json!({"source":"source","context":{},"claim":"outcome"}),
         ),
         ("reason", json!({"source":"source","context":{}})),
+        ("execute", json!({"source":"source","context":{}})),
+        ("prepare", json!({"source":"source","context":{}})),
         (
             "compile_aspic",
             json!({"source":"source","context":{},"collection_id":"collection","goal":"outcome"}),
@@ -279,7 +281,7 @@ async fn server_and_text_reject_each_invalid_shape_before_operation_effects() {
         })
         .unwrap(),
     );
-    std::fs::write(root.join("argument.eal"), "language \"EAL/3\"\nenvironment lab {\n require true\n}\nclaim outcome {\n statement \"Outcome.\"\n environment lab\n}\n").unwrap();
+    std::fs::write(root.join("argument.eal"), "language \"EAL/4\"\nenvironment lab {\n require true\n}\nclaim outcome {\n statement \"Outcome.\"\n environment lab\n}\n").unwrap();
     WorkspaceKnowledgeCatalogue::new(Arc::clone(&service))
         .unwrap()
         .register(

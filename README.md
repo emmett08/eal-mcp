@@ -1,7 +1,7 @@
-# EAL/3 in Rust
+# EAL/4 in Rust
 
 EAL evaluates engineering arguments against declared evidence, assumptions and
-objections. EAL/3 source states the argument and its acquisition requests.
+objections. EAL/4 source states the argument and its acquisition requests.
 Operator configuration selects the collectors and grants their access to external
 systems. Assessments retain the source, context, observation times and method
 identities needed to explain the result.
@@ -15,6 +15,18 @@ See [implementation boundaries](docs/implementation.md),
 [runtime configuration](docs/runtime.md), [application commands](docs/applications.md)
 and [evidence collectors](docs/collectors.md).
 
+EAL/4 puts acquisition dependencies and bounded pure derivations in source. A direct TOML manifest selects the actual tools:
+
+```sh
+eal-host run case.eal --tools tools.toml --workspace run
+```
+
+This uses the MCP `eal_execute` operation and the same collection and assessment
+service as the other entry points. It requires no EngArg installation, capability
+catalogue, source registration or executable graph sidecar. See the
+[EAL/4 language](docs/language-v4.md), [direct tools](docs/direct-tools.md)
+and [portable examples](docs/executable-programs.md).
+
 ## Build and install
 
 `rust-toolchain.toml` selects Rust 1.90.0 with rustfmt and Clippy.
@@ -23,6 +35,7 @@ and [evidence collectors](docs/collectors.md).
 cargo build --release --workspace --locked
 cargo install --path crates/eal-process --locked
 cargo install --path crates/eal-runtime --locked
+cargo install --path crates/eal-tool-runtime --locked
 cargo install --path crates/eal-cli --locked
 cargo install --path crates/eal-mcp --locked
 cargo install --path crates/eal-coordination --locked
@@ -37,7 +50,8 @@ facilities. Windows private-store ACL verification is unimplemented.
 | --- | --- |
 | `eal-cli` | `eal`, `eal-syntax`, `eal-core`, `eal-runtime`, `eal-aspic-solve` |
 | `eal-process` | `eal-process-supervisor` |
-| `eal-runtime` | `eal-command-supervisor` compatibility alias and `eal-method-worker` |
+| `eal-runtime` | `eal-method-worker` |
+| `eal-tool-runtime` | `eal-tool-run` |
 | `eal-mcp` | `eal-mcp`, `eal-host` |
 | `eal-coordination` | `eal-coordinate`, `eal-mas-server`, `mas-protocol-codec` |
 | `eal-collectors` | `eal-collector` |
@@ -80,7 +94,8 @@ assessment](docs/applications.md) and [bounded result packets](docs/packets.md).
 
 ## Evidence collectors
 
-The registry supports `command` and `json_file` bindings. Command collectors
+Direct TOML supports `command`, `json_file`, `mcp_stdio`, `mcp_http` and `http_get`
+bindings. See [direct tools](docs/direct-tools.md) for their contracts. Command collectors
 receive one bounded JSON request on stdin and return a JSON object containing
 `value` with optional time, context, request and details fields. File observations
 must preserve their observation time, context and request identity.
@@ -188,7 +203,7 @@ sh tools/regenerate-parser.sh --check
 sh tools/regenerate-parser.sh
 ```
 
-`EAL.g4` is the EAL/3 grammar. Syntax recognition, lexical lowering, composition,
+`EAL.g4` is the EAL/4 grammar. Syntax recognition, lexical lowering, composition,
 validation and assessment have separate interfaces and tests.
 
 ## Licence

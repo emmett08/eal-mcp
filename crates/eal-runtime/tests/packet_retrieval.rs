@@ -18,7 +18,7 @@ use std::{path::PathBuf, sync::Arc, time::Duration};
 
 const OBSERVED_AT: &str = "2040-01-01T00:00:00Z";
 const ASSESSED_AT: &str = "2040-01-01T00:00:01Z";
-const SOURCE: &str = r#"language "EAL/3"
+const SOURCE: &str = r#"language "EAL/4"
 environment lab {
  require site == "bench"
 }
@@ -98,9 +98,7 @@ impl Workspace {
                 method_registry: methods,
                 method_executor: None,
                 scheduler: CollectionScheduler::default(),
-                supervisor: Supervisor::new(PathBuf::from(env!(
-                    "CARGO_BIN_EXE_eal-command-supervisor"
-                ))),
+                supervisor: Supervisor::new(companion::path()),
                 limits: ExecutionLimits::default(),
                 lease_timeout: Duration::from_secs(1),
             })
@@ -419,3 +417,6 @@ fn invalid_assessment_packet_limits_are_rejected_before_acquisition() {
             .is_empty()
     );
 }
+
+#[path = "common/companion.rs"]
+mod companion;

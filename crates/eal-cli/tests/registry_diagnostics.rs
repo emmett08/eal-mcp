@@ -22,7 +22,7 @@ fn malformed_registry_credentials_are_absent_from_cli_streams_and_json_errors() 
     let directory = Directory(path);
     std::fs::write(
         directory.0.join("case.eal"),
-        "language \"EAL/3\"\nenvironment lab { require true\n}\n",
+        "language \"EAL/4\"\nenvironment lab { require true\n}\n",
     )
     .unwrap();
     let secret = "synthetic-review-secret-cli";

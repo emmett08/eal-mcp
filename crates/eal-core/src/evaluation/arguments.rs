@@ -1,4 +1,5 @@
 //! Assess local method applications before their support/attack labels are decided.
+mod input;
 use super::{name_repr, predicate, status};
 use crate::{
     canonical,
@@ -250,29 +251,34 @@ fn compute_argument(
         .collect();
     let mut binding = None;
     let mut bound_observation_digest = None;
+    let mut authored_input = None;
     if let Some(proposition) = &claim.proposition {
         let selected = argument
             .binding
             .as_deref()
-            .and_then(|id| sources.iter().find(|s| s["id"] == id))
-            .ok_or("Typed claim has no bound observation")?;
-        bound_observation_digest = Some(canonical::canonical_digest(
-            &selected["value"],
-            &program.limits,
-        )?);
-        let (payload, trace) = propositions::prepare_binding_with_limits(
+            .and_then(|id| sources.iter().find(|s| s["id"] == id));
+        if let Some(selected) = selected {
+            bound_observation_digest = Some(canonical::canonical_digest(
+                &selected["value"],
+                &program.limits,
+            )?);
+        }
+        let (payload, trace) = input::prepare(
             proposition,
             &method.method,
-            argument.binding.as_deref().unwrap(),
-            &selected["value"],
+            selected.map(|s| (s["id"].as_str().expect("source id"), &s["value"])),
             registry,
             &program.limits,
         );
         if let Some(payload) = payload {
-            for source in &mut sources {
-                if source["id"] == argument.binding.as_deref().unwrap() {
-                    source["value"] = payload.clone();
+            if let Some(id) = &argument.binding {
+                for source in &mut sources {
+                    if source["id"] == *id {
+                        source["value"] = payload.clone();
+                    }
                 }
+            } else {
+                authored_input = Some(payload);
             }
         }
         binding = Some(trace);
@@ -285,15 +291,21 @@ fn compute_argument(
             false,
         ));
     }
-    let mut computation = methods::assess_mode_with_limits(
-        &method.method,
-        &sources,
-        premises,
-        registry,
-        &program.limits,
-    );
+    let mut computation = if let Some(payload) = &authored_input {
+        methods::assess_input_with_limits(&method.method, payload, registry, &program.limits)
+    } else {
+        methods::assess_mode_with_limits(
+            &method.method,
+            &sources,
+            premises,
+            registry,
+            &program.limits,
+        )
+    };
     if let Some(trace) = binding.as_mut() {
-        computation["bound_observation_digest"] = json!(bound_observation_digest);
+        if let Some(digest) = &bound_observation_digest {
+            computation["bound_observation_digest"] = json!(digest);
+        }
         if computation["status"] == "supported" {
             *trace = propositions::check_result(
                 claim.proposition.as_ref().unwrap(),

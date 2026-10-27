@@ -1,7 +1,7 @@
 # Finite ASPIC reasoning
 
 `eal-aspic` implements the `argumentation/aspic/2` theory contract,
-`EAL/3-compiled-aspic/5` source translation and `aspic-view/3` export. These are
+`EAL/4-compiled-aspic/5` source translation and `aspic-view/3` export. These are
 explicit formal operations alongside the authored EAL evaluator. An EAL source
 uses `method "argumentation/aspic/2"` only when the host installs that registry.
 The default eight-method registry remains unchanged.
@@ -171,7 +171,7 @@ native scenarios across all supported semantics, query modes and preference
 policies. It independently validates the published JSON schema and consumer
 size/count policy, then requires rejection of seven forged graphs. Its report
 identifies the executable hash and distinguishes freshly generated views from
-explicitly supplied cached views. The sibling `eal-command-supervisor` bounds
+explicitly supplied cached views. The sibling `eal-process-supervisor` bounds
 each child process. `--supervisor FILE` can select it explicitly.
 
 Consumer imports are limited to 4 MiB, 4,096 arguments and 65,536 defeat

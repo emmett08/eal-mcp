@@ -41,7 +41,7 @@ Declare the same tool name and version in the EAL source. Its evidence selects
 the tool and supplies the request input.
 
 ```eal
-language "EAL/3"
+language "EAL/4"
 environment production {
   require stage == "production"
 }
@@ -248,8 +248,7 @@ Configurations become immutable after admission. `Config::new` validates typed
 parsing. Raw option maps are local to CLI conversion. Consumers replacing the
 previous mutable `Config` fields should construct a provider record and submit it
 through `Config::new`. `with_limits` accepts only an admitted `CollectorLimits`.
-The legacy Tempo `--inherit-env` flag remains accepted until 1.0 and has no
-command effect because that provider uses HTTP. Its credentials continue to use
+Tempo uses HTTP and rejects `--inherit-env`. Its credentials use
 `--token-env` and `--tenant-env`.
 Operator executable, supervisor and inventory paths require bounded absolute
 UTF-8 paths. Programmatic admission rejects non-UTF-8 paths before their use,
@@ -277,222 +276,36 @@ conservative, rather than silently rejuvenating an observation.
 The optional collector package depends on the narrow process and adapter packages.
 It does not require the EAL runtime, language parser or database for collection.
 
-## Shared graph quantity projection
+## Executable evidence dependencies
 
-An acquisition response can itself be an array without being a graph fan-out.
-Use derivation `project_value` to select named fields against that whole response:
-`{"kind":"project_value","fields":{"uid":"/0/uid"}}` selects the first item's
-UID. The existing `project` operation preserves its per-record array behavior:
-after a `for_each` acquisition, `{"kind":"project","fields":{"uid":"/uid"}}`
-produces an array of UIDs, including an empty array for an empty fan-out. Both
-operations retain source lineage, original observation times and coverage; absent
-pointers leave evaluation pending. Graph authors must select the operation from
-the acquisition's declared `for_each`, rather than infer fan-out from JSON shape.
+Acquisition and calculation dependencies belong in the EAL/4 source. It
+binds values from named observations into another tool's
+input or a bounded pure `derive` expression. `tools.toml` selects concrete
+command, MCP, HTTP or retained-file operations. No executable graph sidecar,
+source-registration service or collector wrapper is required to run the package.
 
-## Collected reasoning inputs
+Collection resolves the transitive dependency closure, collects a shared source
+once, and retains one immutable observation for each source or calculation.
+Derived values preserve the oldest input measurement time and exact parent
+identities. Assessment reconstructs requests and pure calculations from those
+records, rejects substituted parents, and checks freshness at the explicit
+assessment time. A measured negative is distinct from failed acquisition.
 
-A graph evaluation may use `{"kind":"method_input","method":"inductive/1"}`
-with exactly one input reference. This admits an already collected
-`EAL/typed-input/1` envelope against the installed method's input contract,
-quantity, unit and ordered time interval. The evaluation records
-`method_result_evaluated: false` and `scientific_adequacy_verified: false`.
-Admission supplies no conclusion, no proof of sampling or experimental design,
-and no validation of prose correspondence. Missing evidence, an absent causal
-model, an unknown method or a malformed input remains pending with a diagnostic.
+Count and distinctness are ordinary closed expression operations over supplied
+finite JSON arrays. An explicit source-completeness predicate and any source
+interpretation assumptions remain separate argument obligations. Calculations do
+not establish external population completeness or source authority.
 
-The ordinary `support-graph` collector can return that input for an EAL typed
-claim using this acquisition request input:
+See [the EAL/4 language](language-v4.md),
+[direct tool bindings](direct-tools.md), and
+[executable programmes](executable-programs.md) for the current package and run
+interfaces. Historical source observations remain data; the former executable
+plan interpreter and its support collector are not production entry points.
 
-```json
-{
-  "schema": "engarg.reasoning-input/1",
-  "case_digest": "CASE_SHA256",
-  "execution_plan_sha256": "PLAN_SHA256",
-  "requirement_id": "sample_input",
-  "output": {"step_id": "sample_envelope", "pointer": ""},
-  "premise_bindings": [
-    {
-      "premise_id": "sample_ground",
-      "input_pointer": "/trials",
-      "requirement_id": "sample_support",
-      "correspondence": {"kind": "identity_value", "source_input_index": 0, "source_pointer": ""}
-    }
-  ]
-}
-```
+## Optional authoring discovery
 
-The two digests must be exact lower-case SHA-256 identities and match the export
-context and pinned plan. `output` must exactly match the input reference of the
-selected method-input evaluation. That evaluation must be satisfied. The
-selected source or derived value must itself be the complete typed envelope;
-the request cannot supply replacement metadata or a replacement payload.
-Projection retains the original oldest observation time, immutable source and
-observation identities, and request/context correspondence. It replays pure
-derivations and checks projected acquisition values against retained originals.
-Premise bindings execute the union of the input requirement's and each named
-premise requirement's acquisition closures under the same deadline and request
-budget. Every premise criterion must be satisfied. `identity_value` compares the
-payload's selected formal operand with the actual selected requirement input,
-using the declared input index and a relative `source_pointer`. Comparison uses
-canonical exact JSON without coercion or implicit unit conversion. A payload
-claiming 90 successes cannot use a satisfied but different 10-success measurement.
-Missing evidence or unequal values leave projection unavailable. A collected false
-criterion produces an admission refusal rather than a formal method input.
-The combined observation retains the oldest original clock and all consulted
-source and observation identities. Input admission cannot certify its own premises.
-
-For a deductive `/premises/N` operand, `{"kind":"accepted_premise"}` instead
-requires a separately collected, satisfied criterion. The mapping from that
-criterion to the declared formula remains authored. Other modes require actual
-value identity. Independent premise support and named assumptions must also be
-dependencies of the EAL argument. A pointer's presence alone establishes neither
-truth nor correspondence with prose.
-
-When every premise has a determinate collected evaluation and at least one is
-`not_satisfied`, the collector returns an ordinary observation with schema
-`engarg.reasoning-input-denied/1`. It names the method and rejected premise,
-requirement and evaluation identities, and carries no formal payload. Projection
-rechecks each criterion against its collected inputs and retains their original
-oldest clock and immutable lineage. The generated EAL `schema ==
-"EAL/typed-input/1"` predicate evaluates to a comparable false result, so the
-assessment remains complete while the formal kernel remains `not_run`. Pending
-acquisition, missing observations, stale evidence and operand mismatches continue
-to fail projection. An admission refusal therefore preserves a measured negative
-without treating an unavailable or unverified premise as admitted.
-
-EAL then checks the envelope against the claim's subject, quantity, unit, scope,
-interval and formal query, runs the selected kernel, and evaluates the claim's
-result predicate. A valid input whose computed result fails that predicate is
-retained as a measured result. It does not become supported merely because input
-admission succeeded. The earlier `engarg.support-acquisition/1` request continues
-to return its requirement-evaluation wrapper unchanged.
-
-## Discovery dependencies
-
-A dependency binding without `role` retains its original record-selection
-meaning and serialises unchanged. Discovery metadata can instead declare an
-explicit role with scope correspondence:
-
-```json
-{
-  "output": {"step_id": "api_discovery", "pointer": "/api_version"},
-  "argument_pointer": "/api_version",
-  "role": {
-    "kind": "discovery",
-    "scope_bindings": {"/cluster": "/cluster", "/required_kind": "/kind"}
-  }
-}
-```
-
-The correspondence maps JSON pointers in the source's declared scope to equal
-values in the consumer's declared scope. Every source selector must either occur
-unchanged under the same key or have an explicit correspondence. Shared keys
-must agree even when another mapping is supplied. Empty mappings, missing or
-null selectors and contradictory identities fail plan validation before IO.
-The example requires predeclared `/api_version` argument space and compatible
-source and consumer scopes.
-
-Execution admits discovery references through single-source `extract`,
-`project` and `project_value` chains. Arithmetic, multi-source derivations,
-fan-out origins and cyclic chains cannot relabel a selection as discovery.
-The qualified planner must additionally establish that the source contract is a
-discovery operation, retaining its original clocks and provenance. The runtime
-checks the pinned source identities and scope correspondence. Discovery retains
-its source and observation identities and original clock in the consumer's
-lineage. Its metadata supplies no population coverage. A consumer's witness
-therefore comes from its own measurement and any actual selection ancestors,
-while an unspecified discovery coverage cannot erase that witness. This role
-does not itself qualify a protocol or establish an empirical witness.
-
-## Shared support execution deadlines
-
-### Finite identifier audit coverage
-
-`eal-collector capabilities` reports the supported optional execution-plan
-proofs without loading a provider or contacting a model. The
-`identifier_audit_v1` proof covers a finite array of string identifiers and an
-exact count and distinctness check. It does not qualify arbitrary calculators.
-
-The source descriptor must explicitly identify the population and its whole
-enumeration quantity through `population_quantity` in a qualified
-`complete_enumeration` guarantee. The guarantee also identifies a measured
-completeness pointer. The calculator descriptor must carry an operator-qualified
-`identifier_audit` mapping and bounds. Both descriptors are bound to their
-qualified contract digests. The proof names these identities and the exact source,
-argument and result pointers. It also selects the scope identity and any input
-fields that the output must echo.
-
-During execution EAL compares the selected array with the raw qualified source
-observation, checks completeness and identity, then independently recomputes the
-count and string distinctness. A mismatch leaves the requirement pending. The
-result keeps both observation identities and the oldest source time. The
-calculator's own record remains a calculation, not a source enumeration or source
-authority. The proof establishes this observed transformation within the supplied
-operator qualifications. It does not independently establish the source's
-authority or the truth of its population definition.
-
-Coverage can reach only the checked output fields through at most one direct
-named projection. Further acquisitions and transformations of that proof-bearing
-result are rejected. Generic or unqualified transforms retain their earlier
-coverage behaviour. Source records cached before qualified quantity and coverage
-metadata were retained cannot satisfy this proof and need a new observation.
-
-The proof and qualification fields are optional and omitted from older plans and
-descriptors when absent, preserving their wire representation. An older collector
-does not accept a plan containing the new proof; callers must check its capabilities
-and use a compatible pinned runtime before submitting such a plan.
-
-`eal-collector support-graph --plan plan.json --config evidence.json --store sources`
-starts a monotonic budget on entry to the support facade. The default is 300 seconds.
-`--timeout-ms` selects an integer budget from 1 to 86400000 milliseconds. Input and
-configuration validation, source-store initialisation, acquisition, derivation and
-final evaluation consume that same budget. An already-expired request admits no
-source acquisition. `SourceStore::open_until` and `EvidenceExecutor::execute_until`
-accept the same absolute deadline for programmatic callers. Synchronous store
-opening uses a separate finite 30-second lock-wait budget.
-
-Key initialisation and source-store I/O run on blocking workers. Lock waits poll
-without blocking the async scheduler and stop admitting work after expiry. An I/O
-operation admitted before expiry can finish after the caller returns. Its worker
-keeps the key or source lease until completion. Reconciliation refuses an active
-source lease, and an uncertain acquisition remains marked for explicit operator
-reconciliation before another acquisition can begin.
-
-An immutable observation snapshot is published and synced before the source's
-reuse index exposes its identity. Each publication checks the deadline before
-renaming. Expiry after snapshot publication can leave a retained snapshot without
-a new reuse index. Expiry after an admitted rename can expose the index while the
-invocation reports exhaustion. The pending marker retains the uncertain outcome
-until reconciliation or successful completion. Retained observations keep their
-original timestamps and signatures.
-
-Execution reports carry `budget_exhausted` separately from criterion satisfaction.
-An expired invocation has `complete: false`, including expiry during final
-assessment. An independently admissible observation can still satisfy a criterion.
-Collector projections expose `execution_complete` and `budget_exhausted` alongside
-that criterion result. Freshness uses the actual lookup time unless the caller
-supplies an explicit assessment cut-off. The maximum age is inclusive, and a future
-observation or an age above that bound leaves the affected criterion pending.
-Elapsed-time tests include documented scheduler tolerance. These bounds describe
-cooperative admission and caller response, rather than cancellation of filesystem
-operations already in progress.
-
-A fan-out shared by witness and complete-enumeration or statistical consumers
-continues after its first match to seek the requested population coverage. A
-requirement projection that needs only the witness can still stop early. If later
-acquisition fails or exhausts the budget, the retained positive prefix keeps its
-original observation age and lineage. Pure final assessment can use that prefix
-after the deadline, including its applicability and challenge checks. Population
-consumers remain pending until their own coverage conditions hold. This final
-assessment admits no further acquisition or publication.
-
-After expiry, recovery admits at most 128 structural or identity derivations.
-It shares a 16 MiB budget for conservatively estimated JSON input and output
-bytes across those derivations. A bounded counting writer checks selected values
-before cloning them. Projection estimates include the number of output fields,
-so repeated `collect` or `project` operations cannot expand without consuming
-the budget. Numeric transforms remain incomplete after expiry because their
-intermediate arithmetic cost needs a separate bound. Completed observations and
-their reported request and byte counts survive interruption, including responses
-received after the first witness. These are bounds on recovery work and encoded
-values, rather than a strict wall-clock grace period or a process-memory limit.
+`eal-collector evidence-discover --config evidence.json` inspects configured MCP
+and native candidates within explicit transport budgets. Discovery assists an
+author in selecting a concrete binding; it supplies no execution authority and
+is not required by `eal-host run`. `prepare-native-provider` validates configured
+candidate metadata without invoking or qualifying the selected operation.

@@ -57,6 +57,7 @@ execution_limits! {
     json_nodes: 100_000,
     record_bytes: 4 * 1024 * 1024,
     collection_evidence: 128,
+    method_work: 1_000_000_000,
     composed_edges: 131_072,
     abstract_attacks: 65_536,
     formal_premises: 64,

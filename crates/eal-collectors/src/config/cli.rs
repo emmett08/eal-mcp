@@ -129,10 +129,8 @@ pub(super) fn parse(arguments: Vec<String>) -> Result<Config, String> {
             }
         }
         Provider::Tempo => {
-            // Retain the previously accepted CLI flag for source compatibility.
-            // HTTP credentials are selected exclusively by token_env and tenant_env.
-            if inherit_env.len() > 64 {
-                return Err("Too many inherited environment selections".into());
+            if !inherit_env.is_empty() {
+                return Err("Tempo credentials use --token-env and --tenant-env; --inherit-env is not a Tempo option".into());
             }
             ProviderConfig::Tempo(TempoConfig {
                 inventory: take(&mut options, "--inventory")?.into(),

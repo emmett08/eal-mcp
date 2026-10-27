@@ -175,7 +175,7 @@ mod tests {
         for name in ["../outside", "/outside", "nested/../../outside", ""] {
             assert!(put(&temp.0, name, &json!("x")).is_err());
         }
-        put(&temp.0, "nested/import.eal", &json!("language \"EAL/3\"\n")).unwrap();
+        put(&temp.0, "nested/import.eal", &json!("language \"EAL/4\"\n")).unwrap();
     }
     #[test]
     fn options_preserve_both_explicit_and_positional_interfaces() {

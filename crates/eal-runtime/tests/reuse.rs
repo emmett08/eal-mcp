@@ -11,7 +11,7 @@ use serde_json::{Value, json};
 use std::{collections::BTreeMap, path::PathBuf};
 use uuid::Uuid;
 
-const SOURCE: &str = "language \"EAL/3\"\nenvironment lab {\nrequire site == \"bench\"\n}\ntool runner {\nversion \"1\"\n}\nevidence measured {\ntool runner\nkind test\nenvironment lab\nmax_age 60\ninput {\"value\":7}\nrequire passed == true\n}\nreasoning observed {\nmethod \"structured/1\"\nrationale \"The observation supports this bounded claim.\"\n}\nclaim works {\nstatement \"The selected test passes.\"\nenvironment lab\n}\nargument result = [evidence measured] via observed => works\n";
+const SOURCE: &str = "language \"EAL/4\"\nenvironment lab {\nrequire site == \"bench\"\n}\ntool runner {\nversion \"1\"\n}\nevidence measured {\ntool runner\nkind test\nenvironment lab\nmax_age 60\ninput {\"value\":7}\nrequire passed == true\n}\nreasoning observed {\nmethod \"structured/1\"\nrationale \"The observation supports this bounded claim.\"\n}\nclaim works {\nstatement \"The selected test passes.\"\nenvironment lab\n}\nargument result = [evidence measured] via observed => works\n";
 struct Case {
     dir: PathBuf,
     runtime: EvidenceRuntime,

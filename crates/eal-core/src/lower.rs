@@ -71,8 +71,8 @@ fn lower_owned(syntax: &SyntaxDocument) -> Result<Program> {
     };
     let root = syntax.root;
     let language = builder.string(root)?;
-    if language != "EAL/3" {
-        return Err(builder.error(root, "LANGUAGE", "Source must declare EAL/3"));
+    if language != crate::LANGUAGE {
+        return Err(builder.error(root, "LANGUAGE_VERSION", format!("Source must declare {}; migrate older source and imported modules to the current language", crate::LANGUAGE)));
     }
     Ok(Program {
         language,
@@ -139,6 +139,17 @@ impl Builder<'_> {
                 .token(child)
                 .is_some_and(|token| token.text == value)
         })
+    }
+
+    fn string_tokens(&self, id: NodeId) -> Vec<NodeId> {
+        self.syntax
+            .children(id)
+            .filter(|&child| {
+                self.syntax
+                    .token(child)
+                    .is_some_and(|token| token.kind == "STRING")
+            })
+            .collect()
     }
 
     fn string_token(&self, id: NodeId) -> Result<NodeId> {

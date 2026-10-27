@@ -45,14 +45,10 @@ pub fn companion() -> Result<PathBuf, Error> {
 }
 
 fn find_in(directory: &std::path::Path) -> Option<PathBuf> {
-    [
-        "engarg-process-supervisor",
-        "eal-process-supervisor",
-        "eal-command-supervisor",
-    ]
-    .into_iter()
-    .map(|name| directory.join(format!("{name}{}", std::env::consts::EXE_SUFFIX)))
-    .find(|candidate| candidate.is_file())
+    ["engarg-process-supervisor", "eal-process-supervisor"]
+        .into_iter()
+        .map(|name| directory.join(format!("{name}{}", std::env::consts::EXE_SUFFIX)))
+        .find(|candidate| candidate.is_file())
 }
 
 struct CancelOnDrop(CancellationToken);
