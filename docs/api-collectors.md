@@ -1,8 +1,14 @@
-# API and delivery evidence
+# Use telemetry and CI records as evidence
 
-Catalogue version 3 adds Datadog, Prometheus, Loki, GitHub CI and retained report
-measurements. Versions 1 and 2 retain their published descriptors and defaults.
-The acquisition envelope, EAL grammar and runtime registry format stay unchanged.
+The proposed CI speed-up needs a measurement from an identified workload and a
+record of which tests actually ran. Telemetry can supply elapsed-time observations,
+GitHub can identify a workflow attempt, and a retained report can carry its test
+outcomes. The argument must connect those sources to the same revision and
+comparison design before the combination supports the claim.
+
+This chapter describes the bundled read-only API and delivery adapters. Each uses
+the [collector envelope](collectors.md) and an operator-selected source. Optional
+descriptions are available through catalogue version 3:
 
 ```sh
 eal-collector describe --catalogue-version 3 > engineering.collectors.json
@@ -50,9 +56,8 @@ eal-collector describe-api datadog --contract-version 2 \
   > datadog.collectors.json
 ```
 
-Select this catalogue with EngArg's `--collector-catalogue` option.
-Its required input is the following shape, with actual ordered Unix seconds
-chosen for the investigation.
+Inspect the descriptor to confirm its input and output contract. The operation
+input has this shape, with ordered Unix seconds chosen for the investigation.
 
 ```json
 {
@@ -62,11 +67,31 @@ chosen for the investigation.
 }
 ```
 
-The resulting EAL tool uses version `2` and an acquisition predicate of
-`collected == true`. Claim-specific acceptance belongs in the argument and its
-review obligations. When collecting through EngArg, forward approved variables
-with `--collector-env DD_API_KEY --collector-env DD_APP_KEY`.
-The runtime registry must permit the same inherited names.
+Bind the operation directly in `tools.toml`. Replace the executable, configuration
+path and SHA-256 placeholder with the operator's actual selections:
+
+```toml
+[tools.ci_logs]
+kind = "command"
+version = "2"
+argv = [
+  "/absolute/eal/bin/eal-collector", "datadog",
+  "--contract-version", "2", "--measurement", "datadog_logs",
+  "--config", "/absolute/operator/datadog-source.json",
+  "--config-sha256", "REPLACE_WITH_ACTUAL_LOWERCASE_SHA256"
+]
+inherit_env = ["DD_API_KEY", "DD_APP_KEY"]
+timeout_seconds = 30
+max_output_bytes = 1048576
+```
+
+Declare `tool ci_logs { version "2" }` in EAL and supply the matching query and
+window in the evidence input. The descriptor's `collected == true` predicate
+establishes measurement availability. The argument needs separate predicates or
+reviews for its performance and outcome criteria. Supply credential values through
+the named environment variables. A wrapper that launches EAL must also explicitly
+forward them, as described in the
+[EngArg workflow](https://github.com/emmett08/engarg/blob/main/docs/USAGE.md).
 
 | Provider command | Measurement / source kind | Additional operator fields |
 | --- | --- | --- |
@@ -84,13 +109,13 @@ measurement. `bearer_env` optionally selects bearer authentication.
 `headers_env` can select a tenant header through an operator-owned variable.
 The origin is HTTPS with an empty path. HTTP is admitted for loopback fixtures.
 
-API input contains `query`, `start_unix` and `end_unix` for query profiles.
+API input contains `query`, `start_unix` and `end_unix` for query operations.
 Monitor input contains only its integer `id`. SLO input contains its `id` and
 the ordered window. The configured maximum window is 1 second to 30 days.
 Resolution and window admission bound requested metric points. Returned metric
 rows have explicit sample arrays bounded by `max_points`.
 
-## Retained meaning and operational bounds
+## Interpret the source within its limits
 
 The common HTTP adapter disables redirects and proxy discovery. It restricts
 credentials to the configured origin and enforces one aggregate monotonic
@@ -102,8 +127,8 @@ Automatic retry is absent, leaving retry timing and cost under caller control.
 Datadog metrics use the v2 timeseries endpoint. Requested interval and returned
 source metadata remain inspectable. Zero and null samples retain their original
 values. Prometheus range queries preserve warnings and informational annotations.
-The initial Prometheus profile admits float series. Native histogram series
-require a separate measurement profile.
+The Prometheus adapter admits float series. Native histogram series require a
+separately implemented measurement contract.
 
 Datadog searches and Loki return one bounded page. Cursor and limit information
 remain in the result. `search_exhaustive` is always false and
@@ -210,7 +235,7 @@ The complete report retains invocation failures, findings and baseline details.
 Generic JSON imports retain an object, which can carry benchmark or SBOM data.
 Domain-specific interpretation and signature verification need their own contracts.
 
-## Verification
+## Verify configuration against the intended source
 
 Loopback HTTP fixtures check exact requests, response conformance, measured
 negatives, query admission, credential inspection and source limits.
@@ -225,3 +250,8 @@ Primary API references are the
 [Prometheus HTTP API](https://prometheus.io/docs/prometheus/latest/querying/api/),
 [Loki HTTP API](https://grafana.com/docs/loki/latest/reference/loki-http-api/)
 and [GitHub Checks API](https://docs.github.com/en/rest/checks/runs).
+
+
+Continue with [executable programmes](executable-programs.md) to combine these
+observations under an explicit method and scope. Return to the
+[documentation path](index.md).

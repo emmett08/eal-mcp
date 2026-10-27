@@ -1,7 +1,9 @@
-# Collector authoring contracts
+# Discover a collector contract before choosing its binding
 
-An authoring client can select prospective measurements from an operator-supplied
-catalogue without knowing the provider's CLI or embedding its execution code.
+The normal [execution path](getting-started.md) uses a direct tool manifest. An
+authoring client can optionally inspect operator-supplied descriptions to find a
+prospective measurement before constructing that manifest. This contract lets the
+client check the source interface without embedding a provider's implementation.
 `eal-collector describe` prints the current optional native catalogue and performs
 no acquisition. Its parsed value matches
 [`contracts/collectors/native.json`](../contracts/collectors/native.json).
@@ -36,7 +38,7 @@ required input fields and command-template parameters. Other declared input
 properties can be omitted. Supplied null remains a value subject to the schema.
 Conditional schema requirements are checked against the complete prepared input.
 Catalogue version 3 retains earlier descriptors and adds API and delivery
-profiles. `describe-api` derives a descriptor from a pinned operator source.
+contracts. `describe-api` derives a descriptor from a pinned operator source.
 
 The predicate describes measurement availability. For example, a nonempty
 cluster inventory permits interpretation of a Kubernetes observation even when
@@ -64,7 +66,7 @@ object inputs and cap identity fields at 1,024 bytes. The general acquisition
 contract permits any finite JSON input and retains the runtime's aggregate
 request budget.
 
-The current native catalogue is an optional infrastructure profile. Generic EAL
+The current native catalogue is an optional set of infrastructure measurements. Generic EAL
 `command` and `json_file` bindings also support other domains. A laboratory
 collector can describe numeric readings and channel arrays through its own
 input schema without adding a provider to the EAL language or rebuilding the
@@ -110,16 +112,16 @@ cannot supply these classifications. Values never belong in the declaration.
 
 ## Numeric and schema interpretation
 
-Strict JSON admission has two explicit numeric profiles behind one duplicate,
+Strict JSON admission has two explicit numeric interpretations behind one duplicate,
 Unicode and resource-checking parser. `strict_json` selects the runtime's
 established binary64 interpretation for decimal and exponent tokens. Integers
 remain arbitrary precision. `strict_json_exact` preserves the arbitrary-precision
 `serde_json` number representation for authoring, persisted export identities and
 semantic host responses. That includes decimal precision, exponent spelling and
 signed-zero behaviour admitted by that representation. Generic optional adapters
-select the exact profile. Runtime acquisition retains its binary64 boundary.
+select the exact interpretation. Runtime acquisition retains its binary64 boundary.
 Both reject non-JSON `NaN` and infinity tokens. An exponent outside binary64's
-range is rejected by the binary64 profile and retained by the exact profile as a
+range is rejected by the binary64 interpretation and retained by the exact interpretation as a
 finite symbolic JSON number. Byte, nesting and node allowances apply to both.
 
 The catalogue schema permits omitted `constraints`, matching their established
@@ -138,27 +140,6 @@ The corpus labels those distinctions explicitly. A structural JSON Schema check
 alone therefore cannot replace shared semantic/profile admission. Downstream
 compatibility checks can run the same cases without reproducing those rules.
 
-## Execution-plan feature compatibility
-
-`eal.evidence-execution-plan/1` identifies the shared plan envelope. Consumers
-must also support every operation and operand used by the submitted plan.
-Strict decoding rejects unknown fields and operation variants before execution.
-A matching envelope label alone does not establish feature compatibility.
-
-| Construct | Minimum producer and reader revision | Compatibility |
-| --- | --- | --- |
-| Literal witness `equals` and per-record `project` | `2a6f260` | Current readers retain their original interpretation. |
-| Dynamic witness `equals_output` and whole-response `project_value` | `cb5013c37ef79331e79ee0337862aec58d1ee5cb` | Earlier readers reject these constructs during decoding. |
-
-Pin the EAL runtime and the authoring client's contract dependency to a revision
-that supports the emitted features. The current EngArg integration records that
-producer revision in its dependency lockfile and compatibility workflow.
-An operator upgrading one component separately must run the producer/consumer
-checks before using the pair. Downgrading a retained plan requires a reader that
-supports its operations and preserves their meaning. Rewriting a dynamic
-comparison into an invented literal or changing whole-response projection to
-per-record projection changes the evidence requirement.
-
 ## Support-contract diagnostics
 
 The derived `SupportContract` JSON schema fixes `schema` to
@@ -173,3 +154,12 @@ relative JSON pointer, stable code and actionable message. A wrong schema
 identity and an empty method list appear together. The existing `validate()` API
 joins those diagnostics into its error result. Structural admission remains a
 separate check from source availability and empirical adequacy.
+
+
+Acquisition dependencies and pure calculations in current executable packages are
+[EAL/4 source](language-v4.md). Authoring metadata is not an executable plan for
+the runtime. Pin the authoring client's EAL dependency and installed producer to
+compatible revisions, then run their producer/consumer checks before deployment.
+
+Return to [collectors](collectors.md) for implementing a measurement or the
+[documentation path](index.md) for the complete workflow.

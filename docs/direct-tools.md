@@ -1,10 +1,10 @@
-# Direct tool manifests
+# Connect evidence requests to authorised operations
 
-`tools.toml` binds each EAL tool name and version to one concrete operation. It
-requires no capability catalogue, registration directory, qualification record,
-ranked candidate list or semantic execution-plan file. Tool discovery checks the
-selected MCP interface; it does not establish source completeness or the validity
-of an inference.
+After the source states what must be observed, the operator chooses how to obtain
+it. `tools.toml` binds each EAL tool name and version to one concrete operation.
+An existing command, MCP tool, HTTP endpoint or retained file can be used directly.
+Discovery checks a selected interface. Source completeness and inference adequacy
+remain obligations in the argument.
 
 The same `ToolRegistry` map implements this operator-owned manifest for the CLI,
 MCP service and embedded runtime. `[context]` supplies the package's default
@@ -50,30 +50,29 @@ Bare executable names use the operator-selected `PATH` where supplied.
 
 Commands inherit no process environment by default. Supply `inherit_env` names
 and, when needed, explicit `env` settings. Credentials belong in externally
-supplied environment variables; the manifest names them rather than storing their
-values. Existing manifests that relied on implicit environment inheritance must
-name the required variables explicitly.
+supplied environment variables. The manifest names them rather than storing their
+values. Name every variable the selected implementation needs.
 
 ## Transport contracts
 
 | `kind` | Configuration | Input | Output |
 |---|---|---|---|
-| `command` | `argv`, optional environment and `pinned_files` | Bounded existing EAL request envelope on stdin | Observation envelope on stdout |
-| `json_file` | `path` | Declared request is checked against retained envelope | Original envelope; `value`, `observed_at`, `context` and `request` required |
+| `command` | `argv`, optional environment and `pinned_files` | Bounded EAL request envelope on stdin | Observation envelope on stdout |
+| `json_file` | `path` | Declared request is checked against retained envelope | Original envelope.  `value`, `observed_at`, `context` and `request` required |
 | `mcp_stdio` | `argv`, environment, `direct.tool` | Resolved evidence `input` object as MCP tool arguments | Explicit structured content or JSON text mapping |
 | `mcp_http` | `direct.url`, `direct.tool`, optional `direct.token_env` | Same MCP input contract | Same MCP output contract |
-| `http_get` | `direct.url`, optional `direct.token_env` and `direct.headers_env` | Object keys become query parameters; scalar strings, booleans or numbers only | JSON response mapped by configured pointers |
+| `http_get` | `direct.url`, optional `direct.token_env` and `direct.headers_env` | Object keys become query parameters. Scalar strings, booleans or numbers only | JSON response mapped by configured pointers |
 
 HTTP URLs must use HTTPS, except loopback HTTP for local services. Embedded
 credentials, query strings, fragments, redirects and proxy discovery are rejected
 at this boundary. HTTP GET never substitutes an input-provided endpoint. Remote
 MCP connections use the shared client's existing bearer-authentication policy.
 
-MCP uses the official SDK client, with one deadline covering initialization,
+MCP uses the official SDK client, with one deadline covering initialisation,
 bounded interface discovery and invocation. It calls exactly the configured
 operation and never retries an uncertain invocation. Interactive or deferred
 responses are rejected. Discovery and response sizes are bounded by the operation
-allowance; discovery also has finite tool and page limits. HTTP GET uses the
+allowance. Discovery also has finite tool and page limits. HTTP GET uses the
 existing origin-bound JSON adapter.
 
 Command and MCP stdio acquisition use EAL's independent process supervisor and
@@ -83,7 +82,7 @@ the companion releases its inherited lease descriptor. The supervisor also bound
 the complete protocol input/output transcript and discarded stderr. Runtime MCP
 sessions inherit the binding's exact lifetime limit and never replay an uncertain
 invocation. Generic persistent SDK clients have a one-hour maximum session lifetime
-with separate per-operation deadlines; callers can supply a tighter explicit
+with separate per-operation deadlines. Callers can supply a tighter explicit
 supervision contract. These local process guarantees do not undo external effects
 already performed by a remote tool.
 
@@ -91,7 +90,7 @@ already performed by a remote tool.
 
 `direct.value_pointer` addresses the normalised observation value, with `""`
 selecting the whole decoded result. For MCP, `response_format = "structured"`
-requires `structuredContent`; `response_format = "json_text"` selects the text
+requires `structuredContent`.  `response_format = "json_text"` selects the text
 block at `text_block` (default zero) and decodes strict JSON. Duplicate JSON keys,
 missing pointers, malformed clocks, oversized results and tool errors do not
 become usable negative observations. A successful result containing `false`
@@ -115,8 +114,8 @@ eal-host run case.eal --tools prepared.tools.toml --workspace run \
 Preparation uses the same `eal_prepare(source, context, claim?)` service available
 through MCP. It admits the selected claim's complete evidence dependency closure,
 resolves at most 128 distinct configured tools and has a 120-second discovery
-budget. Bounded local-file and schema admission precedes discovery; it cannot
-interrupt an operating-system file read mid-call. For MCP tools it performs initialization and bounded `tools/list`
+budget. Bounded local-file and schema admission precedes discovery. It cannot
+interrupt an operating-system file read mid-call. For MCP tools it performs initialisation and bounded `tools/list`
 discovery, then selects the exact named operation. It issues no `tools/call` and
 creates no observations or assessment. Omit `--claim` to prepare all evidence.
 Non-MCP bindings are admitted and identified without invoking them.
@@ -124,10 +123,10 @@ Non-MCP bindings are admitted and identified without invoking them.
 Standard output contains an inspectable receipt with source, executable, manifest,
 binding and discovered interface identities. `--output-tools` writes a new private
 TOML file beside the input manifest, preserving relative resources and the original
-operator configuration. Only discovered schema hashes and server identity are added;
-discovery cannot alter commands, endpoints, environment, response mappings or limits.
+operator configuration. Only discovered schema hashes and server identity are added.
+Discovery cannot alter commands, endpoints, environment, response mappings or limits.
 The receipt contains no acquired values or resolved credentials. Existing explicit
-environment values remain in the operator's TOML; inherited credential references
+environment values remain in the operator's TOML. Inherited credential references
 remain references. Execution needs only the EAL source, the generated TOML and tool
 implementations, so the receipt and preparation workspace can be removed.
 
@@ -139,7 +138,7 @@ execution both reject a changed server identity or schema before invocation.
 Every completed MCP call retains its actual `mcp_interface` identity in the
 observation, even when no pins were configured and when the tool reports an error.
 The server name/version is advertised metadata, not independent attestation of a
-remote binary or its source. Pins establish interface correspondence; they do not
+remote binary or its source. Pins establish interface correspondence. They do not
 establish a claim's truth.
 
 Local input and normalised output schemas can also be supplied as byte-pinned
@@ -169,7 +168,13 @@ streamable-HTTP calls against synthetic local fixtures, read-only HTTP acquisiti
 negative results, original clocks, exact large integers, malformed input schemas,
 changed schema pins, output limits, duplicate JSON, package-relative files and
 explicit environment selection. `mcp_preparation.rs` verifies discovery without
-operation calls, pre-call drift rejection and retained actual identities;
+operation calls, pre-call drift rejection and retained actual identities.
 `executable_packages.rs` moves and executes generated TOML without its receipt.
-These tests verify adapter contracts; they do not
+These tests verify adapter contracts. They do not
 validate an external production data source.
+
+
+For a new command implementation, continue with [collectors](collectors.md).
+For an implementation generated and verified by EngArg, use
+[portable tool packages](tool-packages.md). Return to the
+[documentation path](index.md).

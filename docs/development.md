@@ -1,4 +1,56 @@
-# Native installed acceptance
+# Change EAL without losing its execution boundaries
+
+A change to acquisition, assessment or a transport boundary can alter the meaning
+of an existing result. Begin with [implementation boundaries](implementation.md)
+and the contract owned by the component you intend to change. Keep observations,
+source identity, numerical domains and incomplete results explicit in both code
+and tests.
+
+The repository uses Rust 1.90.0 and edition 2024. `rust-toolchain.toml` selects the
+compiler, rustfmt and Clippy. Normal builds use checked-in generated parser code.
+Handwritten crates forbid unsafe Rust. The parser adapter isolates the generated
+module's existing context casts.
+
+## Build and check the workspace
+
+Run from the repository root:
+
+```sh
+cargo build --release --workspace --locked
+cargo fmt --all --check
+cargo clippy --workspace --all-targets --locked -- -D warnings
+cargo test --workspace --locked
+```
+
+Tests exercise native semantics, exact numeric identity, independent finite
+solver definitions, process deadlines, evidence correspondence, durable reuse,
+transport admission, packet bounds and recovery. They establish the properties
+checked on their declared inputs. Live deployment or model-quality conclusions
+require separately identified observations from those systems.
+
+The [manually triggered workflow](../.github/workflows/rust.yml) runs workspace
+verification, installed checks and the separate context experiment. Cargo caches
+reduce repeated compilation while verification still runs after a cache hit.
+Use the installed checks below when a change crosses an executable or transport
+boundary.
+
+## Regenerate the parser when the grammar changes
+
+The EAL/4 grammar is [EAL.g4](../grammar/EAL.g4). Regeneration requires Java and
+curl. The generator and runtime are pinned in
+[antlr4rust.env](../tools/antlr4rust.env).
+
+```sh
+sh tools/regenerate-parser.sh --check
+sh tools/regenerate-parser.sh
+```
+
+Recognition, lexical lowering, composition, validation and assessment have
+separate interfaces and tests. Preserve the generated files when a change affects
+only runtime behaviour. A grammar change requires regenerated recognisers and
+checks of the language's intended meaning.
+
+## Installed acceptance
 
 `eal-smoke` consolidates the application, coordination and static consumer checks.
 Build it with the workspace, then point it at one directory containing the installed
@@ -22,7 +74,7 @@ be new or empty. Their synthetic inputs and `smoke-result.json` are retained the
 including on failure. Omit the option to create a uniquely named temporary
 workspace. Reports state the original observation time and installed prefix.
 
-## Preservation contract
+### What the installed checks establish
 
 Application acceptance checks all eleven groups across
 CLI validation and discovery, durable collection and reuse, model-context
@@ -32,7 +84,7 @@ Origin and foreign Host. The bearer check rejects an entire credential-bearing
 semantic response and preserves clean results unchanged. Installed operation
 contract checks compare every advertised operation through text and SDK calls.
 The installed `eal-tool-run` companion must reject an incomplete invocation with
-empty stdout. This admission check requires no Docker image; isolated package
+empty stdout. This admission check requires no Docker image. Isolated package
 execution has separate tool-runtime tests.
 
 Coordination acceptance executes four complete software-worker runs, two through
@@ -53,7 +105,7 @@ consumer implementation. Rust owns fixture selection, native command execution,
 schema checking, byte limits and result reporting. See `eal-smoke --help` for
 cached views and explicit supervisor options.
 
-## Process ownership
+### Ownership during verification
 
 Every selected native command receives an explicit environment with `PATH` empty.
 Command checks reuse `eal-process-supervisor`, with a 60-second monotonic deadline
@@ -77,3 +129,14 @@ runtime's bounded, non-blocking regular-file reader on POSIX hosts. The tests
 cover FIFOs, ordinary aliases, exact allowances and sparse oversized files.
 These checks bound allocation and special-file admission rather than every
 possible filesystem stall.
+
+
+## Keep research measurements separate
+
+The [context experiment](context-experiment.md) is a separate
+Rust crate outside production builds and published binaries. Follow its explicit
+manifest and execution commands when changing experiment code. Planning
+simulations, synthetic rehearsals and live model sessions retain their own
+measurement labels and interpretation limits.
+
+Return to the [documentation path](index.md).

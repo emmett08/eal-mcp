@@ -1,27 +1,23 @@
-# Native evidence collectors
+# Acquire a measurement that the argument can interpret
 
-For OpenAPI, Datadog, Prometheus, Loki, GitHub CI and retained report profiles,
-see [API and delivery evidence](api-collectors.md).
-These additions are selected through catalogue version 3 or `describe-api`.
+A collector bridges an external system and a declared evidence requirement. Its
+result must preserve the measured value, its original time and the request it
+answers. The argument can then decide whether that observation supports a claim.
+This boundary is shared by custom instruments and the bundled infrastructure
+adapters.
 
-`eal-collector` supplies read-only Kubernetes, GitHub and Tempo wrappers for the
-existing `command` collector contract. Install it beside the runtime companions.
+Start with the [direct manifest](direct-tools.md) when an existing operation can
+supply the observation. This chapter defines the command envelope, then applies
+it to Kubernetes, GitHub and Tempo. [API and delivery evidence](api-collectors.md)
+continues with telemetry and CI reports.
 
-Authoring clients can read versioned capability descriptions through
-`eal-collector describe`. See [collector authoring contracts](collector-contracts.md)
-for the input schemas and operator-owned command templates.
+## Write a command collector
 
-```sh
-cargo install --path crates/eal-process --locked
-cargo install --path crates/eal-collectors --locked
-eal-collector --help
-```
 
-## Register your own collector
-
-Users can register any executable that implements the EAL collector contract.
-The Kubernetes, GitHub and Tempo providers are bundled conveniences. A custom
-collector runs through the generic `command` binding and requires no EAL rebuild.
+A custom collector implements the JSON stdin/stdout contract and runs through
+a `command` binding. Its implementation can use any language whose runtime the
+operator has installed. EAL owns admission, process lifetime and observation
+retention, so the collector can concentrate on its source.
 
 Add its name, version and fixed executable arguments to operator-owned
 `tools.toml`.
@@ -79,16 +75,17 @@ measurements. Return a successful measured negative in `value`, such as
 `{"healthy":false}`. Report acquisition failure with a nonzero exit status.
 Keep diagnostics on stderr so stdout contains only the observation.
 
-Pass this registry through `--registry tools.toml` to the CLI or MCP server.
-Attach the evidence to an argument and use `eal_collect`, `eal_collect_claim` or
-registered `eal_assess_known` through the existing MCP interface. Registering a
-collector means adding its operator binding. The separate `eal register`
-command registers an EAL source and its selected claims in the source catalogue.
+Attach the evidence to an argument, then run the package with
+`eal-host run case.eal --tools tools.toml --workspace run`. For staged execution,
+pass the same manifest with `--registry tools.toml` to the CLI or MCP server.
+Adding the binding makes the operation available to that runtime. The optional
+`eal register` command separately records a source and selected claims for
+repeated assessment.
 
 For an existing report, a `json_file` binding can import an observation instead.
 File envelopes also require `observed_at`, `context` and `request` to preserve
 measurement age and identity. See [trusted collector configuration and runtime
-bounds](runtime.md#trusted-collectors) for environment selection, dependency pins,
+bounds](runtime.md#bind-a-collector-to-an-evidence-request) for environment selection, dependency pins,
 output limits and reuse.
 
 ## Bundled collectors
@@ -106,8 +103,8 @@ failure categories without copying command stderr, credentials or HTTP bodies.
 | `github` | `gh`, supervisor, repository and exact 40-character commit SHA | Matching `repository` and `commit` | Exact commit and tree identity |
 | `tempo` | Search endpoint, inventory, rollout kind/name, attribute mapping and credential-variable names | Integer `start_unix` and `end_unix` | Matching trace identities and search metadata for every mapped telemetry cluster |
 
-The example in [`examples/catalog-sync-operator`](../examples/catalog-sync-operator)
-contains a source, registry, scoped context and inventory template. Replace every
+The [deployment example](catalog-sync-operator.md) contains a source, manifest,
+scoped context and inventory template. Replace every
 `REPLACE` value, choose the actual namespace/API group and replace the source's
 `1`/`2` search window with the intended Unix-second interval before collecting.
 Set both `inventory_sha256` predicates to the same approved inventory file hash.
@@ -205,13 +202,14 @@ depth of 128, 100,000 values/keys and 128 MiB of aggregate scan/decode input.
 Unrelated JSON-like prose remains unchanged. The inspector detects known values
 and does not establish the absence of arbitrary transformed exfiltration.
 
-## Preservation and verification
+## Check the boundary before trusting a deployment
 
 The shared abstraction is the existing EAL acquisition envelope. Each provider
 retains the distinctions required by its claim: resource identity/presence,
 commit/tree identity or time-scoped existential trace matches. Provider-specific
 selection stays in its own module. Selection dispatch contains no provider
-algorithm. Frozen evaluator, storage and MCP contracts remain unchanged.
+algorithm. The same envelope preserves these distinctions across evaluator, storage and MCP
+interfaces.
 
 Inventory reads use the runtime's bounded regular-file reader. FIFO and device
 paths fail before reading. Parent aliases are resolved while the final file is
@@ -230,8 +228,9 @@ cluster and Tempo credentials are required for environment acceptance.
 `eal-collector describe` preserves the published version 1 catalogue. Select the
 revised contracts with `eal-collector describe --catalogue-version 2`. The emitted
 commands include `--contract-version 2`, and requests must declare tool version
-`2`. Version 1 descriptors and their namespaced input/generation requirement
-remain supported until `eal-collectors` 1.0. New consumers should select version 2.
+`2`. Version 1 remains the compatibility default, including its namespaced input and
+generation requirement. Select version 2 for explicit resource scope and optional
+generation.
 The wire catalogue itself remains `eal.collector-catalogue/1`.
 
 Version 2 offers separate `kubernetes` and `kubernetes_cluster` descriptors.
@@ -245,9 +244,7 @@ A supplied generation must be a nonnegative signed 64-bit integer.
 
 Configurations become immutable after admission. `Config::new` validates typed
 `ProviderConfig` records and `CollectorLimits` using the same invariants as CLI
-parsing. Raw option maps are local to CLI conversion. Consumers replacing the
-previous mutable `Config` fields should construct a provider record and submit it
-through `Config::new`. `with_limits` accepts only an admitted `CollectorLimits`.
+parsing. Raw option maps are local to CLI conversion. Library callers construct a provider record and submit it through `Config::new`. `with_limits` accepts only an admitted `CollectorLimits`.
 Tempo uses HTTP and rejects `--inherit-env`. Its credentials use
 `--token-env` and `--tenant-env`.
 Operator executable, supervisor and inventory paths require bounded absolute
@@ -276,36 +273,26 @@ conservative, rather than silently rejuvenating an observation.
 The optional collector package depends on the narrow process and adapter packages.
 It does not require the EAL runtime, language parser or database for collection.
 
-## Executable evidence dependencies
+## Use the observation in the argument
 
-Acquisition and calculation dependencies belong in the EAL/4 source. It
-binds values from named observations into another tool's
-input or a bounded pure `derive` expression. `tools.toml` selects concrete
-command, MCP, HTTP or retained-file operations. No executable graph sidecar,
-source-registration service or collector wrapper is required to run the package.
-
-Collection resolves the transitive dependency closure, collects a shared source
-once, and retains one immutable observation for each source or calculation.
-Derived values preserve the oldest input measurement time and exact parent
-identities. Assessment reconstructs requests and pure calculations from those
-records, rejects substituted parents, and checks freshness at the explicit
-assessment time. A measured negative is distinct from failed acquisition.
-
-Count and distinctness are ordinary closed expression operations over supplied
-finite JSON arrays. An explicit source-completeness predicate and any source
-interpretation assumptions remain separate argument obligations. Calculations do
-not establish external population completeness or source authority.
-
-See [the EAL/4 language](language-v4.md),
-[direct tool bindings](direct-tools.md), and
-[executable programmes](executable-programs.md) for the current package and run
-interfaces. Historical source observations remain data; the former executable
-plan interpreter and its support collector are not production entry points.
+[Executable programmes](executable-programs.md) connects these observations to
+EAL/4 bindings, derived values and method queries. A count over a supplied array
+establishes a property of that array. Extending it to a population requires a
+source-completeness argument and its own evidence. Retained parent identities
+and measurement ages make that inference inspectable when the result is reused.
 
 ## Optional authoring discovery
 
 `eal-collector evidence-discover --config evidence.json` inspects configured MCP
 and native candidates within explicit transport budgets. Discovery assists an
-author in selecting a concrete binding; it supplies no execution authority and
+author in selecting a concrete binding. It supplies no execution authority and
 is not required by `eal-host run`. `prepare-native-provider` validates configured
 candidate metadata without invoking or qualifying the selected operation.
+
+
+`eal-collector describe` publishes optional native descriptions without acquiring
+evidence. Select catalogue version 3 for the API and delivery adapters, or use
+`describe-api` for a pinned API source. The [authoring contract](collector-contracts.md)
+defines the descriptor schema for clients that use it.
+
+Return to the [documentation path](index.md).

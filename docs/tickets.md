@@ -1,12 +1,58 @@
-# Retained authoring and evidence-execution tickets
+# Carry an authored claim through evidence execution
 
-`eal-coordinate ticket-run --spec FILE --run DIRECTORY` runs four ordered application stages: `author`, `integrate`, `export` and `execute`. The operator selects one worker executable and its argument vector. EngArg supplies a worker which authors the argument, validates direct tool bindings, builds a standalone EAL package and invokes `eal_execute` through MCP.
+[Documentation](index.md) · [Coordination](coordination.md) · [Packets](packets.md)
 
-The coordinator freezes an `eal.ticket/2` specification in a new private journal. It pins the worker executable and all declared input files. Before every new stage it checks the input identities and every accepted output artifact again. Inputs and outputs must be canonical regular files within the ticket workspace. Each artifact records its kind, path, encoded byte count and SHA-256 digest. Artifact files are bounded to 16 MiB individually and 64 MiB in aggregate, with at most 128 artifacts. The worker executable has a separate 256 MiB bound and is hashed incrementally. The journal directory is distinct from the worker's workspace.
+A complete investigation crosses several application boundaries. It authors an
+argument, resolves its tool bindings, exports an executable programme and runs
+that programme against evidence. An execution ticket retains what each stage
+consumed and produced, so a reviewer can connect the final assessment to the
+original argument and the actual collection.
 
-The specification declares `ticket_id`, `workspace`, `worker_argv`, `environment`, `timeout_seconds`, `stage_timeout_seconds`, `context` and `inputs`. Application context and stage-outcome summaries each have a 65,536-byte encoded bound. Larger inputs and results belong in retained artifacts. The `environment` list names variables to forward. Their values are excluded from the frozen specification. The total deadline is at most 86,400 seconds. Each stage has at most 3,600 seconds and remains within the frozen total deadline.
+`eal-coordinate ticket-run` runs four ordered stages: `author`, `integrate`,
+`export` and `execute`. The operator chooses one worker executable and its argv.
+EngArg provides a worker that authors the argument, validates direct bindings,
+builds a standalone EAL package and calls MCP `eal_execute`. The engineer-facing
+[EngArg guide](https://github.com/emmett08/engarg/blob/main/docs/USAGE.md) explains
+how to prepare that application's inputs. This chapter specifies the coordinator
+boundary shared by any conforming worker.
 
-The worker receives an `eal.ticket-stage/2` JSON object containing the ticket identity, stage, workspace, application context, prior artifact receipts and call identifier. It returns a live receipt envelope:
+## Freeze the inputs before starting
+
+```sh
+eal-coordinate ticket-run --spec /absolute/path/to/ticket.json \
+  --run /absolute/path/to/new-journal
+```
+
+The command admits an `eal.ticket/2` specification into a new private journal.
+Its fields are `ticket_id`, `workspace`, `worker_argv`, `environment`,
+`timeout_seconds`, `stage_timeout_seconds`, `context` and `inputs`. The journal
+must be separate from the worker's workspace. `environment` names variables to
+forward, while the frozen specification excludes their values.
+
+The coordinator pins the worker executable and every declared input. Before a
+new stage, it checks input identities and all previously accepted artifacts
+again. Inputs and outputs must be canonical regular files within the ticket
+workspace. Each receipt records the artifact's kind, path, encoded byte count
+and SHA-256 digest. These checks give the next stage an identified input rather
+than a mutable filename alone.
+
+| Bound | Allowance |
+| --- | ---: |
+| Individual artifact | 16 MiB |
+| All artifacts | 64 MiB, at most 128 artifacts |
+| Worker executable | 256 MiB, hashed incrementally |
+| Application context or stage-outcome summary | 65,536 encoded bytes each |
+| Total deadline | At most 86,400 seconds |
+| Stage deadline | At most 3,600 seconds and within the total deadline |
+
+Put larger application inputs and results in retained artifacts. Context and
+outcome fields hold bounded summaries and references.
+
+## Implement a stage worker
+
+The worker receives one `eal.ticket-stage/2` object containing the ticket identity,
+stage, workspace, application context, prior artifact receipts and call ID. It
+returns a live receipt envelope:
 
 ```json
 {
@@ -26,27 +72,59 @@ The worker receives an `eal.ticket-stage/2` JSON object containing the ticket id
 }
 ```
 
-The illustration omits artifact entries. Admission requires these kinds for each completed stage:
+The empty artifacts array illustrates the shape only. A completed stage must
+supply these artifact kinds:
 
-| Stage | Required artifacts |
-| --- | --- |
-| `author` | `analysis` |
-| `integrate` | `analysis_ready`, `integration` |
-| `export` | `source`, `tools`, `build` |
-| `execute` | `execution`, `collection`, `assessment` |
+| Stage | Required artifacts | Purpose |
+| --- | --- | --- |
+| `author` | `analysis` | Retain the authored argument. |
+| `integrate` | `analysis_ready`, `integration` | Retain the argument admitted for export and its integration result. |
+| `export` | `source`, `tools`, `build` | Identify the executable EAL, operator bindings and package receipt. |
+| `execute` | `execution`, `collection`, `assessment` | Connect actual execution, acquired observations and the resulting assessment. |
 
-The application validates each artifact's domain contents. The coordinator validates stage identity, ordering, file ownership, bounds and exact retained bytes. A completed execute stage also supplies a valid complete assessment outcome and explicit claim status. A claim assessed as unsupported can therefore belong to a completed ticket. Missing configuration or unavailable evidence can produce a `blocked` stage with a retained explanation and partial artifacts.
+The application validates domain contents. The coordinator checks stage identity,
+ordering, ownership, bounds and retained bytes. Missing configuration or
+unavailable evidence can yield a `blocked` stage with an explanation and partial
+artifacts.
 
-Completed execution checks correspondence between the exported source and TOML, package identity, execution envelope, collection and assessment. It recomputes the executable program digest and checks the packaged context fingerprint. Separately retained collection and assessment artifacts must equal the corresponding values in the execution envelope. The summary identifies one collection and its assessment.
+## Separate investigation completion from claim support
 
-Execution admission derives the selected claim's evidence closure from the retained EAL source. Each selected request requires a successful collection record and a usable evidence verdict. Independent evidence outside that closure can remain pending. A measured result which refutes its predicate still completes the investigation. Acquisition failure, expiry and missing observations remain unresolved.
+A completed execute stage requires a valid, complete assessment and an explicit
+claim status. It verifies correspondence between EAL source, TOML, package
+identity, execution envelope, collection and assessment. Admission recomputes
+the executable programme digest and checks the packaged context fingerprint.
+The separately retained collection and assessment must equal their values in the
+execution envelope, and the summary identifies one collection and its assessment.
 
-The controller reserves a stage effect before launching the supervised worker. It retains the first exact response bytes before admitting and publishing the result. Repeating `ticket-run` with the same specification revalidates completed artifacts and continues only into stages which have never been reserved. An interrupted effect remains `uncertain` and is never automatically repeated. A rejected response, failed command or blocked stage stops the ticket. A separately identified new ticket is required to retry uncertain work.
+Admission derives the selected claim's evidence closure from the retained source.
+Every selected request requires a successful collection record and usable evidence
+verdict. Unrelated evidence can remain pending. A completed measurement that
+refutes its predicate still completes the investigation. Missing, expired or
+failed acquisition remains unresolved. Consequently, an unsupported claim can
+belong to a completed ticket. Completion reports that the required work produced
+an assessable result, not that the intended claim won.
+
+## Inspect or continue a retained ticket
+
+The controller reserves a stage effect before launching the supervised worker.
+It retains the first exact response before admission and publication. Repeating
+`ticket-run` with the same specification rechecks completed artifacts and continues
+only into stages that have never been reserved.
+
+An interrupted effect stays `uncertain` and is never automatically repeated.
+A rejected response, failed command or blocked stage stops the ticket. Retrying
+uncertain work requires a separately identified new ticket, chosen after the
+operator has inspected the retained result.
 
 ```sh
 eal-coordinate ticket-status --run /absolute/path/to/journal
-eal-coordinate ticket-export --run /absolute/path/to/journal --output /absolute/path/to/status.json
+eal-coordinate ticket-export --run /absolute/path/to/journal \
+  --output /absolute/path/to/status.json
 eal-coordinate ticket-cancel --run /absolute/path/to/journal
 ```
 
-Cancellation prevents new stages and interrupts an active supervised worker. Status and export recheck retained response bytes and artifact identities. The final ticket status and the final claim status are separate fields.
+Cancellation prevents new stages and interrupts an active supervised worker.
+Status and export recheck response bytes and artifact identities. The final
+ticket status remains separate from the final claim status. Use the
+[assessment packet](packets.md) to communicate what that claim status means and
+which qualifications a reader must retain.
