@@ -1,6 +1,6 @@
 use super::{RegisteredAssessmentHost, Selection};
 use chrono::{DateTime, Utc};
-use eal_core::evaluation::{assess_environment, assess_evidence_record};
+use eal_core::evaluation::{assess_environment_with_limits, assess_evidence_record};
 use serde_json::Value;
 use std::collections::BTreeMap;
 
@@ -18,7 +18,10 @@ impl RegisteredAssessmentHost {
         };
         let environment =
             &selected.program.environments[&selected.program.evidence[name].environment];
-        if assess_environment(environment, &selected.context)?["status"] != "matched" {
+        if assess_environment_with_limits(environment, &selected.context, &selected.program.limits)?
+            ["status"]
+            != "matched"
+        {
             return Ok(None);
         }
         for original in self.rebinder.candidates(

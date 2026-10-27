@@ -90,6 +90,15 @@ use exact typed JSON identity: object key order is irrelevant; integers, floats,
 booleans and strings remain different domains, and strings are case-sensitive.
 These operations obey the interpreter's JSON and expression budgets.
 
+Expression values use the limits captured by the compiled source. The JSON node,
+depth and record-byte allowances apply to selected fields and constructed JSON
+intermediates. Object construction admits each field against its prospective
+canonical size before retaining it. Environment, evidence, reasoning and
+proposition-result predicates use those same configured limits during evaluation
+and rendering. These are per-value allowances; evaluation can retain several
+separately admitted operands at once. Expression node and depth budgets bound the
+expression tree independently.
+
 `equal(left,right)` compares complete JSON values using the same typed identity.
 `exact_sum`, `exact_mean`, `exact_min`, `exact_max` and `exact_count` operate on an
 array of selected inputs (a sole selected array supplies its elements). They

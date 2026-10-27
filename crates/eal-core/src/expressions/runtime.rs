@@ -3,7 +3,7 @@ use super::{
     ExpressionResult, Quantity, binary_symbol, children, is_comparison, literal_shape,
     literal_value, numbers, python_repr,
 };
-use crate::{BinaryOperator, ExecutionLimits, Expression, UnaryOperator};
+use crate::{BinaryOperator, ExecutionLimits, Expression, UnaryOperator, canonical};
 use serde_json::Value;
 use std::cmp::Ordering;
 #[derive(Clone, Debug)]
@@ -61,7 +61,9 @@ pub fn evaluate_expression_with_limits(
         match node {
             Expression::Literal { value } => {
                 literal_shape(value, limits)?;
-                return Ok(ExpressionResult::json(literal_value(value)));
+                let value = literal_value(value);
+                canonical::canonical_json_footprint(&value, limits)?;
+                return Ok(ExpressionResult::json(value));
             }
             Expression::Field { name } => {
                 let mut actual = value;
@@ -79,9 +81,18 @@ pub fn evaluate_expression_with_limits(
                         }
                     }
                 }
+                // Admission precedes the clone, including byte-heavy strings.
+                canonical::canonical_json_footprint(actual, limits)?;
                 return Ok(ExpressionResult::json(actual.clone()));
             }
             _ => {}
+        }
+        if let Expression::Call { name, arguments } = node
+            && name == "object"
+        {
+            return super::construction::object(arguments, limits, |argument| {
+                run(argument, value, limits, visited, depth + 1)
+            });
         }
         let mut arguments = Vec::new();
         for child in children(node) {
@@ -159,7 +170,11 @@ pub fn evaluate_expression_with_limits(
             Expression::Call { name, .. } => super::functions::call(name, values, limits)?,
             _ => unreachable!(),
         };
-        Ok(result.into_result())
+        let result = result.into_result();
+        if let Some(value) = &result.value {
+            canonical::canonical_json_footprint(value, limits)?;
+        }
+        Ok(result)
     }
     run(expression, value, limits, &mut visited, 1)
         .unwrap_or_else(|reason| ExpressionResult::unknown(reason, "invalid_expression"))

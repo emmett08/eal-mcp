@@ -5,7 +5,7 @@ use super::{
     entry, environment_context, environment_fingerprint, general_number, name_repr, py_repr,
 };
 use crate::{
-    canonical, expressions,
+    ExecutionLimits, canonical, expressions,
     semantic::{Environment, Predicate, Program},
     validation,
 };
@@ -29,9 +29,13 @@ pub(crate) struct PredicateCheck {
     pub issue: Option<PredicateIssue>,
 }
 
-pub(crate) fn predicate_check(predicate: &Predicate, value: &Value) -> PredicateCheck {
+pub(crate) fn predicate_check(
+    predicate: &Predicate,
+    value: &Value,
+    limits: &ExecutionLimits,
+) -> PredicateCheck {
     if let Some(expression) = &predicate.expression {
-        let evaluated = expressions::evaluate_expression(expression, value);
+        let evaluated = expressions::evaluate_expression_with_limits(expression, value, limits);
         let Some(holds) = evaluated.value.as_ref().and_then(Value::as_bool) else {
             return PredicateCheck {
                 holds: false,
@@ -48,7 +52,7 @@ pub(crate) fn predicate_check(predicate: &Predicate, value: &Value) -> Predicate
                 }),
             };
         };
-        let text = match expressions::format_expression(expression) {
+        let text = match expressions::format_expression_with_limits(expression, limits) {
             Ok(text) => text,
             Err(reason) => {
                 return PredicateCheck {
@@ -117,7 +121,7 @@ pub(crate) fn predicate_check(predicate: &Predicate, value: &Value) -> Predicate
         };
     }
     let expression = expressions::predicate_expression(predicate);
-    let evaluated = expressions::evaluate_expression(&expression, value);
+    let evaluated = expressions::evaluate_expression_with_limits(&expression, value, limits);
     let Some(holds) = evaluated.value.as_ref().and_then(Value::as_bool) else {
         return PredicateCheck {
             holds: false,
@@ -148,18 +152,31 @@ pub(crate) fn predicate_check(predicate: &Predicate, value: &Value) -> Predicate
         },
     }
 }
-pub(crate) fn predicate(predicate: &Predicate, value: &Value) -> (bool, String) {
-    let check = predicate_check(predicate, value);
+pub(crate) fn predicate(
+    predicate: &Predicate,
+    value: &Value,
+    limits: &ExecutionLimits,
+) -> (bool, String) {
+    let check = predicate_check(predicate, value, limits);
     (check.holds, check.reason)
 }
 
 /// Produce the same scope entry used by complete evaluations and evidence checks.
 pub fn assess_environment(environment: &Environment, context: &Value) -> Result<Value, String> {
+    assess_environment_with_limits(environment, context, &ExecutionLimits::default())
+}
+
+/// Assess scope with the same resource policy captured by the compiled programme.
+pub fn assess_environment_with_limits(
+    environment: &Environment,
+    context: &Value,
+    limits: &ExecutionLimits,
+) -> Result<Value, String> {
     let context = environment_context(&environment.name, context)?;
     let outcomes: Vec<_> = environment
         .predicates
         .iter()
-        .map(|p| predicate(p, &context))
+        .map(|p| predicate(p, &context, limits))
         .collect();
     Ok(entry(
         if outcomes.iter().all(|(ok, _)| *ok) {
@@ -492,7 +509,7 @@ pub(super) fn assess_resolved_evidence_record(
         let outcomes: Vec<_> = evidence
             .predicates
             .iter()
-            .map(|p| predicate_check(p, &record["value"]))
+            .map(|p| predicate_check(p, &record["value"], &program.limits))
             .collect();
         failures = evidence
             .predicates

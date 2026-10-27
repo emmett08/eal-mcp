@@ -119,7 +119,8 @@ fn nested_environment_context_is_selected_explicitly() {
 #[test]
 fn record_byte_budget_blocks_use_without_manufacturing_a_negative_claim() {
     let (mut program, records, context, now) = baseline();
-    program.limits.record_bytes = 1;
+    // Scope scalars and Boolean results fit; the 15-byte observation does not.
+    program.limits.record_bytes = 10;
     let result = evaluation::evaluate_default(&program, &records, &now, &context).unwrap();
     assert_eq!(result["valid"], true);
     assert_eq!(result["claims"]["working"]["status"], "unsupported");
