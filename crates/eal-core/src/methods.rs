@@ -9,6 +9,7 @@ mod query;
 mod schema;
 mod structural;
 mod validation;
+mod work;
 
 pub use contracts::{
     MethodContract, MethodError, MethodImplementation, MethodRegistry, MethodResultStatus,

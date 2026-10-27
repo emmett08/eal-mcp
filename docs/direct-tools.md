@@ -76,14 +76,16 @@ responses are rejected. Discovery and response sizes are bounded by the operatio
 allowance; discovery also has finite tool and page limits. HTTP GET uses the
 existing origin-bound JSON adapter.
 
-Command acquisition uses EAL's process supervisor and acquisition lease, including
-descendant cleanup and host-death handling. MCP stdio retains the shared SDK
-client's existing lifecycle: it owns the immediate server process and requests
-its termination when the transport is dropped or its deadline expires. It does
-not inherit the command supervisor's descendant or abrupt host-death guarantees,
-and does not pass an acquisition lease descriptor to that server. Operators who
-need those stronger MCP server lifetime guarantees must supply an independently
-supervised server deployment.
+Command and MCP stdio acquisition use EAL's independent process supervisor and
+acquisition lease. A bounded duplex stream connects the official MCP SDK to the
+server. Deadline, cancellation and host death stop the owned process group before
+the companion releases its inherited lease descriptor. The supervisor also bounds
+the complete protocol input/output transcript and discarded stderr. Runtime MCP
+sessions inherit the binding's exact lifetime limit and never replay an uncertain
+invocation. Generic persistent SDK clients have a one-hour maximum session lifetime
+with separate per-operation deadlines; callers can supply a tighter explicit
+supervision contract. These local process guarantees do not undo external effects
+already performed by a remote tool.
 
 ## Response mappings and schemas
 
@@ -100,10 +102,45 @@ only when collection time is the intended measurement time. Retained-file import
 always requires the original clock and never uses its reread time.
 
 MCP's discovered input schema is checked before invocation, and any advertised
-output schema is checked on a successful response. To pin discovery identities,
-supply `input_schema_sha256` and optionally `output_schema_sha256`; when input is
-pinned and output is omitted, the discovered tool must have no output schema.
-These digests use EAL's canonical schema identity, not source-file bytes.
+output schema is checked on a successful response. Generate reproducibility pins
+from the operator-configured interfaces with:
+
+```sh
+eal-host prepare case.eal --tools tools.toml --workspace prepare-run \
+  --claim inventory_verified --output-tools prepared.tools.toml
+eal-host run case.eal --tools prepared.tools.toml --workspace run \
+  --claim inventory_verified
+```
+
+Preparation uses the same `eal_prepare(source, context, claim?)` service available
+through MCP. It admits the selected claim's complete evidence dependency closure,
+resolves at most 128 distinct configured tools and has a 120-second discovery
+budget. Bounded local-file and schema admission precedes discovery; it cannot
+interrupt an operating-system file read mid-call. For MCP tools it performs initialization and bounded `tools/list`
+discovery, then selects the exact named operation. It issues no `tools/call` and
+creates no observations or assessment. Omit `--claim` to prepare all evidence.
+Non-MCP bindings are admitted and identified without invoking them.
+
+Standard output contains an inspectable receipt with source, executable, manifest,
+binding and discovered interface identities. `--output-tools` writes a new private
+TOML file beside the input manifest, preserving relative resources and the original
+operator configuration. Only discovered schema hashes and server identity are added;
+discovery cannot alter commands, endpoints, environment, response mappings or limits.
+The receipt contains no acquired values or resolved credentials. Existing explicit
+environment values remain in the operator's TOML; inherited credential references
+remain references. Execution needs only the EAL source, the generated TOML and tool
+implementations, so the receipt and preparation workspace can be removed.
+
+The generated fields are `input_schema_sha256`, optional `output_schema_sha256`
+and `direct.server_identity` (`name`, `version`, `protocol`). When input is pinned
+and output is omitted, the discovered tool must have no output schema. Digests
+use EAL's canonical schema identity, not source-file bytes. Preparation and
+execution both reject a changed server identity or schema before invocation.
+Every completed MCP call retains its actual `mcp_interface` identity in the
+observation, even when no pins were configured and when the tool reports an error.
+The server name/version is advertised metadata, not independent attestation of a
+remote binary or its source. Pins establish interface correspondence; they do not
+establish a claim's truth.
 
 Local input and normalised output schemas can also be supplied as byte-pinned
 JSON Schema files:
@@ -131,5 +168,8 @@ obligations.
 streamable-HTTP calls against synthetic local fixtures, read-only HTTP acquisition,
 negative results, original clocks, exact large integers, malformed input schemas,
 changed schema pins, output limits, duplicate JSON, package-relative files and
-explicit environment selection. These tests verify adapter contracts; they do not
+explicit environment selection. `mcp_preparation.rs` verifies discovery without
+operation calls, pre-call drift rejection and retained actual identities;
+`executable_packages.rs` moves and executes generated TOML without its receipt.
+These tests verify adapter contracts; they do not
 validate an external production data source.

@@ -26,3 +26,19 @@ Their optional `stream_limits` field is mandatory for that request version.
 Earlier companions reject those unknown fields before launching a collector.
 Response framing remains unchanged.
 Applications using version 2 must install the companion from the same release.
+
+## Duplex protocol sessions
+
+Protocol version 3 forwards a bounded bidirectional byte stream for MCP and
+other interactive protocols. The same companion owns the child process group,
+Linux subreaper, signal handling and inherited acquisition descriptor. It checks
+an independent session deadline and cumulative input, stdout and stderr bounds.
+The protocol client owns one socket. Closing it, cancelling the session or losing
+the host process makes the companion stop descendants before releasing the lease.
+The SDK supplies MCP protocol interpretation; the supervisor interprets no JSON-RPC.
+
+`Supervisor::duplex` returns the raw stream and an explicit RAII process owner.
+The owner requests cleanup without killing the companion prematurely. If cleanup
+exceeds the short notification allowance, the companion and its lease remain alive
+and a reaper retains exit ownership. Unsupported or absent companions fail without
+launching an unsupervised server.

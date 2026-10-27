@@ -263,25 +263,13 @@ fn compute_argument(
                 &program.limits,
             )?);
         }
-        let (payload, trace) = if program.profile.as_deref() == Some("execution/1") {
-            input::prepare(
-                proposition,
-                &method.method,
-                selected.map(|s| (s["id"].as_str().expect("source id"), &s["value"])),
-                registry,
-                &program.limits,
-            )
-        } else {
-            let selected = selected.ok_or("Typed claim has no bound observation")?;
-            propositions::prepare_binding_with_limits(
-                proposition,
-                &method.method,
-                argument.binding.as_deref().unwrap(),
-                &selected["value"],
-                registry,
-                &program.limits,
-            )
-        };
+        let (payload, trace) = input::prepare(
+            proposition,
+            &method.method,
+            selected.map(|s| (s["id"].as_str().expect("source id"), &s["value"])),
+            registry,
+            &program.limits,
+        );
         if let Some(payload) = payload {
             if let Some(id) = &argument.binding {
                 for source in &mut sources {

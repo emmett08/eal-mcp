@@ -65,7 +65,7 @@ impl Workspace {
         let service = self.service();
         std::fs::write(
             self.0.join("synthetic.eal"),
-            "language \"EAL/3\"\nenvironment lab {\n require true\n}\nclaim outcome {\n statement \"Synthetic outcome.\"\n environment lab\n}\n",
+            "language \"EAL/4\"\nenvironment lab {\n require true\n}\nclaim outcome {\n statement \"Synthetic outcome.\"\n environment lab\n}\n",
         )
         .unwrap();
         WorkspaceKnowledgeCatalogue::new(Arc::clone(&service))
@@ -213,8 +213,7 @@ async fn stateless_http_official_client_negotiates_published_and_legacy_protocol
             .unwrap();
         assert_eq!(client.peer_info().unwrap().protocol_version, version);
         let listed = client.list_tools(None).await.unwrap();
-        assert_eq!(listed.tools.len(), 12);
-        assert!(listed.tools.iter().any(|tool| tool.name == "eal_execute"));
+        common::assert_inventory(serde_json::to_value(&listed.tools).unwrap(), false);
         let result = client
             .call_tool(call("eal_validate", &json!({"source":""})))
             .await

@@ -26,7 +26,7 @@ fn program(direct: bool) -> Program {
     };
     let pointer = if direct { "" } else { "/review" };
     let source = format!(
-        r#"language "EAL/3" profile "execution/1"
+        r#"language "EAL/4"
 environment lab {{
  require true
 }}

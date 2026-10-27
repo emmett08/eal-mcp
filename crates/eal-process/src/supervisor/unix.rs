@@ -1,4 +1,5 @@
 //! The supervisor owns all collector-group cleanup before its lease FD closes.
+mod duplex;
 use std::os::fd::OwnedFd;
 use std::os::unix::process::{CommandExt, ExitStatusExt};
 use std::process::{Child, Command, ExitStatus, Stdio};
@@ -91,6 +92,9 @@ pub(super) fn entrypoint() -> i32 {
         return 2;
     }
     let result = match configuration(&control, deadline, &stopping) {
+        Ok(configuration) if configuration.duplex_input_limit.is_some() => {
+            return duplex::execute(configuration, &control, &output, deadline, &stopping);
+        }
         Ok(configuration) => execute(configuration, &control, deadline, &stopping),
         Err(error) => (
             Vec::new(),
@@ -162,11 +166,24 @@ fn configuration(
             "Invalid command supervisor configuration".into(),
         ));
     }
-    match (configuration.protocol_version, configuration.stream_limits) {
-        (None, None) => {}
-        (Some(2), Some(limits)) => limits
+    match (
+        configuration.protocol_version,
+        configuration.stream_limits,
+        configuration.duplex_input_limit,
+    ) {
+        (None, None, None) => {}
+        (Some(2), Some(limits), None) => limits
             .validate(configuration.max_output_bytes)
             .map_err(|_| ExecutionError::Supervisor("Invalid independent stream limits".into()))?,
+        (Some(3), Some(limits), Some(input_limit))
+            if input_limit > 0
+                && configuration.input_length == 0
+                && configuration.handshake.is_none() =>
+        {
+            limits
+                .validate(configuration.max_output_bytes)
+                .map_err(|_| ExecutionError::Supervisor("Invalid duplex stream limits".into()))?
+        }
         _ => {
             return Err(ExecutionError::Supervisor(
                 "Unsupported supervisor request protocol version".into(),

@@ -125,7 +125,7 @@ impl Checker<'_> {
                         .cloned();
                     (
                         p.evidence.values().any(|value| !value.max_age.is_finite())
-                            || differs!(profile)
+                            || differs!(language)
                             || differs!(environments)
                             || differs!(tools)
                             || differs!(evidence)
@@ -147,22 +147,16 @@ impl Checker<'_> {
                 self.error("stale_pattern_expansion","Stored arguments or diagnostics differ from the declared patterns and applications; lower the edited program again",changed.as_deref());
             }
         }
-        if p.profile
-            .as_deref()
-            .is_some_and(|profile| profile != "execution/1")
-        {
-            self.error(
-                "unsupported_profile",
-                "Supported execution profile is execution/1",
-                None,
-            );
-        }
-        if p.language != "EAL/3" {
+        if p.language != crate::LANGUAGE {
             self.detail(
                 "unsupported_language",
-                format!("Expected EAL/3, found {}", repr(&p.language)),
+                format!(
+                    "Expected {}, found {}; migrate the source and all imported modules",
+                    crate::LANGUAGE,
+                    repr(&p.language)
+                ),
                 None,
-                Some("EAL/3".into()),
+                Some(crate::LANGUAGE.into()),
                 Some(p.language.clone()),
             );
         }
@@ -177,8 +171,7 @@ impl Checker<'_> {
             }
             match crate::composition::pattern_metadata(pattern, &p.limits) {
                 Ok(entries) => {
-                    for (name, mut local, span) in entries {
-                        local.profile = p.profile.clone();
+                    for (name, local, span) in entries {
                         let mut checker = Checker {
                             program: &local,
                             registry: self.registry,

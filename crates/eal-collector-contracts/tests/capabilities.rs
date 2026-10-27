@@ -74,7 +74,6 @@ fn capability(id: &str) -> CapabilityDescriptor {
                 completeness_pointer: None,
                 sample_size_pointer: None,
             }],
-            identifier_audit: None,
             time: TimeSemantics {
                 historical_intervals: true,
                 historical_input: None,
@@ -697,4 +696,18 @@ fn qualified_provenance_and_source_identity_share_one_pure_contract() {
     );
     claims["qualified_logical_strengths"] = json!(["unknown"]);
     assert!(QualifiedSupportClaims::from_provenance(&claims).is_err());
+}
+
+#[test]
+fn acquisition_semantics_reject_operation_specific_audit_authority() {
+    let mut semantics = serde_json::to_value(capability("current").semantics.unwrap()).unwrap();
+    semantics["identifier_audit"] = json!({"maximum_items": 100});
+    assert!(
+        serde_json::from_value::<MeasurementSemantics>(semantics)
+            .unwrap_err()
+            .to_string()
+            .contains("unknown field")
+    );
+    let schema = serde_json::to_value(schemars::schema_for!(MeasurementSemantics)).unwrap();
+    assert!(!schema.to_string().contains("identifier_audit"));
 }

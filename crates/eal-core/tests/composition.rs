@@ -2,7 +2,7 @@
 use eal_core::{ExecutionLimits, composition};
 use std::collections::BTreeMap;
 
-const BASE: &str = r#"language "EAL/3"
+const BASE: &str = r#"language "EAL/4"
 environment lab {
 require site == "bench"
 }
@@ -160,7 +160,7 @@ fn trusted_imports_keep_source_identity_and_replay_without_io() {
             .cloned()
             .ok_or_else(|| "unknown source".into())
     };
-    let source = "language \"EAL/3\"\nimport \"λ.eal\" as library\n";
+    let source = "language \"EAL/4\"\nimport \"λ.eal\" as library\n";
     let p = composition::compile(
         source,
         Some(&resolver),
@@ -193,17 +193,17 @@ fn trusted_imports_keep_source_identity_and_replay_without_io() {
 fn import_escape_cycles_and_aggregate_limits_fail_before_exposing_a_program() {
     assert!(
         composition::compile(
-            "language \"EAL/3\"\nimport \"../outside.eal\" as outside\n",
+            "language \"EAL/4\"\nimport \"../outside.eal\" as outside\n",
             None,
             "root.eal",
             ExecutionLimits::default()
         )
         .is_err()
     );
-    let resolver = |_: &str| Ok("language \"EAL/3\"\nimport \"root.eal\" as again\n".to_owned());
+    let resolver = |_: &str| Ok("language \"EAL/4\"\nimport \"root.eal\" as again\n".to_owned());
     assert!(
         composition::compile(
-            "language \"EAL/3\"\nimport \"other.eal\" as other\n",
+            "language \"EAL/4\"\nimport \"other.eal\" as other\n",
             Some(&resolver),
             "root.eal",
             ExecutionLimits::default()
@@ -211,7 +211,7 @@ fn import_escape_cycles_and_aggregate_limits_fail_before_exposing_a_program() {
         .is_err()
     );
     let resolver = |_: &str| Ok(BASE.to_owned());
-    let source = "language \"EAL/3\"\nimport \"library.eal\" as lib\n";
+    let source = "language \"EAL/4\"\nimport \"library.eal\" as lib\n";
     let limits = ExecutionLimits {
         source_bytes: BASE.len(),
         ..Default::default()
@@ -242,7 +242,7 @@ fn exhausted_expansion_discards_all_generated_entities() {
 
 #[test]
 fn unused_pattern_imports_are_captured_and_checked_before_application() {
-    let source = "language \"EAL/3\"\npattern build() {\nimport \"library.eal\" as lib\n}\n";
+    let source = "language \"EAL/4\"\npattern build() {\nimport \"library.eal\" as lib\n}\n";
     assert!(composition::compile(source, None, "root.eal", ExecutionLimits::default()).is_err());
     let resolver = |_: &str| Ok(BASE.to_owned());
     let unused = composition::compile(
@@ -283,7 +283,7 @@ fn imported_pattern_bodies_keep_definition_relative_imports_and_origins() {
     let sources = BTreeMap::from([
         (
             "lib/outer.eal".to_owned(),
-            "language \"EAL/3\"\npattern make() {\nimport \"inner.eal\" as inside\n}\n".to_owned(),
+            "language \"EAL/4\"\npattern make() {\nimport \"inner.eal\" as inside\n}\n".to_owned(),
         ),
         ("lib/inner.eal".to_owned(), BASE.to_owned()),
     ]);
@@ -294,7 +294,7 @@ fn imported_pattern_bodies_keep_definition_relative_imports_and_origins() {
             .ok_or_else(|| "unknown source".into())
     };
     let source =
-        "language \"EAL/3\"\nimport \"lib/outer.eal\" as outer\napply one = outer.make()\n";
+        "language \"EAL/4\"\nimport \"lib/outer.eal\" as outer\napply one = outer.make()\n";
     let p = composition::compile(
         source,
         Some(&resolver),
@@ -331,14 +331,14 @@ fn raised_host_budgets_cannot_remove_native_import_recursion_bounds() {
                     } else {
                         import
                     };
-                    Ok(format!("language \"EAL/3\"\n{body}"))
+                    Ok(format!("language \"EAL/4\"\n{body}"))
                 };
                 let limits = ExecutionLimits {
                     expansion_depth: usize::MAX,
                     ..ExecutionLimits::default()
                 };
                 let error = composition::compile(
-                    "language \"EAL/3\"\nimport \"s0.eal\" as initial\n",
+                    "language \"EAL/4\"\nimport \"s0.eal\" as initial\n",
                     Some(&resolver),
                     "root.eal",
                     limits,

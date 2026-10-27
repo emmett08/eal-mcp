@@ -3,7 +3,7 @@ use eal_core::{
     ExecutionLimits, composition, methods, planning::EvidencePlanner, semantic_format, validation,
 };
 
-const SOURCE: &str = r#"language "EAL/3" profile "execution/1"
+const SOURCE: &str = r#"language "EAL/4"
 environment lab {
   require site == "bench"
 }
@@ -49,7 +49,7 @@ fn codes(source: &str) -> Vec<String> {
 }
 
 #[test]
-fn profile_bindings_and_derivations_round_trip_both_views() {
+fn bindings_and_derivations_round_trip_both_views() {
     let authored = eal_core::parse(SOURCE).unwrap();
     let formatted = authored
         .format_with_limits(eal_core::ParseLimits::default())
@@ -87,19 +87,18 @@ fn planner_includes_transitive_acquisitions_and_counts_only_external_calls() {
 }
 
 #[test]
-fn execution_features_require_a_known_declared_profile() {
-    for source in [
-        SOURCE.replace(" profile \"execution/1\"", ""),
-        SOURCE.replace("execution/1", "execution/2"),
-    ] {
-        let error = eal_core::parse(&source).unwrap_err();
-        assert!(error.to_string().contains("EXECUTION_PROFILE"), "{error}");
+fn only_the_canonical_language_version_is_admitted() {
+    for version in ["EAL/3", "EAL/2", "EAL/5"] {
+        let error = eal_core::parse(&SOURCE.replace("EAL/4", version)).unwrap_err();
+        assert!(error.to_string().contains("LANGUAGE_VERSION"), "{error}");
+        assert!(error.to_string().contains("migrate"), "{error}");
     }
-    let literal = SOURCE
-        .replace(" profile \"execution/1\"", "")
-        .replace("derive object(\"count\", count(items))", "tool reader")
-        .replace("  bind \"/items\" from observed \"/items\"\n", "");
-    assert!(codes(&literal).is_empty());
+    let selector = SOURCE.replace(
+        "language \"EAL/4\"",
+        "language \"EAL/4\" profile \"execution/1\"",
+    );
+    assert!(eal_core::parse(&selector).is_err());
+    assert!(codes(SOURCE).is_empty());
 }
 
 #[test]
@@ -197,16 +196,14 @@ fn lexical_modules_resolve_binding_sources_without_global_aliases() {
 }
 
 #[test]
-fn profile_changes_cannot_reinterpret_retained_authored_syntax() {
+fn language_changes_cannot_reinterpret_retained_authored_syntax() {
     let mut program = compile(SOURCE);
-    program.profile = None;
+    program.language = "EAL/3".into();
     let diagnostics = validation::validate_default(&program);
-    assert!(
-        diagnostics
-            .iter()
-            .any(|d| d.code == "stale_pattern_expansion")
-    );
-    assert!(diagnostics.iter().any(|d| d.code == "execution_profile"));
+    assert!(diagnostics.iter().any(|d| d.code == "unsupported_language"));
+    let mut encoded = serde_json::to_value(compile(SOURCE)).unwrap();
+    encoded["profile"] = serde_json::json!("execution/1");
+    assert!(serde_json::from_value::<eal_core::semantic::Program>(encoded).is_err());
 }
 
 #[test]
@@ -284,9 +281,9 @@ fn input_bindings_obey_json_depth_budget_before_collection() {
 }
 
 #[test]
-fn imported_execution_features_require_the_root_profile_and_keep_lexical_identity() {
+fn imports_share_the_canonical_language_and_keep_lexical_identity() {
     let resolver = |_: &str| Ok(SOURCE.to_owned());
-    let root = "language \"EAL/3\" profile \"execution/1\"\nimport \"case.eal\" as imported\n";
+    let root = "language \"EAL/4\"\nimport \"case.eal\" as imported\n";
     let program = composition::compile(
         root,
         Some(&resolver),
@@ -299,19 +296,26 @@ fn imported_execution_features_require_the_root_profile_and_keep_lexical_identit
         program.evidence["imported.checked"].bindings[0].evidence,
         "imported.observed"
     );
-    let unprofiled = root.replace(" profile \"execution/1\"", "");
-    let program = composition::compile(
-        &unprofiled,
-        Some(&resolver),
+    let incompatible = |_: &str| Ok(SOURCE.replace("EAL/4", "EAL/3"));
+    let error = composition::compile(
+        root,
+        Some(&incompatible),
         "root.eal",
         ExecutionLimits::default(),
     )
-    .unwrap();
-    assert!(
-        validation::validate_default(&program)
-            .iter()
-            .any(|d| d.code == "execution_profile")
-    );
+    .unwrap_err();
+    assert!(error.to_string().contains("LANGUAGE_VERSION"), "{error}");
+    let untouched = |_: &str| -> Result<String, String> {
+        panic!("an old root must be rejected before resolving imports")
+    };
+    let error = composition::compile(
+        &root.replace("EAL/4", "EAL/3"),
+        Some(&untouched),
+        "root.eal",
+        ExecutionLimits::default(),
+    )
+    .unwrap_err();
+    assert!(error.to_string().contains("LANGUAGE_VERSION"), "{error}");
 }
 
 #[test]
@@ -346,4 +350,12 @@ apply second = check_count(src=observed, env=lab, goal=three, inference=composit
         .unwrap();
     assert_eq!(plan.estimated_calls(), 1);
     assert_eq!(plan.closure.evidence.len(), 4);
+}
+
+#[test]
+fn former_selector_word_is_an_ordinary_identifier() {
+    let source = "language \"EAL/4\"\nenvironment profile {\nrequire profile == true\n}\n";
+    let program = compile(source);
+    assert!(validation::validate_default(&program).is_empty());
+    assert!(program.environments.contains_key("profile"));
 }

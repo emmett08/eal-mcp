@@ -47,7 +47,6 @@ pub fn executable_digest(
     );
     for key in [
         "language",
-        "profile",
         "environments",
         "tools",
         "evidence",
@@ -520,7 +519,6 @@ fn direct_syntax(program: &s::Program) -> Result<crate::Program> {
     }
     Ok(crate::Program {
         language: program.language.clone(),
-        profile: program.profile.clone(),
         declarations,
     })
 }

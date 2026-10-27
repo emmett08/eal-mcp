@@ -126,9 +126,9 @@ literal object keys and number identity with the evaluator's JSON features.
 The modified SDK archive, checksum, license and exact patch application are
 recorded; normal builds do not execute its upstream build script.
 
-The default operator exposure publishes eleven tools for description, source
-formatting/validation/planning, collection, reasoning, formal compilation,
-explanation, packets and grounded graphs. Registered exposure publishes
+The default operator exposure publishes thirteen tools for description, source
+formatting/validation/planning, interface preparation, collection, execution,
+reasoning, formal compilation, explanation, packets and grounded graphs. Registered exposure publishes
 `eal_sources`, `eal_find_claims`, `eal_assess_known` and `eal_get_known_packet`
 for a configured allowlist:
 

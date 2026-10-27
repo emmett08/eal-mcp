@@ -11,6 +11,27 @@ pub enum ResponseFormat {
     JsonText,
 }
 
+/// Identity declared by an MCP server at initialization. It identifies the
+/// endpoint's advertised implementation, not independently verified source code.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct McpServerIdentity {
+    pub name: String,
+    pub version: String,
+    pub protocol: String,
+}
+impl McpServerIdentity {
+    pub fn validate(&self) -> Result<(), String> {
+        if [&self.name, &self.version, &self.protocol]
+            .iter()
+            .any(|s| s.is_empty() || s.len() > 1024 || s.chars().any(char::is_control))
+        {
+            return Err("MCP server identity requires bounded name, version and protocol".into());
+        }
+        Ok(())
+    }
+}
+
 /// Direct transport settings live beside the operation rather than in a catalogue.
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -30,6 +51,8 @@ pub struct DirectBinding {
     pub observed_at_pointer: Option<String>,
     pub input_schema_sha256: Option<String>,
     pub output_schema_sha256: Option<String>,
+    /// Preparation pins the advertised implementation as well as its schemas.
+    pub server_identity: Option<McpServerIdentity>,
     /// Optional pinned JSON Schemas for arguments and normalised values.
     pub input_schema: Option<PinnedFile>,
     pub output_schema: Option<PinnedFile>,
@@ -65,8 +88,13 @@ impl DirectBinding {
             || (!mcp
                 && (self.response_format != ResponseFormat::Structured
                     || self.input_schema_sha256.is_some()
-                    || self.output_schema_sha256.is_some()))
+                    || self.output_schema_sha256.is_some()
+                    || self.server_identity.is_some()))
             || (self.output_schema_sha256.is_some() && self.input_schema_sha256.is_none())
+            || self
+                .server_identity
+                .as_ref()
+                .is_some_and(|identity| identity.validate().is_err())
             || self
                 .input_schema_sha256
                 .iter()

@@ -202,31 +202,9 @@ pub struct MeasurementSemantics {
     pub scope_bindings: BTreeMap<String, String>,
     pub quantities: Vec<MeasurementQuantity>,
     pub coverage: Vec<CoverageGuarantee>,
-    /// Operator-qualified finite identifier audit, when this operation has one.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub identifier_audit: Option<IdentifierAuditSemantics>,
     pub time: TimeSemantics,
     pub provenance: ProvenanceSemantics,
     pub limitations: Vec<String>,
-}
-
-/// The exact input and output correspondence of a finite identifier audit.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
-pub struct IdentifierAuditSemantics {
-    pub argument_items_pointer: String,
-    pub argument_complete_pointer: String,
-    pub argument_identity_pointer: String,
-    pub item_id_pointer: String,
-    pub result_count_pointer: String,
-    pub result_distinct_pointer: String,
-    pub result_complete_pointer: String,
-    pub result_identity_pointer: String,
-    pub maximum_items: usize,
-    pub minimum_id_chars: usize,
-    pub maximum_id_chars: usize,
-    #[serde(default)]
-    pub echoes: BTreeMap<String, String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

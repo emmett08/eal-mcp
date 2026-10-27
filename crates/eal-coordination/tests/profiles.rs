@@ -47,7 +47,7 @@ fn api_requirements() -> Value {
 }
 fn api_source() -> String {
     format!(
-        "language \"EAL/3\"\nenvironment lab {{\nrequire true\n}}\ntool report {{\nversion \"1\"\n}}\nevidence sample {{\ntool report\nkind api_report\nenvironment lab\nmax_age 86400\ninput {}\nrequire true\n}}\nreasoning passing {{\nmethod \"engineering/api-load-criteria/1\"\nrationale \"Check the pinned finite sample.\"\nrequire passes == true\n}}\nreasoning failing {{\nmethod \"engineering/api-load-criteria/1\"\nrationale \"Check the pinned finite sample failure.\"\nrequire fails == true\n}}\nclaim ready {{\nstatement \"The sample passes.\"\nenvironment lab\n}}\nclaim challenged {{\nstatement \"The sample fails.\"\nenvironment lab\n}}\nargument pass = [evidence sample] via passing => ready\nargument fail = [evidence sample] via failing => challenged\n",
+        "language \"EAL/4\"\nenvironment lab {{\nrequire true\n}}\ntool report {{\nversion \"1\"\n}}\nevidence sample {{\ntool report\nkind api_report\nenvironment lab\nmax_age 86400\ninput {}\nrequire true\n}}\nreasoning passing {{\nmethod \"engineering/api-load-criteria/1\"\nrationale \"Check the pinned finite sample.\"\nrequire passes == true\n}}\nreasoning failing {{\nmethod \"engineering/api-load-criteria/1\"\nrationale \"Check the pinned finite sample failure.\"\nrequire fails == true\n}}\nclaim ready {{\nstatement \"The sample passes.\"\nenvironment lab\n}}\nclaim challenged {{\nstatement \"The sample fails.\"\nenvironment lab\n}}\nargument pass = [evidence sample] via passing => ready\nargument fail = [evidence sample] via failing => challenged\n",
         json!({"service":"orders-api","build_id":"build-1","dataset":"synthetic","run_id":"run-1","concurrent_clients":10,"report_sha256":"a".repeat(64)})
     )
 }
@@ -151,7 +151,7 @@ fn generic_profile_preserves_type_sensitive_context_and_pinned_source_revision()
     let workspace = Workspace::new();
     let host = host();
     let server = workspace.server(false);
-    let source = "language \"EAL/3\"\nenvironment lab {\nrequire true\n}\nclaim ready {\nstatement \"A bounded sample.\"\nenvironment lab\n}\nclaim challenged {\nstatement \"Another bounded sample.\"\nenvironment lab\n}\n";
+    let source = "language \"EAL/4\"\nenvironment lab {\nrequire true\n}\nclaim ready {\nstatement \"A bounded sample.\"\nenvironment lab\n}\nclaim challenged {\nstatement \"Another bounded sample.\"\nenvironment lab\n}\n";
     workspace.write(source);
     let requirements = json!({"context":{"count":1}});
     register(&server, &requirements, &host);

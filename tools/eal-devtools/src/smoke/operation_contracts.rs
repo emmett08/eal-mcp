@@ -53,6 +53,11 @@ pub(super) fn check(
                 Some("claim"),
             ),
             (
+                "prepare",
+                json!({"source":SOURCE, "context":{"site":"bench"}, "claim":"works"}),
+                Some("context"),
+            ),
+            (
                 "execute",
                 json!({"source":SOURCE, "context":{"site":"bench"}, "claim":"works", "now":h.now}),
                 Some("context"),

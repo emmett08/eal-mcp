@@ -516,7 +516,7 @@ pub fn pattern_metadata(
                     let value = entity(declaration, defaults)?;
                     let name = value.name().to_owned();
                     let mut program =
-                        s::Program::empty("EAL/3".into(), String::new(), limits.clone());
+                        s::Program::empty(crate::LANGUAGE.into(), String::new(), limits.clone());
                     insert(&mut program, value);
                     out.push((name, program, declaration.span));
                 }

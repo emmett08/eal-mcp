@@ -70,6 +70,7 @@ pub(super) fn run(
         protocol_version: stream_limits.map(|_| 2),
         stream_limits,
         handshake,
+        duplex_input_limit: None,
     };
     let encoded = serde_json::to_vec(&configuration)
         .map_err(|error| ProcessError::Invalid(error.to_string()))?;

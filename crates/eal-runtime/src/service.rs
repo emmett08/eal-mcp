@@ -1,5 +1,6 @@
 //! Shared, host-configured operations for durable collection and assessment.
 mod execution;
+mod preparation;
 use crate::{
     acquisition::ToolRegistry, collection::EvidenceRuntime, identity::CollectionIdentityValidator,
     lease::WorkspaceAcquisition, methods::MethodExecutor, process::Supervisor,

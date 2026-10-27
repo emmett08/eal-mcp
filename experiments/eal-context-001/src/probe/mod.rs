@@ -11,7 +11,7 @@ use std::{collections::BTreeMap, fs, path::PathBuf, time::Instant};
 const NOW: &str = "2040-01-01T00:00:01Z";
 const LATER: &str = "2040-01-01T00:00:02Z";
 const SECRET: &str = "NATIVE_PROBE_RAW_OBSERVATION_MUST_STAY_PRIVATE";
-const HEADER: &str = "language \"EAL/3\"\nenvironment lab {\n  require site == \"bench\"\n}\ntool reader {\n  version \"1\"\n}\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 864000\n  require ok == true\n}\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The calibration predicate supplies conditional authored support.\"\n}\n";
+const HEADER: &str = "language \"EAL/4\"\nenvironment lab {\n  require site == \"bench\"\n}\ntool reader {\n  version \"1\"\n}\nevidence observation {\n  tool reader\n  kind test\n  environment lab\n  max_age 864000\n  require ok == true\n}\nreasoning authored {\n  method \"structured/1\"\n  rationale \"The calibration predicate supplies conditional authored support.\"\n}\n";
 struct Temporary(PathBuf);
 impl Temporary {
     fn new() -> Result<Self, String> {

@@ -1,9 +1,15 @@
-# Executable EAL/3 profile
+# EAL/4 executable language
 
-`language "EAL/3" profile "execution/1"` declares executable evidence dependencies
-and pure derivations. The ordinary EAL/3 literal-input subset retains its meaning
-and uses the same recogniser, compiler and runtime. Unknown profiles are rejected
-before collection. `bind` and `derive` require the explicit execution profile.
+`language "EAL/4"` declares the current language. Evidence dependencies,
+bounded pure derivations and authored method queries are ordinary language
+semantics. The header has no optional semantic selector. Every imported module
+must also declare EAL/4. Older source versions are rejected before collection;
+re-export or explicitly migrate the source and all imports together.
+
+A fixed EAL/4 declaration has the same method-input meaning when compiled alone
+or imported. Imported identifiers are resolved lexically. Current typed
+observation envelopes retain their explicit identity, unit and scope checks;
+raw empirical inputs merge with authored query fields only when overlaps agree.
 
 ## Evidence inputs and dependencies
 
@@ -13,7 +19,7 @@ predicate remain mandatory. An explicit derivation replaces an inherited context
 tool; an explicit tool and derivation in one declaration are rejected.
 
 ```eal
-language "EAL/3" profile "execution/1"
+language "EAL/4"
 environment demonstration {
   require snapshot == "finite-v1"
 }
@@ -66,8 +72,8 @@ evaluation, network operation or general-purpose code execution in an expression
 
 The array functions `at(array,index)`, `flatten(array)`, `contains(array,value)`
 and `distinct(array)` operate on bounded finite JSON. `at` uses a nonnegative
-integer index and rejects missing entries. `flatten` removes one array level;
-malformed elements are errors. Identity comparisons preserve JSON scalar types
+integer index and rejects missing entries. `flatten` removes one array level
+and preserves other elements without coercion. Identity comparisons preserve JSON scalar types
 and exact integers. These operations do not certify that the original source
 population was complete or representative.
 
@@ -78,7 +84,7 @@ calculation cannot confer external source authority on its output.
 
 ## Authored method inputs
 
-For a typed conclusion in `execution/1`, omitting `binding evidence_id` selects
+For a typed conclusion in EAL/4, omitting `binding evidence_id` selects
 the proposition's authored `query` as a complete method input. Static validation
 checks it against the installed method's full input schema. This permits, for
 example, a deductive query without requiring a collector to echo its fixed

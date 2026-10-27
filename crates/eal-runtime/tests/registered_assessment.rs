@@ -18,7 +18,7 @@ use std::{
     time::Duration,
 };
 
-const SOURCE: &str = "language \"EAL/3\"\nenvironment lab {\n require site == \"bench\"\n}\ntool reader {\n version \"1\"\n}\nevidence quick {\n tool reader\n kind test\n environment lab\n max_age 5\n require ok == true\n}\nevidence steady {\n tool reader\n kind test\n environment lab\n max_age 1000\n require ok == true\n}\nreasoning measured {\n method \"structured/1\"\n rationale \"Both observations support this bounded claim.\"\n}\nclaim works {\n statement \"Both checks passed.\"\n environment lab\n}\nclaim other {\n statement \"An unrelated claim.\"\n environment lab\n}\nargument result = [evidence quick, steady] via measured => works\n";
+const SOURCE: &str = "language \"EAL/4\"\nenvironment lab {\n require site == \"bench\"\n}\ntool reader {\n version \"1\"\n}\nevidence quick {\n tool reader\n kind test\n environment lab\n max_age 5\n require ok == true\n}\nevidence steady {\n tool reader\n kind test\n environment lab\n max_age 1000\n require ok == true\n}\nreasoning measured {\n method \"structured/1\"\n rationale \"Both observations support this bounded claim.\"\n}\nclaim works {\n statement \"Both checks passed.\"\n environment lab\n}\nclaim other {\n statement \"An unrelated claim.\"\n environment lab\n}\nargument result = [evidence quick, steady] via measured => works\n";
 const FIRST: &str = "2040-01-01T00:00:01Z";
 const SECOND: &str = "2040-01-01T00:00:07Z";
 

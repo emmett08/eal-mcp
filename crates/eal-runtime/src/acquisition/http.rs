@@ -36,9 +36,7 @@ pub(super) fn acquire(
                 Value::String(s) => s.clone(),
                 Value::Bool(v) => v.to_string(),
                 Value::Number(v) => v.to_string(),
-                _ => {
-                    return Err("HTTP GET input values must be strings, booleans or numbers".into());
-                }
+                _ => unreachable!("normalization admitted scalar query values"),
             };
             query.append_pair(name, &value);
         }

@@ -18,7 +18,7 @@ use std::{path::PathBuf, sync::Arc, time::Duration};
 
 const OBSERVED_AT: &str = "2040-01-01T00:00:00Z";
 const ASSESSED_AT: &str = "2040-01-01T00:00:01Z";
-const SOURCE: &str = r#"language "EAL/3"
+const SOURCE: &str = r#"language "EAL/4"
 environment lab {
  require site == "bench"
 }

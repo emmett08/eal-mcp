@@ -1,7 +1,7 @@
 //! Pure wire models for describing and configuring operator-selected collectors.
 mod binding;
 mod direct_binding;
-pub use direct_binding::{DirectBinding, ResponseFormat};
+pub use direct_binding::{DirectBinding, McpServerIdentity, ResponseFormat};
 pub mod capability;
 mod catalogue;
 mod command;

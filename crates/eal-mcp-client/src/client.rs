@@ -1,5 +1,6 @@
 //! One-shot official-SDK clients. Targets are trusted operator configuration.
 use crate::authentication::{loopback_host, read_bearer_token};
+pub use crate::supervised::StdioSupervision;
 use rmcp::{
     RoleClient, ServiceExt,
     model::{
@@ -8,12 +9,11 @@ use rmcp::{
     },
     service::RunningService,
     transport::{
-        StreamableHttpClientTransport, TokioChildProcess,
-        streamable_http_client::StreamableHttpClientTransportConfig,
+        StreamableHttpClientTransport, streamable_http_client::StreamableHttpClientTransportConfig,
     },
 };
 use serde_json::{Value, json};
-use std::{collections::BTreeMap, path::PathBuf, process::Stdio, time::Duration};
+use std::{collections::BTreeMap, path::PathBuf, time::Duration};
 
 #[derive(Clone)]
 pub struct HttpTarget {
@@ -51,6 +51,7 @@ impl std::fmt::Debug for StdioTarget {
 #[derive(Clone, Debug)]
 pub enum ClientTarget {
     Stdio(StdioTarget),
+    SupervisedStdio(StdioTarget, StdioSupervision),
     Http(HttpTarget),
 }
 
@@ -123,7 +124,66 @@ fn configuration() -> ClientConfig {
     )
     .with_protocol_version(ProtocolVersion::V_2025_11_25)
 }
-pub type McpClient = RunningService<RoleClient, ClientConfig>;
+pub struct McpClient {
+    service: RunningService<RoleClient, ClientConfig>,
+    #[cfg(unix)]
+    process: Option<eal_process::duplex::DuplexOwner>,
+}
+impl std::ops::Deref for McpClient {
+    type Target = RunningService<RoleClient, ClientConfig>;
+    fn deref(&self) -> &Self::Target {
+        &self.service
+    }
+}
+impl McpClient {
+    pub async fn close(&mut self) -> Result<(), String> {
+        self.close_with_timeout(Duration::from_millis(250)).await
+    }
+    pub async fn close_with_timeout(&mut self, timeout: Duration) -> Result<(), String> {
+        self.service.cancellation_token().cancel();
+        #[cfg(unix)]
+        let process_result = self
+            .process
+            .as_mut()
+            .map(|p| p.close())
+            .transpose()
+            .map_err(|e| e.to_string());
+        let result = self
+            .service
+            .close_with_timeout(timeout)
+            .await
+            .map(|_| ())
+            .map_err(|e| e.to_string());
+        #[cfg(unix)]
+        process_result?;
+        result
+    }
+}
+impl Drop for McpClient {
+    fn drop(&mut self) {
+        self.service.cancellation_token().cancel();
+    }
+}
+/// Explicit runtime authority and descriptor retention; no tool configuration is inferred.
+pub fn supervised_stdio(
+    target: StdioTarget,
+    supervisor: &eal_process::Supervisor,
+    lease: Option<&dyn eal_process::Retention>,
+    max_input_bytes: usize,
+    max_output_bytes: usize,
+    max_session_duration: Duration,
+) -> Result<ClientTarget, String> {
+    Ok(ClientTarget::SupervisedStdio(
+        target,
+        StdioSupervision::new(
+            supervisor,
+            lease,
+            max_input_bytes,
+            max_output_bytes,
+            max_session_duration,
+        )?,
+    ))
+}
 type Client = McpClient;
 async fn invoke(client: &Client, tool: &str, arguments: &Value) -> Result<Value, String> {
     let tools = client.list_all_tools().await.map_err(|e| e.to_string())?;
@@ -210,24 +270,10 @@ pub async fn connect(
     tokio::time::timeout_at(tokio::time::Instant::from_std(deadline), async {
         Ok::<McpClient, String>(match target {
             ClientTarget::Stdio(target) => {
-                let mut command = tokio::process::Command::new(&target.command);
-                command
-                    .args(&target.arguments)
-                    .env_clear()
-                    .envs(target.environment)
-                    .stderr(Stdio::null())
-                    .kill_on_drop(true);
-                if let Some(cwd) = target.cwd {
-                    command.current_dir(cwd);
-                }
-                let (transport, _) = TokioChildProcess::builder(command)
-                    .stderr(Stdio::null())
-                    .spawn()
-                    .map_err(|e| e.to_string())?;
-                configuration()
-                    .serve(transport)
-                    .await
-                    .map_err(|e| e.to_string())?
+                connect_stdio(target, StdioSupervision::installed()?).await?
+            }
+            ClientTarget::SupervisedStdio(target, supervision) => {
+                connect_stdio(target, supervision).await?
             }
             ClientTarget::Http(target) => {
                 let mut config = StreamableHttpClientTransportConfig::with_uri(target.url)
@@ -238,16 +284,45 @@ pub async fn connect(
                 if let Some(token) = target.token {
                     config = config.auth_header(token);
                 }
-                configuration()
-                    .serve(StreamableHttpClientTransport::with_client(
-                        target.client,
-                        config,
-                    ))
-                    .await
-                    .map_err(|e| e.to_string())?
+                McpClient {
+                    service: configuration()
+                        .serve(StreamableHttpClientTransport::with_client(
+                            target.client,
+                            config,
+                        ))
+                        .await
+                        .map_err(|e| e.to_string())?,
+                    #[cfg(unix)]
+                    process: None,
+                }
             }
         })
     })
     .await
     .map_err(|_| "MCP session exceeded its configured deadline".to_owned())?
+}
+
+async fn connect_stdio(
+    target: StdioTarget,
+    supervision: StdioSupervision,
+) -> Result<McpClient, String> {
+    #[cfg(unix)]
+    {
+        let eal_process::duplex::DuplexProcess { stream, owner } = supervision.spawn(target)?;
+        let stream = tokio::net::UnixStream::from_std(stream).map_err(|e| e.to_string())?;
+        let (read, write) = stream.into_split();
+        let service = configuration()
+            .serve((read, write))
+            .await
+            .map_err(|e| e.to_string())?;
+        Ok(McpClient {
+            service,
+            process: Some(owner),
+        })
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = (target, supervision);
+        Err("Supervised MCP stdio currently requires a POSIX host".into())
+    }
 }

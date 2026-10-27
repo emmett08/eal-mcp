@@ -633,6 +633,7 @@ version = "0.1.0"
 dependencies = [
  "eal-collector-contracts",
  "eal-core",
+ "eal-process",
  "jsonschema",
  "reqwest",
  "rmcp",

@@ -3,7 +3,7 @@ use eal_parser::{DiagnosticStage, ParseLimits, parse, parse_with_limits};
 
 #[test]
 fn lexer_errors_are_never_accepted_after_recovery() {
-    let error = parse("language \"EAL/3\"\n@\n").unwrap_err();
+    let error = parse("language \"EAL/4\"\n@\n").unwrap_err();
     assert!(
         error
             .diagnostics
@@ -14,7 +14,7 @@ fn lexer_errors_are_never_accepted_after_recovery() {
 
 #[test]
 fn parser_recovery_does_not_produce_a_document() {
-    let error = parse("language \"EAL/3\"\nclaim broken { statement \"x\"\n").unwrap_err();
+    let error = parse("language \"EAL/4\"\nclaim broken { statement \"x\"\n").unwrap_err();
     assert!(
         error
             .diagnostics
@@ -25,7 +25,7 @@ fn parser_recovery_does_not_produce_a_document() {
 
 #[test]
 fn bad_token_after_unicode_has_scalar_column_and_byte_position() {
-    let source = "language \"EAL/3\"\n/* λ😀 */ @\n";
+    let source = "language \"EAL/4\"\n/* λ😀 */ @\n";
     let error = parse(source).unwrap_err();
     let span = error.diagnostics[0].span;
     assert_eq!(span.start.line, 2);
@@ -43,7 +43,7 @@ fn source_size_is_checked_before_allocation() {
         max_source_bytes: 2,
         ..ParseLimits::default()
     };
-    let error = parse_with_limits("language \"EAL/3\"\n", limits).unwrap_err();
+    let error = parse_with_limits("language \"EAL/4\"\n", limits).unwrap_err();
     assert_eq!(error.diagnostics[0].stage, DiagnosticStage::Resource);
 }
 
@@ -53,13 +53,13 @@ fn token_limit_includes_comments_and_eof() {
         max_tokens: 3,
         ..ParseLimits::default()
     };
-    assert!(parse_with_limits("language \"EAL/3\"\n// comment\n", limits).is_err());
+    assert!(parse_with_limits("language \"EAL/4\"\n// comment\n", limits).is_err());
 }
 
 #[test]
 fn excessive_delimiter_recursion_is_rejected_before_generated_parser() {
     let source = format!(
-        "language \"EAL/3\"\nenvironment e {{ require {}true{}\n}}\n",
+        "language \"EAL/4\"\nenvironment e {{ require {}true{}\n}}\n",
         "(".repeat(500),
         ")".repeat(500)
     );
@@ -70,7 +70,7 @@ fn excessive_delimiter_recursion_is_rejected_before_generated_parser() {
 #[test]
 fn excessive_unary_recursion_is_rejected_before_generated_parser() {
     let source = format!(
-        "language \"EAL/3\"\nenvironment e {{ require {}true\n}}\n",
+        "language \"EAL/4\"\nenvironment e {{ require {}true\n}}\n",
         "not ".repeat(500)
     );
     let error = parse(&source).unwrap_err();
@@ -83,7 +83,7 @@ fn zero_diagnostic_limit_still_rejects_invalid_source() {
         max_diagnostics: 0,
         ..ParseLimits::default()
     };
-    let error = parse_with_limits("language \"EAL/3\"\n@", limits).unwrap_err();
+    let error = parse_with_limits("language \"EAL/4\"\n@", limits).unwrap_err();
     assert_eq!(error.diagnostics.len(), 1);
 }
 
@@ -93,7 +93,7 @@ fn node_limit_rejects_before_returning_partial_syntax() {
         max_nodes: 1,
         ..ParseLimits::default()
     };
-    let error = parse_with_limits("language \"EAL/3\"\n", limits).unwrap_err();
+    let error = parse_with_limits("language \"EAL/4\"\n", limits).unwrap_err();
     assert_eq!(error.diagnostics[0].stage, DiagnosticStage::Resource);
 }
 
@@ -113,17 +113,17 @@ fn accepted_recursion_boundary_is_safe_on_a_small_embedding_stack() {
                     format!("{}true{}", "not (".repeat(depth / 2), ")".repeat(depth / 2)),
                 ] {
                     let source =
-                        format!("language \"EAL/3\"\nenvironment e {{ require {expression}\n}}\n");
+                        format!("language \"EAL/4\"\nenvironment e {{ require {expression}\n}}\n");
                     parse_with_limits(&source, limits).unwrap();
                 }
                 let source = format!(
-                    "language \"EAL/3\"\nevidence e {{ input {}true{}\n}}\n",
+                    "language \"EAL/4\"\nevidence e {{ input {}true{}\n}}\n",
                     "[".repeat(depth),
                     "]".repeat(depth)
                 );
                 parse_with_limits(&source, limits).unwrap();
                 let source = format!(
-                    "language \"EAL/3\"\n{}{}\n",
+                    "language \"EAL/4\"\n{}{}\n",
                     "context kind demo {\n".repeat(depth + 1),
                     "}\n".repeat(depth + 1)
                 );
@@ -138,7 +138,7 @@ fn accepted_recursion_boundary_is_safe_on_a_small_embedding_stack() {
 #[test]
 fn a_large_configured_depth_cannot_exceed_the_hard_stack_bound() {
     let source = format!(
-        "language \"EAL/3\"\nenvironment e {{ require {}true{}\n}}\n",
+        "language \"EAL/4\"\nenvironment e {{ require {}true{}\n}}\n",
         "(".repeat(128),
         ")".repeat(128)
     );
@@ -157,21 +157,21 @@ fn long_single_tokens_respect_the_source_budget() {
         ..ParseLimits::default()
     };
     let within = format!(
-        "language \"EAL/3\"\nevidence e {{ input {}\n}}\n",
+        "language \"EAL/4\"\nevidence e {{ input {}\n}}\n",
         "1".repeat(1900)
     );
     parse_with_limits(&within, limits).unwrap();
     let within = format!(
-        "language \"EAL/3\"\nclaim c {{ statement \"{}\"\n}}\n",
+        "language \"EAL/4\"\nclaim c {{ statement \"{}\"\n}}\n",
         "λ".repeat(900)
     );
     parse_with_limits(&within, limits).unwrap();
     let oversized_number = format!(
-        "language \"EAL/3\"\nevidence e {{ input {}\n}}\n",
+        "language \"EAL/4\"\nevidence e {{ input {}\n}}\n",
         "1".repeat(2100)
     );
     let oversized_string = format!(
-        "language \"EAL/3\"\nclaim c {{ statement \"{}\"\n}}\n",
+        "language \"EAL/4\"\nclaim c {{ statement \"{}\"\n}}\n",
         "λ".repeat(1100)
     );
     for source in [oversized_number, oversized_string] {
@@ -184,7 +184,7 @@ fn long_single_tokens_respect_the_source_budget() {
 fn unary_operators_retained_across_delimiters_share_one_depth_budget() {
     let prefix = format!("{}(", "not ".repeat(60));
     let source = format!(
-        "language \"EAL/3\"\nenvironment e {{ require {}true{}\n}}\n",
+        "language \"EAL/4\"\nenvironment e {{ require {}true{}\n}}\n",
         prefix.repeat(60),
         ")".repeat(60)
     );
@@ -200,7 +200,7 @@ fn unary_operators_retained_across_delimiters_share_one_depth_budget() {
 fn unary_operators_before_qualified_calls_share_one_depth_budget() {
     let prefix = format!("{}f.g(", "not ".repeat(60));
     let source = format!(
-        "language \"EAL/3\"\nenvironment e {{ require {}true{}\n}}\n",
+        "language \"EAL/4\"\nenvironment e {{ require {}true{}\n}}\n",
         prefix.repeat(60),
         ")".repeat(60)
     );
@@ -210,7 +210,7 @@ fn unary_operators_before_qualified_calls_share_one_depth_budget() {
 
 #[test]
 fn mismatched_delimiters_cannot_reduce_the_recursion_budget() {
-    let source = "language \"EAL/3\"\nenvironment e { require (}true\n}\n";
+    let source = "language \"EAL/4\"\nenvironment e { require (}true\n}\n";
     let error = parse(source).unwrap_err();
     assert_eq!(error.diagnostics[0].stage, DiagnosticStage::Parser);
 }

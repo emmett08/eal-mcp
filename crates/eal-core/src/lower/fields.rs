@@ -153,26 +153,10 @@ impl Builder<'_> {
                 property: JsonProperty::Query,
                 value: self.json(self.child(id, "jsonValue")?)?,
             },
-            "derive" => {
-                if !self.execution_profile {
-                    return Err(self.error(
-                        id,
-                        "EXECUTION_PROFILE",
-                        "Derivations require profile execution/1",
-                    ));
-                }
-                Field::Derive {
-                    expression: self.expression(self.child(id, "expression")?)?,
-                }
-            }
+            "derive" => Field::Derive {
+                expression: self.expression(self.child(id, "expression")?)?,
+            },
             "bind" => {
-                if !self.execution_profile {
-                    return Err(self.error(
-                        id,
-                        "EXECUTION_PROFILE",
-                        "Input bindings require profile execution/1",
-                    ));
-                }
                 let strings = self.string_tokens(id);
                 Field::InputBinding {
                     target: self.decode_string(strings[0])?,

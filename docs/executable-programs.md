@@ -19,16 +19,31 @@ native MCP client. The response contains both `collection` and `assessment`.
 A successful command says that the operation completed; inspect the claim's
 status to determine whether it is supported.
 
-The source opts into the additive execution profile:
+Optional preparation discovers only the selected operator-configured MCP
+interfaces and emits inspectable server and schema pins:
 
-```eal
-language "EAL/3" profile "execution/1"
+```sh
+eal-host prepare case.eal --tools tools.toml --workspace prepare-run \
+  --claim inventory_verified --output-tools prepared.tools.toml
 ```
 
-Older source retains its declared semantics in the same compiler. Unsupported
-profiles, undeclared references, conflicting destinations and acquisition cycles
-are diagnosed before acquisition. `eal_describe` reports execution profiles and
-method contracts; authoring should use those contracts before constructing tools.
+Run with `--tools prepared.tools.toml` to enforce the generated pins. The output
+file must be new and beside the input manifest so relative tools keep their
+meaning. Preparation calls no evidence operation and creates no observation or
+assessment. Its receipt is not required for execution. See
+[direct tools](direct-tools.md#response-mappings-and-schemas) for identity limits.
+
+The source declares the current language:
+
+```eal
+language "EAL/4"
+```
+
+Every imported module declares the same EAL/4 language. Older source versions,
+undeclared references, conflicting destinations and acquisition cycles are
+diagnosed before acquisition. `eal_describe` reports the source language,
+execution features and method contracts; authoring checks those contracts before
+constructing tools. Migrate older source and imports explicitly before running.
 
 ## Acquisition and pure checks
 
@@ -151,7 +166,7 @@ proposition {
 }
 ```
 
-Under `execution/1`, a complete query may execute without an observation binding.
+In EAL/4, a complete query may execute without an observation binding.
 The method result explicitly identifies `input_origin: "authored_program"` and
 does not invent an evidence or observation ID. Evidence, premise claims and
 assumptions in the argument still have to support their respective roles. The

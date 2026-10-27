@@ -53,6 +53,15 @@ pub(super) fn input(
         .filter(|v| v.is_object())
         .ok_or("Direct operations require object input")?
         .clone();
+    if binding.kind == super::ToolKind::HttpGet
+        && input
+            .as_object()
+            .unwrap()
+            .values()
+            .any(|value| !matches!(value, Value::String(_) | Value::Bool(_) | Value::Number(_)))
+    {
+        return Err("HTTP GET input values must be strings, booleans or numbers".into());
+    }
     let settings = binding.direct.as_ref().expect("validated direct settings");
     if let Some(pin) = &settings.input_schema {
         eal_mcp_client::schema::validate_schema(&input, &schema(pin, binding, workspace)?)

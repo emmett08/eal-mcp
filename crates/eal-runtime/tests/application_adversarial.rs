@@ -22,7 +22,7 @@ use std::{
 };
 
 static NEXT: AtomicUsize = AtomicUsize::new(0);
-const SOURCE: &str = r#"language "EAL/3"
+const SOURCE: &str = r#"language "EAL/4"
 environment lab {
   require "site" == "bench"
 }

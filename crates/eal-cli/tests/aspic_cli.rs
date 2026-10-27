@@ -120,7 +120,7 @@ fn source_snapshot_compilation_and_export_preserve_formal_and_authored_results()
         "@context.json",
     ];
     let result = successful(workspace.run(&arguments));
-    assert_eq!(result["profile"], "EAL/3-compiled-aspic/5");
+    assert_eq!(result["profile"], "EAL/4-compiled-aspic/5");
     assert_eq!(result["formal"]["query_status"], "accepted");
     assert_eq!(result["claim_status"], "supported");
     assert_eq!(result["authored_claim_status"], "supported");

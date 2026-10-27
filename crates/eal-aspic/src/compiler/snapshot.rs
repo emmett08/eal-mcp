@@ -221,7 +221,7 @@ mod tests {
     use super::*;
     fn snapshot() -> CompiledTheory {
         let context = json!({});
-        compile_eal_aspic("language \"EAL/3\"\nenvironment lab {\nrequire true\n}\nclaim goal {\nstatement \"A bounded claim.\"\nenvironment lab\n}\n",&json!({}),CompileOptions::new("goal","2026-09-23T12:00:00Z",&context)).unwrap()
+        compile_eal_aspic("language \"EAL/4\"\nenvironment lab {\nrequire true\n}\nclaim goal {\nstatement \"A bounded claim.\"\nenvironment lab\n}\n",&json!({}),CompileOptions::new("goal","2026-09-23T12:00:00Z",&context)).unwrap()
     }
     #[test]
     fn private_snapshot_mutations_and_reconstructed_forgeries_fail_integrity() {

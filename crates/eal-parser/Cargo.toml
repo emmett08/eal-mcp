@@ -1,6 +1,6 @@
 [package]
 name = "eal-parser"
-description = "Strict generated recognition and owned syntax for EAL/3"
+description = "Strict generated recognition and owned syntax for EAL/4"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

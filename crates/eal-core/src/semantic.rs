@@ -1,4 +1,4 @@
-//! Composed EAL/3 entities, independent of parsing contexts and execution adapters.
+//! Composed EAL/4 entities, independent of parsing contexts and execution adapters.
 use crate::{ExecutionLimits, Expression};
 use eal_parser::SourceSpan;
 use indexmap::IndexMap;
@@ -173,10 +173,9 @@ pub struct Diagnostic {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Program {
     pub language: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub profile: Option<String>,
     pub source_digest: String,
     pub environments: IndexMap<String, Environment>,
     pub tools: IndexMap<String, Tool>,
@@ -209,7 +208,6 @@ impl Program {
     pub fn empty(language: String, source_digest: String, limits: ExecutionLimits) -> Self {
         Self {
             language,
-            profile: None,
             source_digest,
             limits,
             environments: IndexMap::new(),

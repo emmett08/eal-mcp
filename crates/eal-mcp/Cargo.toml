@@ -1,6 +1,6 @@
 [package]
 name = "eal-mcp"
-description = "Native EAL/3 MCP services and text-model host"
+description = "Native EAL/4 MCP services and text-model host"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

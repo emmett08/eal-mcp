@@ -90,7 +90,7 @@ fn native_descriptors_bind_to_current_cli_registry_and_eal_predicates() {
         let requested = json!({"evidence_id":"reading","environment":"scope","tool":"reading_tool","tool_version":descriptor.version,"input":input,"context":{}});
         Request::parse(&serde_json::to_vec(&requested).unwrap()).unwrap();
         let source = format!(
-            "language \"EAL/3\"\nenvironment scope {{\n  require chosen == true\n}}\ntool reading_tool {{\n  version \"{}\"\n}}\nevidence reading {{\n  tool reading_tool\n  kind acquisition\n  environment scope\n  max_age 60\n  input {}\n  require {}\n}}\n",
+            "language \"EAL/4\"\nenvironment scope {{\n  require chosen == true\n}}\ntool reading_tool {{\n  version \"{}\"\n}}\nevidence reading {{\n  tool reading_tool\n  kind acquisition\n  environment scope\n  max_age 60\n  input {}\n  require {}\n}}\n",
             descriptor.version, input, descriptor.acquisition_predicate
         );
         let program = composition::compile(&source, None, "", ExecutionLimits::default()).unwrap();

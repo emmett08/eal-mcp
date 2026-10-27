@@ -10,10 +10,6 @@ impl Program {
     /// when the result must be accepted under an operator's parser limits.
     pub fn format(&self) -> String {
         let mut output = format!("language {}", quote(&self.language));
-        if let Some(profile) = &self.profile {
-            write!(output, " profile {}", quote(profile))
-                .expect("writing to a string is infallible");
-        }
         output.push('\n');
         for declaration in &self.declarations {
             declaration_source(&mut output, declaration, 0);

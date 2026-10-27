@@ -1,7 +1,7 @@
 # Finite ASPIC reasoning
 
 `eal-aspic` implements the `argumentation/aspic/2` theory contract,
-`EAL/3-compiled-aspic/5` source translation and `aspic-view/3` export. These are
+`EAL/4-compiled-aspic/5` source translation and `aspic-view/3` export. These are
 explicit formal operations alongside the authored EAL evaluator. An EAL source
 uses `method "argumentation/aspic/2"` only when the host installs that registry.
 The default eight-method registry remains unchanged.

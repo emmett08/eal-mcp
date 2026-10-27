@@ -1,5 +1,6 @@
 //! Bounded subprocess execution independent of EAL language, storage and adapters.
 #![forbid(unsafe_code)]
+pub mod duplex;
 pub mod process;
 pub mod supervisor;
 pub use process::*;

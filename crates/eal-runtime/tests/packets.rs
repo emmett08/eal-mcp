@@ -173,7 +173,7 @@ fn exhausted_native_assessment_preserves_incomplete_through_packet_context_and_f
         methods::{MethodContract, MethodError, NativeMethodIdentity, default_registry},
     };
     use eal_runtime::model_context::ModelContextBuilder;
-    const SOURCE: &str = "language \"EAL/3\"\nenvironment lab {\n require true\n}\ntool instrument {\n version \"1\"\n}\nevidence sample {\n tool instrument\n kind bounded\n environment lab\n max_age 60\n input {}\n require needed == 17\n}\nreasoning calculation {\n method \"example/bounded/1\"\n rationale \"The calculation supports this bounded result when completed.\"\n require completed == true\n}\nclaim bounded_result {\n statement \"The calculation establishes the requested result.\"\n environment lab\n}\nargument calculation_route = [evidence sample] via calculation => bounded_result\n";
+    const SOURCE: &str = "language \"EAL/4\"\nenvironment lab {\n require true\n}\ntool instrument {\n version \"1\"\n}\nevidence sample {\n tool instrument\n kind bounded\n environment lab\n max_age 60\n input {}\n require needed == 17\n}\nreasoning calculation {\n method \"example/bounded/1\"\n rationale \"The calculation supports this bounded result when completed.\"\n require completed == true\n}\nclaim bounded_result {\n statement \"The calculation establishes the requested result.\"\n environment lab\n}\nargument calculation_route = [evidence sample] via calculation => bounded_result\n";
     const NOW: &str = "2026-10-24T12:00:00Z";
     let limits = ExecutionLimits {
         formal_arguments: 16,

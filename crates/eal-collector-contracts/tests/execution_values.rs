@@ -155,6 +155,22 @@ fn original_literal_plan_decodes_with_defaults_and_keeps_literal_criteria() {
     });
     let decoded: EvidenceExecutionPlan = serde_json::from_value(value).unwrap();
     decoded.validate().unwrap();
+    let mut retired = serde_json::to_value(&decoded).unwrap();
+    retired["acquisitions"][0]["coverage_proof"] = json!({"kind":"identifier_audit_v1"});
+    assert!(
+        serde_json::from_value::<EvidenceExecutionPlan>(retired.clone())
+            .unwrap_err()
+            .to_string()
+            .contains("unknown field")
+    );
+    let schema = plan_schema();
+    assert!(!schema.to_string().contains("coverage_proof"));
+    assert!(
+        jsonschema::validator_for(&schema)
+            .unwrap()
+            .validate(&retired)
+            .is_err()
+    );
     assert_eq!(decoded.scheduling.maximum_concurrent_sources, 4);
     assert!(decoded.acquisitions[0].max_age_seconds.is_none());
     assert!(matches!(

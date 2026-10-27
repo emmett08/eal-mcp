@@ -34,6 +34,9 @@ pub fn validate_query_with_limits(
         && let Some(mode) = &contract.builtin_mode
         && mode != "structured"
         && !mode.starts_with("engineering/")
+        // Admission does not execute a calculation that assessment lacks budget
+        // to complete. Shape checks above remain independent of calculation.
+        && super::work::required(mode, query) <= limits.method_work
         && let Err(error) = super::dispatch::compute_builtin(mode, query)
     {
         errors.push(error);

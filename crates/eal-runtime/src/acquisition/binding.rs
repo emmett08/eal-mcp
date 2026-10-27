@@ -39,10 +39,51 @@ impl std::fmt::Debug for ToolBinding {
     }
 }
 impl ToolBinding {
-    /// Check operator-owned schema configuration without acquiring a source.
+    /// Check operator-owned configuration without invoking a source.
     pub fn preflight(&self, workspace: &Path) -> Result<(), AcquisitionError> {
         super::registry::validate_binding(self)?;
-        super::normalization::preflight(self, workspace)
+        super::normalization::preflight(self, workspace)?;
+        let environment = self.effective_environment()?;
+        match self.kind {
+            ToolKind::McpHttp => {
+                let direct = self.direct.as_ref().expect("validated direct settings");
+                eal_mcp_client::client::create_http_target(
+                    direct.url.as_deref().unwrap(),
+                    direct.token_env.as_deref(),
+                    &environment,
+                )
+                .map_err(AcquisitionError::invalid)?;
+            }
+            ToolKind::HttpGet => {
+                let direct = self.direct.as_ref().expect("validated direct settings");
+                let url = reqwest::Url::parse(direct.url.as_deref().unwrap())
+                    .map_err(|_| AcquisitionError::invalid("Invalid HTTP URL"))?;
+                eal_adapters::http::JsonClient::new(
+                    &url.origin().ascii_serialization(),
+                    &direct.headers_env,
+                    direct.token_env.as_deref(),
+                    std::time::Instant::now(),
+                    std::time::Duration::from_secs_f64(self.timeout_seconds),
+                    self.max_output_bytes,
+                )
+                .map_err(|error| AcquisitionError::invalid(error.to_string()))?;
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+
+    /// Validate a complete literal input against configured schemas before any source runs.
+    /// Inputs with upstream bindings are checked after those values are resolved.
+    pub(crate) fn preflight_input(
+        &self,
+        request: &Value,
+        workspace: &Path,
+    ) -> Result<(), AcquisitionError> {
+        if self.direct.is_some() {
+            super::normalization::input(self, request, workspace)?;
+        }
+        Ok(())
     }
 
     pub fn package_root<'a>(&'a self, workspace: &'a Path) -> &'a Path {

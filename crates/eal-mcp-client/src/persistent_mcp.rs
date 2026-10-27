@@ -3,6 +3,7 @@ use crate::{
     client::{self, ClientTarget, McpClient},
     schema,
 };
+use eal_collector_contracts::McpServerIdentity;
 use rmcp::model::{CallToolRequestParams, CallToolResponse, CallToolResult, Tool};
 use serde_json::Value;
 use std::{
@@ -55,28 +56,107 @@ pub struct ToolDiscovery {
     pub response_bytes: u64,
 }
 #[derive(Clone, Debug)]
+pub struct ToolInterfaceIdentity {
+    pub server: McpServerIdentity,
+    pub tool: String,
+    pub input_schema_sha256: String,
+    pub output_schema_sha256: Option<String>,
+}
+impl ToolInterfaceIdentity {
+    fn new(entry: &Tool, server: McpServerIdentity) -> Result<Self, McpError> {
+        server.validate().map_err(McpError::Rejected)?;
+        let identity = |value: Value| {
+            eal_collector_contracts::capability::schema_identity(&value).map_err(McpError::Rejected)
+        };
+        Ok(Self {
+            server,
+            tool: entry.name.to_string(),
+            input_schema_sha256: identity(Value::Object((*entry.input_schema).clone()))?,
+            output_schema_sha256: entry
+                .output_schema
+                .as_ref()
+                .map(|schema| identity(Value::Object((**schema).clone())))
+                .transpose()?,
+        })
+    }
+    pub fn check(
+        &self,
+        pins: Option<&ToolSchemaPins>,
+        server: Option<&McpServerIdentity>,
+    ) -> Result<(), McpError> {
+        if server.is_some_and(|expected| expected != &self.server) {
+            return Err(McpError::Rejected(
+                "MCP server identity differs from its prepared binding".into(),
+            ));
+        }
+        if pins.is_some_and(|pins| {
+            self.input_schema_sha256 != pins.input_sha256
+                || self.output_schema_sha256 != pins.output_sha256
+        }) {
+            return Err(McpError::Rejected(
+                "MCP tool schema identity differs from its pinned binding".into(),
+            ));
+        }
+        Ok(())
+    }
+    pub fn to_json(&self) -> Value {
+        serde_json::json!({"server":self.server,"tool":self.tool,
+            "input_schema_sha256":self.input_schema_sha256,
+            "output_schema_sha256":self.output_schema_sha256})
+    }
+}
+impl ToolDiscovery {
+    pub fn interface(&self, name: &str) -> Result<ToolInterfaceIdentity, McpError> {
+        let entry = self
+            .tools
+            .iter()
+            .find(|tool| tool.name == name)
+            .ok_or_else(|| McpError::Rejected(format!("MCP server does not offer {name}")))?;
+        ToolInterfaceIdentity::new(
+            entry,
+            McpServerIdentity {
+                name: self.server_name.clone(),
+                version: self.server_version.clone(),
+                protocol: self.protocol_version.clone(),
+            },
+        )
+    }
+}
+#[derive(Clone, Debug)]
 pub struct ToolSchemaPins {
     pub input_sha256: String,
     pub output_sha256: Option<String>,
 }
 #[derive(Clone, Debug)]
-pub struct PinnedToolResult {
+pub struct ObservedToolResult {
     pub result: CallToolResult,
+    /// A completed but inadmissible response retains its actual interface.
+    pub validation_error: Option<String>,
+    pub interface: ToolInterfaceIdentity,
     pub discovery_requests: u64,
     pub discovery_bytes: u64,
+}
+impl ObservedToolResult {
+    fn validated(self) -> Result<Self, McpError> {
+        if let Some(error) = &self.validation_error {
+            return Err(McpError::Rejected(error.clone()));
+        }
+        Ok(self)
+    }
 }
 enum Operation {
     Call {
         name: String,
         arguments: Value,
         pins: Option<ToolSchemaPins>,
+        server_identity: Option<Box<McpServerIdentity>>,
         limits: ToolListLimits,
         max_output_bytes: usize,
     },
     Discover(ToolListLimits),
 }
 enum Answer {
-    Call(PinnedToolResult),
+    Call(Box<ObservedToolResult>),
     Discovery(ToolDiscovery),
 }
 enum Request {
@@ -150,13 +230,14 @@ impl PersistentMcp {
                 name: name.into(),
                 arguments: arguments.clone(),
                 pins: None,
+                server_identity: None,
                 limits: ToolListLimits::default(),
                 max_output_bytes: 16 * 1024 * 1024,
             },
             deadline,
         )?;
         match result {
-            Answer::Call(result) => Ok(result.result),
+            Answer::Call(result) => Ok((*result).validated()?.result),
             _ => Err(McpError::Terminal(FAILED.into())),
         }
     }
@@ -174,12 +255,13 @@ impl PersistentMcp {
                 name: name.into(),
                 arguments: arguments.clone(),
                 pins: None,
+                server_identity: None,
                 limits,
                 max_output_bytes,
             },
             deadline,
         )? {
-            Answer::Call(result) => Ok(result.result),
+            Answer::Call(result) => Ok((*result).validated()?.result),
             _ => Err(McpError::Terminal(FAILED.into())),
         }
     }
@@ -191,19 +273,48 @@ impl PersistentMcp {
         pins: &ToolSchemaPins,
         limits: ToolListLimits,
         deadline: Instant,
-    ) -> Result<PinnedToolResult, McpError> {
+    ) -> Result<ObservedToolResult, McpError> {
         let result = self.perform(
             Operation::Call {
                 name: name.into(),
                 arguments: arguments.clone(),
                 pins: Some(pins.clone()),
+                server_identity: None,
                 max_output_bytes: limits.max_bytes,
                 limits,
             },
             deadline,
         )?;
         match result {
-            Answer::Call(result) => Ok(result),
+            Answer::Call(result) => (*result).validated(),
+            _ => Err(McpError::Terminal(FAILED.into())),
+        }
+    }
+    /// Invoke one tool while retaining the actual discovered interface identity.
+    /// Both prepared and unpinned calls use this path; configured pins are checked
+    /// before tools/call, including the server's initialization identity.
+    /// Callers must admit `validation_error` before using a completed response.
+    pub fn call_observed(
+        &self,
+        name: &str,
+        arguments: &Value,
+        pins: Option<ToolSchemaPins>,
+        server_identity: Option<McpServerIdentity>,
+        limits: ToolListLimits,
+        deadline: Instant,
+    ) -> Result<ObservedToolResult, McpError> {
+        match self.perform(
+            Operation::Call {
+                name: name.into(),
+                arguments: arguments.clone(),
+                pins,
+                server_identity: server_identity.map(Box::new),
+                max_output_bytes: limits.max_bytes,
+                limits,
+            },
+            deadline,
+        )? {
+            Answer::Call(result) => Ok(*result),
             _ => Err(McpError::Terminal(FAILED.into())),
         }
     }
@@ -226,6 +337,7 @@ impl PersistentMcp {
                 name,
                 arguments,
                 pins,
+                server_identity,
                 limits,
                 max_output_bytes,
             } => {
@@ -245,6 +357,9 @@ impl PersistentMcp {
                 };
                 eal_core::canonical::canonical_json_bytes(arguments, &bounds)
                     .map_err(McpError::Rejected)?;
+                if let Some(identity) = server_identity {
+                    identity.validate().map_err(McpError::Rejected)?;
+                }
                 if let Some(pins) = pins {
                     let valid = |value: &str| {
                         value.len() == 64
@@ -485,14 +600,16 @@ impl Session {
                 name,
                 arguments,
                 pins,
+                server_identity,
                 limits,
                 max_output_bytes,
             } => {
-                let discovery = if self.client.is_none() || pins.is_some() {
-                    Some(self.discover(limits, deadline).await?)
-                } else {
-                    None
-                };
+                let discovery =
+                    if self.client.is_none() || pins.is_some() || server_identity.is_some() {
+                        Some(self.discover(limits, deadline).await?)
+                    } else {
+                        None
+                    };
                 let entry = self
                     .tools
                     .iter()
@@ -500,27 +617,21 @@ impl Session {
                     .ok_or_else(|| {
                         McpError::Rejected(format!("MCP server does not offer {name}"))
                     })?;
-                if let Some(pins) = pins {
-                    let input = eal_collector_contracts::capability::schema_identity(
-                        &Value::Object((*entry.input_schema).clone()),
-                    )
-                    .map_err(McpError::Rejected)?;
-                    let output = entry
-                        .output_schema
-                        .as_ref()
-                        .map(|schema| {
-                            eal_collector_contracts::capability::schema_identity(&Value::Object(
-                                (**schema).clone(),
-                            ))
-                        })
-                        .transpose()
-                        .map_err(McpError::Rejected)?;
-                    if input != pins.input_sha256 || output != pins.output_sha256 {
-                        return Err(McpError::Rejected(
-                            "MCP tool schema identity differs from its pinned binding".into(),
-                        ));
-                    }
-                }
+                let peer = self.client.as_ref().unwrap().peer_info().ok_or_else(|| {
+                    McpError::Terminal("MCP initialization omitted server identity".into())
+                })?;
+                let implementation = peer.server_info.as_ref().ok_or_else(|| {
+                    McpError::Rejected("MCP initialization omitted implementation identity".into())
+                })?;
+                let interface = ToolInterfaceIdentity::new(
+                    entry,
+                    McpServerIdentity {
+                        name: implementation.name.to_string(),
+                        version: implementation.version.to_string(),
+                        protocol: peer.protocol_version.to_string(),
+                    },
+                )?;
+                interface.check(pins.as_ref(), server_identity.as_deref())?;
                 schema::validate_schema(&arguments, &Value::Object((*entry.input_schema).clone()))
                     .map_err(|error| {
                         McpError::Rejected(format!(
@@ -544,34 +655,43 @@ impl Session {
                                 .into(),
                         )),
                     };
-                if serde_json::to_vec(&result)
-                    .map_err(|_| McpError::Rejected("Cannot encode MCP result".into()))?
-                    .len()
-                    > max_output_bytes
-                {
-                    return Err(McpError::Rejected(
-                        "MCP result exceeds output allowance".into(),
-                    ));
-                }
-                if !result.is_error.unwrap_or(false)
-                    && let Some(schema) = &entry.output_schema
-                {
-                    let content = result.structured_content.as_ref().ok_or_else(|| {
-                        McpError::Rejected("MCP result omitted declared structured output".into())
-                    })?;
-                    schema::validate_schema(content, &Value::Object((**schema).clone())).map_err(
-                        |_| McpError::Rejected("MCP result violates declared output schema".into()),
-                    )?;
-                }
-                Ok(Answer::Call(PinnedToolResult {
+                let validation_error = validate_response(&result, entry, max_output_bytes).err();
+                Ok(Answer::Call(Box::new(ObservedToolResult {
                     result,
+                    validation_error,
+                    interface,
                     discovery_requests: discovery.as_ref().map_or(0, |d| d.requests),
                     discovery_bytes: discovery.as_ref().map_or(0, |d| d.response_bytes),
-                }))
+                })))
             }
         }
     }
 }
+fn validate_response(
+    result: &CallToolResult,
+    entry: &Tool,
+    max_bytes: usize,
+) -> Result<(), String> {
+    if serde_json::to_vec(result)
+        .map_err(|_| "Cannot encode MCP result")?
+        .len()
+        > max_bytes
+    {
+        return Err("MCP result exceeds output allowance".into());
+    }
+    if !result.is_error.unwrap_or(false)
+        && let Some(schema) = &entry.output_schema
+    {
+        let content = result
+            .structured_content
+            .as_ref()
+            .ok_or("MCP result omitted declared structured output")?;
+        schema::validate_schema(content, &Value::Object((**schema).clone()))
+            .map_err(|_| "MCP result violates declared output schema")?;
+    }
+    Ok(())
+}
+
 fn owner(target: ClientTarget, mut requests: tokio::sync::mpsc::UnboundedReceiver<Request>) {
     let runtime = match tokio::runtime::Builder::new_current_thread()
         .enable_all()

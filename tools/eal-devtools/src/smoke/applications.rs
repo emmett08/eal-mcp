@@ -17,6 +17,7 @@ const OPERATOR: &[&str] = &[
     "eal_collect",
     "eal_collect_claim",
     "eal_execute",
+    "eal_prepare",
     "eal_reason",
     "eal_compile_aspic",
     "eal_explain",
@@ -351,7 +352,7 @@ pub fn run(options: &Options) -> Result<Value> {
         });
         server.finish()?;
     }
-    checks.push("all sixteen operations through installed text and MCP entry points with valid, missing, unknown, wrong-type, null, empty-identifier and oversized requests");
+    checks.push("all seventeen operations through installed text and MCP entry points with valid, missing, unknown, wrong-type, null, empty-identifier and oversized requests");
     checks
         .push("all installed native children ran with PATH empty; HTTP servers emitted no stdout");
     ensure(

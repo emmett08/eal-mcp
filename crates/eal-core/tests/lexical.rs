@@ -5,12 +5,12 @@ use eal_core::{
 #[test]
 fn duplicates_and_missing_fields_are_rejected() {
     for source in [
-        "language \"EAL/3\"\ntool t {\nversion \"1\"\nversion \"2\"\n}\n",
-        "language \"EAL/3\"\ncontext version \"1\", version \"2\" {}\n",
-        "language \"EAL/3\"\ncontext input {\"a\": 1, \"\\u0061\": 2} {}\n",
-        "language \"EAL/3\"\ntool t {}\n",
-        "language \"EAL/3\"\nargument a = [evidence e, evidence f] via r => c\n",
-        "language \"EAL/3\"\ntool t {\nversion \"\\ud800\"\n}\n",
+        "language \"EAL/4\"\ntool t {\nversion \"1\"\nversion \"2\"\n}\n",
+        "language \"EAL/4\"\ncontext version \"1\", version \"2\" {}\n",
+        "language \"EAL/4\"\ncontext input {\"a\": 1, \"\\u0061\": 2} {}\n",
+        "language \"EAL/4\"\ntool t {}\n",
+        "language \"EAL/4\"\nargument a = [evidence e, evidence f] via r => c\n",
+        "language \"EAL/4\"\ntool t {\nversion \"\\ud800\"\n}\n",
     ] {
         assert!(
             parse(source).is_err(),
@@ -21,7 +21,7 @@ fn duplicates_and_missing_fields_are_rejected() {
 
 #[test]
 fn context_defaults_are_scoped_and_authored_fields_stay_explicit() {
-    let source = "language \"EAL/3\"\ncontext version \"1\" {\ntool t {}\n}\n";
+    let source = "language \"EAL/4\"\ncontext version \"1\" {\ntool t {}\n}\n";
     let program = parse(source).unwrap();
     let DeclarationKind::Context { body, .. } = &program.declarations[0].value else {
         panic!("context expected")
@@ -35,7 +35,7 @@ fn context_defaults_are_scoped_and_authored_fields_stay_explicit() {
 
 #[test]
 fn number_lexemes_and_unresolved_imports_are_retained() {
-    let source = "language \"EAL/3\"\nimport \"library.eal\" as library\ncontext input [99999999999999999999999999999999999, -2.500e+30] {}\n";
+    let source = "language \"EAL/4\"\nimport \"library.eal\" as library\ncontext input [99999999999999999999999999999999999, -2.500e+30] {}\n";
     let program = parse(source).unwrap();
     assert!(
         program
@@ -59,7 +59,7 @@ fn expressions_preserve_operator_grouping_and_field_convention() {
         "- - -1 + +2",
         "f(a + 1, [2, {\"x\": true}])",
     ] {
-        let source = format!("language \"EAL/3\"\nenvironment e {{\nrequire {expression}\n}}\n");
+        let source = format!("language \"EAL/4\"\nenvironment e {{\nrequire {expression}\n}}\n");
         let program = parse(&source).unwrap();
         let reparsed = parse(&program.format()).unwrap();
         assert!(
@@ -68,7 +68,7 @@ fn expressions_preserve_operator_grouping_and_field_convention() {
             program.format()
         );
     }
-    let program = parse("language \"EAL/3\"\nenvironment e {\nrequire \"a.b\" == 2\n}\n").unwrap();
+    let program = parse("language \"EAL/4\"\nenvironment e {\nrequire \"a.b\" == 2\n}\n").unwrap();
     let DeclarationKind::Environment { predicates, .. } = &program.declarations[0].value else {
         panic!()
     };
@@ -81,13 +81,13 @@ fn expressions_preserve_operator_grouping_and_field_convention() {
 #[test]
 fn flat_operator_chains_have_a_bounded_typed_depth() {
     let source = format!(
-        "language \"EAL/3\"\nenvironment e {{\nrequire {}\n}}\n",
+        "language \"EAL/4\"\nenvironment e {{\nrequire {}\n}}\n",
         vec!["1"; 1_000].join("+")
     );
     let error = parse(&source).unwrap_err().to_string();
     assert!(error.contains("EXPRESSION_DEPTH"), "{error}");
     let source = format!(
-        "language \"EAL/3\"\nenvironment e {{\nrequire {}\n}}\n",
+        "language \"EAL/4\"\nenvironment e {{\nrequire {}\n}}\n",
         vec!["1"; 100].join("+")
     );
     let program = parse(&source).unwrap();
@@ -98,7 +98,7 @@ fn flat_operator_chains_have_a_bounded_typed_depth() {
 #[test]
 fn deeply_parenthesised_sources_use_the_bounded_lowering_worker() {
     let source = format!(
-        "language \"EAL/3\"\nenvironment e {{\nrequire {}1{}\n}}\n",
+        "language \"EAL/4\"\nenvironment e {{\nrequire {}1{}\n}}\n",
         "(".repeat(110),
         ")".repeat(110)
     );
@@ -112,7 +112,7 @@ fn deeply_parenthesised_sources_use_the_bounded_lowering_worker() {
 
 #[test]
 fn lexical_equality_detects_values_omitted_by_a_formatter() {
-    let mut original = parse("language \"EAL/3\"\ncontext input [1] {}\n").unwrap();
+    let mut original = parse("language \"EAL/4\"\ncontext input [1] {}\n").unwrap();
     let mut changed = original.clone();
     let DeclarationKind::Context { defaults, .. } = &mut changed.declarations[0].value else {
         panic!()
@@ -127,12 +127,12 @@ fn lexical_equality_detects_values_omitted_by_a_formatter() {
     values.push(JsonValue::Boolean(true));
     assert!(!original.equivalent_to(&changed));
     original.declarations[0].span.start.line = 9;
-    assert!(original.equivalent_to(&parse("language \"EAL/3\"\ncontext input [1] {}\n").unwrap()));
+    assert!(original.equivalent_to(&parse("language \"EAL/4\"\ncontext input [1] {}\n").unwrap()));
 }
 
 #[test]
 fn checked_format_reports_output_expansion_beyond_source_budget() {
-    let mut source = "language \"EAL/3\"\n".to_owned();
+    let mut source = "language \"EAL/4\"\n".to_owned();
     for index in 0..60 {
         source.push_str(&format!("module m{index} {{\n"));
     }
@@ -158,7 +158,7 @@ fn checked_format_reports_output_expansion_beyond_source_budget() {
 
 #[test]
 fn checked_format_reports_output_expansion_beyond_token_budget() {
-    let source = "language \"EAL/3\"\nenvironment e {\nrequire a\nrequire b\n}\n";
+    let source = "language \"EAL/4\"\nenvironment e {\nrequire a\nrequire b\n}\n";
     let limits = ParseLimits {
         max_tokens: 20,
         ..ParseLimits::default()
@@ -172,7 +172,7 @@ fn checked_format_reports_output_expansion_beyond_token_budget() {
 #[test]
 fn checked_format_reports_property_path_nesting_expansion() {
     let source = format!(
-        "language \"EAL/3\"\nenvironment e {{\nrequire {}x\n}}\n",
+        "language \"EAL/4\"\nenvironment e {{\nrequire {}x\n}}\n",
         "not ".repeat(63)
     );
     let program = parse(&source).unwrap();

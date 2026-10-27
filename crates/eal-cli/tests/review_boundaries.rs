@@ -56,7 +56,7 @@ fn regular_error(output: Output) {
 #[test]
 fn deeply_nested_records_and_context_are_regular_cli_errors_with_raised_limits() {
     let workspace = Workspace::new();
-    workspace.write("source.eal", "language \"EAL/3\"\n");
+    workspace.write("source.eal", "language \"EAL/4\"\n");
     workspace.write(
         "limits.toml",
         "[limits]\njson_depth = 9223372036854775807\n",
@@ -90,7 +90,7 @@ fn deeply_nested_records_and_context_are_regular_cli_errors_with_raised_limits()
 #[test]
 fn compile_keeps_literal_span_payloads_and_emits_flat_semantic_locations() {
     let workspace = Workspace::new();
-    workspace.write("source.eal", "language \"EAL/3\"\ntool t { version \"1\"\n}\nenvironment e { require true\n}\nevidence x { tool t\nenvironment e\nmax_age 1\nkind test\ninput {\"span\":{\"start\":{\"line\":90},\"end\":{\"column\":91}}}\nrequire true\n}\nstrict missing reviewed \"review/span\"\n");
+    workspace.write("source.eal", "language \"EAL/4\"\ntool t { version \"1\"\n}\nenvironment e { require true\n}\nevidence x { tool t\nenvironment e\nmax_age 1\nkind test\ninput {\"span\":{\"start\":{\"line\":90},\"end\":{\"column\":91}}}\nrequire true\n}\nstrict missing reviewed \"review/span\"\n");
     let output = workspace.run(&["compile", "source.eal"]);
     assert!(
         output.status.success(),
@@ -119,7 +119,7 @@ fn compile_keeps_literal_span_payloads_and_emits_flat_semantic_locations() {
 #[test]
 fn non_finite_numeric_fields_are_diagnosed_without_successful_null_substitution() {
     let workspace = Workspace::new();
-    workspace.write("source.eal", "language \"EAL/3\"\ntool t { version \"1\"\n}\nenvironment e { require true\n}\nevidence x { tool t\nenvironment e\nmax_age 1e999\nkind test\nrequire true\n}\n");
+    workspace.write("source.eal", "language \"EAL/4\"\ntool t { version \"1\"\n}\nenvironment e { require true\n}\nevidence x { tool t\nenvironment e\nmax_age 1e999\nkind test\nrequire true\n}\n");
     regular_error(workspace.run(&["compile", "source.eal"]));
     let output = workspace.run(&["validate", "source.eal"]);
     assert_eq!(output.status.code(), Some(1));

@@ -114,6 +114,12 @@ impl Operations {
                 request.collection_id.as_deref(),
                 request.now.as_deref(),
             ),
+            OperationRequest::Prepare(request) => self.service.prepare_with_lease(
+                &request.source,
+                &Value::Object(request.context),
+                request.claim.as_deref(),
+                lease.ok_or("Missing acquisition lease")?,
+            ),
             OperationRequest::Execute(request) => self.service.execute_with_lease(
                 &request.source,
                 &Value::Object(request.context),

@@ -14,7 +14,7 @@ use serde_json::{Value, json};
 use std::{collections::BTreeMap, path::PathBuf};
 use uuid::Uuid;
 
-const SOURCE: &str = r#"language "EAL/3" profile "execution/1"
+const SOURCE: &str = r#"language "EAL/4"
 environment lab {
 require site == "bench"
 }

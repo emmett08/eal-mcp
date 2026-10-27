@@ -11,7 +11,7 @@ use eal_runtime::{
 use serde_json::{Value, json};
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
-const SOURCE: &str = "language \"EAL/3\"\nenvironment lab {\nrequire site == \"bench\"\n}\ntool reader {\nversion \"1\"\n}\nevidence observation {\ntool reader\nkind test\nenvironment lab\nmax_age 60\nrequire ok == true\n}\nreasoning authored {\nmethod \"structured/1\"\nrationale \"The measurement supports this claim.\"\n}\nclaim ready {\nstatement \"The service is ready.\"\nenvironment lab\n}\nargument route = [evidence observation] via authored => ready\n";
+const SOURCE: &str = "language \"EAL/4\"\nenvironment lab {\nrequire site == \"bench\"\n}\ntool reader {\nversion \"1\"\n}\nevidence observation {\ntool reader\nkind test\nenvironment lab\nmax_age 60\nrequire ok == true\n}\nreasoning authored {\nmethod \"structured/1\"\nrationale \"The measurement supports this claim.\"\n}\nclaim ready {\nstatement \"The service is ready.\"\nenvironment lab\n}\nargument route = [evidence observation] via authored => ready\n";
 struct Workspace(PathBuf);
 impl Workspace {
     fn new() -> Self {
@@ -209,8 +209,8 @@ fn source_revisions_are_immutable_and_invalid_edits_do_not_replace_them() {
 #[test]
 fn changed_import_bundles_advance_revision_even_when_root_text_is_identical() {
     let workspace = Workspace::new();
-    let source = "language \"EAL/3\"\nimport \"support.eal\" as support\nclaim ready {\nstatement \"The bounded condition holds.\"\nenvironment support.lab\n}\n";
-    let support = "language \"EAL/3\"\nenvironment lab {\nrequire site == \"bench\"\n}\n";
+    let source = "language \"EAL/4\"\nimport \"support.eal\" as support\nclaim ready {\nstatement \"The bounded condition holds.\"\nenvironment support.lab\n}\n";
+    let support = "language \"EAL/4\"\nenvironment lab {\nrequire site == \"bench\"\n}\n";
     workspace.write("source.eal", source);
     workspace.write("support.eal", support);
     let catalogue = workspace.catalogue();

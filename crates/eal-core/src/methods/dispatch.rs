@@ -221,7 +221,17 @@ fn evaluate_payload(
             output["method_contract"] = contract.describe();
             output
         } else {
-            compute_builtin(mode, payload)?
+            let work = super::work::required(mode, payload);
+            if work > limits.method_work {
+                json!({
+                    "status":super::MethodResultStatus::Incomplete,
+                    "reasons":[format!("Native calculation requires {work} work units; method_work allowance is {}", limits.method_work)],
+                    "details":{},
+                    "resource":{"kind":"method_work","required":work,"allowance":limits.method_work}
+                })
+            } else {
+                compute_builtin(mode, payload)?
+            }
         }
     } else if let Some(callback) = &contract.implementation {
         let mut output = match callback.call(payload, limits) {

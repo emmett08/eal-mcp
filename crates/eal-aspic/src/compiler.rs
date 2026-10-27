@@ -1,4 +1,4 @@
-//! Observation-bound EAL/3 to the explicit finite ASPIC profile.
+//! Observation-bound EAL/4 to the explicit finite ASPIC profile.
 use crate::AspicError;
 use eal_core::{
     ExecutionLimits, canonical, composition, evaluation, methods, semantic as s, validation,
@@ -14,7 +14,7 @@ mod snapshot;
 mod translation;
 pub use snapshot::CompiledTheory;
 
-pub const PROFILE: &str = "EAL/3-compiled-aspic/5";
+pub const PROFILE: &str = "EAL/4-compiled-aspic/5";
 const RANK: i64 = 500;
 
 /// All authority and snapshot inputs are supplied by the caller. Compilation

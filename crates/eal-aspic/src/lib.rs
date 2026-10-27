@@ -12,4 +12,4 @@ pub use registry::{aspic_contract, aspic_registry, with_aspic};
 pub use solver::{solve_aspic, validate_theory};
 
 pub const METHOD: &str = "argumentation/aspic/2";
-pub const PROFILE: &str = "EAL/3-compiled-aspic/5";
+pub const PROFILE: &str = "EAL/4-compiled-aspic/5";

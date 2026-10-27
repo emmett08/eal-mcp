@@ -1,4 +1,4 @@
-language "EAL/3"
+language "EAL/4"
 
 environment lab {
   require "site" == "bench"

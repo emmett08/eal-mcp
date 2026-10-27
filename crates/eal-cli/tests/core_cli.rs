@@ -80,9 +80,9 @@ fn compile_resolves_only_workspace_eal_imports_and_validate_reports_errors() {
     let workspace = Workspace::new();
     workspace.write(
         "library.eal",
-        "language \"EAL/3\"\nenvironment lab {\nrequire true\n}\n",
+        "language \"EAL/4\"\nenvironment lab {\nrequire true\n}\n",
     );
-    workspace.write("source.eal", "language \"EAL/3\"\nimport \"library.eal\" as shared\nclaim c {\nstatement \"Scoped claim\"\nenvironment shared.lab\n}\n");
+    workspace.write("source.eal", "language \"EAL/4\"\nimport \"library.eal\" as shared\nclaim c {\nstatement \"Scoped claim\"\nenvironment shared.lab\n}\n");
     let compiled = output_json(&workspace.run(&["compile", "source.eal"]));
     assert!(compiled["environments"].get("shared.lab").is_some());
     assert!(compiled["imports"].get("library.eal").is_some());
@@ -92,16 +92,16 @@ fn compile_resolves_only_workspace_eal_imports_and_validate_reports_errors() {
     );
     workspace.write(
         "bad.eal",
-        "language \"EAL/3\"\nclaim c {\nstatement \"Scope missing\"\nenvironment absent\n}\n",
+        "language \"EAL/4\"\nclaim c {\nstatement \"Scope missing\"\nenvironment absent\n}\n",
     );
     let invalid = workspace.run(&["validate", "bad.eal"]);
     assert_eq!(invalid.status.code(), Some(1));
     let invalid: Value = serde_json::from_slice(&invalid.stdout).unwrap();
     assert_eq!(invalid["valid"], false);
-    workspace.write("library.txt", "language \"EAL/3\"\n");
+    workspace.write("library.txt", "language \"EAL/4\"\n");
     workspace.write(
         "source.eal",
-        "language \"EAL/3\"\nimport \"library.txt\" as shared\n",
+        "language \"EAL/4\"\nimport \"library.txt\" as shared\n",
     );
     let invalid = workspace.run(&["compile", "source.eal"]);
     assert_eq!(invalid.status.code(), Some(2));
@@ -118,7 +118,7 @@ fn grounded_and_host_limits_use_native_paths() {
     let graph = output_json(&workspace.run(&["grounded", "graph.json"]));
     assert_eq!(graph["accepted"], json!(["a", "c"]));
     workspace.write("limits.toml", "[limits]\nsource_bytes = 4\n");
-    workspace.write("source.eal", "language \"EAL/3\"\n");
+    workspace.write("source.eal", "language \"EAL/4\"\n");
     let invalid = workspace.run(&["--limits", "limits.toml", "compile", "source.eal"]);
     assert_eq!(invalid.status.code(), Some(2));
     assert!(String::from_utf8_lossy(&invalid.stderr).contains("byte budget"));
@@ -135,7 +135,7 @@ fn grounded_and_host_limits_use_native_paths() {
 #[test]
 fn malformed_json_and_implicit_time_are_rejected_before_assessment() {
     let workspace = Workspace::new();
-    workspace.write("source.eal", "language \"EAL/3\"\n");
+    workspace.write("source.eal", "language \"EAL/4\"\n");
     assert_eq!(
         workspace.run(&["evaluate", "source.eal"]).status.code(),
         Some(2)
@@ -211,7 +211,7 @@ fn optional_engineering_methods_require_an_explicit_profile() {
     assert_eq!(optional["methods"].as_object().unwrap().len(), 12);
     assert!(builtin["methods"].get("engineering/rms/1").is_none());
     assert!(optional["methods"].get("engineering/rms/1").is_some());
-    workspace.write("optional.eal", "language \"EAL/3\"\nenvironment lab {\nrequire true\n}\ntool sensor {\nversion \"1\"\n}\nevidence samples {\ntool sensor\nkind measurement_series\nenvironment lab\nmax_age 60\nrequire true\n}\nreasoning rms {\nmethod \"engineering/rms/1\"\nrationale \"Compute the RMS of the supplied samples.\"\nrequire \"rms\" <= 4\n}\nclaim result {\nstatement \"The registered method computes the result.\"\nenvironment lab\n}\nargument computation = [evidence samples] via rms => result\n");
+    workspace.write("optional.eal", "language \"EAL/4\"\nenvironment lab {\nrequire true\n}\ntool sensor {\nversion \"1\"\n}\nevidence samples {\ntool sensor\nkind measurement_series\nenvironment lab\nmax_age 60\nrequire true\n}\nreasoning rms {\nmethod \"engineering/rms/1\"\nrationale \"Compute the RMS of the supplied samples.\"\nrequire \"rms\" <= 4\n}\nclaim result {\nstatement \"The registered method computes the result.\"\nenvironment lab\n}\nargument computation = [evidence samples] via rms => result\n");
     assert_eq!(
         workspace.run(&["validate", "optional.eal"]).status.code(),
         Some(1)
@@ -235,7 +235,7 @@ fn import_symlinks_cannot_escape_the_selected_workspace() {
     use std::os::unix::fs::symlink;
     let workspace = Workspace::new();
     let outside = Workspace::new();
-    outside.write("library.eal", "language \"EAL/3\"\n");
+    outside.write("library.eal", "language \"EAL/4\"\n");
     symlink(
         outside.0.join("library.eal"),
         workspace.0.join("library.eal"),
@@ -243,7 +243,7 @@ fn import_symlinks_cannot_escape_the_selected_workspace() {
     .unwrap();
     workspace.write(
         "source.eal",
-        "language \"EAL/3\"\nimport \"library.eal\" as outside\n",
+        "language \"EAL/4\"\nimport \"library.eal\" as outside\n",
     );
     let invalid = workspace.run(&["compile", "source.eal"]);
     assert_eq!(invalid.status.code(), Some(2));

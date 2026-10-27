@@ -192,9 +192,7 @@ impl Checker<'_> {
             } else {
                 None
             };
-            let authored_query = p.profile.as_deref() == Some("execution/1")
-                && proposition.is_some()
-                && value.binding.is_none();
+            let authored_query = proposition.is_some() && value.binding.is_none();
             if relation.is_some() {
                 for message in crate::scope_transfer::transfer_errors(p, value) {
                     self.error("invalid_scope_transfer", message, Some(&value.name));
@@ -224,23 +222,15 @@ impl Checker<'_> {
                             );
                         }
                     }
-                } else if authored_query {
-                    if let Some(contract) = contract {
-                        for message in crate::methods::schema_errors_with_limits(
-                            &proposition.query,
-                            &contract.input_schema,
-                            "query",
-                            &p.limits,
-                        ) {
-                            self.error("authored_method_input", message, Some(&value.name));
-                        }
+                } else if let Some(contract) = contract {
+                    for message in crate::methods::schema_errors_with_limits(
+                        &proposition.query,
+                        &contract.input_schema,
+                        "query",
+                        &p.limits,
+                    ) {
+                        self.error("authored_method_input", message, Some(&value.name));
                     }
-                } else {
-                    self.error(
-                        "missing_binding",
-                        "A typed conclusion requires an explicit evidence binding",
-                        Some(&value.name),
-                    );
                 }
                 for message in crate::propositions::proposition_errors_with_limits(
                     proposition,

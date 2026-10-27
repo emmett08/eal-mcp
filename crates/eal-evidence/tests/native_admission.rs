@@ -50,7 +50,6 @@ fn configured(transport: NativeTransport) -> NativeProviderConfig {
                     completeness_pointer: Some("/complete".into()),
                     sample_size_pointer: None,
                 }],
-                identifier_audit: None,
                 time: TimeSemantics {
                     historical_intervals: false,
                     historical_input: None,

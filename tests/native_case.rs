@@ -4,7 +4,7 @@ use eal_core::{ExecutionLimits, canonical, composition, evaluation};
 use serde_json::{Value, json};
 
 pub const NOW: &str = "2026-10-24T12:00:00Z";
-pub const SOURCE: &str = r#"language "EAL/3"
+pub const SOURCE: &str = r#"language "EAL/4"
 environment lab {
  require site == "bench"
 }
@@ -65,7 +65,7 @@ pub fn theory() -> Value {
 pub fn typed_case() -> Value {
     let payload = theory();
     let source = format!(
-        r#"language "EAL/3"
+        r#"language "EAL/4"
 environment lab {{
  require site == "bench"
 }}

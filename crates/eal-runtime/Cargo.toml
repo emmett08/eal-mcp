@@ -1,6 +1,6 @@
 [package]
 name = "eal-runtime"
-description = "Durable EAL/3 acquisition and supervised native execution"
+description = "Durable EAL/4 acquisition and supervised native execution"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

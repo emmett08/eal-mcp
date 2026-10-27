@@ -22,6 +22,8 @@ pub(crate) struct Configuration {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub stream_limits: Option<StreamLimits>,
     pub handshake: Option<StartupHandshake>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub duplex_input_limit: Option<usize>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -157,6 +159,7 @@ mod tests {
             protocol_version: None,
             stream_limits: None,
             handshake: None,
+            duplex_input_limit: None,
         };
         let old = serde_json::to_value(&configuration).unwrap();
         assert!(old.get("stream_limits").is_none());

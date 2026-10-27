@@ -19,7 +19,7 @@ in `crates/eal-core/src/methods/` and `crates/eal-aspic/src/`. MCP input schemas
 maintained in `crates/eal-mcp/src/operations/tools.json`.
 
 The `EAL/2` observation HMAC domain identifies the observation-record algorithm.
-The authored source language is EAL/3. Record identities distinguish integers,
+The authored source language is EAL/4. Record identities distinguish integers,
 floating-point values, negative zero, Unicode and exact source/context bytes.
 
 See [implementation boundaries](../docs/implementation.md) and

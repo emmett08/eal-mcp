@@ -41,7 +41,7 @@ Declare the same tool name and version in the EAL source. Its evidence selects
 the tool and supplies the request input.
 
 ```eal
-language "EAL/3"
+language "EAL/4"
 environment production {
   require stage == "production"
 }
@@ -278,8 +278,8 @@ It does not require the EAL runtime, language parser or database for collection.
 
 ## Executable evidence dependencies
 
-Acquisition and calculation dependencies belong in the EAL source. The
-`execution/1` profile binds values from named observations into another tool's
+Acquisition and calculation dependencies belong in the EAL/4 source. It
+binds values from named observations into another tool's
 input or a bounded pure `derive` expression. `tools.toml` selects concrete
 command, MCP, HTTP or retained-file operations. No executable graph sidecar,
 source-registration service or collector wrapper is required to run the package.
@@ -296,7 +296,7 @@ finite JSON arrays. An explicit source-completeness predicate and any source
 interpretation assumptions remain separate argument obligations. Calculations do
 not establish external population completeness or source authority.
 
-See [the execution profile](execution-profile.md),
+See [the EAL/4 language](language-v4.md),
 [direct tool bindings](direct-tools.md), and
 [executable programmes](executable-programs.md) for the current package and run
 interfaces. Historical source observations remain data; the former executable

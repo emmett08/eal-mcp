@@ -41,9 +41,9 @@ pub fn acquire_with_limits(
             binding, request, workspace, secret, supervisor, lease, limits,
         ),
         ToolKind::JsonFile => super::file::acquire(binding, workspace),
-        ToolKind::McpStdio | ToolKind::McpHttp => {
-            super::mcp::acquire(binding, request, workspace, secret, limits)
-        }
+        ToolKind::McpStdio | ToolKind::McpHttp => super::mcp::acquire(
+            binding, request, workspace, secret, supervisor, lease, limits,
+        ),
         ToolKind::HttpGet => super::http::acquire(binding, request, workspace, secret, limits),
     }
 }

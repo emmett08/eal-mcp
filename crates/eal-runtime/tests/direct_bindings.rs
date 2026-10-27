@@ -152,7 +152,9 @@ fn official_sdk_invokes_direct_named_mcp_and_preserves_failures() {
             json!({"case":"error"}),
             &package.0
         )
-        .unwrap_err()
+        .unwrap()
+        .error
+        .unwrap()
         .message
         .contains("reported acquisition failure")
     );
@@ -162,7 +164,9 @@ fn official_sdk_invokes_direct_named_mcp_and_preserves_failures() {
             json!({"case":"large"}),
             &package.0
         )
-        .unwrap_err()
+        .unwrap()
+        .error
+        .unwrap()
         .message
         .contains("output allowance")
     );
@@ -177,7 +181,9 @@ fn official_sdk_invokes_direct_named_mcp_and_preserves_failures() {
             json!({"case":"duplicate"}),
             &package.0
         )
-        .is_err()
+        .unwrap()
+        .error
+        .is_some()
     );
     assert!(
         acquire(&registry.bindings["read"], json!({"unknown":1}), &package.0)

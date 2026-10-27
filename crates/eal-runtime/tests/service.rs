@@ -10,7 +10,7 @@ use eal_runtime::{
 use serde_json::{Value, json};
 use std::{collections::BTreeMap, path::PathBuf, time::Duration};
 
-const SOURCE: &str = "language \"EAL/3\"\nenvironment lab {\n require true\n}\ntool runner {\n version \"1\"\n}\nevidence observed {\n tool runner\n kind test\n environment lab\n max_age 60\n input {}\n require passed == true\n}\nreasoning method {\n method \"structured/1\"\n rationale \"A passing synthetic test supports this bounded claim.\"\n}\nclaim working {\n statement \"The synthetic test passed.\"\n environment lab\n}\nargument support = [evidence observed] via method => working\n";
+const SOURCE: &str = "language \"EAL/4\"\nenvironment lab {\n require true\n}\ntool runner {\n version \"1\"\n}\nevidence observed {\n tool runner\n kind test\n environment lab\n max_age 60\n input {}\n require passed == true\n}\nreasoning method {\n method \"structured/1\"\n rationale \"A passing synthetic test supports this bounded claim.\"\n}\nclaim working {\n statement \"The synthetic test passed.\"\n environment lab\n}\nargument support = [evidence observed] via method => working\n";
 const NOW: &str = "2026-09-23T12:00:00Z";
 
 struct Workspace(PathBuf);
@@ -182,7 +182,7 @@ fn unselected_invalid_names_and_import_escapes_fail_before_observation_writes() 
     );
     assert!(
         service
-            .parse("language \"EAL/3\"\nimport \"../outside.eal\" as outside\n")
+            .parse("language \"EAL/4\"\nimport \"../outside.eal\" as outside\n")
             .is_err()
     );
     assert!(service.reason(SOURCE, &json!([]), None, Some(NOW)).is_err());

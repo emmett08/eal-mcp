@@ -126,7 +126,7 @@ pub(crate) fn project(
         attackers.get_mut(target).unwrap().push(source.clone());
     }
     grounded["attacks"] = json!(graph.attacks);
-    grounded["construction"] = json!("EAL/3 scoped applications with conjunctive claim support");
+    grounded["construction"] = json!("EAL/4 scoped applications with conjunctive claim support");
     result["dialectic"] = grounded.clone();
     for (name, argument) in &program.arguments {
         let label = grounded["nodes"][format!("argument:{name}")]

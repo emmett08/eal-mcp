@@ -283,6 +283,18 @@ mod tests {
         supported(view_schema()).unwrap();
         supported(source_schema()).unwrap();
         let limits = ExecutionLimits::default();
+        let budget_schema = &view_schema()["properties"]["execution_limits"];
+        let budgets = limits.describe();
+        validate(&budgets, budget_schema, &limits).unwrap();
+        assert_eq!(
+            budget_schema["properties"]
+                .as_object()
+                .unwrap()
+                .keys()
+                .collect::<Vec<_>>(),
+            budgets.as_object().unwrap().keys().collect::<Vec<_>>(),
+            "The frozen view must capture every executable budget"
+        );
         for (value, spec, valid) in [
             (json!(1.0), json!({"type":"integer"}), true),
             (json!(true), json!({"type":"integer"}), false),

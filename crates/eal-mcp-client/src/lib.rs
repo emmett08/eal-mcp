@@ -3,3 +3,5 @@ pub mod authentication;
 pub mod client;
 pub mod persistent_mcp;
 pub mod schema;
+
+mod supervised;

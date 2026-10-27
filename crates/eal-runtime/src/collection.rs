@@ -71,6 +71,12 @@ fn request_for_input(
     Ok(json!({"tool":tool_name,"tool_version":version,"input":input,"context":context}))
 }
 
+/// One admitted selection shared by collection and interface preparation.
+pub(crate) struct AdmittedPlan {
+    pub evidence_ids: Vec<String>,
+    pub binding_digests: BTreeMap<String, String>,
+}
+
 #[derive(Clone)]
 pub struct EvidenceRuntime {
     workspace: PathBuf,
@@ -120,6 +126,16 @@ impl EvidenceRuntime {
         context: &Value,
         evidence_ids: Option<&[String]>,
     ) -> Result<Vec<String>, String> {
+        self.admit_plan(program, context, evidence_ids)
+            .map(|plan| plan.evidence_ids)
+    }
+
+    pub(crate) fn admit_plan(
+        &self,
+        program: &Program,
+        context: &Value,
+        evidence_ids: Option<&[String]>,
+    ) -> Result<AdmittedPlan, String> {
         let diagnostics = validation::validate(program, &self.method_registry);
         if !diagnostics.is_empty() {
             return Err(format!(
@@ -163,6 +179,7 @@ impl EvidenceRuntime {
             ));
         }
         let mut output_allowance = 0usize;
+        let mut binding_digests = BTreeMap::new();
         for name in &names {
             let declaration = &program.evidence[name];
             let acquisition = request_for_input(program, name, context, &declaration.input)?;
@@ -180,12 +197,35 @@ impl EvidenceRuntime {
                 continue;
             };
             let version = &program.tools[tool_name].version;
-            let Ok(binding) = self.registry.binding_for(tool_name, version) else {
+            // An absent source is unavailable evidence. A present but invalid
+            // operator binding is a configuration error for the complete plan.
+            if !self.registry.bindings.contains_key(tool_name) {
                 continue;
-            };
-            binding
-                .preflight(&self.workspace)
+            }
+            if let std::collections::btree_map::Entry::Vacant(entry) =
+                binding_digests.entry(tool_name.clone())
+            {
+                let digest = self
+                    .registry
+                    .admit_binding(
+                        tool_name,
+                        version,
+                        &self.workspace,
+                        self.store.binding_key(),
+                        &program.limits,
+                    )
+                    .map_err(|error| error.to_string())?;
+                entry.insert(digest);
+            }
+            let binding = self
+                .registry
+                .binding_for(tool_name, version)
                 .map_err(|error| error.to_string())?;
+            if declaration.bindings.is_empty() {
+                binding
+                    .preflight_input(&request, &self.workspace)
+                    .map_err(|error| error.to_string())?;
+            }
             if !(1..=MAX_COLLECTION_OUTPUT_BYTES).contains(&binding.max_output_bytes) {
                 return Err(format!(
                     "Tool {} has an invalid output allowance",
@@ -199,7 +239,10 @@ impl EvidenceRuntime {
                 ));
             }
         }
-        Ok(names)
+        Ok(AdmittedPlan {
+            evidence_ids: names,
+            binding_digests,
+        })
     }
 
     pub fn collect(

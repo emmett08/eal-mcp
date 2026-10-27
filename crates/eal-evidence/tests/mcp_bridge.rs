@@ -204,7 +204,6 @@ impl Fixture {
                         sample_size_pointer: None,
                     },
                 ],
-                identifier_audit: None,
                 time: TimeSemantics {
                     historical_intervals: false,
                     historical_input: None,

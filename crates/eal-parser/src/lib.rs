@@ -1,4 +1,4 @@
-//! EAL/3 recognition generated from the unchanged, pinned `grammar/EAL.g4`.
+//! EAL/4 recognition generated from the pinned `grammar/EAL.g4`.
 //!
 //! This layer rejects every lexer/parser error and owns its concrete syntax.
 //! Name resolution, field validation and reasoning are separate core passes.

@@ -1,7 +1,7 @@
 grammar EAL;
 
-// EAL/3. Recognition is independent of binding, lowering and evaluation.
-program : NL* 'language' STRING ('profile' STRING)? lineEnd (declaration NL*)* EOF ;
+// EAL/4. Recognition is independent of binding, lowering and evaluation.
+program : NL* 'language' STRING lineEnd (declaration NL*)* EOF ;
 declaration
     : contextDecl | moduleDecl | importDecl | environmentDecl | toolDecl
     | evidenceDecl | assumptionDecl | reasoningDecl | claimDecl | argumentDecl
@@ -139,7 +139,7 @@ identifier
     | 'result' | 'binding' | 'query' | 'method' | 'pattern' | 'apply'
     | 'strict' | 'rank' | 'contrary' | 'reviewed' | 'to' | 'context' | 'via'
     | 'module' | 'import' | 'as' | 'transfer' | 'from' | 'assuming'
-    | 'derive' | 'bind' | 'profile' | 'decreases' | 'when' | 'else' | 'head' | 'tail' | 'prefer' | 'over'
+    | 'derive' | 'bind' | 'decreases' | 'when' | 'else' | 'head' | 'tail' | 'prefer' | 'over'
     ;
 lineEnd : NL+ | EOF ;
 ID : [a-zA-Z_] [a-zA-Z_0-9]* ;

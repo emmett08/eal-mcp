@@ -1,5 +1,5 @@
 // Replace the selected window before collecting live evidence.
-language "EAL/3"
+language "EAL/4"
 environment production {
   require stage == "production"
 }

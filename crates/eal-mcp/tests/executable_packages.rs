@@ -48,6 +48,7 @@ impl Package {
     fn run(&self, claim: &str) -> Value {
         let output = Command::new(env!("CARGO_BIN_EXE_eal-host"))
             .current_dir(&self.root)
+            .env("PREPARATION_TEST_CREDENTIAL", "inherited-secret-sentinel")
             .arg("run")
             .arg(self.package.join("case.eal"))
             .arg("--tools")
@@ -283,4 +284,81 @@ fn malformed_authored_formula_fails_before_source_execution() {
     assert_eq!(response["is_error"], true);
     assert!(!package.package.join("source-was-called").exists());
     assert!(!package.root.join("run/source-was-called").exists());
+}
+
+#[test]
+fn prepared_tools_move_and_execute_without_the_preparation_receipt() {
+    let mut package = Package::copy("finite-inventory");
+    let server = package.package.join("tools/snapshot.py");
+    let source = std::fs::read_to_string(&server).unwrap();
+    std::fs::write(&server, source.replace("    elif method == \"tools/call\":",
+        "    elif method == \"tools/call\":\n        open('invocations','a').write('called\\n')")).unwrap();
+    let manifest = package.package.join("tools.toml");
+    let original = std::fs::read_to_string(&manifest).unwrap().replacen(
+        "inherit_env = [\"PATH\"]",
+        "inherit_env = [\"PATH\", \"PREPARATION_TEST_CREDENTIAL\"]",
+        1,
+    );
+    let original = format!(
+        "{original}\n[tools.snapshot_source.env]\nPRIVATE_LITERAL = \"operator-literal-sentinel\"\n"
+    );
+    std::fs::write(&manifest, original).unwrap();
+    let prepared = package.package.join("prepared.tools.toml");
+    let output = Command::new(env!("CARGO_BIN_EXE_eal-host"))
+        .env("PREPARATION_TEST_CREDENTIAL", "inherited-secret-sentinel")
+        .arg("prepare")
+        .arg(package.package.join("case.eal"))
+        .arg("--tools")
+        .arg(package.package.join("tools.toml"))
+        .arg("--workspace")
+        .arg(package.root.join("prepare-run"))
+        .arg("--claim")
+        .arg("inventory_verified")
+        .arg("--output-tools")
+        .arg(&prepared)
+        .output()
+        .unwrap();
+    let response: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert!(output.status.success(), "{response}");
+    assert_eq!(response["result"]["operation_calls"], 0);
+    assert!(!package.package.join("invocations").exists());
+    assert!(!response.to_string().contains("inherited-secret-sentinel"));
+    assert!(!response.to_string().contains("operator-literal-sentinel"));
+    let generated = std::fs::read_to_string(&prepared).unwrap();
+    assert!(!generated.contains("inherited-secret-sentinel"));
+    assert!(generated.contains("PREPARATION_TEST_CREDENTIAL"));
+    assert!(generated.contains("operator-literal-sentinel"));
+    use std::os::unix::fs::PermissionsExt;
+    assert_eq!(
+        std::fs::metadata(&prepared).unwrap().permissions().mode() & 0o777,
+        0o600
+    );
+    let pins: toml::Value = toml::from_str(&generated).unwrap();
+    assert!(
+        pins["tools"]["snapshot_source"]["direct"]["input_schema_sha256"]
+            .as_str()
+            .is_some()
+    );
+    assert_eq!(
+        pins["tools"]["snapshot_source"]["direct"]["server_identity"]["name"].as_str(),
+        Some("synthetic-snapshot")
+    );
+    std::fs::rename(prepared, package.package.join("tools.toml")).unwrap();
+    std::fs::remove_dir_all(package.root.join("prepare-run")).unwrap();
+    let moved = package.root.join("prepared-package");
+    std::fs::rename(&package.package, &moved).unwrap();
+    package.package = moved;
+    let result = package.run("inventory_verified");
+    assert_eq!(
+        result["assessment"]["claims"]["inventory_verified"]["status"],
+        "supported"
+    );
+    assert_eq!(
+        result["collection"]["records"]["snapshot"]["mcp_interface"]["server"]["name"],
+        "synthetic-snapshot"
+    );
+    assert_eq!(
+        std::fs::read_to_string(package.package.join("invocations")).unwrap(),
+        "called\n"
+    );
 }

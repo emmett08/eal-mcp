@@ -30,7 +30,7 @@ fn execute(options: Options) -> Result<Output, String> {
     let registry = &selected_registry;
     if options.command == "describe" {
         return Ok(Output::Json(
-            json!({"language":"EAL/3","methods":registry.describe(),"typed_bindings":propositions::describe_bindings(registry),"limits":limits,"scope":"pure semantic core; supplied observations; no collection or persistence"}),
+            json!({"language":"EAL/4","methods":registry.describe(),"typed_bindings":propositions::describe_bindings(registry),"limits":limits,"scope":"pure semantic core; supplied observations; no collection or persistence"}),
         ));
     }
     let source_name = options.source.as_deref().expect("source checked above");

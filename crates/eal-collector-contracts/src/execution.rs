@@ -12,10 +12,6 @@ pub const PLAN_SCHEMA: &str = "eal.evidence-execution-plan/1";
 mod dependency;
 pub use dependency::DependencyRole;
 
-#[path = "execution_coverage_proof.rs"]
-mod coverage_proof;
-pub use coverage_proof::CoverageProof;
-
 #[derive(Clone, Debug, Serialize, Deserialize, schemars::JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct EvidenceExecutionPlan {
@@ -88,9 +84,6 @@ pub struct AcquisitionStep {
     /// Original acquisition contract age limit; independent of source identity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub max_age_seconds: Option<u64>,
-    /// Optional independently checked, operation-specific coverage proof.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub coverage_proof: Option<CoverageProof>,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, schemars::JsonSchema)]
@@ -506,9 +499,6 @@ impl EvidenceExecutionPlan {
             if !step.arguments.is_object() {
                 return Err("acquisition arguments require a JSON object".into());
             }
-            if let Some(proof) = &step.coverage_proof {
-                proof.validate(step, self.discovery_source(proof.source_step_id())?)?;
-            }
             let mut references: Vec<_> = step
                 .bindings
                 .iter()
@@ -625,11 +615,6 @@ impl EvidenceExecutionPlan {
                     "execution graph references an unknown step, itself or an invalid JSON pointer"
                         .into(),
                 );
-            }
-        }
-        for step in &self.acquisitions {
-            if let Some(proof) = &step.coverage_proof {
-                proof.validate_consumers(step, self)?;
             }
         }
         let mut admitted = BTreeSet::new();

@@ -19,6 +19,7 @@ pub use files::{bounded_path, read_regular};
 pub use json::{
     strict_json, strict_json_with_limits, validate_envelope, validate_envelope_with_limits,
 };
+pub(crate) use mcp::inspect as inspect_mcp;
 pub use registry::ToolRegistry;
 pub use request_encoding::encode_request;
 

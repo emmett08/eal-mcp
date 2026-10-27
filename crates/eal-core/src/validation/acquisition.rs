@@ -12,15 +12,6 @@ impl Checker<'_> {
                     Some(&evidence.name),
                 );
             }
-            if (!evidence.bindings.is_empty() || evidence.derivation.is_some())
-                && p.profile.as_deref() != Some("execution/1")
-            {
-                self.error(
-                    "execution_profile",
-                    "Input bindings require profile execution/1",
-                    Some(&evidence.name),
-                );
-            }
             if let Some(expression) = &evidence.derivation {
                 for message in
                     crate::expressions::derivation_errors_with_limits(expression, None, &p.limits)

@@ -30,7 +30,7 @@ impl Fixture {
         let counter = work.join("calls");
         let mut artifacts = Vec::new();
         let mut responses = Vec::new();
-        let source_text = r#"language "EAL/3" profile "execution/1"
+        let source_text = r#"language "EAL/4"
 environment lab {
   require true
 }

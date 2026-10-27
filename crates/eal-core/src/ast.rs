@@ -354,11 +354,10 @@ pub struct Declaration {
     pub value: DeclarationKind,
 }
 
-/// Authored EAL/3 syntax with inherited-field checks, before any source IO or expansion.
+/// Authored EAL/4 syntax with inherited-field checks, before any source IO or expansion.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Program {
     pub language: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub profile: Option<String>,
     pub declarations: Vec<Declaration>,
 }

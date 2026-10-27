@@ -28,6 +28,13 @@ impl ToolRegistry {
         })
     }
     pub fn load(path: impl AsRef<Path>) -> Result<Self, AcquisitionError> {
+        Self::load_snapshot(path).map(|(registry, _)| registry)
+    }
+    /// Registry and digest describe exactly the same bounded byte snapshot.
+    pub(crate) fn load_snapshot(
+        path: impl AsRef<Path>,
+    ) -> Result<(Self, String), AcquisitionError> {
+        use sha2::{Digest, Sha256};
         let path = super::files::resolve(path.as_ref())?;
         let contents =
             super::files::read_regular(&path, 1024 * 1024, "The registry must be a regular file")?;
@@ -37,7 +44,7 @@ impl ToolRegistry {
         for binding in registry.bindings.values_mut() {
             binding.package_root = path.parent().map(Path::to_path_buf);
         }
-        Ok(registry)
+        Ok((registry, format!("{:x}", Sha256::digest(&contents))))
     }
     pub fn from_toml(text: &str) -> Result<Self, AcquisitionError> {
         let document = eal_collector_contracts::RegistryDocument::from_toml(text)
@@ -87,6 +94,21 @@ impl ToolRegistry {
         }
         Ok(binding)
     }
+    /// Admit operator configuration without invoking a command or remote source.
+    /// The digest checks pinned implementation files; credentials stay private.
+    pub(crate) fn admit_binding(
+        &self,
+        name: &str,
+        version: &str,
+        workspace: &Path,
+        secret: &[u8],
+        limits: &eal_core::ExecutionLimits,
+    ) -> Result<String, AcquisitionError> {
+        let binding = self.binding_for(name, version)?;
+        binding.preflight(workspace)?;
+        binding.binding_digest_with_limits(secret, Some(workspace), limits)
+    }
+
     pub fn acquire(
         &self,
         binding: &ToolBinding,

@@ -68,31 +68,14 @@ fn lower_owned(syntax: &SyntaxDocument) -> Result<Program> {
     let mut builder = Builder {
         syntax,
         defaults: BTreeMap::new(),
-        execution_profile: false,
     };
     let root = syntax.root;
     let language = builder.string(root)?;
-    if language != "EAL/3" {
-        return Err(builder.error(root, "LANGUAGE", "Source must declare EAL/3"));
+    if language != crate::LANGUAGE {
+        return Err(builder.error(root, "LANGUAGE_VERSION", format!("Source must declare {}; migrate older source and imported modules to the current language", crate::LANGUAGE)));
     }
-    let profile = if builder.has_token(root, "profile") {
-        let tokens = builder.string_tokens(root);
-        let profile = builder.decode_string(tokens[1])?;
-        if profile != "execution/1" {
-            return Err(builder.error(
-                root,
-                "EXECUTION_PROFILE",
-                "Supported execution profile is execution/1",
-            ));
-        }
-        builder.execution_profile = true;
-        Some(profile)
-    } else {
-        None
-    };
     Ok(Program {
         language,
-        profile,
         declarations: builder.block(root)?,
     })
 }
@@ -100,7 +83,6 @@ fn lower_owned(syntax: &SyntaxDocument) -> Result<Program> {
 struct Builder<'a> {
     syntax: &'a SyntaxDocument,
     defaults: BTreeMap<String, Field>,
-    execution_profile: bool,
 }
 
 impl Builder<'_> {

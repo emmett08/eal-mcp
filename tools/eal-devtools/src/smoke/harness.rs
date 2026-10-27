@@ -9,7 +9,7 @@ use std::{
     time::Duration,
 };
 
-pub const SOURCE: &str = "language \"EAL/3\"\nenvironment lab {\n require site == \"bench\"\n}\ntool reader {\n version \"1\"\n}\nevidence reading {\n tool reader\n kind test\n environment lab\n max_age 3600\n input {\"sample\":1}\n require ok == true\n}\nreasoning measured {\n method \"structured/1\"\n rationale \"The supplied report supports the selected test result.\"\n}\nclaim works {\n statement \"The supplied test passed at this bench.\"\n environment lab\n}\nargument result = [evidence reading] via measured => works\n";
+pub const SOURCE: &str = "language \"EAL/4\"\nenvironment lab {\n require site == \"bench\"\n}\ntool reader {\n version \"1\"\n}\nevidence reading {\n tool reader\n kind test\n environment lab\n max_age 3600\n input {\"sample\":1}\n require ok == true\n}\nreasoning measured {\n method \"structured/1\"\n rationale \"The supplied report supports the selected test result.\"\n}\nclaim works {\n statement \"The supplied test passed at this bench.\"\n environment lab\n}\nargument result = [evidence reading] via measured => works\n";
 pub const TOKEN: &str = "synthetic-installed-operator-token.ABC_123~";
 pub const TOKEN_ENV: &str = "EAL_SMOKE_OPERATOR_TOKEN";
 pub const MAX_OUTPUT: usize = 16 * 1024 * 1024;
