@@ -159,7 +159,7 @@ impl DockerRunner {
         cancellation: &CancellationToken,
         stage: &str,
     ) -> Result<Vec<u8>, Error> {
-        let timeout = remaining(deadline, cancellation)?.min(Duration::from_secs(15));
+        let timeout = remaining(deadline, cancellation)?;
         let outcome = self
             .supervisor
             .run_with_stream_limits_and_cancellation(

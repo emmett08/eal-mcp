@@ -38,6 +38,12 @@ run arguments, resource limits, network policy and permitted environment names.
 Credentials remain external values. Builds and execution use temporary working
 resources under the shared bounded lifecycle.
 
+Snapshot creation, inspection, input uploads and the worker share one deadline:
+the profile's `timeout_seconds` plus a two-second lifecycle allowance. Each setup
+stage receives only the remaining allowance. Image admission keeps its separate
+15-second limit. Cleanup retains independent finite allowances and verifies
+snapshot ownership before removal, including after timeout or cancellation.
+
 The same EAL-owned isolation implementation serves EngArg fixture verification
 and standalone execution. EngArg keeps the authoring state machine and acceptance
 criteria. The shared runtime supplies process and container mechanics. Original
