@@ -1,5 +1,6 @@
 //! Check scoped observation correspondence, freshness and declared predicates.
 use crate::evaluation::{AvailabilityIssue, PredicateIssue};
+mod failure;
 mod scoped_review;
 use super::{
     entry, environment_context, environment_fingerprint, general_number, name_repr, py_repr,
@@ -264,6 +265,9 @@ pub(super) fn assess_resolved_evidence_record(
             data_available: false,
         });
     };
+    if record["status"] == "error" {
+        reasons.push(failure::reason(record, &program.limits));
+    }
     let tool = evidence
         .tool
         .as_ref()
