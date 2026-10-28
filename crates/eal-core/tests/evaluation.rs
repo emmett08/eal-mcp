@@ -104,6 +104,107 @@ fn current_binding_is_checked_separately_from_record_self_consistency() {
 }
 
 #[test]
+fn failed_acquisition_retains_its_primary_cause_and_every_observation_check() {
+    let (program, records, context, now) = baseline();
+    let instant = validation::parse_time(&now).unwrap();
+    for (bound, message) in [
+        (false, "Tool 'runner' is not in the operator registry"),
+        (true, "Collector process exited with status 2"),
+    ] {
+        let mut record = records["observed"].clone();
+        record["status"] = json!("error");
+        record["error"] = json!({"type":"ValueError","message":message});
+        let fields = record.as_object_mut().unwrap();
+        fields.remove("value");
+        fields.remove("data_digest");
+        if !bound {
+            fields.remove("tool_binding_digest");
+        }
+        // A retained error explains failure; it cannot excuse altered identity.
+        record["input_digest"] = json!("f".repeat(64));
+        let verdict = evaluation::assess_evidence_record(
+            &program,
+            "observed",
+            Some(&record),
+            instant,
+            &context,
+            true,
+            Some(&json!("0".repeat(64))),
+            true,
+        )
+        .unwrap();
+        assert!(!verdict.complete);
+        assert!(!verdict.data_available);
+        assert_eq!(verdict.entry["status"], "unavailable");
+        assert_eq!(
+            verdict.entry["availability_issues"],
+            json!(["invalid_observation", "tool_error"])
+        );
+        let reasons = verdict.entry["reasons"].as_array().unwrap();
+        assert!(reasons[0].as_str().unwrap().contains(message));
+        for reason in [
+            "Record input_digest does not match the declared evidence request",
+            "Tool execution did not produce an ok observation",
+            "Invalid observation value: Record has no JSON value",
+        ] {
+            assert!(reasons.contains(&json!(reason)));
+        }
+        for reason in [
+            "Record requires a tool binding configuration digest",
+            "Current operator tool binding differs from the collected binding",
+        ] {
+            assert_eq!(reasons.contains(&json!(reason)), !bound);
+        }
+    }
+}
+
+#[test]
+fn retained_failure_text_is_bounded_escaped_and_never_changes_success() {
+    let (program, records, context, now) = baseline();
+    let instant = validation::parse_time(&now).unwrap();
+    let mut record = records["observed"].clone();
+    record["error"] = json!({
+        "type":"型".repeat(100),"message":"é\n".repeat(1000),
+        "details":{"ignored":"This is not part of the diagnostic"}
+    });
+    let assess = |record: &Value| {
+        evaluation::assess_evidence_record(
+            &program,
+            "observed",
+            Some(record),
+            instant,
+            &context,
+            true,
+            None,
+            false,
+        )
+        .unwrap()
+    };
+    let success = assess(&record);
+    assert!(success.complete);
+    assert!(success.data_available);
+    assert_eq!(success.entry["status"], "available");
+    record["status"] = json!("error");
+    let failed = assess(&record);
+    assert!(!failed.complete);
+    assert!(!failed.data_available);
+    assert_eq!(failed.entry["availability_issues"], json!(["tool_error"]));
+    let reason = failed.entry["reasons"][0].as_str().unwrap();
+    assert!(reason.len() <= 4096);
+    assert!(reason.contains("[truncated]"));
+    assert!(reason.contains("\\n"));
+    assert!(!reason.contains('\n'));
+    assert!(!reason.contains("This is not part of the diagnostic"));
+    record["error"] = json!({"message":42});
+    let missing = assess(&record);
+    assert!(!missing.data_available);
+    assert_eq!(
+        missing.entry["reasons"][0],
+        "Recorded execution failure has no usable retained error diagnostic"
+    );
+}
+
+#[test]
 fn nested_environment_context_is_selected_explicitly() {
     let (program, records, context, now) = baseline();
     let selected = json!({"$environments":{"lab":context,"other":{"site":"field"}}});
