@@ -63,6 +63,26 @@ jobs:
         run: target/release/eal-smoke applications --prefix "$PWD/target/release"
       - name: Check installed coordination and recovery
         run: target/release/eal-smoke coordination --prefix "$PWD/target/release" --worker "$PWD/target/release/examples/coordination_software_worker"
+      - name: Check out the pinned ASPIC consumer
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: emmett08/aspic_visualisation
+          ref: 6c8c5c2e052f3d27c0382f6de37eee1e96d0a69d
+          path: consumer-checkout
+          persist-credentials: false
+      - name: Install Node for the complete consumer import check
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - name: Install the pinned consumer dependencies
+        working-directory: consumer-checkout
+        run: npm ci
+      - name: Check native exports through the complete consumer importer
+        run: |
+          target/release/eal-smoke consumer \
+            --consumer "$PWD/consumer-checkout/src/domain/aspic.ts" \
+            --binary "$PWD/target/release/eal-core" \
+            --node "$(command -v node)"
 
   context-experiment:
     runs-on: ubuntu-latest

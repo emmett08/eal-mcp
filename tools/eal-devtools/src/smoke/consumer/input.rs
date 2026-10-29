@@ -1,5 +1,5 @@
 //! Admit bounded files, exact consumer identity and operator command options.
-use super::{CONSUMER_BLOB, MAX_BYTES, MAX_INPUT_BYTES, Result};
+use super::{CONSUMER_BLOB, CONSUMER_SCHEMA_BLOB, MAX_BYTES, MAX_INPUT_BYTES, Result};
 use serde_json::Value;
 use sha1::Sha1;
 use sha2::Digest;
@@ -123,24 +123,55 @@ pub(super) fn checked_consumer(path: &Path) -> Result<String> {
         ));
     }
     let source = String::from_utf8(content).map_err(|e| e.to_string())?;
-    let section = |start: &str, end: &str| -> Result<&str> {
-        let start = source
-            .find(start)
-            .ok_or("Pinned consumer section is missing")?;
-        let end = source[start..]
-            .find(end)
-            .ok_or("Pinned consumer section terminator is missing")?
-            + start;
-        Ok(&source[start..end])
-    };
-    Ok(format!(
-        "{}{}\nexport {{ validateGraph }};\n",
-        section("export class ViewValidationError", "const encoder")?,
-        section(
-            "export function groundedLabels",
-            "export function parseAspicView"
-        )?
-    ))
+    let root = path
+        .canonicalize()
+        .map_err(|e| e.to_string())?
+        .ancestors()
+        .nth(3)
+        .ok_or("Consumer must be src/domain/aspic.ts within its checkout")?
+        .to_owned();
+    let schema = root.join("schema/aspic-view.schema.json");
+    let schema_bytes = read_bytes(&schema, MAX_BYTES)?;
+    let schema_blob = git_blob(&schema_bytes);
+    if schema_blob != CONSUMER_SCHEMA_BLOB {
+        return Err(format!(
+            "Expected pinned consumer schema blob {CONSUMER_SCHEMA_BLOB}, found {schema_blob}"
+        ));
+    }
+    let ajv = root.join("node_modules/ajv/dist/2020.js");
+    if !ajv.is_file() {
+        return Err("Consumer Ajv dependency is unavailable; run npm ci in its checkout".into());
+    }
+    relocated_importer(&source, &ajv, &schema)
+}
+
+/// Node strips TypeScript but requires explicit JSON import attributes. Relocate
+/// only imports; the complete pinned importer and all its checks stay unchanged.
+fn relocated_importer(source: &str, ajv: &Path, schema: &Path) -> Result<String> {
+    let replacements = [
+        (
+            "import Ajv2020 from 'ajv/dist/2020.js'",
+            format!(
+                "import Ajv2020 from {}",
+                serde_json::to_string(ajv).map_err(|e| e.to_string())?
+            ),
+        ),
+        (
+            "import schema from '../../schema/aspic-view.schema.json'",
+            format!(
+                "import schema from {} with {{ type: 'json' }}",
+                serde_json::to_string(schema).map_err(|e| e.to_string())?
+            ),
+        ),
+    ];
+    let mut relocated = source.to_owned();
+    for (original, replacement) in replacements {
+        if relocated.matches(original).count() != 1 {
+            return Err("Pinned consumer import declaration is missing or duplicated".into());
+        }
+        relocated = relocated.replacen(original, &replacement, 1);
+    }
+    Ok(relocated)
 }
 
 pub(super) fn executable(path: &Path) -> Result<PathBuf> {

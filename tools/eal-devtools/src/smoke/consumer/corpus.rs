@@ -8,6 +8,7 @@ fn typed_missing() -> Value {
 environment lab {
  require site == "bench"
 }
+
 tool reader {
  version "1"
 }
@@ -39,6 +40,16 @@ claim raised {
 argument measured = [evidence trial] via contrast => raised binding trial
 "#;
     json!({"source":source,"records":{},"context":{"site":"bench"},"now":native_case::NOW,"goal":"raised"})
+}
+
+fn unavailable_dependency() -> Value {
+    let context = json!({"site":"bench"});
+    let source = format!(
+        "{}\nevidence upstream {{\n tool reader\n kind test\n environment lab\n max_age 60\n require passed == true\n}}\nevidence derived {{\n derive parent\n kind calculation\n environment lab\n max_age 60\n input {{\"parent\":null}}\n bind \"/parent\" from upstream \"\"\n require passed == true\n}}\n",
+        native_case::SOURCE.replace("[evidence observed]", "[evidence derived]")
+    );
+    let record = native_case::observation(&source, "observed", &context, json!({}));
+    json!({"source":source,"records":{"observed":record},"context":context,"now":native_case::NOW,"goal":"working"})
 }
 
 pub(super) fn cases() -> (Vec<Value>, Vec<Value>) {
@@ -76,6 +87,7 @@ pub(super) fn cases() -> (Vec<Value>, Vec<Value>) {
                     ("measured", native_case::case()),
                     ("missing", native_case::case()),
                     ("typed_missing", typed_missing()),
+                    ("unavailable_dependency", unavailable_dependency()),
                 ] {
                     if name == "missing" {
                         case["records"] = json!({});
@@ -99,7 +111,7 @@ mod tests {
     fn native_scenarios_cover_all_semantics_queries_and_preferences() {
         let (explicit, compiled) = cases();
         assert_eq!(explicit.len(), 72);
-        assert_eq!(compiled.len(), 54);
+        assert_eq!(compiled.len(), 72);
         assert!(
             explicit
                 .iter()
@@ -128,5 +140,32 @@ mod tests {
             result["claims"]["accepted"]["status"], "supported",
             "{result}"
         );
+    }
+
+    #[test]
+    fn native_unavailable_dependency_exports_both_current_cause_codes() {
+        let case = unavailable_dependency();
+        let compiled = eal_aspic::compile_eal_aspic(
+            case["source"].as_str().unwrap(),
+            &case["records"],
+            eal_aspic::CompileOptions::new("working", native_case::NOW, &case["context"]),
+        )
+        .unwrap()
+        .to_dict()
+        .unwrap();
+        let view =
+            eal_aspic::export_aspic_view(&compiled, &eal_core::ExecutionLimits::default()).unwrap();
+        for (name, issue) in [
+            ("observed", "predicate_unresolved"),
+            ("derived", "dependency_unavailable"),
+        ] {
+            let unavailable = view["unavailable_evidence"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|item| item["name"] == name)
+                .unwrap();
+            assert_eq!(unavailable["availability_issues"], json!([issue]));
+        }
     }
 }

@@ -156,7 +156,8 @@ witnesses and grounded labels for every directed graph through three nodes,
 including self-attacks. Export tests recompute results and reject forged labels,
 subarguments and provenance.
 
-The native static consumer check uses a supplied Node 24 or later executable:
+The native consumer import check uses Node 24 or later and the companion
+checkout's installed dependencies (`npm ci` in that checkout):
 
 ```sh
 cargo run --locked -p eal-devtools --bin eal-smoke -- consumer \
@@ -165,11 +166,13 @@ cargo run --locked -p eal-devtools --bin eal-smoke -- consumer \
   --node /absolute/node
 ```
 
-The check verifies the pinned consumer file's Git blob before executing its
-unchanged graph-checking function bodies. It generates views from authored
-native scenarios across all supported semantics, query modes and preference
-policies. It independently validates the published JSON schema and consumer
-size/count policy, then requires rejection of seven forged graphs. Its report
+The check verifies the pinned consumer module and adjacent schema Git blobs,
+then calls the complete `parseAspicView` importer with its actual Ajv dependency.
+Only the module's import declarations are relocated for Node; its function bodies
+remain unchanged. Native scenarios exercise every supported semantics, query
+mode and preference policy, including unresolved predicates and unavailable
+dependencies. The check also validates the producer schema and requires rejection
+of seven forged graphs and three malformed metadata controls. Its report
 identifies the executable hash and distinguishes freshly generated views from
 explicitly supplied cached views. The sibling `eal-process-supervisor` bounds
 each child process. `--supervisor FILE` can select it explicitly.
@@ -272,12 +275,13 @@ production build. It remains a trusted local development facility.
 ### Check the pinned integration
 
 The [workspace and installed checks](development.md) verify the EAL side of this
-boundary. The static consumer command above checks authored native cases, the
-published schema, consumer policies and seven forged-graph controls. Node 24 or
-later executes the consumer's unchanged validator through the bounded supervisor.
+boundary. The consumer command above checks authored native cases through the
+full schema, policy and graph import boundary, including ten rejection controls.
+Node 24 or later executes the importer through the bounded supervisor.
 
-That check pins consumer Git blob `16512f96824d5b218e5b790b79777a6f16217d21` at
-revision `1c5523193669be98aeaa6290e54db7d91552c4de`. A downstream validator change
+That check pins consumer Git blob `f49b95a894e8c3cb6634d1dafeb8ca6de9b4128a` and
+schema Git blob `e04b18e1cac3a33a532d152cdba52b038e655540` at
+revision `6c8c5c2e052f3d27c0382f6de37eee1e96d0a69d`. A downstream validator change
 requires an explicit identity update and renewed acceptance. The following
 frontend commands describe that selected companion integration.
 
