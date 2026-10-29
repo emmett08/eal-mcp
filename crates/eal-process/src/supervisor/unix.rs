@@ -331,7 +331,10 @@ fn execute(
                             if input_left > 0 && input_offset == pending.len() {
                                 PollFlags::IN
                             } else {
-                                PollFlags::empty()
+                                // Darwin needs read/hangup interest to observe
+                                // owner EOF. IN would spin on unread payload
+                                // while the collector's input is blocked.
+                                PollFlags::HUP
                             },
                         )];
                         let out_index = out.as_ref().map(|pipe| {

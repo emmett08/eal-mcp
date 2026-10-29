@@ -119,6 +119,95 @@ fn cancellation_closes_ownership_and_waits_for_group_cleanup() {
 }
 
 #[test]
+fn cancellation_after_consumed_payload_observes_owner_pipe_closure() {
+    use std::sync::mpsc;
+
+    struct FixtureDirectory(PathBuf);
+    impl Drop for FixtureDirectory {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
+    }
+    let directory = FixtureDirectory(std::env::temp_dir().join(format!(
+        "eal-process-consumed-input-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    )));
+    std::fs::create_dir(&directory.0).unwrap();
+    let ready = directory.0.join("ready");
+    let mut command = request(&[
+        "/bin/sh",
+        "-c",
+        "IFS= read -r payload; [ \"$payload\" = 'complete request' ] || exit 7; printf '%s' \"$$\" > \"$1\"; exec /bin/sleep 30",
+        "eal-consumed-input-fixture",
+        ready.to_str().unwrap(),
+    ]);
+    command.input = b"complete request\n".to_vec();
+    command.timeout = Duration::from_secs(10);
+    let cancellation = CancellationToken::default();
+    let other = cancellation.clone();
+    let (sender, receiver) = mpsc::channel();
+    let worker = std::thread::spawn(move || {
+        let result = supervisor().run_with_cancellation(command, None, &other);
+        sender.send(result).unwrap();
+    });
+    let startup = Instant::now();
+    let collector = loop {
+        if let Ok(text) = std::fs::read_to_string(&ready)
+            && let Ok(pid) = text.parse::<i32>()
+        {
+            break rustix::process::Pid::from_raw(pid).unwrap();
+        }
+        if startup.elapsed() > Duration::from_secs(2) {
+            cancellation.cancel();
+            worker.join().unwrap();
+            panic!("collector did not consume the complete request before readiness");
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    };
+    // Readiness follows the complete read, so the supervisor has no payload
+    // left to deliver. Cancellation must still observe control-pipe EOF.
+    cancellation.cancel();
+    let completed = receiver.recv_timeout(Duration::from_secs(2));
+    if !matches!(&completed, Ok(Ok(result)) if result.execution_error == Some(ExecutionError::Cancelled))
+    {
+        // Clean up the real owned group before reporting a failed regression.
+        let _ = rustix::process::kill_process_group(collector, rustix::process::Signal::KILL);
+    }
+    worker.join().unwrap();
+    let result = completed
+        .expect("cancellation waited for the ten-second execution deadline")
+        .expect("cancellation returned before acknowledging group cleanup");
+    assert_eq!(result.execution_error, Some(ExecutionError::Cancelled));
+    assert_eq!(result.returncode, -9);
+    assert!(!result.timed_out);
+}
+
+#[test]
+fn control_hangup_interest_ignores_pending_payload_until_owner_closes() {
+    let (reader, writer) = rustix::pipe::pipe_with(rustix::pipe::PipeFlags::CLOEXEC).unwrap();
+    rustix::io::write(&writer, b"undelivered payload").unwrap();
+    let mut polls = [rustix::event::PollFd::new(
+        &reader,
+        rustix::event::PollFlags::HUP,
+    )];
+    let timeout = rustix::time::Timespec {
+        tv_sec: 0,
+        tv_nsec: 20_000_000,
+    };
+    // Data readiness must not cause repeated wakeups while collector input is
+    // blocked, but closing the owner must wake the same interest immediately.
+    assert_eq!(rustix::event::poll(&mut polls, Some(&timeout)).unwrap(), 0);
+    assert!(polls[0].revents().is_empty());
+    drop(writer);
+    assert_eq!(rustix::event::poll(&mut polls, Some(&timeout)).unwrap(), 1);
+    assert!(polls[0].revents().contains(rustix::event::PollFlags::HUP));
+}
+
+#[test]
 fn startup_and_execution_deadlines_are_distinct_and_input_waits_for_ready() {
     let mut command = request(&[
         "/bin/sh",

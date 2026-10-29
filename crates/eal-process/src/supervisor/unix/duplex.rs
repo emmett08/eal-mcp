@@ -87,7 +87,9 @@ pub(super) fn execute(
                     if !exited && input_offset == pending_input.len() {
                         PollFlags::IN
                     } else {
-                        PollFlags::empty()
+                        // Darwin needs a registered read filter for owner EOF.
+                        // IN here could overwrite undelivered request bytes.
+                        PollFlags::HUP
                     },
                 ),
                 PollFd::new(
@@ -95,7 +97,8 @@ pub(super) fn execute(
                     if output_offset < pending_output.len() {
                         PollFlags::OUT
                     } else {
-                        PollFlags::empty()
+                        // Observe shutdown even when no response is queued.
+                        PollFlags::HUP
                     },
                 ),
             ];
