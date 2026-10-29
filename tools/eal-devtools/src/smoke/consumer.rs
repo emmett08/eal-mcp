@@ -10,8 +10,9 @@ use std::{
     path::{Path, PathBuf},
 };
 use views::{generated_views, put};
-const CONSUMER_REVISION: &str = "1c5523193669be98aeaa6290e54db7d91552c4de";
-const CONSUMER_BLOB: &str = "16512f96824d5b218e5b790b79777a6f16217d21";
+const CONSUMER_REVISION: &str = "6c8c5c2e052f3d27c0382f6de37eee1e96d0a69d";
+const CONSUMER_BLOB: &str = "f49b95a894e8c3cb6634d1dafeb8ca6de9b4128a";
+const CONSUMER_SCHEMA_BLOB: &str = "e04b18e1cac3a33a532d152cdba52b038e655540";
 const MAX_BYTES: usize = 4 * 1024 * 1024;
 const MAX_INPUT_BYTES: usize = 64 * 1024 * 1024;
 const MAX_ARGUMENTS: u64 = 4096;
@@ -23,12 +24,12 @@ mod policy;
 mod process;
 mod views;
 
-const GRAPH_RUNNER: &str = r#"
+const IMPORT_RUNNER: &str = r#"
 import {readFileSync} from 'node:fs';
-import {validateGraph} from './graph.ts';
+import {parseAspicView} from './consumer.ts';
 const cases=JSON.parse(readFileSync(process.argv[2],'utf8'));
 for(const item of cases){
-  try{validateGraph(item.view);}
+  try{parseAspicView(JSON.stringify(item.view));}
   catch(error){throw new Error(`${item.name}: ${error.message}`);}
 }
 const base=cases.find(item=>item.view.defeats.length>0 &&
@@ -41,13 +42,16 @@ for(const [name,change] of [
   ['duplicate witness',v=>v.defeats.push(structuredClone(v.defeats[0]))],
   ['wrong query status',v=>v.query_status=v.query_status==='accepted'?'rejected':'accepted'],
   ['unknown extension member',v=>v.extensions[0].push('unknown')],
-  ['derivation cycle',v=>{const a=v.arguments.find(a=>a.top==='defeasible');a.direct_subarguments=[a.id];}]
+  ['derivation cycle',v=>{const a=v.arguments.find(a=>a.top==='defeasible');a.direct_subarguments=[a.id];}],
+  ['missing method work budget',v=>delete v.execution_limits.method_work],
+  ['unknown execution budget',v=>v.execution_limits.unknown_budget=1],
+  ['unknown availability cause',v=>v.unavailable_evidence.push({name:'invalid',reasons:['control'],availability_issues:['unknown_cause'],span:null})]
 ]){
   const view=structuredClone(base);change(view);
-  try{validateGraph(view);}catch{rejected.push(name);}
+  try{parseAspicView(JSON.stringify(view));}catch{rejected.push(name);}
 }
-if(rejected.length!==7)throw new Error('A forged-graph control was not rejected');
-console.log(JSON.stringify({graph_views:cases.length,rejected_controls:rejected}));
+if(rejected.length!==10)throw new Error('An invalid-import control was not rejected');
+console.log(JSON.stringify({graph_views:cases.length,import_views:cases.length,rejected_controls:rejected}));
 "#;
 
 /// Check current native exports against the selected downstream consumer.
@@ -55,7 +59,7 @@ pub fn run(args: &[String]) -> Result<Value> {
     let options = Options::parse(args)?;
     // File admission precedes executable discovery and process side effects.
     let cached_views = options.views.as_ref().map(|path| load(path)).transpose()?;
-    let graph = checked_consumer(&options.consumer)?;
+    let importer = checked_consumer(&options.consumer)?;
     let root = options
         .root
         .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../.."));
@@ -103,11 +107,11 @@ pub fn run(args: &[String]) -> Result<Value> {
     };
     check_schema_and_policy(&root, &views, &explicit, &compiled)?;
     put(&temporary.0, "views.json", &json!(views))?;
-    put(&temporary.0, "graph.ts", &Value::String(graph))?;
+    put(&temporary.0, "consumer.ts", &Value::String(importer))?;
     put(
         &temporary.0,
         "check.mjs",
-        &Value::String(GRAPH_RUNNER.into()),
+        &Value::String(IMPORT_RUNNER.into()),
     )?;
     let output = runner.run(
         &node,
@@ -125,7 +129,8 @@ pub fn run(args: &[String]) -> Result<Value> {
     )?;
     let mut summary = parse_json(&output, MAX_BYTES)?;
     if summary["graph_views"].as_u64() != Some(views.len() as u64)
-        || summary["rejected_controls"].as_array().map(Vec::len) != Some(7)
+        || summary["import_views"].as_u64() != Some(views.len() as u64)
+        || summary["rejected_controls"].as_array().map(Vec::len) != Some(10)
     {
         return Err("Consumer returned an incomplete acceptance summary".into());
     }
@@ -136,12 +141,12 @@ pub fn run(args: &[String]) -> Result<Value> {
         .as_object_mut()
         .ok_or("Consumer summary must be an object")?;
     object.extend(json!({
-        "consumer_revision":CONSUMER_REVISION,"consumer_git_blob":CONSUMER_BLOB,
+        "consumer_revision":CONSUMER_REVISION,"consumer_git_blob":CONSUMER_BLOB,"consumer_schema_git_blob":CONSUMER_SCHEMA_BLOB,
         "explicit_views":explicit.len(),"compiled_views":compiled.len(),
-        "published_schema":"native JSON Schema 2020-12: passed","consumer_policy":"passed",
+        "published_schema":"native JSON Schema 2020-12: passed","consumer_import":"full parseAspicView with Ajv: passed","consumer_policy":"passed",
         "node":version,"provided_binary_sha256":format!("{:x}",Sha256::digest(read_bytes(&binary,1024*1024*1024)?)),
         "views":if options.views.is_some(){"cached; native commands not rerun"}else{"fresh native CLI output; PATH empty"},
-        "scope":"Unmodified consumer graph function bodies plus separately validated schema/policy; no Ajv, Vue, browser or live bridge",
+        "scope":"Complete pinned consumer importer with relocated imports, actual downstream schema and Ajv dependency; no Vue, browser or live bridge",
         "orchestrator":"eal-smoke consumer (Rust)"
     }).as_object().expect("literal object").clone());
     Ok(summary)

@@ -98,12 +98,17 @@ The subsequent manual assessor disposition retains its exact bytes. A reviewer
 command completes the run with null unassessed fields and unchanged acquisition
 accounting.
 
-The consumer check retains the exact pinned TypeScript graph-validator bodies,
-validates native exports against the published schema and count policies, and
-requires all seven forged-graph controls to fail. Node executes the supplied
-consumer implementation. Rust owns fixture selection, native command execution,
-schema checking, byte limits and result reporting. See `eal-smoke --help` for
-cached views and explicit supervisor options.
+The consumer check pins both the TypeScript importer and its adjacent schema,
+then calls the complete `parseAspicView` function using the companion checkout's
+Ajv dependency. Run `npm ci` in that checkout first. Node 24 strips TypeScript;
+the check relocates only its two import declarations and adds the JSON import
+attribute required by Node. All importer function bodies remain unchanged.
+Generated native cases include unresolved predicates and unavailable dependencies.
+Seven forged graphs and three invalid metadata controls must be rejected.
+Rust owns fixture selection, native command execution, independent producer-schema
+checks, byte limits and result reporting. The manually triggered Rust workflow
+also checks out the pinned companion and runs this import check. See
+`eal-smoke --help` for cached views and explicit supervisor options.
 
 ### Ownership during verification
 
@@ -122,8 +127,8 @@ External provider identity and model-quality studies retain separate evidence
 requirements.
 
 Smoke file admission runs before executable discovery or process execution.
-Cached view JSON has a 64 MiB allowance and the pinned consumer source has a
-4 MiB allowance. Both require regular files and reject leaf aliases. Parent
+Cached view JSON has a 64 MiB allowance; the pinned consumer source and schema
+each have a 4 MiB allowance. These files must be regular and reject leaf aliases. Parent
 aliases resolve to a selected canonical parent. Their loaders share the
 runtime's bounded, non-blocking regular-file reader on POSIX hosts. The tests
 cover FIFOs, ordinary aliases, exact allowances and sparse oversized files.
