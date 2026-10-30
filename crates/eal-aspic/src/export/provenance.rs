@@ -113,7 +113,7 @@ impl Origins {
                     origin["rationale"] = item["rationale"].clone();
                     origin["reasoning"] = item["reasoning"].clone();
                 }
-                for key in ["source_file", "scope_transfer"] {
+                for key in ["source_file", "scope_transfer", "computation"] {
                     if let Some(value) = item.get(key) {
                         origin[key] = value.clone();
                     }

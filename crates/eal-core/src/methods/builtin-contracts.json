@@ -970,5 +970,423 @@
     },
     "reference_implementation_version": "eal-builtin-2.1.0",
     "reference_execution": "bounded_builtin"
+  },
+  "finite_probability/1": {
+    "identifier": "finite_probability/1",
+    "evidence_kind": "finite_probability",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "states": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "minItems": 2,
+                "maxItems": 8
+              },
+              "parents": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "minItems": 0,
+                "maxItems": 11
+              },
+              "probabilities": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "minItems": 2,
+                "maxItems": 65536
+              }
+            },
+            "required": [
+              "name",
+              "states",
+              "parents",
+              "probabilities"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 12
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "target": {
+          "type": "object",
+          "properties": {
+            "variable": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "state": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          },
+          "required": [
+            "variable",
+            "state"
+          ],
+          "additionalProperties": false
+        },
+        "comparison": {
+          "type": "object",
+          "properties": {
+            "operator": {
+              "type": "string",
+              "enum": [
+                "<",
+                "<=",
+                "==",
+                "!=",
+                ">=",
+                ">"
+              ]
+            },
+            "threshold": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          "required": [
+            "operator",
+            "threshold"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "nodes",
+        "evidence",
+        "target",
+        "comparison"
+      ],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "states": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "minItems": 2,
+                "maxItems": 8
+              },
+              "parents": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "minItems": 0,
+                "maxItems": 11
+              },
+              "probabilities": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "minItems": 2,
+                "maxItems": 65536
+              }
+            },
+            "required": [
+              "name",
+              "states",
+              "parents",
+              "probabilities"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 12
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "target": {
+          "type": "object",
+          "properties": {
+            "variable": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "state": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          },
+          "required": [
+            "variable",
+            "state"
+          ],
+          "additionalProperties": false
+        },
+        "comparison": {
+          "type": "object",
+          "properties": {
+            "operator": {
+              "type": "string",
+              "enum": [
+                "<",
+                "<=",
+                "==",
+                "!=",
+                ">=",
+                ">"
+              ]
+            },
+            "threshold": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          "required": [
+            "operator",
+            "threshold"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "nodes",
+        "evidence",
+        "target",
+        "comparison"
+      ],
+      "additionalProperties": false
+    },
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "defined": {
+          "type": "boolean"
+        },
+        "satisfies": {
+          "type": "boolean"
+        },
+        "normalizer": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "normalizer_exact": {
+          "type": "object",
+          "properties": {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "eal.exact-number/1"
+              ]
+            },
+            "numerator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2500
+            },
+            "denominator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2500
+            },
+            "unit": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          "required": [
+            "schema",
+            "numerator",
+            "denominator",
+            "unit"
+          ],
+          "additionalProperties": false
+        },
+        "numerator_exact": {
+          "type": "object",
+          "properties": {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "eal.exact-number/1"
+              ]
+            },
+            "numerator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2500
+            },
+            "denominator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2500
+            },
+            "unit": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          "required": [
+            "schema",
+            "numerator",
+            "denominator",
+            "unit"
+          ],
+          "additionalProperties": false
+        },
+        "posterior": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "posterior_exact": {
+          "type": "object",
+          "properties": {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "eal.exact-number/1"
+              ]
+            },
+            "numerator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2500
+            },
+            "denominator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2500
+            },
+            "unit": {
+              "type": "string",
+              "enum": [
+                "1"
+              ]
+            }
+          },
+          "required": [
+            "schema",
+            "numerator",
+            "denominator",
+            "unit"
+          ],
+          "additionalProperties": false
+        },
+        "assignments": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65536
+        },
+        "matching_assignments": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65536
+        },
+        "comparison": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "json"
+          }
+        },
+        "mapping": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "json"
+          }
+        }
+      },
+      "required": [
+        "defined",
+        "satisfies",
+        "normalizer",
+        "normalizer_exact",
+        "numerator_exact",
+        "assignments",
+        "matching_assignments",
+        "comparison",
+        "mapping"
+      ],
+      "additionalProperties": false
+    },
+    "outputs": {
+      "defined": "boolean",
+      "satisfies": "boolean",
+      "normalizer": "dimensionless",
+      "posterior": "dimensionless"
+    },
+    "quantities": [
+      "probability",
+      "proposition"
+    ],
+    "exact_unit": false,
+    "quantity_interpretation": "Exact finite-model consequence under the supplied definitions; numerical fields are binary64 display approximations and all decisions use rational values.",
+    "limits": {
+      "timeout_seconds": 1.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "eal-rust-finite-probability-1",
+    "reference_execution": "bounded_builtin"
   }
 }

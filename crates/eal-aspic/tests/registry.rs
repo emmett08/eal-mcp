@@ -47,10 +47,10 @@ fn current_aspic_contract_describes_native_identity_and_typed_query() {
 fn installation_is_explicit_immutable_and_combines_engineering_methods() {
     assert!(default_registry().get(ASPIC_METHOD).is_none());
     let registry = aspic_registry();
-    assert_eq!(registry.describe().as_object().unwrap().len(), 9);
+    assert_eq!(registry.describe().as_object().unwrap().len(), 10);
     let engineering = engineering_registry();
     let combined = with_aspic(&engineering).unwrap();
-    assert_eq!(combined.describe().as_object().unwrap().len(), 13);
+    assert_eq!(combined.describe().as_object().unwrap().len(), 14);
     assert!(engineering.get(ASPIC_METHOD).is_none());
     assert!(combined.get("engineering/rms/1").is_some());
     assert!(with_aspic(&combined).is_err());

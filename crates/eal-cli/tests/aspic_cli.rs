@@ -159,21 +159,21 @@ fn methods_are_explicit_and_solver_options_are_checked_before_execution() {
             .as_object()
             .unwrap()
             .len(),
-        8
+        9
     );
     assert_eq!(
         successful(workspace.run(&["--methods", "aspic", "describe"]))["methods"]
             .as_object()
             .unwrap()
             .len(),
-        9
+        10
     );
     assert_eq!(
         successful(workspace.run(&["--methods", "all", "describe"]))["methods"]
             .as_object()
             .unwrap()
             .len(),
-        13
+        14
     );
     for arguments in [
         vec!["compile-aspic", "absent.eal", "--claim", "c"],

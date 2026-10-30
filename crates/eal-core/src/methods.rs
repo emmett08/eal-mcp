@@ -1,6 +1,7 @@
 //! Immutable versioned method contracts and pure built-in reasoning dispatch.
 mod contracts;
 mod dispatch;
+mod finite_probability;
 mod logical;
 mod numerical;
 pub mod optional;

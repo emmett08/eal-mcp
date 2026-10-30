@@ -158,6 +158,7 @@ impl MethodExecutor {
                 "counterfactual/1",
                 "analogical/1",
                 "temporal/1",
+                "finite_probability/1",
             ]
             .contains(&id.as_str())
             {

@@ -46,7 +46,11 @@ impl Package {
         .unwrap();
     }
     fn run(&self, claim: &str) -> Value {
-        let output = Command::new(env!("CARGO_BIN_EXE_eal-host"))
+        self.run_at(claim, None)
+    }
+    fn run_at(&self, claim: &str, now: Option<&str>) -> Value {
+        let mut command = Command::new(env!("CARGO_BIN_EXE_eal-host"));
+        command
             .current_dir(&self.root)
             .env("PREPARATION_TEST_CREDENTIAL", "inherited-secret-sentinel")
             .arg("run")
@@ -56,9 +60,11 @@ impl Package {
             .arg("--workspace")
             .arg(self.root.join("run"))
             .arg("--claim")
-            .arg(claim)
-            .output()
-            .unwrap();
+            .arg(claim);
+        if let Some(now) = now {
+            command.args(["--now", now]);
+        }
+        let output = command.output().unwrap();
         let response: Value = serde_json::from_slice(&output.stdout).unwrap_or_else(|e| {
             panic!(
                 "{e}: stdout={} stderr={}",
@@ -78,6 +84,37 @@ impl Package {
 impl Drop for Package {
     fn drop(&mut self) {
         let _ = std::fs::remove_dir_all(&self.root);
+    }
+}
+
+#[test]
+fn immutable_finite_model_runs_through_host_without_acquired_observations() {
+    let package = Package::copy("finite-inventory");
+    std::fs::write(
+        package.package.join("case.eal"),
+        include_str!("../../../examples/finite-probability/case.eal"),
+    )
+    .unwrap();
+    std::fs::write(package.package.join("tools.toml"), "[tools]\n").unwrap();
+    for now in ["2026-10-28T12:00:00Z", "2026-10-30T12:00:00Z"] {
+        let result = package.run_at("consequence", Some(now));
+        assert_eq!(
+            result["assessment"]["claims"]["consequence"]["status"], "supported",
+            "{result}"
+        );
+        assert_eq!(result["collection"]["records"], serde_json::json!({}));
+        assert_eq!(result["assessment"]["evidence"], serde_json::json!({}));
+        let computation = &result["assessment"]["arguments"]["proof"]["reasoning_result"];
+        assert_eq!(computation["input_origin"], "authored_program");
+        assert_eq!(
+            computation["details"]["posterior_exact"]["numerator"],
+            "152"
+        );
+        assert_eq!(
+            computation["details"]["posterior_exact"]["denominator"],
+            "201"
+        );
+        assert!(computation.get("evidence_id").is_none());
     }
 }
 

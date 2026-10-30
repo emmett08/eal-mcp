@@ -136,7 +136,7 @@ unlocking the shared open-file description. A process group provides cleanup for
 cooperating descendants. This adapter is not a sandbox for code that creates a
 new session or otherwise escapes the group.
 
-The eight built-in assessors are pure in-process functions. Runtime
+The nine built-in assessors are pure in-process functions. Runtime
 registries bind optional engineering, ASPIC and custom methods to supervised
 workers, with startup and execution deadlines, combined-output bounds and POSIX
 CPU/address-space limits. Native workers charge CPU allowance from current process

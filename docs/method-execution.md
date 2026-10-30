@@ -8,7 +8,11 @@ steps separate lets an engineer distinguish a failed acquisition, a completed
 negative calculation and a calculation that exhausted its allowance. Each leads
 to a different next action.
 
-EAL executes the eight built-in methods in its pure core. Optional engineering,
+[Exact finite probability](finite-probability.md) can also establish a bounded
+mathematical consequence directly from authored definitions, with no fabricated
+observation or refreshed empirical clock.
+
+EAL executes the nine built-in methods in its pure core. Optional engineering,
 ASPIC and custom methods can execute in an independently supervised process. The
 core checks input and output contracts in both cases. Process supervision adds
 wall-clock, memory and lifecycle controls for installed executables. A trusted
@@ -28,8 +32,9 @@ eal-host run case.eal --tools tools.toml --workspace run --claim claim \
 
 This deliberately small example shows the control, rather than a useful allowance
 for a real investigation. The default is 1,000,000,000 units per native invocation.
-It admits every valid input within the seven standard computational methods'
-existing fixed size bounds.
+It admits the structurally bounded inputs of the eight standard computational
+methods. Exact finite probability calculations additionally enforce an explicit
+intermediate rational-size bound.
 
 A unit represents one scalar operation, collection visit or lookup in a
 conservative structural model. Elementary library and arbitrary-precision
@@ -63,6 +68,7 @@ scalar bookkeeping. The formulas are implemented in
 | `counterfactual/1` | `L + 8(v + 1)²(e + 1)` | Up to `v` readiness rounds and `e` dependency checks per round, with up to `v` linear membership comparisons. The linear term covers two affine solves. |
 | `analogical/1` | `L + 16f²` | Ordered-map lookups, missing-feature ordering and comparisons over `f` selected features, plus complete input traversal. |
 | `temporal/1` | `L` | A fixed number of scans over already ordered sampled events. |
+| `finite_probability/1` | `L + 64s(v + 1)²` | All `s` joint assignments of at most `v=12` nodes, with ordered parent lookups and exact rational accumulation; at most 65,536 assignments. |
 
 Here `h` is the candidate count, `v` the structural-variable count, `e` the number
 of declared parent links and `f` the selected-feature count. Deductive charging

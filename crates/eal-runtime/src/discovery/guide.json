@@ -25,7 +25,7 @@
     "apply": "apply ARGUMENT = PATTERN(PARAM=REFERENCE, ...)",
     "formal_relations": "strict ARGUMENT reviewed \"REVIEW_REFERENCE\"\nrank EVIDENCE_OR_ASSUMPTION_OR_ARGUMENT INTEGER reviewed \"REVIEW_REFERENCE\"\nprefer FALLIBLE_ELEMENT over FALLIBLE_ELEMENT reviewed \"REVIEW_REFERENCE\"\ncontrary CLAIM to CLAIM reviewed \"REVIEW_REFERENCE\". These are ASPIC+ formalisation directives. reason validates them; compile-aspic applies their effects. Ranks are integers 0-1000; claim contraries are directed.",
     "scope_defaults": "Multiple declarations retain distinct identities, inputs and predicates. Nearest context wins; explicit fields override defaults. Defaults are restricted by declaration type: tool version; evidence environment/tool/kind/input/max_age; assumption environment/validate/dates; claim environment; reasoning method; proposition subject/quantity/unit/scope/dates/query. Required fields are checked after inheritance. Contexts group metadata; modules and block arguments introduce lexical namespaces.",
-    "optional_fields": "Evidence input, reasoning backing, claim proposition, assumption validity dates, each support group and argument binding are optional. Evidence/environment require predicates; arguments/objections require nonempty support. All proposition fields are required. In EAL/4 a complete, schema-valid authored proposition.query may supply method input without an observation binding; empirical inputs and their applicability still need explicit evidence and assumptions.",
+    "optional_fields": "Evidence input, reasoning backing, claim proposition, assumption validity dates, each support group and argument binding are optional. Evidence/environment require predicates. Objections require nonempty support. Arguments require nonempty support except complete typed finite_probability/1 queries or empty-premise deductive/1 queries requiring entailed == true; these pure computations create no observation. All proposition fields are required. In EAL/4 a complete, schema-valid authored proposition.query may supply method input without an observation binding; empirical inputs and their applicability still need explicit evidence and assumptions.",
     "nested_derivations": "Block arguments contain local declarations and finish with a support flow. Compound patterns contain multiple routes, local definitions and nested applications. Premises still reference claims, retaining acyclic engineering derivations. Recursive template expansion is separate from logical self-support: recursive calls must consume a guarded tail of a finite typed list.",
     "abstraction": "Patterns have closed typed parameters. Data references name typed parameters or local declarations; helper pattern calls are resolved lexically. Expansion preserves dependency identities and qualifies generated names by application. Forward references are allowed; invalid bindings are diagnosed.",
     "operators": [
@@ -203,6 +203,45 @@
         "holds"
       ],
       "meaning": "Ordered, bounded finite samples with endpoint/gap coverage; no continuous-time conclusion"
+    },
+    "finite_probability/1": {
+      "kind": "finite_probability_model",
+      "input": {
+        "nodes": [
+          {
+            "name": "X",
+            "states": [
+              "yes",
+              "no"
+            ],
+            "parents": [],
+            "probabilities": [
+              "1/3",
+              "2/3"
+            ]
+          }
+        ],
+        "evidence": {},
+        "target": {
+          "variable": "X",
+          "state": "yes"
+        },
+        "comparison": {
+          "operator": ">=",
+          "threshold": "1/3"
+        }
+      },
+      "meaning": "Exact finite Bayesian-network enumeration and rational comparison of the authored model; model correspondence and empirical adequacy remain separate obligations.",
+      "mapping": "Declared parent order, last parent fastest, child states fastest within each CPD row.",
+      "outputs": [
+        "defined",
+        "satisfies",
+        "posterior_exact",
+        "normalizer_exact",
+        "numerator_exact"
+      ],
+      "undefined": "Zero-probability evidence returns defined=false and satisfies=false without posterior fields.",
+      "limit": "1..12 nodes, 2..8 states, at most 65536 joint assignments; 128-character rational strings and 8192-bit intermediate limits; exhaustion is incomplete."
     }
   },
   "environment_contexts": "Supply flat context for one shared environment, or {$environments: {ENV: CONTEXT}} for explicit separate contexts. Scope transfer still requires a reviewed relation and validated target assumption.",

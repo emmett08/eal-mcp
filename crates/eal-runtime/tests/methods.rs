@@ -61,6 +61,29 @@ fn shell(path: &Workspace, body: &str) -> WorkerCommand {
 const READY: &str = "printf '%s\\n' '{\"protocol\":\"eal-method-worker/1\",\"ready\":true}'; IFS= read -r request; ";
 
 #[test]
+fn finite_probability_remains_a_native_default_method_under_supervision() {
+    let workspace = Workspace::new();
+    let isolated = executor(&workspace)
+        .supervise_registry(default_registry())
+        .unwrap();
+    assert_eq!(isolated.fingerprint(), default_registry().fingerprint());
+    let query = serde_json::from_str(include_str!(
+        "../../../examples/finite-probability/query.json"
+    ))
+    .unwrap();
+    let result = eal_core::methods::assess_input_with_limits(
+        "finite_probability/1",
+        &query,
+        &isolated,
+        &ExecutionLimits::default(),
+    );
+    assert_eq!(result["status"], "supported", "{result}");
+    assert_eq!(result["details"]["satisfies"], true);
+    assert_eq!(result["details"]["posterior_exact"]["numerator"], "152");
+    assert_eq!(result["details"]["posterior_exact"]["denominator"], "201");
+}
+
+#[test]
 fn native_optional_methods_are_isolated_and_keep_budget_failure_categories() {
     let workspace = Workspace::new();
     let executor = executor(&workspace);

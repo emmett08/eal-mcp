@@ -263,6 +263,9 @@ fn source_fingerprint() -> &'static str {
             include_str!("../methods.rs"),
             include_str!("contracts.rs"),
             include_str!("dispatch.rs"),
+            include_str!("finite_probability.rs"),
+            include_str!("finite_probability/model.rs"),
+            include_str!("finite_probability/rational.rs"),
             include_str!("logical.rs"),
             include_str!("numerical.rs"),
             include_str!("probabilistic.rs"),
@@ -397,6 +400,7 @@ fn default_identifiers() -> BTreeSet<&'static str> {
         "counterfactual/1",
         "analogical/1",
         "temporal/1",
+        "finite_probability/1",
     ]
     .into_iter()
     .collect()
