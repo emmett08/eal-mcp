@@ -207,8 +207,8 @@ fn optional_engineering_methods_require_an_explicit_profile() {
     let workspace = Workspace::new();
     let builtin = output_json(&workspace.run(&["describe"]));
     let optional = output_json(&workspace.run(&["--methods", "engineering", "describe"]));
-    assert_eq!(builtin["methods"].as_object().unwrap().len(), 9);
-    assert_eq!(optional["methods"].as_object().unwrap().len(), 13);
+    assert_eq!(builtin["methods"].as_object().unwrap().len(), 10);
+    assert_eq!(optional["methods"].as_object().unwrap().len(), 14);
     assert!(builtin["methods"].get("engineering/rms/1").is_none());
     assert!(optional["methods"].get("engineering/rms/1").is_some());
     workspace.write("optional.eal", "language \"EAL/4\"\nenvironment lab {\nrequire true\n}\ntool sensor {\nversion \"1\"\n}\nevidence samples {\ntool sensor\nkind measurement_series\nenvironment lab\nmax_age 60\nrequire true\n}\nreasoning rms {\nmethod \"engineering/rms/1\"\nrationale \"Compute the RMS of the supplied samples.\"\nrequire \"rms\" <= 4\n}\nclaim result {\nstatement \"The registered method computes the result.\"\nenvironment lab\n}\nargument computation = [evidence samples] via rms => result\n");

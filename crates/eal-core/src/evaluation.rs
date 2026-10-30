@@ -15,6 +15,7 @@ mod graph;
 mod issues;
 pub use acquisitions::{assess_acquisition_inputs, assess_evidence_records};
 pub(crate) use evidence::predicate;
+pub(crate) use evidence::predicate_check;
 pub use evidence::{
     EvidenceVerdict, assess_environment, assess_environment_with_limits, assess_evidence_record,
 };

@@ -27,6 +27,12 @@ pub fn validate_query_with_limits(
     if !errors.is_empty() {
         return errors;
     }
+    if method == "grounded/1"
+        && let Err(error) =
+            crate::verification::validate_reference(&query["coverage"], &query["contract"], limits)
+    {
+        return vec![error];
+    }
     // A complete built-in query can be checked by the authoritative bounded
     // implementation. A partial query never receives invented sample data.
     // Extension callbacks may perform work outside pure validation and are not run.
