@@ -229,6 +229,8 @@ fn evaluate_payload(
                     "details":{},
                     "resource":{"kind":"method_work","required":work,"allowance":limits.method_work}
                 })
+            } else if mode == "grounded" {
+                super::grounded::assess(payload, limits)?
             } else {
                 compute_builtin(mode, payload)?
             }
@@ -284,6 +286,7 @@ pub(crate) fn compute_builtin(mode: &str, payload: &Value) -> Result<Value, Stri
         "analogical" => super::structural::analogical(payload),
         "temporal" => super::structural::temporal(payload),
         "finite_probability" => super::finite_probability::assess(payload),
+        "grounded" => super::grounded::assess(payload, &ExecutionLimits::default()),
         _ => Err("Unknown built-in calculation".into()),
     }
 }

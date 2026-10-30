@@ -4,7 +4,7 @@
 `EAL/4-compiled-aspic/5` source translation and `aspic-view/3` export. These are
 explicit formal operations alongside the authored EAL evaluator. An EAL source
 uses `method "argumentation/aspic/2"` only when the host installs that registry.
-The default nine-method registry remains unchanged.
+The default ten-method registry remains unchanged.
 
 ## Explicit theories
 
@@ -127,7 +127,7 @@ eal-core export-aspic RESULT_JSON
 
 Common `--workspace` and TOML `--limits` options apply. Source or JSON input can
 be `-` for standard input. Output goes to standard output. Method set
-`aspic` installs the default nine methods plus ASPIC.  `all` also installs the
+`aspic` installs the default ten methods plus ASPIC.  `all` also installs the
 four engineering methods. Explicit theory options belong inside its JSON
 `options` object. The [production service](applications.md) also exposes checked
 formal operations. `eal-aspic-solve` accepts the same theory request directly on

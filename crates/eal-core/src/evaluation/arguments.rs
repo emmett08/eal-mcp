@@ -146,6 +146,9 @@ impl SourceState<'_> {
                     self.records,
                     &method_premises,
                     self.registry,
+                    self.result["assessed_at"]
+                        .as_str()
+                        .expect("fixed evaluation time"),
                 )?;
                 computation = assessed.0;
                 computation["premise_acceptance"] = json!("deferred_to_composed_solver");
@@ -215,6 +218,7 @@ fn compute_argument(
     records: &Value,
     premises: &[Value],
     registry: &MethodRegistry,
+    assessed_at: &str,
 ) -> Result<(Value, bool), String> {
     let method = &program.reasoning[&argument.reasoning];
     if method.transfer.is_some() {
@@ -291,6 +295,21 @@ fn compute_argument(
             false,
         ));
     }
+    // Grounding age checks use the argument evaluator's explicit trusted time,
+    // never an earlier timestamp carried inside an acquired payload. The
+    // original bound observation digest remains in the binding trace below.
+    if method.method == "grounded/1" {
+        if let Some(payload) = authored_input.as_mut() {
+            *payload = crate::verification::native::context(payload, None, assessed_at);
+        }
+        for source in &mut sources {
+            if source["kind"] == "verification_case" {
+                let record = source["id"].as_str().and_then(|id| records.get(id));
+                source["value"] =
+                    crate::verification::native::context(&source["value"], record, assessed_at);
+            }
+        }
+    }
     let mut computation = if let Some(payload) = &authored_input {
         methods::assess_input_with_limits(&method.method, payload, registry, &program.limits)
     } else {
@@ -302,6 +321,10 @@ fn compute_argument(
             &program.limits,
         )
     };
+    if method.method == "grounded/1" {
+        computation["assessment_context"] =
+            json!({"assessed_at":assessed_at,"origin":"argument_evaluation"});
+    }
     if let Some(trace) = binding.as_mut() {
         if let Some(digest) = &bound_observation_digest {
             computation["bound_observation_digest"] = json!(digest);

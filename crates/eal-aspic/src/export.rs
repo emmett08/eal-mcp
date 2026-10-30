@@ -4,6 +4,7 @@ use serde_json::{Value, json};
 
 mod provenance;
 mod schema;
+mod verification;
 
 pub const VIEW_VERSION: &str = "aspic-view/3";
 pub const MAX_INPUT_BYTES: usize = 4 * 1024 * 1024;
@@ -159,6 +160,10 @@ pub fn export_aspic_view(result: &Value, limits: &ExecutionLimits) -> Result<Val
         "snapshot_digest":source.and_then(|s|s.get("snapshot_digest")),
         "arguments":nodes,"defeats":defeats,"unavailable_evidence":provenance.missing
     });
+    let verification_reports = verification::reports(source);
+    if !verification_reports.is_empty() {
+        view["verification_reports"] = json!(verification_reports);
+    }
     for key in [
         "semantics",
         "query_mode",

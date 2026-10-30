@@ -2,7 +2,8 @@
 mod contracts;
 mod dispatch;
 mod finite_probability;
-mod logical;
+mod grounded;
+pub(crate) mod logical;
 mod numerical;
 pub mod optional;
 mod probabilistic;

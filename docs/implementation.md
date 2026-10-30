@@ -48,7 +48,7 @@ conversions at their respective boundaries. Missing observations and expression
 errors have explicit representations. Typed bindings check acquisition
 correspondence, canonical identities and unit conversions.
 
-The default registry contains nine reasoning methods. The engineering set
+The default registry contains ten reasoning methods. The engineering set
 adds API-load criteria, reachability, RMS and sampled negative evidence.
 The ASPIC set adds finite argumentation. Custom native callbacks carry
 host-declared implementation identities. Runtime method workers add process

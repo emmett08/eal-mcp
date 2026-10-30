@@ -110,3 +110,25 @@ fn truth(value: &Value, assignment: &BTreeMap<String, bool>) -> bool {
         _ => !truth(&operand[0], assignment) || truth(&operand[1], assignment),
     }
 }
+
+/// Inspect one formula using the same bounded grammar as finite deduction.
+pub(crate) fn formula_atoms(value: &Value) -> Result<BTreeSet<String>, String> {
+    let mut atoms = BTreeSet::new();
+    check(value, 0, &mut 512, &mut atoms)?;
+    if atoms.len() > 12 {
+        return Err("Finite deduction supports at most 12 distinct atoms".into());
+    }
+    Ok(atoms)
+}
+
+/// Evaluate a checked formula under a complete acquired atom valuation.
+pub(crate) fn grounded_truth(
+    value: &Value,
+    assignment: &BTreeMap<String, bool>,
+) -> Result<bool, String> {
+    let atoms = formula_atoms(value)?;
+    if !atoms.iter().all(|atom| assignment.contains_key(atom)) {
+        return Err("Formula has an atom without an acquired valuation".into());
+    }
+    Ok(truth(value, assignment))
+}

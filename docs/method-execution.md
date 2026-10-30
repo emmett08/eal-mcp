@@ -12,7 +12,11 @@ to a different next action.
 mathematical consequence directly from authored definitions, with no fabricated
 observation or refreshed empirical clock.
 
-EAL executes the nine built-in methods in its pure core. Optional engineering,
+[Grounded verification](grounded-verification.md) checks explicit source-to-atom
+predicates, required coverage and every used observation's applicability. Its
+structured report preserves false, unknown and inapplicable outcomes.
+
+EAL executes the ten built-in methods in its pure core. Optional engineering,
 ASPIC and custom methods can execute in an independently supervised process. The
 core checks input and output contracts in both cases. Process supervision adds
 wall-clock, memory and lifecycle controls for installed executables. A trusted
@@ -32,7 +36,7 @@ eal-host run case.eal --tools tools.toml --workspace run --claim claim \
 
 This deliberately small example shows the control, rather than a useful allowance
 for a real investigation. The default is 1,000,000,000 units per native invocation.
-It admits the structurally bounded inputs of the eight standard computational
+It admits the structurally bounded inputs of the nine standard computational
 methods. Exact finite probability calculations additionally enforce an explicit
 intermediate rational-size bound.
 

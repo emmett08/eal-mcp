@@ -1388,5 +1388,93 @@
     },
     "reference_implementation_version": "eal-rust-finite-probability-1",
     "reference_execution": "bounded_builtin"
+  },
+  "grounded/1": {
+    "identifier": "grounded/1",
+    "evidence_kind": "verification_case",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "coverage": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "json"
+          }
+        },
+        "contract": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "json"
+          }
+        },
+        "observations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "json"
+          }
+        },
+        "assessed_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "coverage",
+        "contract",
+        "observations",
+        "assessed_at"
+      ],
+      "additionalProperties": false
+    },
+    "query_schema": {
+      "type": "object",
+      "properties": {
+        "coverage": {"type": "object", "additionalProperties": {"type": "json"}},
+        "contract": {"type": "object", "additionalProperties": {"type": "json"}}
+      },
+      "required": ["coverage", "contract"],
+      "additionalProperties": false
+    },
+    "query_fields": [
+      "coverage",
+      "contract"
+    ],
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "verified": {
+          "type": "boolean"
+        },
+        "verification": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "json"
+          }
+        }
+      },
+      "required": [
+        "verified",
+        "verification"
+      ],
+      "additionalProperties": false
+    },
+    "outputs": {
+      "verified": "boolean"
+    },
+    "quantities": [
+      "proposition"
+    ],
+    "exact_unit": false,
+    "quantity_interpretation": "Bounded source-to-atom predicates and identity, unit, scope and original-time applicability; formal inference and source authenticity remain separate.",
+    "limits": {
+      "timeout_seconds": 1.0,
+      "max_input_bytes": 1048576,
+      "max_output_bytes": 1048576,
+      "max_memory_bytes": 268435456,
+      "startup_timeout_seconds": 5.0
+    },
+    "reference_implementation_version": "eal-rust-grounded-1",
+    "reference_execution": "bounded_builtin"
   }
 }

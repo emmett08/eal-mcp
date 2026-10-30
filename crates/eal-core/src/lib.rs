@@ -18,6 +18,7 @@ pub mod semantic;
 pub mod semantic_format;
 mod semantic_spans;
 pub mod validation;
+pub mod verification;
 
 /// The one supported source language and imported-module semantic contract.
 pub const LANGUAGE: &str = "EAL/4";
