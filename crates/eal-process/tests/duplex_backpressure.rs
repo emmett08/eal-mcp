@@ -213,6 +213,9 @@ fn duplex_cancellation_while_child_input_is_backpressured() {
             Err(error) => panic!("collector connection failed: {error}"),
         }
     };
+    // Darwin inherits the listener's nonblocking mode on accepted sockets.
+    // This control channel uses bounded blocking reads, unlike the tested stream.
+    control.set_nonblocking(false).unwrap();
     control
         .set_read_timeout(Some(Duration::from_secs(2)))
         .unwrap();
