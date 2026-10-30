@@ -153,7 +153,7 @@ pub fn with_aspic(registry: &MethodRegistry) -> Result<MethodRegistry, String> {
     registry.with_method(aspic_contract().clone())
 }
 
-/// Default eight methods plus the explicitly installed finite ASPIC method.
+/// Default nine methods plus the explicitly installed finite ASPIC method.
 pub fn aspic_registry() -> MethodRegistry {
     with_aspic(default_registry()).expect("frozen ASPIC native contract")
 }

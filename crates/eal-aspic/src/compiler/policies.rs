@@ -33,7 +33,7 @@ impl Translation<'_> {
         }
         if *basis_needed || premises.is_empty() {
             premises.push(json!({"atom":structural,"kind":"axiom"}));
-            mapping["structural_basis"] = json!({"atom":structural,"meaning":"Authored ungrounded relation or empty snapshot; no observation"});
+            mapping["structural_basis"] = json!({"atom":structural,"meaning":"Structural carrier for a zero-antecedent rule or empty snapshot; no observation"});
         }
         let mut theory = json!({"premises":self.premises,"rules":self.rules,"contraries":self.contraries,"goal":claims[options.goal]});
         let preferences: Vec<_> = program

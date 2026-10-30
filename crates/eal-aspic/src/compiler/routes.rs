@@ -41,6 +41,13 @@ impl Translation<'_> {
             let rule_id = symbol("r", name);
             let applicability = symbol("x", &rule_id);
             mapping["arguments"][name] = json!({"rule_id":rule_id,"applicability_atom":if strict{Value::Null}else{json!(applicability)},"conclusion_atom":claims[argument.conclusion.as_str()],"conclusion":argument.conclusion,"antecedents":antecedents,"emitted":eligible,"reasoning":argument.reasoning,"rationale":method.rationale,"rule_kind":if strict{"strict"}else{"defeasible"},"strict_annotation":annotated("strict",name)?,"rank":if strict{Value::Null}else{json!(rank(name))},"rank_annotation":annotated("rank",name)?,"origin":argument.origin,"span":location(program,name)});
+            let computation = &assessment["arguments"][name]["reasoning_result"];
+            mapping["arguments"][name]["computation"] = json!({
+                "method": computation["method"],
+                "status": computation["status"],
+                "reasons": computation["reasons"],
+                "details": computation["details"]
+            });
             if eligible {
                 let mut actual = antecedents;
                 if actual.is_empty() {

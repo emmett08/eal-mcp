@@ -95,6 +95,14 @@ example, a deductive query without requiring a collector to echo its fixed
 formulae. Evidence, premises, applicability assumptions and objections still
 control the argument's support.
 
+A complete typed `finite_probability/1` query may establish a mathematical
+consequence without support records. An empty-premise `deductive/1` query may
+similarly establish a tautology when its proposition requires `entailed == true`.
+These narrow exceptions create no observation or refreshed measurement time;
+they do not verify prose interpretation or physical applicability. Other
+arguments retain the evidence, assumption or premise requirement. See
+[exact finite probability](finite-probability.md) for mappings and bounds.
+
 An explicit method evidence binding supplies acquired empirical fields. The
 runtime checks their correspondence with the authored query. A method result
 records the evaluated input separately from observation identity. Authored

@@ -1,0 +1,60 @@
+{
+  "nodes": [
+    {
+      "name": "Fault",
+      "states": [
+        "healthy",
+        "faulty"
+      ],
+      "parents": [],
+      "probabilities": [
+        "49/50",
+        "1/50"
+      ]
+    },
+    {
+      "name": "Alarm",
+      "states": [
+        "false",
+        "true"
+      ],
+      "parents": [
+        "Fault"
+      ],
+      "probabilities": [
+        "19/20",
+        "1/20",
+        "1/20",
+        "19/20"
+      ]
+    },
+    {
+      "name": "HeartbeatLost",
+      "states": [
+        "false",
+        "true"
+      ],
+      "parents": [
+        "Fault"
+      ],
+      "probabilities": [
+        "9/10",
+        "1/10",
+        "1/5",
+        "4/5"
+      ]
+    }
+  ],
+  "evidence": {
+    "Alarm": "true",
+    "HeartbeatLost": "true"
+  },
+  "target": {
+    "variable": "Fault",
+    "state": "faulty"
+  },
+  "comparison": {
+    "operator": ">=",
+    "threshold": "3/4"
+  }
+}

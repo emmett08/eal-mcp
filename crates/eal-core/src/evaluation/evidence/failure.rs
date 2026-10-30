@@ -12,9 +12,11 @@ pub(super) fn reason(record: &Value, limits: &ExecutionLimits) -> String {
     let error_type = record["error"]["type"].as_str().unwrap_or("Error");
     // Copy only bounded explanatory text. Arbitrary error details neither enter
     // assessment output nor supply observation or provenance fields.
+    // Insert keys in lexical order so diagnostic text is identical with either
+    // serde_json's ordered-map or sorted-map configuration in a consumer build.
     let detail = json!({
-        "type":bounded_text(error_type, 64),
         "message":bounded_text(message, 512),
+        "type":bounded_text(error_type, 64),
     });
     match expressions::diagnostic_repr(&detail, limits) {
         Ok(detail) => format!("Recorded execution failure: {detail}"),

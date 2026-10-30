@@ -8,10 +8,10 @@ use serde_json::{Value, json};
 #[test]
 fn optional_methods_are_explicit_and_selectable() {
     let all = engineering_registry();
-    assert_eq!(default_registry().describe().as_object().unwrap().len(), 8);
-    assert_eq!(all.describe().as_object().unwrap().len(), 12);
+    assert_eq!(default_registry().describe().as_object().unwrap().len(), 9);
+    assert_eq!(all.describe().as_object().unwrap().len(), 13);
     let one = optional_registry(&["engineering/rms/1"]).unwrap();
-    assert_eq!(one.describe().as_object().unwrap().len(), 9);
+    assert_eq!(one.describe().as_object().unwrap().len(), 10);
     assert!(default_registry().get("engineering/rms/1").is_none());
     assert!(optional_registry(&["engineering/rms/1", "engineering/rms/1"]).is_err());
     assert!(optional_registry(&["unknown/1"]).is_err());

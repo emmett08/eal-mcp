@@ -41,7 +41,8 @@ pub fn source_schema() -> &'static Value {
             "availability_issues":{
                 "type":"array","uniqueItems":true,
                 "items":view["unavailable_evidence"]["items"]["properties"]["availability_issues"]["items"]
-            },"source_file":name,"scope_transfer":origin["scope_transfer"]
+            },"source_file":name,"scope_transfer":origin["scope_transfer"],
+            "computation":origin["computation"]
         }});
         let mut properties = serde_json::Map::new();
         properties.insert("formal_directives".into(), view["formal_directives"].clone());

@@ -10,6 +10,7 @@ mod declarations;
 mod directives;
 mod graph;
 mod predicates;
+mod pure_computation;
 mod references;
 mod resources;
 mod time;

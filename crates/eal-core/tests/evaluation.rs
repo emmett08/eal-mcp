@@ -159,6 +159,40 @@ fn failed_acquisition_retains_its_primary_cause_and_every_observation_check() {
 }
 
 #[test]
+fn retained_failure_diagnostics_have_stable_key_order() {
+    let (program, records, context, now) = baseline();
+    let instant = validation::parse_time(&now).unwrap();
+    let mut entries = Vec::new();
+    for error in [
+        r#"{"type":"ValueError","message":"Collector exited with status 2"}"#,
+        r#"{"message":"Collector exited with status 2","type":"ValueError"}"#,
+    ] {
+        let mut record = records["observed"].clone();
+        record["status"] = json!("error");
+        record["error"] = serde_json::from_str(error).unwrap();
+        let result = evaluation::assess_evidence_record(
+            &program,
+            "observed",
+            Some(&record),
+            instant,
+            &context,
+            true,
+            None,
+            false,
+        )
+        .unwrap();
+        assert!(!result.data_available);
+        assert!(!result.complete);
+        assert_eq!(
+            result.entry["reasons"][0],
+            "Recorded execution failure: {'message': 'Collector exited with status 2', 'type': 'ValueError'}"
+        );
+        entries.push(result.entry);
+    }
+    assert_eq!(entries[0], entries[1]);
+}
+
+#[test]
 fn retained_failure_text_is_bounded_escaped_and_never_changes_success() {
     let (program, records, context, now) = baseline();
     let instant = validation::parse_time(&now).unwrap();

@@ -283,6 +283,7 @@ pub(crate) fn compute_builtin(mode: &str, payload: &Value) -> Result<Value, Stri
         "counterfactual" => super::structural::counterfactual(payload),
         "analogical" => super::structural::analogical(payload),
         "temporal" => super::structural::temporal(payload),
+        "finite_probability" => super::finite_probability::assess(payload),
         _ => Err("Unknown built-in calculation".into()),
     }
 }

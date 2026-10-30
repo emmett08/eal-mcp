@@ -4,7 +4,7 @@
 `EAL/4-compiled-aspic/5` source translation and `aspic-view/3` export. These are
 explicit formal operations alongside the authored EAL evaluator. An EAL source
 uses `method "argumentation/aspic/2"` only when the host installs that registry.
-The default eight-method registry remains unchanged.
+The default nine-method registry remains unchanged.
 
 ## Explicit theories
 
@@ -92,6 +92,18 @@ observation identities and review references remain supplied provenance rather
 than authenticated observations. The [native visualiser adapter](#visualiser-integration)
 connects the explicit theory contract to the companion editor.
 
+Constructed argument origins optionally include `computation`, containing the
+native method identifier, its `supported`, `unsupported`, `not_run` or
+`incomplete` result status, reasons and method-specific details. The native
+compiler captures this result from its assessment. It remains supplied metadata
+at JSON import and export boundaries: the formal exporter recomputes the graph,
+and the browser inspects the imported method result without rerunning it.
+`structured/1` reports authored support without a formal proof. Premise truth,
+prose correspondence and applicability retain their own evidence obligations.
+Older `aspic-view/3` files omit the optional record without implying any method
+check. Unemitted routes keep their computation traces in the native source map
+and assessment; they do not become constructed argument nodes.
+
 ## Native commands and APIs
 
 ```sh
@@ -115,7 +127,7 @@ eal-core export-aspic RESULT_JSON
 
 Common `--workspace` and TOML `--limits` options apply. Source or JSON input can
 be `-` for standard input. Output goes to standard output. Method set
-`aspic` installs the default eight methods plus ASPIC.  `all` also installs the
+`aspic` installs the default nine methods plus ASPIC.  `all` also installs the
 four engineering methods. Explicit theory options belong inside its JSON
 `options` object. The [production service](applications.md) also exposes checked
 formal operations. `eal-aspic-solve` accepts the same theory request directly on

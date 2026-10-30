@@ -40,6 +40,25 @@ pub(super) fn required(mode: &str, payload: &Value) -> usize {
             let n = payload["candidates"].as_array().map_or(0, Vec::len);
             linear.saturating_add(n.saturating_mul(n).saturating_mul(16))
         }
+        "finite_probability" => {
+            let variables = payload["nodes"].as_array();
+            let n = variables.map_or(0, Vec::len);
+            let assignments = variables
+                .map_or(0, |variables| {
+                    variables.iter().fold(1usize, |total, node| {
+                        total.saturating_mul(node["states"].as_array().map_or(0, Vec::len))
+                    })
+                })
+                .min(super::finite_probability::MAX_ASSIGNMENTS);
+            // Enumerate every state assignment, visiting each node's ordered
+            // parent coordinates and performing bounded exact scalar operations.
+            linear.saturating_add(
+                assignments
+                    .saturating_mul(n.saturating_add(1))
+                    .saturating_mul(n.saturating_add(1))
+                    .saturating_mul(64),
+            )
+        }
         "counterfactual" => {
             let variables = payload["variables"].as_object();
             let n = variables.map_or(0, serde_json::Map::len);

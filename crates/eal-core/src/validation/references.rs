@@ -115,10 +115,11 @@ impl Checker<'_> {
             if value.evidence.is_empty()
                 && value.assumptions.is_empty()
                 && value.premises.is_empty()
+                && !super::pure_computation::permitted(p, value, self.registry)
             {
                 self.error(
                     "empty_argument",
-                    "An argument requires evidence, assumptions or premise claims",
+                    "An argument requires evidence, assumptions or premise claims, except a complete typed finite-model query or empty-premise propositional theorem",
                     Some(&value.name),
                 );
             }
