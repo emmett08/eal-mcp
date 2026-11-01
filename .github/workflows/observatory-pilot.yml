@@ -6,6 +6,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/observatory-pilot.yml'
+      - 'docs/observatory-pilot.md'
       - 'experiments/eal-context-001/**'
       - 'rust-toolchain.toml'
       - '.cargo/**'

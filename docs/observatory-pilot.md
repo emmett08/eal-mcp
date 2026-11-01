@@ -1,7 +1,8 @@
 # Observatory execution and effort pilot
 
 [Sample task #36](https://github.com/emmett08/eal-mcp/issues/36) connects the context
-experiment check to its implementation PR and a private effort study. The pilot
+experiment check to [implementation PR #37](https://github.com/emmett08/eal-mcp/pull/37)
+and a private effort study. The pilot
 uses these same identifiers in the action receipts and effort configuration:
 
 | Field | Value |
@@ -36,9 +37,9 @@ performed the work. This wrapper observes the selected command only.
 ## Link the private effort configuration
 
 Use this object in the private effort configuration's `links` array. The private
-collector must set `protocol_id` to the value above. Add the actual linked PR
-number (or run `effort.py sync-links` once the PR exists); do not invent a
-participant, activity source, observation window or response.
+collector must set `protocol_id` to the value above. The initial linked PR is recorded below; run `effort.py sync-links` to refresh
+GitHub-observed associations. Do not invent a participant, activity source,
+observation window or response.
 
 ```json
 {
@@ -46,7 +47,7 @@ participant, activity source, observation window or response.
   "repository": "emmett08/eal-mcp",
   "issue_number": 36,
   "branches": ["feat/observatory-effort-pilot"],
-  "pull_requests": [],
+  "pull_requests": [37],
   "projects": []
 }
 ```
