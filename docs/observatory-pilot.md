@@ -12,6 +12,12 @@ uses these same identifiers in the action receipts and effort configuration:
 | Task issue | `emmett08/eal-mcp#36` |
 | Initial implementation branch | `feat/observatory-effort-pilot` |
 
+The sample task mapping is bounded to PR #37 and explicit manual dispatches of
+this dedicated pilot. Other PRs can run the instrumented check, but their receipt
+task identity remains unknown. Broader adoption must map each execution to its
+registered requirement or issue; it must not attribute unrelated work to this
+sample task. The protocol ID identifies the collection pilot, not a task claim.
+
 The dedicated [pilot workflow](../.github/workflows/observatory-pilot.yml) runs on
 relevant pull requests and supports manual dispatch after adoption. This is a
 bounded exception to the manual workflow policy: the complete
