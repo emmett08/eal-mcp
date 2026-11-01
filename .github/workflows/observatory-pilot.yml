@@ -1,0 +1,61 @@
+name: Observatory context experiment pilot
+
+# Explicit, bounded pilot exception to the repository's manual workflow policy.
+# The full Rust language/runtime workflow remains manually triggered.
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/observatory-pilot.yml'
+      - 'docs/observatory-pilot.md'
+      - 'experiments/eal-context-001/**'
+      - 'rust-toolchain.toml'
+      - '.cargo/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  context-experiment:
+    name: Observatory context experiment (ubuntu-latest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CARGO_PROFILE_DEV_DEBUG: line-tables-only
+      CARGO_PROFILE_TEST_DEBUG: line-tables-only
+      CARGO_INCREMENTAL: '0'
+    steps:
+      - name: Check out the proposed change
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Configure Observatory recording
+        id: evidence
+        uses: emmett08/engineering-work-observatory@38f022d2d2f6e015fa42a23f1bc335783e263708
+        with:
+          protocol-id: observatory-linked-pilot-v1
+          # Only this PR and explicit pilot dispatches claim the sample task.
+          task-id: ${{ (github.event_name == 'workflow_dispatch' || github.event.pull_request.number == 37) && 'eal-context-effort-pilot' || '' }}
+          controller: unknown
+          job-name: Observatory context experiment (ubuntu-latest)
+      - name: Install Rust 1.90.0
+        run: rustup toolchain install 1.90.0 --profile minimal --no-self-update
+      - name: Test context experiment with an execution receipt
+        shell: bash
+        run: |
+          python3 "$OBSERVATORY_RECORDER" run \
+            --tool cargo --tool-version "$(cargo +1.90.0 --version)" \
+            --purpose development \
+            --logical-call-id eal-context-experiment-tests \
+            --check-name eal-context-experiment-tests \
+            -- cargo +1.90.0 test --manifest-path experiments/eal-context-001/Cargo.toml --locked
+      - name: Publish Observatory receipt bundle
+        if: always() && steps.evidence.outcome == 'success'
+        uses: emmett08/engineering-work-observatory@38f022d2d2f6e015fa42a23f1bc335783e263708
+        with:
+          mode: publish
+          directory: ${{ steps.evidence.outputs.directory }}
