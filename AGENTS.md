@@ -3,7 +3,9 @@
 Use Rust 1.90.0, edition 2024, `cargo fmt`, and `cargo clippy`. Keep `Cargo.lock`.
 Handwritten crates forbid unsafe code. The parser adapter denies unsafe code,
 with a narrow exception for the unchanged generated module's context casts.
-Keep workflow execution manually triggered.
+Keep full workflow execution manually triggered. The bounded
+`.github/workflows/observatory-pilot.yml` context-experiment check is an explicitly
+authorised pull-request-triggered exception.
 
 EAL/4 is the supported language. Preserve `grammar/EAL.g4` unless the requested
 change explicitly revises the language. Generate recognisers with
