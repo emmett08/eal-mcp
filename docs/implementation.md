@@ -24,6 +24,7 @@ change belongs.
 | `eal-adapters` | Optional transport, retained artifact and specialised source/trace acquisition | Operator scope and shared collector contracts |
 | `eal-runtime` | Acquisition, private storage, reuse, catalogues, packets and supervised methods | Trusted operator configuration and POSIX process/filesystem facilities |
 | `eal-mcp` | Operator and registered catalogues, stdio, Streamable HTTP and the text host | Closed schemas, admission limits and configured authentication |
+| `eal-model-host` | Optional local Qwen adapter inference and checked MCP tool proposals | Fixed model bundle, operator task state and retained native identifiers |
 | `eal-coordination` | Task pinning, role gateways, first responses, effect reservations, delivery and mailbox serving | Trusted workers and one authoritative local ledger |
 | `eal-cli` | Production commands, development drivers and the visualiser adapter | Workspace file boundaries and explicitly selected outputs |
 | `eal-collectors` | Infrastructure, OpenAPI, telemetry, CI and retained-report observations | Pinned operator scope, finite queries, deadlines and byte allowances |
@@ -116,6 +117,13 @@ identities with finite budgets. Its ledger reserves effects before execution,
 retains exact first-response bytes and reconciles delivery without repeating an
 uncertain external effect. Worker receipts preserve their asserted provenance.
 Unknown assessment outcomes retain explicit unresolved fields.
+
+The optional [local model host](local-model-host.md) loads a fixed Qwen model
+and original tool-use adapter in its own process. Its inference dependencies
+belong to that crate. Native parsing and assessment retain their existing owners.
+The host proposes JSON tool calls and preserves operator inputs and returned
+identifiers. Model loading establishes execution capability; model-quality
+claims require their own measured task outcomes.
 
 ## Verification and external validation
 

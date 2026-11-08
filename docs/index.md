@@ -63,7 +63,9 @@ engineer deciding what to do next.
 [Runtime ownership](runtime.md) explains the clocks, identities, budgets and
 process supervision that preserve this distinction. [Applications and MCP
 hosting](applications.md) covers staged execution, transport configuration and
-optional registered claims for repeated assessment. [Packets](packets.md)
+optional registered claims for repeated assessment. The
+[local model host](local-model-host.md) adds optional, verified Qwen adapter
+inference when the model itself should run locally. [Packets](packets.md)
 explains how to share bounded results while retaining links to the full record.
 
 Where the question requires finite argumentation semantics, use

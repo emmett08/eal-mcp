@@ -69,3 +69,20 @@ Copyright (c) 2026 Emmett Miller.
 The native nom codec and mailbox admission translate this material. The MIT
 notice remains retained with its source provenance; the native implementation
 does not embed the Python Lab runtime.
+
+## Local model host
+
+The optional `eal-model-host` adapts the EAL/4 Rust tool-use adapter released by
+Emmett Miller under GPL-3.0-only. This integration retains that licence and the
+original adapter identity. Operators supply the model and adapter assets as
+local files. Rust loads the language-independent `.safetensors` weights directly.
+Model assets retain their applicable upstream licence terms.
+
+Local inference uses [Candle](https://github.com/huggingface/candle), version
+`0.9.1`, under MIT or Apache-2.0, [Hugging Face Tokenizers](https://github.com/huggingface/tokenizers),
+version `0.21.4`, under Apache-2.0, and
+[MiniJinja](https://github.com/mitsuhiko/minijinja), version `2.24.0`, under
+Apache-2.0. Tokenizers uses the native Oniguruma regular-expression implementation.
+Optional Metal and Apple Accelerate features use platform libraries and shaders.
+Cargo metadata and the lockfile identify the resolved dependencies and their
+licences. Binary distributions must retain the applicable dependency notices.

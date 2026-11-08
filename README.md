@@ -11,6 +11,10 @@ The [first-run guide](docs/getting-started.md) executes a complete synthetic
 example. The [EngArg guide](https://github.com/emmett08/engarg/blob/main/docs/index.md)
 covers model-assisted authoring and generating missing tool implementations.
 
+For local adapter inference, [the optional model host](docs/local-model-host.md)
+loads a verified Qwen model and the original tool-use LoRA weights, then proposes
+calls to the native MCP server.
+
 ```sh
 eal-host run case.eal --tools tools.toml --workspace run
 ```
